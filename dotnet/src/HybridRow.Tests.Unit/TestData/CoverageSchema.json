@@ -1,0 +1,211 @@
+﻿{
+	"schemas": [
+		{
+			"name": "myUDT", // Question: what should the namespace/structure of schema identifiers.
+			"id": 1,
+			"type": "schema", // Optional: implied at the top-level (only "schema" types can be defined at the root of schemas)
+			"options": {
+				"disallowUnschematized": false // Optional: defaults to false
+			},
+			"properties": [
+				{
+					"path": "a",
+					"type": {
+						"type": "int8",
+						"storage": "fixed"
+					}
+				},
+				{
+					"path": "b",
+					"type": {
+						"type": "utf8",
+						"storage": "variable"
+					}
+				}
+			]
+		},
+		{
+			"name": "someTable",
+			"id": -1,
+			"options": {
+				"disallowUnschematized": true
+			},
+			"properties": [
+				{
+					"path": "myBool",
+					"comment": "A sample fixed boolean column",
+					"type": {
+						"type": "bool",
+						"storage": "fixed"
+					}
+				},
+				{
+					"path": "myInt8",
+					"comment": "A sample fixed 8-byte integer column",
+					"type": {
+						"type": "int8",
+						"storage": "fixed"
+					}
+				},
+				{
+					"path": "nested.x",
+					"comment": "A sample nested integer column",
+					"type": {
+						"type": "int32",
+						"storage": "fixed"
+					}
+				},
+				{
+					"path": "nested.y",
+					"comment": "A sample nested float column",
+					"type": {
+						"type": "float32",
+						"storage": "fixed"
+					}
+				},
+				{
+					"path": "nested.deeper.z",
+					"comment": "A sample deeper nested double column",
+					"type": {
+						"type": "float64",
+						"storage": "fixed"
+					}
+				},
+				{
+					"path": "State",
+					"comment": "A sample fixed 2-byte UTF-8 encoded text column",
+					"type": {
+						"type": "utf8",
+						"storage": "fixed",
+						"length": 2
+					}
+				},
+				{
+					"path": "myString",
+					"comment": "A sample variable length UTF-8 encoded text column (up to 127 bytes)",
+					"type": {
+						"type": "utf8",
+						"storage": "variable"
+					}
+				},
+				{
+					"path": "lob",
+					"comment": "A sample extended UTF-8 encoded text column (up to 2M bytes)",
+					"type": {
+						"type": "utf8",
+						"storage": "sparse"
+					}
+				},
+				{
+					"path": "canbelob",
+					"comment":
+						"A sample extended UTF-8 encoded text column (up to 2M bytes) that stores variable if 'small' (<127 bytes), but sparse if 'large'",
+					"type": {
+						"type": "utf8",
+						"storage": "variable"
+					}
+				},
+				{
+					"path": "primitiveArray",
+					"comment": "A sample array of primitives (4-byte ints)",
+					"type": { "type": "array", "items": { "type": "int32" } }
+				},
+				{
+					"path": "shreddedArray[0]",
+					"comment": "A sample fixed-length array of primitives",
+					"type": { "type": "int32" }
+				},
+				{
+					"path": "shreddedArray[1]",
+					"comment": "A sample fixed-length array of primitives",
+					"type": { "type": "int32" }
+				},
+				{
+					"path": "nestedArray",
+					"comment": "A sample array of nested arrays",
+					"type": {
+						"type": "array",
+						"items": {
+							"type": "array",
+							"items": { "type": "int32" }
+						}
+					}
+				},
+				{
+					"path": "nestedNestedArray",
+					"comment": "A sample array of nested nested arrays",
+					"type": {
+						"type": "array",
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "array",
+								"items": { "type": "int32" }
+							}
+						}
+					}
+				},
+				{
+					"path": "arrayOfObject",
+					"comment": "A sample array of semi-structured objects",
+					"type": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": [
+								{
+									"path": "a",
+									"type": { "type": "int8" }
+								},
+								{
+									"path": "b",
+									"type": { "type": "utf8" }
+								}
+							]
+						}
+					}
+				},
+				{
+					"path": "arrayOfAny",
+					"comment": "A sample heterogenous array",
+					"type": {
+						"type": "array",
+						"items": { "type": "any" }
+					}
+				}, 
+				{
+					"path": "arrayOfUDT",
+					"comment": "A sample array of schematized rows",
+					"type": {
+						"type": "array",
+						"items": {
+							"type": "schema",
+							"name": "myUDT" // see definition above - should this be called $ref or ref or something?
+						}
+					}
+				},
+				{
+					"path": "nestedObject",
+					"comment": "A sample nested objects",
+					"type": {
+						"type": "object",
+						"properties": [
+							{
+								"path": "a",
+								"type": {
+									"type": "int8"
+								}
+							},
+							{
+								"path": "b",
+								"type": {
+									"type": "utf8"
+								}
+							}
+						]
+					}
+				}
+			]
+		}
+	]
+}

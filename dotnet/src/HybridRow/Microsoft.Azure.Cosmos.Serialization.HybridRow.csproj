@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <ProjectGuid>{490D42EE-1FEF-47CC-97E4-782A353B4D58}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.Azure.Cosmos.Serialization.HybridRow</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Cosmos.Serialization.HybridRow</AssemblyName>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Build.props))\build.props" />
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" />
+    <PackageReference Include="System.ValueTuple" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(DocDBRoot)\Cosmos\Core\Core\Microsoft.Azure.Cosmos.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Docs\RecordIO.md" />
+    <None Include="Docs\SchemaHash.md" />
+    <None Include="Docs\SchemaId.md" />
+    <None Include="Docs\SystemSchema.md" />
+    <EmbeddedResource Include="SystemSchemas\SystemSchema.json" />
+  </ItemGroup>
+</Project>

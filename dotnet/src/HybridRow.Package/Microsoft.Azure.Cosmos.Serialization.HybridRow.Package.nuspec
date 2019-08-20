@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Microsoft.Azure.Cosmos.Serialization.HybridRow</id>
+    <version>1.0.0-preview</version>
+    <title>Microsoft.Azure.Cosmos.Serialization.HybridRow</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <licenseUrl>https://aka.ms/netcoregaeula</licenseUrl>
+    <projectUrl>https://github.com/Azure/azure-cosmos-dotnet-v3</projectUrl>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=288890</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Microsoft.Azure.Cosmos.Serialization.HybridRow</summary>
+    <description>This package supports the Microsoft Azure Cosmos Client and is not intended to be used directly from your code.</description>
+    <copyright>Copyright © Microsoft Corporation</copyright>
+    <tags>microsoft azure cosmos dotnetcore netcore netstandard</tags>
+    <dependencies>
+      <dependency id="System.Memory" version="4.5.1" />
+      <dependency id="Newtonsoft.Json" version="10.0.2" />
+      <dependency id="System.Runtime.CompilerServices.Unsafe" version="4.5.1" />
+      <dependency id="System.Threading.Tasks.Extensions" version="4.5.1" />
+      <dependency id="System.ValueTuple" version="4.5.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Product\Microsoft.Azure.Cosmos.Serialization.HybridRow\Microsoft.Azure.Cosmos.Serialization.HybridRow.dll" target="lib/netstandard2.0" />
+    <file src="Product\Microsoft.Azure.Cosmos.Core\Microsoft.Azure.Cosmos.Core.dll" target="lib/netstandard2.0" />
+  </files>
+</package>

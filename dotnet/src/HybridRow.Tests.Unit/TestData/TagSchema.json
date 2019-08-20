@@ -1,0 +1,28 @@
+// Tag demo schema that utilizes typed arrays.
+{
+	"schemas": [
+		{ "name": "Tagged", "id": 1, "type": "schema",
+			"properties": [
+				{ "path": "title", "type": { "type": "utf8", "storage": "variable" } },
+				{ "path": "tags", "type": { "type": "array", 
+					"items": { "type": "utf8", "nullable": false } } },
+				{ "path": "options", "type": { "type": "array", 
+					"items": { "type": "int32", "nullable": true } } },
+				{ "path": "ratings", "type": { "type": "array", 
+					"items": { "type": "array", "nullable": false, "items": { "type": "float64", "nullable": false } } } },
+				{ "path": "similars", "type": { "type": "array", 
+					"items": { "type": "schema", "name": "SimilarMatch", "nullable": false } } },
+				{ "path": "priority", "type": { "type": "array", 
+					"items": { "type": "tuple", "nullable": false, 
+										 "items": [ 
+											 { "type": "utf8", "nullable": false }, 
+											 { "type": "int64", "nullable": false }
+										 ]}}}
+			]},
+		{ "name": "SimilarMatch", "id": 2, "type": "schema",
+			"properties": [
+				{ "path": "thumbprint", "type": { "type": "utf8", "storage": "fixed", "length": 18 } },
+				{ "path": "score", "type": { "type": "float64", "storage": "fixed" } }
+			]}
+	]
+}

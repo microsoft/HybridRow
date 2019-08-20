@@ -1,0 +1,143 @@
+// Set of types used in the IO tests.
+{
+	"schemas": [
+		{ "name": "Mixed", "id": 1, "type": "schema",
+			"properties": [
+				{ "path": "null", "type": { "type": "null", "storage": "fixed" } },
+				{ "path": "bool", "type": { "type": "bool", "storage": "fixed" } },
+				{ "path": "int8", "type": { "type": "int8", "storage": "fixed" } },
+				{ "path": "int16", "type": { "type": "int16", "storage": "fixed" } },
+				{ "path": "int32", "type": { "type": "int32", "storage": "fixed" } },
+				{ "path": "int64", "type": { "type": "int64", "storage": "fixed" } },
+				{ "path": "uint8", "type": { "type": "uint8", "storage": "fixed" } },
+				{ "path": "uint16", "type": { "type": "uint16", "storage": "fixed" } },
+				{ "path": "uint32", "type": { "type": "uint32", "storage": "fixed" } },
+				{ "path": "uint64", "type": { "type": "uint64", "storage": "fixed" } },
+				{ "path": "float32", "type": { "type": "float32", "storage": "fixed" } },
+				{ "path": "float64", "type": { "type": "float64", "storage": "fixed" } },
+				{ "path": "float128", "type": { "type": "float128", "storage": "fixed" } },
+				{ "path": "decimal", "type": { "type": "decimal", "storage": "fixed" } },
+				{ "path": "datetime", "type": { "type": "datetime", "storage": "fixed" } },
+				{ "path": "unixdatetime", "type": { "type": "unixdatetime", "storage": "fixed" } },
+				{ "path": "guid", "type": { "type": "guid", "storage": "fixed" } },
+				{ "path": "mongodbobjectid", "type": { "type": "mongodbobjectid", "storage": "fixed" } },
+				{ "path": "utf8", "type": { "type": "utf8", "storage": "fixed", "length": 3 } },
+				{ "path": "utf8_span", "type": { "type": "utf8", "storage": "fixed", "length": 3 } },
+				{ "path": "binary", "type": { "type": "binary", "storage": "fixed", "length": 3 } },
+			  { "path": "binary_span", "type": { "type": "binary", "storage": "fixed", "length": 3 } },
+			  { "path": "binary_sequence", "type": { "type": "binary", "storage": "fixed", "length": 3 } },
+				{ "path": "var_varint", "type": { "type": "varint", "storage": "variable" } },
+				{ "path": "var_varuint", "type": { "type": "varuint", "storage": "variable" } },
+				{ "path": "var_utf8", "type": { "type": "utf8", "storage": "variable"} },
+				{ "path": "var_utf8_span", "type": { "type": "utf8", "storage": "variable"} },
+				{ "path": "var_binary", "type": { "type": "binary", "storage": "variable" } },
+			  { "path": "var_binary_span", "type": { "type": "binary", "storage": "variable" } },
+			  { "path": "var_binary_sequence", "type": { "type": "binary", "storage": "variable" } },
+				{ "path": "sparse_null", "type": { "type": "null" } },
+				{ "path": "sparse_bool", "type": { "type": "bool" } },
+				{ "path": "sparse_int8", "type": { "type": "int8" } },
+				{ "path": "sparse_int16", "type": { "type": "int16" } },
+				{ "path": "sparse_int32", "type": { "type": "int32" } },
+				{ "path": "sparse_int64", "type": { "type": "int64" } },
+				{ "path": "sparse_uint8", "type": { "type": "uint8" } },
+				{ "path": "sparse_uint16", "type": { "type": "uint16" } },
+				{ "path": "sparse_uint32", "type": { "type": "uint32" } },
+				{ "path": "sparse_uint64", "type": { "type": "uint64" } },
+				{ "path": "sparse_float32", "type": { "type": "float32" } },
+				{ "path": "sparse_float64", "type": { "type": "float64" } },
+				{ "path": "sparse_float128", "type": { "type": "float128" } },
+				{ "path": "sparse_decimal", "type": { "type": "decimal" } },
+				{ "path": "sparse_datetime", "type": { "type": "datetime" } },
+				{ "path": "sparse_unixdatetime", "type": { "type": "unixdatetime" } },
+				{ "path": "sparse_guid", "type": { "type": "guid" } },
+				{ "path": "sparse_mongodbobjectid", "type": { "type": "mongodbobjectid" } },
+				{ "path": "sparse_utf8", "type": { "type": "utf8" } },
+				{ "path": "sparse_utf8_span", "type": { "type": "utf8" } },
+				{ "path": "sparse_binary", "type": { "type": "binary" } },
+			  { "path": "sparse_binary_span", "type": { "type": "binary" } },
+			  { "path": "sparse_binary_sequence", "type": { "type": "binary" } },
+				{ "path": "array_t<int8>", "type": {
+					 "type": "array", 
+					 "items": { "type": "int8", "nullable": false }
+				} },
+				{ "path": "array_t<array_t<float32>>", "type": {
+					 "type": "array", 
+					 "items": { "type": "array", "nullable": false, "items": { "type": "float32", "nullable": false } }
+				} },
+				{ "path": "array_t<utf8>", "type": { "type": "array", "items": { "type": "utf8", "nullable": false } } },
+				{ "path": "tuple<varint,int64>", "type": {
+					 "type": "tuple", 
+					 "items": [ { "type": "varint", "nullable": false }, { "type": "int64", "nullable": false }]
+				} },
+				{ "path": "tuple<null,tuple<int8,int8>>", "type": { 
+					"type": "tuple", "items": [ 
+						{ "type": "null", "nullable": false }, 
+						{ "type": "tuple", "nullable": false, "items": [ { "type": "int8", "nullable": false }, { "type": "int8", "nullable": false } ] }
+				]}},
+				{ "path": "tuple<bool,udt>", "type": { 
+					"type": "tuple", "items": [ 
+						{ "type": "bool", "nullable": false }, 
+						{ "type": "schema", "name": "Point", "nullable": false}
+			  ]}},
+			  { "path": "nullable<int32,int64>", "type": {
+			    "type": "tuple", 
+			    "items": [ { "type": "int32", "nullable": true }, { "type": "int64", "nullable": true }]
+			  } },
+			  { "path": "tagged<utf8>", "type": { 
+			    "type": "tagged", "items": [ 
+			      { "type": "utf8", "nullable": false }
+			    ]}},
+			  { "path": "tagged<bool,utf8>", "type": { 
+			    "type": "tagged", "items": [ 
+			      { "type": "bool", "nullable": false }, 
+			      { "type": "utf8", "nullable": false }
+			    ]}},
+				{ "path": "set_t<utf8>", "type": {
+					 "type": "set", 
+					 "items": { "type": "utf8", "nullable": false }
+				} },
+				{ "path": "set_t<array_t<int8>>", "type": {
+					 "type": "set", 
+					 "items": { "type": "array", "nullable": false, "items": { "type": "int8", "nullable": false } }
+				} },
+				{ "path": "set_t<set_t<int32>>", "type": {
+					 "type": "set", 
+					 "items": { "type": "set", "nullable": false, "items": { "type": "int32", "nullable": false } }
+				} },
+				{ "path": "set_t<udt>", "type": {
+					 "type": "set", 
+					 "items": { "type": "schema", "name": "Point", "nullable": false}
+				} },
+				{ "path": "map_t<utf8,utf8>", "type": {
+					 "type": "map", 
+					 "keys": { "type": "utf8", "nullable": false },
+					 "values": { "type": "utf8", "nullable": false }
+				} },
+				{ "path": "map_t<int8,array_t<int8>>", "type": {
+					 "type": "map", 
+					 "keys": { "type": "int8", "nullable": false }, 
+					 "values": { "type": "array", "nullable": false, "items": { "type": "int8", "nullable": false } }
+				} },
+				{ "path": "map_t<int16,map_t<int32,int32>>", "type": {
+					 "type": "map", 
+					 "keys": { "type": "int16", "nullable": false }, 
+					 "values": {
+						 "type": "map", 
+						 "nullable": false, 
+						 "keys": { "type": "int32", "nullable": false }, 
+						 "values": { "type": "int32", "nullable": false }
+					 }
+				} },
+				{ "path": "map_t<float64,udt>", "type": {
+					 "type": "map", 
+					 "keys": { "type": "float64", "nullable": false }, 
+					 "values": { "type": "schema", "name": "Point", "nullable": false}
+				} }
+			]},
+		{ "name": "Point", "id": 4, "type": "schema",
+			"properties": [
+				{ "path": "x", "type": { "type": "int32", "storage": "fixed" } },
+				{ "path": "y", "type": { "type": "int32", "storage": "fixed" } }
+			]}
+	]
+}

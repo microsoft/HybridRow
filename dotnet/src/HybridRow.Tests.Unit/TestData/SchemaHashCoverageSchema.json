@@ -1,0 +1,171 @@
+﻿{
+  "name": "Microsoft.Azure.Cosmos.Serialization.HybridRow.Tests.Unit.SchemaHashTest",
+  "schemas": [
+    {
+      "version": "v1",
+      "comment": "Some UDT definition",
+      "name": "UDT",
+      "id": 1,
+      "type": "schema",
+      "properties": [
+        {
+          "path": "item1",
+          "type": {
+            "length": 0,
+            "storage": "fixed",
+            "type": "int32",
+            "nullable": false
+          }
+        },
+        {
+          "path": "item2",
+          "type": {
+            "length": 10,
+            "storage": "variable",
+            "type": "utf8"
+          }
+        }
+      ],
+      "partitionkeys": [],
+      "primarykeys": []
+    },
+    {
+      "version": "v1",
+      "comment": "Some table definition",
+      "name": "Table",
+      "id": 2,
+      "options": {
+        "disallowUnschematized": true,
+        "enablePropertyLevelTimestamp": true
+      },
+      "type": "schema",
+      "properties": [
+        {
+          "path": "fixed",
+          "type": {
+            "length": 0,
+            "storage": "fixed",
+            "apitype": "myfixed",
+            "type": "int32"
+          }
+        },
+        {
+          "path": "array",
+          "type": {
+            "items": {
+              "length": 0,
+              "storage": "sparse",
+              "type": "int8"
+            },
+            "immutable": true,
+            "type": "array"
+          }
+        },
+        {
+          "path": "obj",
+          "type": {
+            "properties": [
+              {
+                "path": "nested",
+                "type": {
+                  "length": 0,
+                  "storage": "sparse",
+                  "type": "int32"
+                }
+              }
+            ],
+            "immutable": false,
+            "type": "object"
+          }
+        },
+        {
+          "path": "map",
+          "type": {
+            "keys": {
+              "length": 0,
+              "storage": "sparse",
+              "type": "int8"
+            },
+            "values": {
+              "length": 0,
+              "storage": "sparse",
+              "type": "int8"
+            },
+            "immutable": false,
+            "type": "map"
+          }
+        },
+        {
+          "path": "set",
+          "type": {
+            "items": {
+              "length": 0,
+              "storage": "sparse",
+              "type": "int8"
+            },
+            "immutable": false,
+            "type": "set"
+          }
+        },
+        {
+          "path": "tagged",
+          "type": {
+            "items": [
+              {
+                "length": 0,
+                "storage": "sparse",
+                "type": "int32"
+              }
+            ],
+            "immutable": false,
+            "type": "tagged"
+          }
+        },
+        {
+          "path": "tuple",
+          "type": {
+            "items": [
+              {
+                "length": 0,
+                "storage": "sparse",
+                "type": "int32"
+              },
+              {
+                "length": 0,
+                "storage": "sparse",
+                "type": "float32"
+              }
+            ],
+            "immutable": false,
+            "type": "tuple"
+          }
+        },
+        {
+          "path": "udt",
+          "type": {
+            "name": "UDT",
+            "id": 1,
+            "immutable": false,
+            "type": "schema"
+          }
+        }
+      ],
+      "partitionkeys": [
+        {
+          "path": "fixed"
+        }
+      ],
+      "primarykeys": [
+        {
+          "path": "fixed",
+          "direction": "asc"
+        }
+      ],
+      "statickeys": [
+        {
+          "path": "fixed"
+        }
+      ]
+    }
+  ]
+}

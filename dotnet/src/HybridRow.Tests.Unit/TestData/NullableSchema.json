@@ -1,0 +1,26 @@
+// Demo schema that utilizes nullable typed scopes.
+{
+  "schemas": [
+    {
+      "name": "Nullables",
+      "id": 1,
+      "type": "schema",
+      "properties": [
+        { "path": "nullbool", "type": { "type": "array", "items": { "type": "bool" } } },
+        { "path": "nullset", "type": { "type": "set", "items": { "type": "utf8" } } },
+        { "path": "nullarray", "type": { "type": "array", "items": { "type": "float32" } } },
+        {
+          "path": "nulltuple",
+          "type": {
+            "type": "array",
+            "items": { "type": "tuple", "nullable": false, "items": [{ "type": "int32" }, { "type": "int64" }] }
+          }
+        },
+        {
+          "path": "nullmap",
+          "type": { "type": "map", "keys": { "type": "guid" }, "values": { "type": "uint8" } }
+        }
+      ]
+    }
+  ]
+}

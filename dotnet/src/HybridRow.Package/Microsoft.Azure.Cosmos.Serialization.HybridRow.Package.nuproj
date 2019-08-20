@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{7047DD2A-14FA-445E-93B2-67EB98282C4D}</ProjectGuid>
+    <ShippingScope>External</ShippingScope>
+    <DisableCosmosDBRules>true</DisableCosmosDBRules>
+  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Build.props))\Build.props" />
+  <PropertyGroup>
+    <NugetPackBasePath>$(OutputRootDir)</NugetPackBasePath>
+    <NugetPackProperties>$(NugetPackProperties);ProductSemanticVersion=$(ProductSemanticVersion);VersionPrereleaseExtension=$(VersionPrereleaseExtension)</NugetPackProperties>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(DocDBRoot)\Cosmos\Core\Core\Microsoft.Azure.Cosmos.Core.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <Project>{B7621117-AEF3-4E10-928D-533AE893F379}</Project>
+      <Name>Microsoft.Azure.Cosmos.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HybridRow\Microsoft.Azure.Cosmos.Serialization.HybridRow.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <Project>{490D42EE-1FEF-47CC-97E4-782A353B4D58}</Project>
+      <Name>Microsoft.Azure.Cosmos.Serialization.HybridRow</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(BuildExtensionsPath)\NoTarget.targets" />
+</Project>
