@@ -22,7 +22,7 @@ public final class LayoutBit implements IEquatable<LayoutBit> {
     private int index;
 
     /**
-     * Initializes a new instance of the <see cref="LayoutBit" /> struct.
+     * Initializes a new instance of the {@link LayoutBit} struct.
      *
      * @param index The 0-based offset into the layout bitmask.
      */
@@ -47,7 +47,7 @@ public final class LayoutBit implements IEquatable<LayoutBit> {
 
     /**
      * Returns the 0-based bit from the beginning of the byte that contains this bit.
-     * Also see <see cref="GetOffset" /> to identify relevant byte.
+     * Also see {@link GetOffset} to identify relevant byte.
      *
      * @return The bit of the byte within the bitmask.
      */
@@ -61,7 +61,7 @@ public final class LayoutBit implements IEquatable<LayoutBit> {
      * Returns the 0-based byte offset from the beginning of the row or scope that contains the
      * bit from the bitmask.
      * <p>
-     * Also see <see cref="GetBit" /> to identify.
+     * Also see {@link GetBit} to identify.
      *
      * @param offset The byte offset from the beginning of the row where the scope begins.
      * @return The byte offset containing this bit.
@@ -130,7 +130,7 @@ public final class LayoutBit implements IEquatable<LayoutBit> {
         private int next;
 
         /**
-         * Initializes a new instance of the <see cref="Allocator" /> class.
+         * Initializes a new instance of the {@link Allocator} class.
          */
         public Allocator() {
             this.next = 0;

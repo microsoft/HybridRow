@@ -5,7 +5,8 @@
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
 import JetBrains.Profiler.Api.*;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 
 import java.util.ArrayList;
 
@@ -27,7 +28,7 @@ public class MicroBenchmarkSuiteBase extends BenchmarkSuiteBase {
     // operation, string schema, string api, int innerLoopIterations, ref BenchmarkContext context,
     // BenchmarkBody<TValue> loopBody, BenchmarkMeasure<TValue> measure, List<TValue> expected)
     protected static <TValue> void Benchmark(String model, String operation, String schema, String api,
-                                             int innerLoopIterations, RefObject<BenchmarkContext> context,
+                                             int innerLoopIterations, Reference<BenchmarkContext> context,
                                              BenchmarkBody<TValue> loopBody, BenchmarkMeasure<TValue> measure,
                                              ArrayList<TValue> expected) {
         Stopwatch sw = new Stopwatch();
@@ -83,7 +84,7 @@ public class MicroBenchmarkSuiteBase extends BenchmarkSuiteBase {
     //ORIGINAL LINE: [MethodImpl(MethodImplOptions.NoInlining)] private static void BenchmarkInnerLoop<TValue>(int
     // innerLoopIterations, TValue tableValue, ref BenchmarkContext context, BenchmarkBody<TValue> loopBody)
     private static <TValue> void BenchmarkInnerLoop(int innerLoopIterations, TValue tableValue,
-                                                    RefObject<BenchmarkContext> context,
+                                                    Reference<BenchmarkContext> context,
                                                     BenchmarkBody<TValue> loopBody) {
         for (int innerLoop = 0; innerLoop < innerLoopIterations; innerLoop++) {
             loopBody.invoke(context, tableValue);
@@ -92,12 +93,12 @@ public class MicroBenchmarkSuiteBase extends BenchmarkSuiteBase {
 
     @FunctionalInterface
     public interface BenchmarkBody<TValue> {
-        void invoke(RefObject<BenchmarkContext> context, TValue value);
+        void invoke(Reference<BenchmarkContext> context, TValue value);
     }
 
     @FunctionalInterface
     public interface BenchmarkMeasure<TValue> {
-        long invoke(RefObject<BenchmarkContext> context, TValue value);
+        long invoke(Reference<BenchmarkContext> context, TValue value);
     }
 
     //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may

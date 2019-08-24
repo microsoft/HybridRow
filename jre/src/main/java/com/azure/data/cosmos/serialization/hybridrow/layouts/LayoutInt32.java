@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -28,8 +29,8 @@ public final class LayoutInt32 extends LayoutType<Integer> {
     }
 
     @Override
-    public Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
-                            OutObject<Integer> value) {
+    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+                            Out<Integer> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             value.set(0);
@@ -41,8 +42,8 @@ public final class LayoutInt32 extends LayoutType<Integer> {
     }
 
     @Override
-    public Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             OutObject<Integer> value) {
+    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             Out<Integer> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.set(0);
@@ -54,7 +55,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
     }
 
     @Override
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              int value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -70,7 +71,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, int value, UpdateOptions
     // options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, int value,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, int value,
                               UpdateOptions options) {
         Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
@@ -82,7 +83,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
     }
 
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, int value) {
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, int value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }

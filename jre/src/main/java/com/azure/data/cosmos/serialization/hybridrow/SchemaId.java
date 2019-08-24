@@ -29,7 +29,7 @@ public final class SchemaId implements IEquatable<SchemaId> {
     private int Id;
 
     /**
-     * Initializes a new instance of the <see cref="SchemaId" /> struct.
+     * Initializes a new instance of the {@link SchemaId} struct.
      *
      * @param id The underlying globally unique identifier of the schema.
      */
@@ -45,7 +45,7 @@ public final class SchemaId implements IEquatable<SchemaId> {
     }
 
     /**
-     * <see cref="object.Equals(object)" /> overload.
+     * {@link object.Equals(object)} overload.
      */
     @Override
     public boolean equals(Object obj) {
@@ -57,7 +57,7 @@ public final class SchemaId implements IEquatable<SchemaId> {
     }
 
     /**
-     * Returns true if this is the same <see cref="SchemaId" /> as <see cref="other" />.
+     * Returns true if this is the same {@link SchemaId} as {@link other}.
      *
      * @param other The value to compare against.
      * @return True if the two values are the same.
@@ -67,7 +67,7 @@ public final class SchemaId implements IEquatable<SchemaId> {
     }
 
     /**
-     * <see cref="object.GetHashCode" /> overload.
+     * {@link object.GetHashCode} overload.
      */
     @Override
     public int hashCode() {
@@ -89,7 +89,7 @@ public final class SchemaId implements IEquatable<SchemaId> {
     }
 
     /**
-     * <see cref="object.ToString" /> overload.
+     * {@link object.ToString} overload.
      */
     @Override
     public String toString() {
@@ -97,7 +97,7 @@ public final class SchemaId implements IEquatable<SchemaId> {
     }
 
     /**
-     * Helper class for parsing <see cref="SchemaId" /> from JSON.
+     * Helper class for parsing {@link SchemaId} from JSON.
      */
     public static class SchemaIdConverter extends JsonConverter {
         @Override

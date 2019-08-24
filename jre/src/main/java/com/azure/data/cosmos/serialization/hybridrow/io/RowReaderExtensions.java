@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
 import java.util.ArrayList;
@@ -21,13 +22,13 @@ public final class RowReaderExtensions {
      * @param list         On success, the collection of materialized items.
      * @return The result.
      */
-    public static <TItem> Result ReadList(RefObject<RowReader> reader, DeserializerFunc<TItem> deserializer,
-                                          OutObject<ArrayList<TItem>> list) {
+    public static <TItem> Result ReadList(Reference<RowReader> reader, DeserializerFunc<TItem> deserializer,
+                                          Out<ArrayList<TItem>> list) {
         // Pass the context as a struct by value to avoid allocations.
         ListContext<TItem> ctx = new ListContext<TItem>();
         ctx.List = new ArrayList<>();
         ctx.Deserializer =
-            (RefObject<RowReader> reader.argValue, OutObject<TItem> item) -> deserializer.invoke(reader.get().clone(), item);
+            (Reference<RowReader> reader.argValue, Out<TItem> item) -> deserializer.invoke(reader.get().clone(), item);
 
         // All lambda's here are static.
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
@@ -37,12 +38,12 @@ public final class RowReaderExtensions {
             while (arrayReader.Read()) {
                 Result r2 = arrayReader.ReadScope(ctx1.clone(), (ref RowReader itemReader, ListContext<TItem> ctx2) ->
                 {
-                    RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowReader> tempRef_itemReader = new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowReader>(itemReader);
+                    Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowReader> tempReference_itemReader = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowReader>(itemReader);
                     TItem op;
-                    OutObject<TItem> tempOut_op = new OutObject<TItem>();
-                    Result r3 = ctx2.Deserializer.invoke(tempRef_itemReader, tempOut_op);
+                    Out<TItem> tempOut_op = new Out<TItem>();
+                    Result r3 = ctx2.Deserializer.invoke(tempReference_itemReader, tempOut_op);
                     op = tempOut_op.get();
-                    itemReader = tempRef_itemReader.get();
+                    itemReader = tempReference_itemReader.get();
                     if (r3 != Result.Success) {
                         return r3;
                     }
@@ -69,7 +70,7 @@ public final class RowReaderExtensions {
     }
 
     /**
-     * A function to read content from a <see cref="RowReader" />.
+     * A function to read content from a {@link RowReader}.
      * <typeparam name="TItem">The type of the item to read.</typeparam>
      *
      * @param reader A forward-only cursor for reading the item.
@@ -78,7 +79,7 @@ public final class RowReaderExtensions {
      */
     @FunctionalInterface
     public interface DeserializerFunc<TItem> {
-        Result invoke(RefObject<RowReader> reader, OutObject<TItem> item);
+        Result invoke(Reference<RowReader> reader, Out<TItem> item);
     }
 
     //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may

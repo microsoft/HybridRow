@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -133,8 +134,8 @@ public final class ReaderBenchmark {
         }, segment ->
         {
             Segment _;
-            OutObject<Segment> tempOut__ =
-                new OutObject<Segment>();
+            Out<Segment> tempOut__ =
+                new Out<Segment>();
             r = SegmentSerializer.Read(segment.Span, context.getResolver(), tempOut__);
             _ = tempOut__.get();
             assert Result.Success == r;
@@ -150,10 +151,10 @@ public final class ReaderBenchmark {
     //ORIGINAL LINE: private static Result VisitOneRow(Memory<byte> buffer, LayoutResolver resolver)
     private static Result VisitOneRow(Memory<Byte> buffer, LayoutResolver resolver) {
         RowBuffer row = new RowBuffer(buffer.Span, HybridRowVersion.V1, resolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row);
-        row = tempRef_row.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row);
+        row = tempReference_row.get();
         return RowReaderExtensions.VisitReader(reader.clone());
     }
 
@@ -304,7 +305,7 @@ public final class ReaderBenchmark {
         private void DoWork() {
             while (!this.cancel.IsCancellationRequested) {
                 Task item;
-                OutObject<Task> tempOut_item = new OutObject<Task>();
+                Out<Task> tempOut_item = new Out<Task>();
                 if (this.tasks.TryDequeue(tempOut_item)) {
                     item = tempOut_item.get();
                     this.TryExecuteTask(item);

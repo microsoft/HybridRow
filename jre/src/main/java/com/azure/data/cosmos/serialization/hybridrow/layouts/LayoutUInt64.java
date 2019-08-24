@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -33,8 +34,8 @@ public final class LayoutUInt64 extends LayoutType<Long> {
     //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // ulong value)
     @Override
-    public Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
-                            OutObject<Long> value) {
+    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+                            Out<Long> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             value.set(0);
@@ -48,8 +49,8 @@ public final class LayoutUInt64 extends LayoutType<Long> {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ulong value)
     @Override
-    public Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             OutObject<Long> value) {
+    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             Out<Long> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.set(0);
@@ -64,7 +65,7 @@ public final class LayoutUInt64 extends LayoutType<Long> {
     //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, ulong
     // value)
     @Override
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              long value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -81,7 +82,7 @@ public final class LayoutUInt64 extends LayoutType<Long> {
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, long value,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value,
                               UpdateOptions options) {
         Result result = PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
@@ -93,7 +94,7 @@ public final class LayoutUInt64 extends LayoutType<Long> {
     }
 
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, long value) {
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }

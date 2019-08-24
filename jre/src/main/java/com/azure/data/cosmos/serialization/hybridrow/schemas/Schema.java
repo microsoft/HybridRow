@@ -55,7 +55,7 @@ public class Schema {
     //ORIGINAL LINE: [JsonProperty(PropertyName = "id", Required = Required.Always)] public SchemaId SchemaId {get;set;}
     private com.azure.data.cosmos.serialization.hybridrow.SchemaId SchemaId = new SchemaId();
     /**
-     * The type of this schema.  This value MUST be <see cref="TypeKind.Schema" />.
+     * The type of this schema.  This value MUST be {@link TypeKind.Schema}.
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [DefaultValue(TypeKind.Schema)][JsonProperty(PropertyName = "type", Required = Required
@@ -86,7 +86,7 @@ public class Schema {
     private ArrayList<StaticKey> staticKeys;
 
     /**
-     * Initializes a new instance of the <see cref="Schema" /> class.
+     * Initializes a new instance of the {@link Schema} class.
      */
     public Schema() {
         this.setType(TypeKind.Schema);

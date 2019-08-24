@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -80,17 +81,17 @@ public final class CodeGenRowGenerator {
     //ORIGINAL LINE: public Result ReadBuffer(byte[] buffer)
     public Result ReadBuffer(byte[] buffer) {
         this.row = new RowBuffer(buffer.AsSpan(), HybridRowVersion.V1, this.row.getResolver());
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(this.row);
-        RowCursor root = RowCursor.Create(tempRef_row);
-        this.row = tempRef_row.get();
-        RefObject<RowBuffer> tempRef_row2 =
-            new RefObject<RowBuffer>(this.row);
-        RefObject<RowCursor> tempRef_root =
-            new RefObject<RowCursor>(root);
-        Result tempVar = this.dispatcher.ReadBuffer(tempRef_row2, tempRef_root);
-        root = tempRef_root.get();
-        this.row = tempRef_row2.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(this.row);
+        RowCursor root = RowCursor.Create(tempReference_row);
+        this.row = tempReference_row.get();
+        Reference<RowBuffer> tempReference_row2 =
+            new Reference<RowBuffer>(this.row);
+        Reference<RowCursor> tempReference_root =
+            new Reference<RowCursor>(root);
+        Result tempVar = this.dispatcher.ReadBuffer(tempReference_row2, tempReference_root);
+        root = tempReference_root.get();
+        this.row = tempReference_row2.get();
         return tempVar;
     }
 
@@ -106,17 +107,17 @@ public final class CodeGenRowGenerator {
     }
 
     public Result WriteBuffer(HashMap<Utf8String, Object> tableValue) {
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(this.row);
-        RowCursor root = RowCursor.Create(tempRef_row);
-        this.row = tempRef_row.get();
-        RefObject<RowBuffer> tempRef_row2 =
-            new RefObject<RowBuffer>(this.row);
-        RefObject<RowCursor> tempRef_root =
-            new RefObject<RowCursor>(root);
-        Result tempVar = this.dispatcher.WriteBuffer(tempRef_row2, tempRef_root, tableValue);
-        root = tempRef_root.get();
-        this.row = tempRef_row2.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(this.row);
+        RowCursor root = RowCursor.Create(tempReference_row);
+        this.row = tempReference_row.get();
+        Reference<RowBuffer> tempReference_row2 =
+            new Reference<RowBuffer>(this.row);
+        Reference<RowCursor> tempReference_root =
+            new Reference<RowCursor>(root);
+        Result tempVar = this.dispatcher.WriteBuffer(tempReference_row2, tempReference_root, tableValue);
+        root = tempReference_root.get();
+        this.row = tempReference_row2.get();
         return tempVar;
     }
 
@@ -142,42 +143,42 @@ public final class CodeGenRowGenerator {
         private LayoutColumn street;
 
         public AddressHybridRowSerializer(Layout layout, LayoutResolver resolver) {
-            OutObject<LayoutColumn> tempOut_street = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_street = new Out<LayoutColumn>();
             layout.TryFind(AddressHybridRowSerializer.StreetName, tempOut_street);
             this.street = tempOut_street.get();
-            OutObject<LayoutColumn> tempOut_city = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_city = new Out<LayoutColumn>();
             layout.TryFind(AddressHybridRowSerializer.CityName, tempOut_city);
             this.city = tempOut_city.get();
-            OutObject<LayoutColumn> tempOut_state = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_state = new Out<LayoutColumn>();
             layout.TryFind(AddressHybridRowSerializer.StateName, tempOut_state);
             this.state = tempOut_state.get();
-            OutObject<LayoutColumn> tempOut_postalCode = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_postalCode = new Out<LayoutColumn>();
             layout.TryFind(AddressHybridRowSerializer.PostalCodeName, tempOut_postalCode);
             this.postalCode = tempOut_postalCode.get();
-            OutObject<StringToken> tempOut_postalCodeToken = new OutObject<StringToken>();
+            Out<StringToken> tempOut_postalCodeToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.postalCode.getPath(), tempOut_postalCodeToken);
             this.postalCodeToken = tempOut_postalCodeToken.get();
             this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.Resolve(this.postalCode.getTypeArgs().getSchemaId().clone()), resolver);
         }
 
         @Override
-        public Result ReadBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root) {
+        public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             Utf8Span _;
-            // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+            // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
             Result r = LayoutType.Utf8.ReadVariable(row, root, this.street, out _);
             if (r != Result.Success) {
                 return r;
             }
 
             Utf8Span _;
-            // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+            // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.city, out _);
             if (r != Result.Success) {
                 return r;
             }
 
             Utf8Span _;
-            // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+            // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
             r = LayoutType.Utf8.ReadFixed(row, root, this.state, out _);
             if (r != Result.Success) {
                 return r;
@@ -185,28 +186,28 @@ public final class CodeGenRowGenerator {
 
             root.get().Find(row, this.postalCodeToken.clone());
             RowCursor childScope;
-            OutObject<RowCursor> tempOut_childScope = new OutObject<RowCursor>();
+            Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
             r = LayoutType.UDT.ReadScope(row, root, tempOut_childScope);
             childScope = tempOut_childScope.get();
             if (r != Result.Success) {
                 return r;
             }
 
-            RefObject<RowCursor> tempRef_childScope = new RefObject<RowCursor>(childScope);
-            r = this.postalCodeSerializer.ReadBuffer(row, tempRef_childScope);
-            childScope = tempRef_childScope.get();
+            Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
+            r = this.postalCodeSerializer.ReadBuffer(row, tempReference_childScope);
+            childScope = tempReference_childScope.get();
             if (r != Result.Success) {
                 return r;
             }
 
-            RefObject<RowCursor> tempRef_childScope2 = new RefObject<RowCursor>(childScope);
-            RowCursorExtensions.Skip(root.get().clone(), row, tempRef_childScope2);
-            childScope = tempRef_childScope2.get();
+            Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
+            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope2);
+            childScope = tempReference_childScope2.get();
             return Result.Success;
         }
 
         @Override
-        public Result WriteBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root, HashMap<Utf8String, Object> tableValue) {
+        public Result WriteBuffer(Reference<RowBuffer> row, Reference<RowCursor> root, HashMap<Utf8String, Object> tableValue) {
             for ((Utf8String key,Object value) :tableValue)
             {
                 Result r;
@@ -253,7 +254,7 @@ public final class CodeGenRowGenerator {
                         if (value != null) {
                             root.get().Find(row, this.postalCodeToken.clone());
                             RowCursor childScope;
-                            OutObject<RowCursor> tempOut_childScope = new OutObject<RowCursor>();
+                            Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
                             r = LayoutType.UDT.WriteScope(row, root, this.postalCode.getTypeArgs().clone(), tempOut_childScope);
                             childScope = tempOut_childScope.get();
 
@@ -261,16 +262,16 @@ public final class CodeGenRowGenerator {
                                 return r;
                             }
 
-                            RefObject<RowCursor> tempRef_childScope = new RefObject<RowCursor>(childScope);
-                            r = this.postalCodeSerializer.WriteBuffer(row, tempRef_childScope, (HashMap<Utf8String, Object>)value);
-                            childScope = tempRef_childScope.get();
+                            Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
+                            r = this.postalCodeSerializer.WriteBuffer(row, tempReference_childScope, (HashMap<Utf8String, Object>)value);
+                            childScope = tempReference_childScope.get();
                             if (r != Result.Success) {
                                 return r;
                             }
 
-                            RefObject<RowCursor> tempRef_childScope2 = new RefObject<RowCursor>(childScope);
-                            RowCursorExtensions.Skip(root.get().clone(), row, tempRef_childScope2);
-                            childScope = tempRef_childScope2.get();
+                            Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
+                            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope2);
+                            childScope = tempReference_childScope2.get();
                         }
 
                         break;
@@ -310,41 +311,41 @@ public final class CodeGenRowGenerator {
         private LayoutColumn title;
 
         public GuestsHybridRowSerializer(Layout layout, LayoutResolver resolver) {
-            OutObject<LayoutColumn> tempOut_guestId =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_guestId =
+                new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.GuestIdName, tempOut_guestId);
             this.guestId = tempOut_guestId.get();
-            OutObject<LayoutColumn> tempOut_firstName = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_firstName = new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.FirstNameName, tempOut_firstName);
             this.firstName = tempOut_firstName.get();
-            OutObject<LayoutColumn> tempOut_lastName
-                = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_lastName
+                = new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.LastNameName, tempOut_lastName);
             this.lastName = tempOut_lastName.get();
-            OutObject<LayoutColumn> tempOut_title =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_title =
+                new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.TitleName, tempOut_title);
             this.title = tempOut_title.get();
-            OutObject<LayoutColumn> tempOut_emails =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_emails =
+                new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.EmailsName, tempOut_emails);
             this.emails = tempOut_emails.get();
-            OutObject<LayoutColumn> tempOut_phoneNumbers = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_phoneNumbers = new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.PhoneNumbersName, tempOut_phoneNumbers);
             this.phoneNumbers = tempOut_phoneNumbers.get();
-            OutObject<LayoutColumn> tempOut_addresses = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_addresses = new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.AddressesName, tempOut_addresses);
             this.addresses = tempOut_addresses.get();
-            OutObject<LayoutColumn> tempOut_confirmNumber = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_confirmNumber = new Out<LayoutColumn>();
             layout.TryFind(GuestsHybridRowSerializer.ConfirmNumberName, tempOut_confirmNumber);
             this.confirmNumber = tempOut_confirmNumber.get();
-            OutObject<StringToken> tempOut_emailsToken = new OutObject<StringToken>();
+            Out<StringToken> tempOut_emailsToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.emails.getPath(), tempOut_emailsToken);
             this.emailsToken = tempOut_emailsToken.get();
-            OutObject<StringToken> tempOut_phoneNumbersToken = new OutObject<StringToken>();
+            Out<StringToken> tempOut_phoneNumbersToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.phoneNumbers.getPath(), tempOut_phoneNumbersToken);
             this.phoneNumbersToken = tempOut_phoneNumbersToken.get();
-            OutObject<StringToken> tempOut_addressesToken = new OutObject<StringToken>();
+            Out<StringToken> tempOut_addressesToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.addresses.getPath(), tempOut_addressesToken);
             this.addressesToken = tempOut_addressesToken.get();
 
@@ -354,15 +355,15 @@ public final class CodeGenRowGenerator {
 
             this.addressSerializer =
                 new AddressHybridRowSerializer(resolver.Resolve(this.addresses.getTypeArgs().get(1).getTypeArgs().getSchemaId().clone()), resolver);
-            this.addressSerializerWriter = (RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+            this.addressSerializerWriter = (Reference<RowBuffer> b, Reference<RowCursor> scope,
                                             HashMap<Utf8String, Object> context) -> addressSerializer.WriteBuffer(b,
                 scope, context);
         }
 
         @Override
-        public Result ReadBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root) {
+        public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             java.util.UUID _;
-            OutObject<UUID> tempOut__ = new OutObject<UUID>();
+            Out<UUID> tempOut__ = new Out<UUID>();
             Result r = LayoutType.Guid.ReadFixed(row, root, this.guestId, tempOut__);
             _ = tempOut__.get();
             if (r != Result.Success) {
@@ -371,7 +372,7 @@ public final class CodeGenRowGenerator {
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.firstName, out _);
             if (r != Result.Success) {
@@ -380,7 +381,7 @@ public final class CodeGenRowGenerator {
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.lastName, out _);
             if (r != Result.Success) {
@@ -389,7 +390,7 @@ public final class CodeGenRowGenerator {
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.title, out _);
             if (r != Result.Success) {
@@ -398,8 +399,8 @@ public final class CodeGenRowGenerator {
 
             root.get().Find(row, this.emailsToken.clone());
             RowCursor childScope;
-            OutObject<RowCursor> tempOut_childScope =
-                new OutObject<RowCursor>();
+            Out<RowCursor> tempOut_childScope =
+                new Out<RowCursor>();
             r = LayoutType.TypedArray.ReadScope(row, root, tempOut_childScope);
             childScope = tempOut_childScope.get();
             if (r != Result.Success) {
@@ -409,10 +410,10 @@ public final class CodeGenRowGenerator {
             while (childScope.MoveNext(row)) {
                 Utf8Span _;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 r = LayoutType.Utf8.ReadSparse(row, ref childScope, out _);
                 if (r != Result.Success) {
@@ -420,14 +421,14 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            RefObject<RowCursor> tempRef_childScope =
-                new RefObject<RowCursor>(childScope);
+            Reference<RowCursor> tempReference_childScope =
+                new Reference<RowCursor>(childScope);
             RowCursorExtensions.Skip(root.get().clone(), row,
-                tempRef_childScope);
-            childScope = tempRef_childScope.get();
+                tempReference_childScope);
+            childScope = tempReference_childScope.get();
             root.get().Find(row, this.phoneNumbersToken.clone());
-            OutObject<RowCursor> tempOut_childScope2 =
-                new OutObject<RowCursor>();
+            Out<RowCursor> tempOut_childScope2 =
+                new Out<RowCursor>();
             r = LayoutType.TypedArray.ReadScope(row, root, tempOut_childScope2);
             childScope = tempOut_childScope2.get();
             if (r != Result.Success) {
@@ -437,10 +438,10 @@ public final class CodeGenRowGenerator {
             while (childScope.MoveNext(row)) {
                 Utf8Span _;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 r = LayoutType.Utf8.ReadSparse(row, ref childScope, out _);
                 if (r != Result.Success) {
@@ -448,14 +449,14 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            RefObject<RowCursor> tempRef_childScope2 =
-                new RefObject<RowCursor>(childScope);
+            Reference<RowCursor> tempReference_childScope2 =
+                new Reference<RowCursor>(childScope);
             RowCursorExtensions.Skip(root.get().clone(), row,
-                tempRef_childScope2);
-            childScope = tempRef_childScope2.get();
+                tempReference_childScope2);
+            childScope = tempReference_childScope2.get();
             root.get().Find(row, this.addressesToken.clone());
-            OutObject<RowCursor> tempOut_childScope3 =
-                new OutObject<RowCursor>();
+            Out<RowCursor> tempOut_childScope3 =
+                new Out<RowCursor>();
             r = LayoutType.TypedMap.ReadScope(row, root, tempOut_childScope3);
             childScope = tempOut_childScope3.get();
             if (r != Result.Success) {
@@ -463,14 +464,14 @@ public final class CodeGenRowGenerator {
             }
 
             while (childScope.MoveNext(row)) {
-                RefObject<RowCursor> tempRef_childScope3 =
-                    new RefObject<RowCursor>(childScope);
+                Reference<RowCursor> tempReference_childScope3 =
+                    new Reference<RowCursor>(childScope);
                 RowCursor tupleScope;
-                OutObject<RowCursor> tempOut_tupleScope =
-                    new OutObject<RowCursor>();
-                r = LayoutType.TypedTuple.ReadScope(row, tempRef_childScope3, tempOut_tupleScope);
+                Out<RowCursor> tempOut_tupleScope =
+                    new Out<RowCursor>();
+                r = LayoutType.TypedTuple.ReadScope(row, tempReference_childScope3, tempOut_tupleScope);
                 tupleScope = tempOut_tupleScope.get();
-                childScope = tempRef_childScope3.get();
+                childScope = tempReference_childScope3.get();
                 if (r != Result.Success) {
                     return r;
                 }
@@ -481,10 +482,10 @@ public final class CodeGenRowGenerator {
 
                 Utf8Span _;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 r = LayoutType.Utf8.ReadSparse(row, ref tupleScope, out _);
                 if (r != Result.Success) {
@@ -495,51 +496,51 @@ public final class CodeGenRowGenerator {
                     return Result.InvalidRow;
                 }
 
-                RefObject<RowCursor> tempRef_tupleScope =
-                    new RefObject<RowCursor>(tupleScope);
+                Reference<RowCursor> tempReference_tupleScope =
+                    new Reference<RowCursor>(tupleScope);
                 RowCursor valueScope;
-                OutObject<RowCursor> tempOut_valueScope =
-                    new OutObject<RowCursor>();
-                r = LayoutType.ImmutableUDT.ReadScope(row, tempRef_tupleScope, tempOut_valueScope);
+                Out<RowCursor> tempOut_valueScope =
+                    new Out<RowCursor>();
+                r = LayoutType.ImmutableUDT.ReadScope(row, tempReference_tupleScope, tempOut_valueScope);
                 valueScope = tempOut_valueScope.get();
-                tupleScope = tempRef_tupleScope.get();
+                tupleScope = tempReference_tupleScope.get();
                 if (r != Result.Success) {
                     return r;
                 }
 
-                RefObject<RowCursor> tempRef_valueScope =
-                    new RefObject<RowCursor>(valueScope);
-                r = this.addressSerializer.ReadBuffer(row, tempRef_valueScope);
-                valueScope = tempRef_valueScope.get();
+                Reference<RowCursor> tempReference_valueScope =
+                    new Reference<RowCursor>(valueScope);
+                r = this.addressSerializer.ReadBuffer(row, tempReference_valueScope);
+                valueScope = tempReference_valueScope.get();
                 if (r != Result.Success) {
                     return r;
                 }
 
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 tupleScope.Skip(row, ref valueScope);
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 childScope.Skip(row, ref tupleScope);
             }
 
-            RefObject<RowCursor> tempRef_childScope4 =
-                new RefObject<RowCursor>(childScope);
+            Reference<RowCursor> tempReference_childScope4 =
+                new Reference<RowCursor>(childScope);
             RowCursorExtensions.Skip(root.get().clone(), row,
-                tempRef_childScope4);
-            childScope = tempRef_childScope4.get();
+                tempReference_childScope4);
+            childScope = tempReference_childScope4.get();
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             return LayoutType.Utf8.ReadVariable(row, root, this.confirmNumber, out _);
         }
 
         @Override
-        public Result WriteBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root,
+        public Result WriteBuffer(Reference<RowBuffer> row, Reference<RowCursor> root,
                                   HashMap<Utf8String, Object> tableValue) {
             for ((Utf8String key,Object value) :tableValue)
             {
@@ -610,9 +611,9 @@ public final class CodeGenRowGenerator {
                                                            ArrayList<Object> context) ->
                             {
                                 for (Object item : context) {
-                                    RefObject<ref RowBuffer>tempRef_row2 = new RefObject<ref
+                                    Reference<ref RowBuffer>tempRef_row2 = new Reference<ref
                                     RowBuffer > (row2);
-                                    RefObject<ref RowCursor>tempRef_childScope = new RefObject<ref
+                                    Reference<ref RowCursor>tempRef_childScope = new Reference<ref
                                     RowCursor > (childScope);
                                     Result r2 = LayoutType.Utf8.WriteSparse(tempRef_row2, tempRef_childScope,
                                         (Utf8String)item);
@@ -622,7 +623,7 @@ public final class CodeGenRowGenerator {
                                         return r2;
                                     }
 
-                                    RefObject<ref RowBuffer>tempRef_row22 = new RefObject<ref
+                                    Reference<ref RowBuffer>tempRef_row22 = new Reference<ref
                                     RowBuffer > (row2);
                                     childScope.MoveNext(tempRef_row22);
                                     row2 = tempRef_row22.argValue;
@@ -644,7 +645,7 @@ public final class CodeGenRowGenerator {
                         if (value != null) {
                             root.get().Find(row, this.phoneNumbersToken.clone());
                             RowCursor childScope;
-                            OutObject<RowCursor> tempOut_childScope = new OutObject<RowCursor>();
+                            Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
                             r = LayoutType.TypedArray.WriteScope(row, root, this.phoneNumbers.getTypeArgs().clone(),
                                 tempOut_childScope);
                             childScope = tempOut_childScope.get();
@@ -654,7 +655,7 @@ public final class CodeGenRowGenerator {
 
                             for (Object item : (ArrayList<Object>)value) {
                                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved
-                                // 'ref' keyword - these cannot be converted using the 'RefObject' helper class
+                                // 'ref' keyword - these cannot be converted using the 'Ref' helper class
                                 // unless the method is within the code being modified:
                                 r = LayoutType.Utf8.WriteSparse(row, ref childScope, (Utf8String)item);
                                 if (r != Result.Success) {
@@ -664,9 +665,9 @@ public final class CodeGenRowGenerator {
                                 childScope.MoveNext(row);
                             }
 
-                            RefObject<RowCursor> tempRef_childScope = new RefObject<RowCursor>(childScope);
-                            RowCursorExtensions.Skip(root.get().clone(), row, tempRef_childScope);
-                            childScope = tempRef_childScope.get();
+                            Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
+                            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope);
+                            childScope = tempReference_childScope.get();
                         }
 
                         break;
@@ -685,16 +686,17 @@ public final class CodeGenRowGenerator {
                             _this, ArrayList < Object > value)ctx) ->
                             {
                                 for (Object item : ctx.value) {
-                                    RefObject<RowBuffer> tempRef_row2 = new RefObject<RowBuffer>(row2);
-                                    RefObject<RowCursor> tempRef_childScope = new RefObject<RowCursor>(childScope);
-                                    Result r2 = LayoutType.TypedTuple.WriteScope(tempRef_row2, tempRef_childScope,
+                                    Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(row2);
+                                    Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
+                                    Result r2 = LayoutType.TypedTuple.WriteScope(tempReference_row2,
+                                        tempReference_childScope,
                                         ctx._this.addresses.TypeArgs, (ctx._this, (ArrayList<Object>)item),
                                     (ref RowBuffer row3, ref RowCursor tupleScope, (GuestsHybridRowSerializer
                                     _this, ArrayList < Object > value)ctx2) ->
                                     {
-                                        RefObject<ref RowBuffer>tempRef_row3 = new RefObject<ref
+                                        Reference<ref RowBuffer>tempRef_row3 = new Reference<ref
                                         RowBuffer > (row3);
-                                        RefObject<ref RowCursor>tempRef_tupleScope = new RefObject<ref
+                                        Reference<ref RowCursor>tempRef_tupleScope = new Reference<ref
                                         RowCursor > (tupleScope);
                                         Result r3 = LayoutType.Utf8.WriteSparse(tempRef_row3, tempRef_tupleScope,
                                             (Utf8String)ctx2.value[0]);
@@ -704,27 +706,27 @@ public final class CodeGenRowGenerator {
                                             return r3;
                                         }
 
-                                        RefObject<ref RowBuffer>tempRef_row32 = new RefObject<ref
+                                        Reference<ref RowBuffer>tempRef_row32 = new Reference<ref
                                         RowBuffer > (row3);
                                         tupleScope.MoveNext(tempRef_row32);
                                         row3 = tempRef_row32.argValue;
-                                        RefObject<com.azure.data.cosmos.serialization.hybridrow.RowBuffer> tempRef_row33 = new RefObject<com.azure.data.cosmos.serialization.hybridrow.RowBuffer>(row3);
-                                        RefObject<com.azure.data.cosmos.serialization.hybridrow.RowCursor> tempRef_tupleScope2 = new RefObject<com.azure.data.cosmos.serialization.hybridrow.RowCursor>(tupleScope);
-                                        Result tempVar = LayoutType.ImmutableUDT.WriteScope(tempRef_row33,
-                                            tempRef_tupleScope2, ctx2._this.addresses.TypeArgs[1].TypeArgs,
+                                        Reference<com.azure.data.cosmos.serialization.hybridrow.RowBuffer> tempReference_row33 = new Reference<com.azure.data.cosmos.serialization.hybridrow.RowBuffer>(row3);
+                                        Reference<com.azure.data.cosmos.serialization.hybridrow.RowCursor> tempReference_tupleScope2 = new Reference<com.azure.data.cosmos.serialization.hybridrow.RowCursor>(tupleScope);
+                                        Result tempVar = LayoutType.ImmutableUDT.WriteScope(tempReference_row33,
+                                            tempReference_tupleScope2, ctx2._this.addresses.TypeArgs[1].TypeArgs,
                                             (HashMap<Utf8String, Object>)ctx2.value[1],
                                             ctx2._this.addressSerializerWriter);
-                                        tupleScope = tempRef_tupleScope2.get();
-                                        row3 = tempRef_row33.get();
+                                        tupleScope = tempReference_tupleScope2.get();
+                                        row3 = tempReference_row33.get();
                                         return tempVar;
                                     })
-                                    childScope = tempRef_childScope.get();
-                                    row2 = tempRef_row2.get();
+                                    childScope = tempReference_childScope.get();
+                                    row2 = tempReference_row2.get();
                                     if (r2 != Result.Success) {
                                         return r2;
                                     }
 
-                                    RefObject<ref RowBuffer>tempRef_row22 = new RefObject<ref
+                                    Reference<ref RowBuffer>tempRef_row22 = new Reference<ref
                                     RowBuffer > (row2);
                                     childScope.MoveNext(tempRef_row22);
                                     row2 = tempRef_row22.argValue;
@@ -775,23 +777,23 @@ public final class CodeGenRowGenerator {
         private LayoutColumn phone;
 
         public HotelsHybridRowSerializer(Layout layout, LayoutResolver resolver) {
-            OutObject<LayoutColumn> tempOut_hotelId =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_hotelId =
+                new Out<LayoutColumn>();
             layout.TryFind(HotelsHybridRowSerializer.HotelIdName, tempOut_hotelId);
             this.hotelId = tempOut_hotelId.get();
-            OutObject<LayoutColumn> tempOut_name =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_name =
+                new Out<LayoutColumn>();
             layout.TryFind(HotelsHybridRowSerializer.NameName, tempOut_name);
             this.name = tempOut_name.get();
-            OutObject<LayoutColumn> tempOut_phone =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_phone =
+                new Out<LayoutColumn>();
             layout.TryFind(HotelsHybridRowSerializer.PhoneName, tempOut_phone);
             this.phone = tempOut_phone.get();
-            OutObject<LayoutColumn> tempOut_address =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_address =
+                new Out<LayoutColumn>();
             layout.TryFind(HotelsHybridRowSerializer.AddressName, tempOut_address);
             this.address = tempOut_address.get();
-            OutObject<StringToken> tempOut_addressToken = new OutObject<StringToken>();
+            Out<StringToken> tempOut_addressToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.address.getPath(), tempOut_addressToken);
             this.addressToken = tempOut_addressToken.get();
             this.addressSerializer =
@@ -800,10 +802,10 @@ public final class CodeGenRowGenerator {
         }
 
         @Override
-        public Result ReadBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root) {
+        public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             Result r = LayoutType.Utf8.ReadFixed(row, root, this.hotelId, out _);
             if (r != Result.Success) {
@@ -812,7 +814,7 @@ public final class CodeGenRowGenerator {
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.name, out _);
             if (r != Result.Success) {
@@ -821,7 +823,7 @@ public final class CodeGenRowGenerator {
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.phone, out _);
             if (r != Result.Success) {
@@ -830,32 +832,32 @@ public final class CodeGenRowGenerator {
 
             root.get().Find(row, this.addressToken.clone());
             RowCursor childScope;
-            OutObject<RowCursor> tempOut_childScope =
-                new OutObject<RowCursor>();
+            Out<RowCursor> tempOut_childScope =
+                new Out<RowCursor>();
             r = LayoutType.UDT.ReadScope(row, root, tempOut_childScope);
             childScope = tempOut_childScope.get();
             if (r != Result.Success) {
                 return r;
             }
 
-            RefObject<RowCursor> tempRef_childScope =
-                new RefObject<RowCursor>(childScope);
-            r = this.addressSerializer.ReadBuffer(row, tempRef_childScope);
-            childScope = tempRef_childScope.get();
+            Reference<RowCursor> tempReference_childScope =
+                new Reference<RowCursor>(childScope);
+            r = this.addressSerializer.ReadBuffer(row, tempReference_childScope);
+            childScope = tempReference_childScope.get();
             if (r != Result.Success) {
                 return r;
             }
 
-            RefObject<RowCursor> tempRef_childScope2 =
-                new RefObject<RowCursor>(childScope);
+            Reference<RowCursor> tempReference_childScope2 =
+                new Reference<RowCursor>(childScope);
             RowCursorExtensions.Skip(root.get().clone(), row,
-                tempRef_childScope2);
-            childScope = tempRef_childScope2.get();
+                tempReference_childScope2);
+            childScope = tempReference_childScope2.get();
             return Result.Success;
         }
 
         @Override
-        public Result WriteBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root,
+        public Result WriteBuffer(Reference<RowBuffer> row, Reference<RowCursor> root,
                                   HashMap<Utf8String, Object> tableValue) {
             for ((Utf8String key,Object value) :tableValue)
             {
@@ -907,7 +909,7 @@ public final class CodeGenRowGenerator {
                         if (value != null) {
                             root.get().Find(row, this.addressToken.clone());
                             RowCursor childScope;
-                            OutObject<RowCursor> tempOut_childScope = new OutObject<RowCursor>();
+                            Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
                             r = LayoutType.UDT.WriteScope(row, root, this.address.getTypeArgs().clone(),
                                 tempOut_childScope);
                             childScope = tempOut_childScope.get();
@@ -915,17 +917,17 @@ public final class CodeGenRowGenerator {
                                 return r;
                             }
 
-                            RefObject<RowCursor> tempRef_childScope = new RefObject<RowCursor>(childScope);
-                            r = this.addressSerializer.WriteBuffer(row, tempRef_childScope, (HashMap<Utf8String,
+                            Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
+                            r = this.addressSerializer.WriteBuffer(row, tempReference_childScope, (HashMap<Utf8String,
                                 Object>)value);
-                            childScope = tempRef_childScope.get();
+                            childScope = tempReference_childScope.get();
                             if (r != Result.Success) {
                                 return r;
                             }
 
-                            RefObject<RowCursor> tempRef_childScope2 = new RefObject<RowCursor>(childScope);
-                            RowCursorExtensions.Skip(root.get().clone(), row, tempRef_childScope2);
-                            childScope = tempRef_childScope2.get();
+                            Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
+                            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope2);
+                            childScope = tempReference_childScope2.get();
                         }
 
                         break;
@@ -941,9 +943,9 @@ public final class CodeGenRowGenerator {
     }
 
     private abstract static class HybridRowSerializer {
-        public abstract Result ReadBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root);
+        public abstract Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root);
 
-        public abstract Result WriteBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root,
+        public abstract Result WriteBuffer(Reference<RowBuffer> row, Reference<RowCursor> root,
                                            HashMap<Utf8String, Object> tableValue);
     }
 
@@ -956,23 +958,23 @@ public final class CodeGenRowGenerator {
 
         // ReSharper disable once UnusedParameter.Local
         public PostalCodeHybridRowSerializer(Layout layout, LayoutResolver resolver) {
-            OutObject<LayoutColumn> tempOut_zip =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_zip =
+                new Out<LayoutColumn>();
             layout.TryFind(PostalCodeHybridRowSerializer.ZipName, tempOut_zip);
             this.zip = tempOut_zip.get();
-            OutObject<LayoutColumn> tempOut_plus4 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_plus4 =
+                new Out<LayoutColumn>();
             layout.TryFind(PostalCodeHybridRowSerializer.Plus4Name, tempOut_plus4);
             this.plus4 = tempOut_plus4.get();
-            OutObject<StringToken> tempOut_plus4Token = new OutObject<StringToken>();
+            Out<StringToken> tempOut_plus4Token = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.plus4.getPath(), tempOut_plus4Token);
             this.plus4Token = tempOut_plus4Token.get();
         }
 
         @Override
-        public Result ReadBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root) {
+        public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             int _;
-            OutObject<Integer> tempOut__ = new OutObject<Integer>();
+            Out<Integer> tempOut__ = new Out<Integer>();
             Result r = LayoutType.Int32.ReadFixed(row, root, this.zip, tempOut__);
             _ = tempOut__.get();
             if (r != Result.Success) {
@@ -981,14 +983,14 @@ public final class CodeGenRowGenerator {
 
             root.get().Find(row, this.plus4Token.clone());
             short _;
-            OutObject<Short> tempOut__2 = new OutObject<Short>();
+            Out<Short> tempOut__2 = new Out<Short>();
             Result tempVar = LayoutType.Int16.ReadSparse(row, root, tempOut__2);
             _ = tempOut__2.get();
             return tempVar;
         }
 
         @Override
-        public Result WriteBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root,
+        public Result WriteBuffer(Reference<RowBuffer> row, Reference<RowCursor> root,
                                   HashMap<Utf8String, Object> tableValue) {
             for ((Utf8String key,Object value) :tableValue)
             {
@@ -1043,27 +1045,27 @@ public final class CodeGenRowGenerator {
 
         // ReSharper disable once UnusedParameter.Local
         public RoomsHybridRowSerializer(Layout layout, LayoutResolver resolver) {
-            OutObject<LayoutColumn> tempOut_hotelId =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_hotelId =
+                new Out<LayoutColumn>();
             layout.TryFind(RoomsHybridRowSerializer.HotelIdName, tempOut_hotelId);
             this.hotelId = tempOut_hotelId.get();
-            OutObject<LayoutColumn> tempOut_date =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_date =
+                new Out<LayoutColumn>();
             layout.TryFind(RoomsHybridRowSerializer.DateName, tempOut_date);
             this.date = tempOut_date.get();
-            OutObject<LayoutColumn> tempOut_roomNumber = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_roomNumber = new Out<LayoutColumn>();
             layout.TryFind(RoomsHybridRowSerializer.RoomNumberName, tempOut_roomNumber);
             this.roomNumber = tempOut_roomNumber.get();
-            OutObject<LayoutColumn> tempOut_isAvailable = new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_isAvailable = new Out<LayoutColumn>();
             layout.TryFind(RoomsHybridRowSerializer.IsAvailableName, tempOut_isAvailable);
             this.isAvailable = tempOut_isAvailable.get();
         }
 
         @Override
-        public Result ReadBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root) {
+        public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             Result r = LayoutType.Utf8.ReadFixed(row, root, this.hotelId, out _);
             if (r != Result.Success) {
@@ -1071,7 +1073,7 @@ public final class CodeGenRowGenerator {
             }
 
             java.time.LocalDateTime _;
-            OutObject<LocalDateTime> tempOut__ = new OutObject<LocalDateTime>();
+            Out<LocalDateTime> tempOut__ = new Out<LocalDateTime>();
             r = LayoutType.DateTime.ReadFixed(row, root, this.date, tempOut__);
             _ = tempOut__.get();
             if (r != Result.Success) {
@@ -1079,7 +1081,7 @@ public final class CodeGenRowGenerator {
             }
 
             byte _;
-            OutObject<Byte> tempOut__2 = new OutObject<Byte>();
+            Out<Byte> tempOut__2 = new Out<Byte>();
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: r = LayoutType.UInt8.ReadFixed(ref row, ref root, this.roomNumber, out byte _);
             r = LayoutType.UInt8.ReadFixed(row, root, this.roomNumber, tempOut__2);
@@ -1089,14 +1091,14 @@ public final class CodeGenRowGenerator {
             }
 
             boolean _;
-            OutObject<Boolean> tempOut__3 = new OutObject<Boolean>();
+            Out<Boolean> tempOut__3 = new Out<Boolean>();
             Result tempVar = LayoutType.Boolean.ReadFixed(row, root, this.isAvailable, tempOut__3);
             _ = tempOut__3.get();
             return tempVar;
         }
 
         @Override
-        public Result WriteBuffer(RefObject<RowBuffer> row, RefObject<RowCursor> root,
+        public Result WriteBuffer(Reference<RowBuffer> row, Reference<RowCursor> root,
                                   HashMap<Utf8String, Object> tableValue) {
             for ((Utf8String key,Object value) :tableValue)
             {

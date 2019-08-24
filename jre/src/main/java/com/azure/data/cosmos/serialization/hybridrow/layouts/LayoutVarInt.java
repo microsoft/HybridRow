@@ -4,8 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -33,15 +33,15 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
-                            OutObject<Long> value) {
+    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+                            Out<Long> value) {
         Contract.Fail("Not Implemented");
         value.set(0);
         return Result.Failure;
     }
 
     @Override
-    public Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, OutObject<Long> value) {
+    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Long> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.set(0);
@@ -53,7 +53,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result ReadVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col, OutObject<Long> value) {
+    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Long> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             value.set(0);
@@ -67,7 +67,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              long value) {
         Contract.Fail("Not Implemented");
         return Result.Failure;
@@ -77,7 +77,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, long value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, long value,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value,
                               UpdateOptions options) {
         Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
@@ -89,12 +89,12 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, long value) {
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
 
     @Override
-    public Result WriteVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, long value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -105,7 +105,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
             col.getOffset());
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableInt(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().SetBit(scope.get().start, col.getNullBit().clone());

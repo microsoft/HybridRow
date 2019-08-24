@@ -12,12 +12,12 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
 /**
- * An implementation of <see cref="LayoutResolver" /> which dynamically compiles schema from
- * a <see cref="Namespace" />.
+ * An implementation of {@link LayoutResolver} which dynamically compiles schema from
+ * a {@link Namespace}.
  * <p>
  * <p>
- * This resolver assumes that <see cref="Schema" /> within the <see cref="Namespace" /> have
- * their <see cref="Schema.SchemaId" /> properly populated. The resolver caches compiled schema.
+ * This resolver assumes that {@link Schema} within the {@link Namespace} have
+ * their {@link Schema.SchemaId} properly populated. The resolver caches compiled schema.
  * <p>
  * All members of this class are multi-thread safe.
  */
@@ -49,7 +49,7 @@ public final class LayoutResolverNamespace extends LayoutResolver {
         // TODO: C# TO JAVA CONVERTER: There is no Java ConcurrentHashMap equivalent to this .NET
         // ConcurrentDictionary method:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         if (this.layoutCache.TryGetValue(schemaId.getId(), out layout)) {
             return layout;
         }

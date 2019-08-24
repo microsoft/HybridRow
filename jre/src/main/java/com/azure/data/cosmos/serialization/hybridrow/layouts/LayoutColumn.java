@@ -4,6 +4,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
+import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 
 import static com.google.common.base.Strings.lenientFormat;
@@ -30,13 +31,13 @@ public final class LayoutColumn {
      */
     private LayoutBit nullBit = new LayoutBit();
     /**
-     * If <see cref="storage" /> equals <see cref="StorageKind.Fixed" /> then the byte offset to
+     * If {@link storage} equals {@link StorageKind.Fixed} then the byte offset to
      * the field location.
      * <para />
-     * If <see cref="storage" /> equals <see cref="StorageKind.Variable" /> then the 0-based index of the
+     * If {@link storage} equals {@link StorageKind.Variable} then the 0-based index of the
      * field from the beginning of the variable length segment.
      * <para />
-     * For all other values of <see cref="storage" />, <see cref="Offset" /> is ignored.
+     * For all other values of {@link storage}, {@link Offset} is ignored.
      */
     private int offset;
     /**
@@ -48,7 +49,7 @@ public final class LayoutColumn {
      */
     private Utf8String path;
     /**
-     * If <see cref="LayoutType.IsBool" /> then the 0-based extra index within the bool byte
+     * If {@link LayoutType.IsBool} then the 0-based extra index within the bool byte
      * holding the value of this type, otherwise must be 0.
      */
     private int size;
@@ -65,12 +66,12 @@ public final class LayoutColumn {
      */
     private TypeArgument typeArg = new TypeArgument();
     /**
-     * For types with generic parameters (e.g. <see cref="LayoutTuple" />, the type parameters.
+     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
     private TypeArgumentList typeArgs = new TypeArgumentList();
 
     /**
-     * Initializes a new instance of the <see cref="LayoutColumn" /> class.
+     * Initializes a new instance of the {@link LayoutColumn} class.
      *
      * @param path     The path to the field relative to parent scope.
      * @param type     Type of the field.
@@ -81,7 +82,7 @@ public final class LayoutColumn {
      * @param nullBit  0-based index into the bit mask for the null bit.
      * @param boolBit  For bool fields, 0-based index into the bit mask for the bool value.
      * @param length   For variable length types the length, otherwise 0.
-     * @param typeArgs For types with generic parameters (e.g. <see cref="LayoutTuple" />, the type
+     * @param typeArgs For types with generic parameters (e.g. {@link LayoutTuple}, the type
      *                 parameters.
      */
 
@@ -112,8 +113,8 @@ public final class LayoutColumn {
     /**
      * The full logical path of the field within the row.
      * <p>
-     * Paths are expressed in dotted notation: e.g. a relative <see cref="Path" /> of 'b.c'
-     * within the scope 'a' yields a <see cref="FullPath" /> of 'a.b.c'.
+     * Paths are expressed in dotted notation: e.g. a relative {@link Path} of 'b.c'
+     * within the scope 'a' yields a {@link FullPath} of 'a.b.c'.
      */
     public Utf8String getFullPath() {
         return this.fullPath;
@@ -137,8 +138,8 @@ public final class LayoutColumn {
     /**
      * The relative path of the field within its parent scope.
      * <p>
-     * Paths are expressed in dotted notation: e.g. a relative <see cref="Path" /> of 'b.c'
-     * within the scope 'a' yields a <see cref="FullPath" /> of 'a.b.c'.
+     * Paths are expressed in dotted notation: e.g. a relative {@link Path} of 'b.c'
+     * within the scope 'a' yields a {@link FullPath} of 'a.b.c'.
      */
     public Utf8String getPath() {
         return this.path;
@@ -166,7 +167,7 @@ public final class LayoutColumn {
     }
 
     /**
-     * For types with generic parameters (e.g. <see cref="LayoutTuple" />, the type parameters.
+     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
     public TypeArgumentList getTypeArgs() {
         return this.typeArgs.clone();
@@ -200,21 +201,21 @@ public final class LayoutColumn {
     LayoutBit getNullBit()
 
     /**
-     * If <see cref="storage" /> equals <see cref="StorageKind.Fixed" /> then the byte offset to
+     * If {@link storage} equals {@link StorageKind.Fixed} then the byte offset to
      * the field location.
      * <para />
-     * If <see cref="storage" /> equals <see cref="StorageKind.Variable" /> then the 0-based index of the
+     * If {@link storage} equals {@link StorageKind.Variable} then the 0-based index of the
      * field from the beginning of the variable length segment.
      * <para />
-     * For all other values of <see cref="storage" />, <see cref="Offset" /> is ignored.
+     * For all other values of {@link storage}, {@link Offset} is ignored.
      */
     int getOffset()
 
     /**
-     * If <see cref="storage" /> equals <see cref="StorageKind.Fixed" /> then the fixed number of
+     * If {@link storage} equals {@link StorageKind.Fixed} then the fixed number of
      * bytes reserved for the value.
      * <para />
-     * If <see cref="storage" /> equals <see cref="StorageKind.Variable" /> then the maximum number of
+     * If {@link storage} equals {@link StorageKind.Variable} then the maximum number of
      * bytes allowed for the value.
      */
     int getSize()

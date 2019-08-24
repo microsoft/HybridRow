@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -27,7 +28,7 @@ import static com.google.common.base.Strings.lenientFormat;
 
 /**
  * The abstract base class for typed hybrid row field descriptors.
- * <see cref="LayoutType" /> is immutable.
+ * {@link LayoutType} is immutable.
  */
 // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
 //ORIGINAL LINE: [DebuggerDisplay("{" + nameof(LayoutType.Name) + "}")] public abstract class LayoutType : ILayoutType
@@ -269,7 +270,7 @@ public abstract class LayoutType implements ILayoutType {
     public int Size;
 
     /**
-     * Initializes a new instance of the <see cref="LayoutType" /> class.
+     * Initializes a new instance of the {@link LayoutType} class.
      */
     public LayoutType(LayoutCode code, boolean immutable, int size) {
         this.LayoutCode = code;
@@ -343,7 +344,7 @@ public abstract class LayoutType implements ILayoutType {
      * @param code The expected type of the field.
      * @return Success if the delete is permitted, the error code otherwise.
      */
-    public static Result PrepareSparseDelete(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public static Result PrepareSparseDelete(Reference<RowBuffer> b, Reference<RowCursor> edit,
                                              LayoutCode code) {
         if (edit.get().scopeType.IsFixedArity) {
             return Result.TypeConstraint;
@@ -373,11 +374,11 @@ public abstract class LayoutType implements ILayoutType {
      * @return Success if the move is permitted, the error code otherwise.
      * The source field is delete if the move prepare fails with a destination error.
      */
-    public static Result PrepareSparseMove(RefObject<RowBuffer> b,
-                                           RefObject<RowCursor> destinationScope,
+    public static Result PrepareSparseMove(Reference<RowBuffer> b,
+                                           Reference<RowCursor> destinationScope,
                                            LayoutScope destinationCode, TypeArgument elementType,
-                                           RefObject<RowCursor> srcEdit, UpdateOptions options,
-                                           OutObject<RowCursor> dstEdit) {
+                                           Reference<RowCursor> srcEdit, UpdateOptions options,
+                                           Out<RowCursor> dstEdit) {
         checkArgument(destinationScope.get().scopeType == destinationCode);
         checkArgument(destinationScope.get().index == 0, "Can only insert into a edit at the root");
 
@@ -436,7 +437,7 @@ public abstract class LayoutType implements ILayoutType {
      * @param code The expected type of the field.
      * @return Success if the read is permitted, the error code otherwise.
      */
-    public static Result PrepareSparseRead(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public static Result PrepareSparseRead(Reference<RowBuffer> b, Reference<RowCursor> edit,
                                            LayoutCode code) {
         if (!edit.get().exists) {
             return Result.NotFound;
@@ -458,7 +459,7 @@ public abstract class LayoutType implements ILayoutType {
      * @param options The write options.
      * @return Success if the write is permitted, the error code otherwise.
      */
-    public static Result PrepareSparseWrite(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public static Result PrepareSparseWrite(Reference<RowBuffer> b, Reference<RowCursor> edit,
                                             TypeArgument typeArg, UpdateOptions options) {
         if (edit.get().immutable || (edit.get().scopeType.IsUniqueScope && !edit.get().deferUniqueIndex)) {
             return Result.InsufficientPermissions;
@@ -497,17 +498,17 @@ public abstract class LayoutType implements ILayoutType {
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static TypeArgument ReadTypeArgument(ref RowBuffer row, int offset, out int lenInBytes)
-    public static TypeArgument ReadTypeArgument(RefObject<RowBuffer> row, int offset, OutObject<Integer> lenInBytes) {
+    public static TypeArgument ReadTypeArgument(Reference<RowBuffer> row, int offset, Out<Integer> lenInBytes) {
         LayoutType itemCode = row.get().ReadSparseTypeCode(offset);
         int argsLenInBytes;
-        OutObject<Integer> tempOut_argsLenInBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_argsLenInBytes = new Out<Integer>();
         TypeArgumentList itemTypeArgs = itemCode.ReadTypeArgumentList(row, offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), tempOut_argsLenInBytes).clone();
         argsLenInBytes = tempOut_argsLenInBytes.get();
         lenInBytes.set((com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + argsLenInBytes);
         return new TypeArgument(itemCode, itemTypeArgs.clone());
     }
 
-    public TypeArgumentList ReadTypeArgumentList(RefObject<RowBuffer> row, int offset, OutObject<Integer> lenInBytes) {
+    public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset, Out<Integer> lenInBytes) {
         lenInBytes.set(0);
         return TypeArgumentList.Empty;
     }
@@ -521,7 +522,7 @@ public abstract class LayoutType implements ILayoutType {
         return (T)this;
     }
 
-    public int WriteTypeArgument(RefObject<RowBuffer> row, int offset, TypeArgumentList value) {
+    public int WriteTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         row.get().WriteSparseTypeCode(offset, this.LayoutCode);
         return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
     }

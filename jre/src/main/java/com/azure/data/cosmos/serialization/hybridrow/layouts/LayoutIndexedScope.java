@@ -4,7 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
@@ -22,7 +23,7 @@ public abstract class LayoutIndexedScope extends LayoutScope {
     }
 
     @Override
-    public void ReadSparsePath(RefObject<RowBuffer> row, RefObject<RowCursor> edit) {
+    public void ReadSparsePath(Reference<RowBuffer> row, Reference<RowCursor> edit) {
         edit.get().pathToken = 0;
         edit.get().pathOffset = 0;
     }

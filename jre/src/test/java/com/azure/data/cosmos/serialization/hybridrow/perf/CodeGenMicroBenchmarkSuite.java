@@ -4,7 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.HashMap;
  * Tests involving generated (early bound) code compiled from schema based on a partial implementation
  * of Cassandra Hotel Schema described here: https: //www.oreilly.com/ideas/cassandra-data-modeling .
  * <p>
- * The tests here differ from <see cref="SchematizedMicroBenchmarkSuite" /> in that they rely on
+ * The tests here differ from {@link SchematizedMicroBenchmarkSuite} in that they rely on
  * the schema being known at compile time instead of runtime. This allows code to be generated that
  * directly addresses the schema structure instead of dynamically discovering schema structure at
  * runtime.
@@ -228,16 +229,17 @@ public final class CodeGenMicroBenchmarkSuite extends MicroBenchmarkSuiteBase {
             expectedSerialized.add(context.CodeGenWriter.ToArray());
         }
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MicroBenchmarkSuiteBase.Benchmark("CodeGen", "Read", dataSetName, "HybridRowGen", innerLoopIterations, ref context, (ref BenchmarkContext ctx, byte[] tableValue) =>
-        MicroBenchmarkSuiteBase.Benchmark("CodeGen", "Read", dataSetName, "HybridRowGen", innerLoopIterations, tempRef_context, (ref BenchmarkContext ctx, byte[] tableValue) ->
+        MicroBenchmarkSuiteBase.Benchmark("CodeGen", "Read", dataSetName, "HybridRowGen", innerLoopIterations,
+            tempReference_context, (ref BenchmarkContext ctx, byte[] tableValue) ->
         {
             Result r = ctx.CodeGenWriter.ReadBuffer(tableValue);
             ResultAssert.IsSuccess(r);
         }, (ref BenchmarkContext ctx, byte[] tableValue) -> tableValue.length, expectedSerialized);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 
     private static void CodeGenWriteBenchmark(LayoutResolverNamespace resolver, String schemaName, String dataSetName
@@ -247,18 +249,18 @@ public final class CodeGenMicroBenchmarkSuite extends MicroBenchmarkSuiteBase {
         BenchmarkContext context = new BenchmarkContext();
         context.CodeGenWriter = new CodeGenRowGenerator(BenchmarkSuiteBase.InitialCapacity, layout, resolver);
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         MicroBenchmarkSuiteBase.Benchmark("CodeGen", "Write", dataSetName, "HybridRowGen", innerLoopIterations,
-            tempRef_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) ->
+            tempReference_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) ->
         {
             ctx.CodeGenWriter.Reset();
 
             Result r = ctx.CodeGenWriter.WriteBuffer(tableValue);
             ResultAssert.IsSuccess(r);
         }, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) -> ctx.CodeGenWriter.Length, expected);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 
     private static void ProtobufReadBenchmark(String schemaName, String dataSetName, int innerLoopIterations,
@@ -277,7 +279,7 @@ public final class CodeGenMicroBenchmarkSuite extends MicroBenchmarkSuiteBase {
             expectedSerialized.add(context.ProtobufWriter.ToArray());
         }
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -286,10 +288,10 @@ public final class CodeGenMicroBenchmarkSuite extends MicroBenchmarkSuiteBase {
         // .ReadBuffer(tableValue), (ref BenchmarkContext ctx, byte[] tableValue) => tableValue.Length,
         // expectedSerialized);
         MicroBenchmarkSuiteBase.Benchmark("CodeGen", "Read", dataSetName, "Protobuf", innerLoopIterations,
-            tempRef_context,
+            tempReference_context,
             (ref BenchmarkContext ctx, byte[] tableValue) -> ctx.ProtobufWriter.ReadBuffer(tableValue),
             (ref BenchmarkContext ctx, byte[] tableValue) -> tableValue.length, expectedSerialized);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 
     private static void ProtobufWriteBenchmark(String schemaName, String dataSetName, int innerLoopIterations,
@@ -297,14 +299,14 @@ public final class CodeGenMicroBenchmarkSuite extends MicroBenchmarkSuiteBase {
         BenchmarkContext context = new BenchmarkContext();
         context.ProtobufWriter = new ProtobufRowGenerator(schemaName, BenchmarkSuiteBase.InitialCapacity);
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         MicroBenchmarkSuiteBase.Benchmark("CodeGen", "Write", dataSetName, "Protobuf", innerLoopIterations,
-            tempRef_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) ->
+            tempReference_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) ->
         {
             ctx.ProtobufWriter.WriteBuffer(tableValue);
         }, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) -> ctx.ProtobufWriter.Length, expected);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 }

@@ -4,7 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -52,10 +53,10 @@ public final class JsonModelRowGenerator {
     }
 
     public RowReader GetReader() {
-        RefObject<RowBuffer> tempRef_row = new RefObject<RowBuffer>(this.row);
+        Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
         return new RowReader(ref this.row)
-        this.row = tempRef_row.get();
+        this.row = tempReference_row.get();
         return tempVar;
     }
 
@@ -77,25 +78,25 @@ public final class JsonModelRowGenerator {
     }
 
     public Result WriteBuffer(HashMap<Utf8String, Object> value) {
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(this.row);
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(this.row);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        Result tempVar = RowWriter.WriteBuffer(tempRef_row, value, (ref RowWriter writer, TypeArgument typeArg,
-                                                                    HashMap<Utf8String, Object> dict) ->
+        Result tempVar = RowWriter.WriteBuffer(tempReference_row, value, (ref RowWriter writer, TypeArgument typeArg,
+                                                                          HashMap<Utf8String, Object> dict) ->
         {
             for ((Utf8String propPath,Object propValue) :dict)
             {
-                RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempRef_writer =
-                    new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer);
-                Result result = JsonModelRowGenerator.JsonModelSwitch(tempRef_writer, propPath, propValue);
-                writer = tempRef_writer.get();
+                Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer =
+                    new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer);
+                Result result = JsonModelRowGenerator.JsonModelSwitch(tempReference_writer, propPath, propValue);
+                writer = tempReference_writer.get();
                 return result;
             }
 
             return Result.Success;
         });
-        this.row = tempRef_row.get();
+        this.row = tempReference_row.get();
         return tempVar;
     }
 
@@ -111,7 +112,7 @@ public final class JsonModelRowGenerator {
         return varCopy;
     }
 
-    private static Result JsonModelSwitch(RefObject<RowWriter> writer, Utf8String path, Object value) {
+    private static Result JsonModelSwitch(Reference<RowWriter> writer, Utf8String path, Object value) {
         switch (value) {
             case null:
                 return writer.get().WriteNull(path);
@@ -161,9 +162,9 @@ public final class JsonModelRowGenerator {
                 {
                     for ((Utf8String propPath,Object propValue) :dict)
                     {
-                        RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempRef_writer2 = new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);
-                        Result result = JsonModelRowGenerator.JsonModelSwitch(tempRef_writer2, propPath, propValue);
-                        writer2 = tempRef_writer2.get();
+                        Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer2 = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);
+                        Result result = JsonModelRowGenerator.JsonModelSwitch(tempReference_writer2, propPath, propValue);
+                        writer2 = tempReference_writer2.get();
                         return result;
                     }
 
@@ -176,9 +177,9 @@ public final class JsonModelRowGenerator {
                 return writer.get().WriteScope(path, new TypeArgument(LayoutType.Array), x, (ref RowWriter writer2, TypeArgument typeArg, ArrayList<Object> list) ->
                 {
                     for (Object elm : list) {
-                        RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempRef_writer2 = new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);
-                        Result result = JsonModelRowGenerator.JsonModelSwitch(tempRef_writer2, null, elm);
-                        writer2 = tempRef_writer2.get();
+                        Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer2 = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);
+                        Result result = JsonModelRowGenerator.JsonModelSwitch(tempReference_writer2, null, elm);
+                        writer2 = tempReference_writer2.get();
                         if (result != Result.Success) {
                             return result;
                         }

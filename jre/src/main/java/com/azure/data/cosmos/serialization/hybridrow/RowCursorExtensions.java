@@ -4,7 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
 
@@ -14,7 +15,7 @@ public final class RowCursorExtensions {
     /** Makes a copy of the current cursor.
 
      The two cursors will have independent and unconnected lifetimes after cloning.  However,
-     mutations to a <see cref="RowBuffer" /> can invalidate any active cursors over the same row.
+     mutations to a {@link RowBuffer} can invalidate any active cursors over the same row.
 
      */
     // TODO: C# TO JAVA CONVERTER: 'ref return' methods are not converted by C# to Java Converter:
@@ -78,14 +79,14 @@ public final class RowCursorExtensions {
     //			edit.writePathToken = pathToken;
     //			return ref edit;
     //		}
-    public static boolean MoveNext(RefObject<RowCursor> edit, RefObject<RowBuffer> row) {
+    public static boolean MoveNext(Reference<RowCursor> edit, Reference<RowBuffer> row) {
         edit.get().writePath = null;
         edit.get().writePathToken = null;
         return row.get().SparseIteratorMoveNext(edit);
     }
 
-    public static boolean MoveNext(RefObject<RowCursor> edit, RefObject<RowBuffer> row,
-                                   RefObject<RowCursor> childScope) {
+    public static boolean MoveNext(Reference<RowCursor> edit, Reference<RowBuffer> row,
+                                   Reference<RowCursor> childScope) {
         if (childScope.get().scopeType != null) {
             RowCursorExtensions.Skip(edit.get().clone(), row, childScope);
         }
@@ -93,7 +94,7 @@ public final class RowCursorExtensions {
         return RowCursorExtensions.MoveNext(edit.get().clone(), row);
     }
 
-    public static boolean MoveTo(RefObject<RowCursor> edit, RefObject<RowBuffer> row, int index) {
+    public static boolean MoveTo(Reference<RowCursor> edit, Reference<RowBuffer> row, int index) {
         checkState(edit.get().index <= index);
         edit.get().writePath = null;
         edit.get().writePathToken = null;
@@ -106,8 +107,8 @@ public final class RowCursorExtensions {
         return true;
     }
 
-    public static void Skip(RefObject<RowCursor> edit, RefObject<RowBuffer> row,
-                            RefObject<RowCursor> childScope) {
+    public static void Skip(Reference<RowCursor> edit, Reference<RowBuffer> row,
+                            Reference<RowCursor> childScope) {
         checkArgument(childScope.get().start == edit.get().valueOffset);
         if (!(childScope.get().cellType instanceof LayoutEndScope)) {
             while (row.get().SparseIteratorMoveNext(childScope)) {

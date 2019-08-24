@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBit;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode;
@@ -37,9 +38,9 @@ import static com.google.common.base.Strings.lenientFormat;
 //C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# ref struct:
 public final class RowBuffer {
     /**
-     * A sequence of bytes managed by this <see cref="RowBuffer" />.
+     * A sequence of bytes managed by this {@link RowBuffer}.
      * <p>
-     * A Hybrid Row begins in the 0-th byte of the <see cref="RowBuffer" />.  Remaining byte
+     * A Hybrid Row begins in the 0-th byte of the {@link RowBuffer}.  Remaining byte
      * sequence is defined by the Hybrid Row grammar.
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -61,7 +62,7 @@ public final class RowBuffer {
     private LayoutResolver resolver;
 
     /**
-     * Initializes a new instance of the <see cref="RowBuffer" /> struct.
+     * Initializes a new instance of the {@link RowBuffer} struct.
      *
      * @param capacity Initial buffer capacity.
      * @param resizer  Optional memory resizer.
@@ -87,7 +88,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Initializes a new instance of the <see cref="RowBuffer" /> struct from an existing buffer.
+     * Initializes a new instance of the {@link RowBuffer} struct from an existing buffer.
      *
      * @param buffer   The buffer.  The row takes ownership of the buffer and the caller should not
      *                 maintain a pointer or mutate the buffer after this call returns.
@@ -163,7 +164,7 @@ public final class RowBuffer {
             LayoutColumn col = columns[i];
             if (this.ReadBit(scopeOffset, col.getNullBit().clone())) {
                 int lengthSizeInBytes;
-                OutObject<Integer> tempOut_lengthSizeInBytes = new OutObject<Integer>();
+                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
                 long valueSizeInBytes = this.Read7BitEncodedUInt(offset, tempOut_lengthSizeInBytes);
@@ -184,7 +185,7 @@ public final class RowBuffer {
      * encoding.
      *
      * @param value The value to be encoded.
-     * @return The number of bytes needed to store the varuint encoding of <see cref="value" />.
+     * @return The number of bytes needed to store the varuint encoding of {@link value}.
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal static int Count7BitEncodedUInt(ulong value)
@@ -216,7 +217,7 @@ public final class RowBuffer {
      *
      * @param edit The field to delete.
      */
-    public void DeleteSparse(RefObject<RowCursor> edit) {
+    public void DeleteSparse(Reference<RowCursor> edit) {
         // If the field doesn't exist, then nothing to do.
         if (!edit.get().exists) {
             return;
@@ -224,11 +225,11 @@ public final class RowBuffer {
 
         int numBytes = 0;
         int _;
-        OutObject<Integer> tempOut__ = new OutObject<Integer>();
+        Out<Integer> tempOut__ = new Out<Integer>();
         int _;
-        OutObject<Integer> tempOut__2 = new OutObject<Integer>();
+        Out<Integer> tempOut__2 = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, edit.get().cellType, edit.get().cellTypeArgs.clone(), numBytes,
 			RowOptions.Delete, tempOut__, tempOut__2, tempOut_shift);
         shift = tempOut_shift.get();
@@ -239,7 +240,7 @@ public final class RowBuffer {
 
     public void DeleteVariable(int offset, boolean isVarint) {
         int spaceAvailable;
-        OutObject<Integer> tempOut_spaceAvailable = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceAvailable = new Out<Integer>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ulong existingValueBytes = this.Read7BitEncodedUInt(offset, out int spaceAvailable);
         long existingValueBytes = this.Read7BitEncodedUInt(offset, tempOut_spaceAvailable);
@@ -294,23 +295,23 @@ public final class RowBuffer {
      * @param srcEdit The field to move into the set/map.
      * @return The prepared edit context.
      */
-    public RowCursor PrepareSparseMove(RefObject<RowCursor> scope, RefObject<RowCursor> srcEdit) {
+    public RowCursor PrepareSparseMove(Reference<RowCursor> scope, Reference<RowCursor> srcEdit) {
         checkArgument(scope.get().scopeType.IsUniqueScope);
 
         checkArgument(scope.get().index == 0);
         RowCursor dstEdit;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-		// cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+		// cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         scope.get().Clone(out dstEdit);
 
         dstEdit.metaOffset = scope.get().valueOffset;
         int srcSize = this.SparseComputeSize(srcEdit);
         int srcBytes = srcSize - (srcEdit.get().valueOffset - srcEdit.get().metaOffset);
         while (dstEdit.index < dstEdit.count) {
-            RefObject<RowCursor> tempRef_dstEdit =
-				new RefObject<RowCursor>(dstEdit);
-            this.ReadSparseMetadata(tempRef_dstEdit);
-            dstEdit = tempRef_dstEdit.get();
+            Reference<RowCursor> tempReference_dstEdit =
+				new Reference<RowCursor>(dstEdit);
+            this.ReadSparseMetadata(tempReference_dstEdit);
+            dstEdit = tempReference_dstEdit.get();
             Contract.Assert(dstEdit.pathOffset ==
             default)
 
@@ -319,10 +320,10 @@ public final class RowBuffer {
                 if (scope.get().scopeType instanceof LayoutTypedMap) {
                     cmp = this.CompareKeyValueFieldValue(srcEdit.get().clone(), dstEdit);
                 } else {
-                    RefObject<RowCursor> tempRef_dstEdit2 =
-						new RefObject<RowCursor>(dstEdit);
-                    elmSize = this.SparseComputeSize(tempRef_dstEdit2);
-                    dstEdit = tempRef_dstEdit2.get();
+                    Reference<RowCursor> tempReference_dstEdit2 =
+						new Reference<RowCursor>(dstEdit);
+                    elmSize = this.SparseComputeSize(tempReference_dstEdit2);
+                    dstEdit = tempReference_dstEdit2.get();
                     int elmBytes = elmSize - (dstEdit.valueOffset - dstEdit.metaOffset);
                     cmp = this.CompareFieldValue(srcEdit.get().clone(), srcBytes, dstEdit, elmBytes);
                 }
@@ -332,10 +333,10 @@ public final class RowBuffer {
                     return dstEdit;
                 }
 
-                RefObject<RowCursor> tempRef_dstEdit3 =
-					new RefObject<RowCursor>(dstEdit);
-                elmSize = (elmSize == -1) ? this.SparseComputeSize(tempRef_dstEdit3) : elmSize;
-                dstEdit = tempRef_dstEdit3.get();
+                Reference<RowCursor> tempReference_dstEdit3 =
+					new Reference<RowCursor>(dstEdit);
+                elmSize = (elmSize == -1) ? this.SparseComputeSize(tempReference_dstEdit3) : elmSize;
+                dstEdit = tempReference_dstEdit3.get();
                 dstEdit.index++;
                 dstEdit.metaOffset += elmSize;
         }
@@ -346,13 +347,13 @@ public final class RowBuffer {
         return dstEdit;
     }
 
-    public long Read7BitEncodedInt(int offset, OutObject<Integer> lenInBytes) {
+    public long Read7BitEncodedInt(int offset, Out<Integer> lenInBytes) {
         return RowBuffer.RotateSignToMsb(this.Read7BitEncodedUInt(offset, lenInBytes));
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal ulong Read7BitEncodedUInt(int offset, out int lenInBytes)
-    public long Read7BitEncodedUInt(int offset, OutObject<Integer> lenInBytes) {
+    public long Read7BitEncodedUInt(int offset, Out<Integer> lenInBytes) {
         // Read out an unsigned long 7 bits at a time.  The high bit of the byte,
         // when set, indicates there are more bytes.
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -509,10 +510,10 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal ReadOnlySpan<byte> ReadSparseBinary(ref RowCursor edit)
-    public ReadOnlySpan<Byte> ReadSparseBinary(RefObject<RowCursor> edit) {
+    public ReadOnlySpan<Byte> ReadSparseBinary(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Binary);
         int sizeLenInBytes;
-        OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ReadOnlySpan<byte> span = this.ReadBinary(edit.valueOffset, out int sizeLenInBytes);
         ReadOnlySpan<Byte> span = this.ReadBinary(edit.get().valueOffset, tempOut_sizeLenInBytes);
@@ -521,89 +522,89 @@ public final class RowBuffer {
         return span;
     }
 
-    public boolean ReadSparseBool(RefObject<RowCursor> edit) {
+    public boolean ReadSparseBool(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Boolean);
         edit.get().endOffset = edit.get().valueOffset;
         return edit.get().cellType == LayoutType.Boolean;
     }
 
-    public LocalDateTime ReadSparseDateTime(RefObject<RowCursor> edit) {
+    public LocalDateTime ReadSparseDateTime(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.DateTime);
         edit.get().endOffset = edit.get().valueOffset + 8;
         return this.ReadDateTime(edit.get().valueOffset);
     }
 
-    public BigDecimal ReadSparseDecimal(RefObject<RowCursor> edit) {
+    public BigDecimal ReadSparseDecimal(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Decimal);
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
         edit.get().endOffset = edit.get().valueOffset + sizeof(BigDecimal);
         return this.ReadDecimal(edit.get().valueOffset);
     }
 
-    public Float128 ReadSparseFloat128(RefObject<RowCursor> edit) {
+    public Float128 ReadSparseFloat128(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Float128);
         edit.get().endOffset = edit.get().valueOffset + Float128.Size;
         return this.ReadFloat128(edit.get().valueOffset).clone();
     }
 
-    public float ReadSparseFloat32(RefObject<RowCursor> edit) {
+    public float ReadSparseFloat32(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Float32);
         edit.get().endOffset = edit.get().valueOffset + (Float.SIZE / Byte.SIZE);
         return this.ReadFloat32(edit.get().valueOffset);
     }
 
-    public double ReadSparseFloat64(RefObject<RowCursor> edit) {
+    public double ReadSparseFloat64(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Float64);
         edit.get().endOffset = edit.get().valueOffset + (Double.SIZE / Byte.SIZE);
         return this.ReadFloat64(edit.get().valueOffset);
     }
 
-    public UUID ReadSparseGuid(RefObject<RowCursor> edit) {
+    public UUID ReadSparseGuid(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Guid);
         edit.get().endOffset = edit.get().valueOffset + 16;
         return this.ReadGuid(edit.get().valueOffset);
     }
 
-    public short ReadSparseInt16(RefObject<RowCursor> edit) {
+    public short ReadSparseInt16(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Int16);
         edit.get().endOffset = edit.get().valueOffset + (Short.SIZE / Byte.SIZE);
         return this.ReadInt16(edit.get().valueOffset);
     }
 
-    public int ReadSparseInt32(RefObject<RowCursor> edit) {
+    public int ReadSparseInt32(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Int32);
         edit.get().endOffset = edit.get().valueOffset + (Integer.SIZE / Byte.SIZE);
         return this.ReadInt32(edit.get().valueOffset);
     }
 
-    public long ReadSparseInt64(RefObject<RowCursor> edit) {
+    public long ReadSparseInt64(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Int64);
         edit.get().endOffset = edit.get().valueOffset + (Long.SIZE / Byte.SIZE);
         return this.ReadInt64(edit.get().valueOffset);
     }
 
-    public byte ReadSparseInt8(RefObject<RowCursor> edit) {
+    public byte ReadSparseInt8(Reference<RowCursor> edit) {
         // TODO: Remove calls to ReadSparsePrimitiveTypeCode once moved to V2 read.
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Int8);
         edit.get().endOffset = edit.get().valueOffset + (Byte.SIZE / Byte.SIZE);
         return this.ReadInt8(edit.get().valueOffset);
     }
 
-    public MongoDbObjectId ReadSparseMongoDbObjectId(RefObject<RowCursor> edit) {
+    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, MongoDbObjectId);
         edit.get().endOffset = edit.get().valueOffset + MongoDbObjectId.Size;
         return this.ReadMongoDbObjectId(edit.get().valueOffset).clone();
     }
 
-    public NullValue ReadSparseNull(RefObject<RowCursor> edit) {
+    public NullValue ReadSparseNull(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Null);
         edit.get().endOffset = edit.get().valueOffset;
         return NullValue.Default;
     }
 
-    public Utf8Span ReadSparsePath(RefObject<RowCursor> edit) {
+    public Utf8Span ReadSparsePath(Reference<RowCursor> edit) {
         Utf8String path;
-        OutObject<Utf8String> tempOut_path = new OutObject<Utf8String>();
+        Out<Utf8String> tempOut_path = new Out<Utf8String>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: if (edit.layout.Tokenizer.TryFindString((ulong)edit.pathToken, out Utf8String path))
         if (edit.get().layout.getTokenizer().TryFindString(edit.get().longValue().pathToken, tempOut_path)) {
@@ -617,10 +618,10 @@ public final class RowBuffer {
         return Utf8Span.UnsafeFromUtf8BytesNoValidation(this.buffer.Slice(edit.get().pathOffset, numBytes));
     }
 
-    public int ReadSparsePathLen(Layout layout, int offset, OutObject<Integer> pathLenInBytes,
-								 OutObject<Integer> pathOffset) {
+    public int ReadSparsePathLen(Layout layout, int offset, Out<Integer> pathLenInBytes,
+								 Out<Integer> pathOffset) {
         int sizeLenInBytes;
-        OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
         int token = (int)this.Read7BitEncodedUInt(offset, tempOut_sizeLenInBytes);
         sizeLenInBytes = tempOut_sizeLenInBytes.get();
         if (token < layout.getTokenizer().getCount()) {
@@ -635,10 +636,10 @@ public final class RowBuffer {
         return token;
     }
 
-    public Utf8Span ReadSparseString(RefObject<RowCursor> edit) {
+    public Utf8Span ReadSparseString(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.Utf8);
         int sizeLenInBytes;
-        OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
         Utf8Span span = this.ReadString(edit.get().valueOffset, tempOut_sizeLenInBytes);
         sizeLenInBytes = tempOut_sizeLenInBytes.get();
         edit.get().endOffset = edit.get().valueOffset + sizeLenInBytes + span.Length;
@@ -654,7 +655,7 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal ushort ReadSparseUInt16(ref RowCursor edit)
-    public short ReadSparseUInt16(RefObject<RowCursor> edit) {
+    public short ReadSparseUInt16(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.UInt16);
         edit.get().endOffset = edit.get().valueOffset + (Short.SIZE / Byte.SIZE);
         return this.ReadUInt16(edit.get().valueOffset);
@@ -662,7 +663,7 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal uint ReadSparseUInt32(ref RowCursor edit)
-    public int ReadSparseUInt32(RefObject<RowCursor> edit) {
+    public int ReadSparseUInt32(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.UInt32);
         edit.get().endOffset = edit.get().valueOffset + (Integer.SIZE / Byte.SIZE);
         return this.ReadUInt32(edit.get().valueOffset);
@@ -670,7 +671,7 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal ulong ReadSparseUInt64(ref RowCursor edit)
-    public long ReadSparseUInt64(RefObject<RowCursor> edit) {
+    public long ReadSparseUInt64(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.UInt64);
         edit.get().endOffset = edit.get().valueOffset + (Long.SIZE / Byte.SIZE);
         return this.ReadUInt64(edit.get().valueOffset);
@@ -678,22 +679,22 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal byte ReadSparseUInt8(ref RowCursor edit)
-    public byte ReadSparseUInt8(RefObject<RowCursor> edit) {
+    public byte ReadSparseUInt8(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.UInt8);
         edit.get().endOffset = edit.get().valueOffset + 1;
         return this.ReadUInt8(edit.get().valueOffset);
     }
 
-    public UnixDateTime ReadSparseUnixDateTime(RefObject<RowCursor> edit) {
+    public UnixDateTime ReadSparseUnixDateTime(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.UnixDateTime);
         edit.get().endOffset = edit.get().valueOffset + 8;
         return this.ReadUnixDateTime(edit.get().valueOffset).clone();
     }
 
-    public long ReadSparseVarInt(RefObject<RowCursor> edit) {
+    public long ReadSparseVarInt(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.VarInt);
         int sizeLenInBytes;
-        OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
         long value = this.Read7BitEncodedInt(edit.get().valueOffset, tempOut_sizeLenInBytes);
         sizeLenInBytes = tempOut_sizeLenInBytes.get();
         edit.get().endOffset = edit.get().valueOffset + sizeLenInBytes;
@@ -702,10 +703,10 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal ulong ReadSparseVarUInt(ref RowCursor edit)
-    public long ReadSparseVarUInt(RefObject<RowCursor> edit) {
+    public long ReadSparseVarUInt(Reference<RowCursor> edit) {
         this.ReadSparsePrimitiveTypeCode(edit, LayoutType.VarUInt);
         int sizeLenInBytes;
-        OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ulong value = this.Read7BitEncodedUInt(edit.valueOffset, out int sizeLenInBytes);
         long value = this.Read7BitEncodedUInt(edit.get().valueOffset, tempOut_sizeLenInBytes);
@@ -754,7 +755,7 @@ public final class RowBuffer {
     //ORIGINAL LINE: internal ReadOnlySpan<byte> ReadVariableBinary(int offset)
     public ReadOnlySpan<Byte> ReadVariableBinary(int offset) {
         int _;
-        OutObject<Integer> tempOut__ = new OutObject<Integer>();
+        Out<Integer> tempOut__ = new Out<Integer>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.ReadBinary(offset, out int _);
         ReadOnlySpan<Byte> tempVar = this.ReadBinary(offset, tempOut__);
@@ -764,7 +765,7 @@ public final class RowBuffer {
 
     public long ReadVariableInt(int offset) {
         int _;
-        OutObject<Integer> tempOut__ = new OutObject<Integer>();
+        Out<Integer> tempOut__ = new Out<Integer>();
         long tempVar = this.Read7BitEncodedInt(offset, tempOut__);
         _ = tempOut__.get();
         return tempVar;
@@ -772,7 +773,7 @@ public final class RowBuffer {
 
     public Utf8Span ReadVariableString(int offset) {
         int _;
-        OutObject<Integer> tempOut__ = new OutObject<Integer>();
+        Out<Integer> tempOut__ = new Out<Integer>();
         Utf8Span tempVar = this.ReadString(offset, tempOut__);
         _ = tempOut__.get();
         return tempVar;
@@ -782,7 +783,7 @@ public final class RowBuffer {
     //ORIGINAL LINE: internal ulong ReadVariableUInt(int offset)
     public long ReadVariableUInt(int offset) {
         int _;
-        OutObject<Integer> tempOut__ = new OutObject<Integer>();
+        Out<Integer> tempOut__ = new Out<Integer>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.Read7BitEncodedUInt(offset, out int _);
         long tempVar = this.Read7BitEncodedUInt(offset, tempOut__);
@@ -838,7 +839,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Undoes the rotation introduced by <see cref="RotateSignToLsb" />.
+     * Undoes the rotation introduced by {@link RotateSignToLsb}.
      *
      * @param uvalue An unsigned value with the sign bit in the LSB.
      * @return A signed two's complement value encoding the same value.
@@ -893,7 +894,7 @@ public final class RowBuffer {
      *             </paramref>.
      * @return True if there is another field, false if there are no more.
      */
-    public boolean SparseIteratorMoveNext(RefObject<RowCursor> edit) {
+    public boolean SparseIteratorMoveNext(Reference<RowCursor> edit) {
         if (edit.get().cellType != null) {
             // Move to the next element of an indexed scope.
             if (edit.get().scopeType.IsIndexedScope) {
@@ -937,7 +938,7 @@ public final class RowBuffer {
      * @param immutable True if the new scope should be marked immutable (read-only).
      * @return A new scope beginning at the current iterator position.
      */
-    public RowCursor SparseIteratorReadScope(RefObject<RowCursor> edit, boolean immutable) {
+    public RowCursor SparseIteratorReadScope(Reference<RowCursor> edit, boolean immutable) {
         LayoutScope scopeType = edit.get().cellType instanceof LayoutScope ? (LayoutScope)edit.get().cellType :
             null;
         switch (scopeType) {
@@ -1093,18 +1094,18 @@ public final class RowBuffer {
         return this.buffer.Slice(0, this.length).ToArray();
     }
 
-    public void TypedCollectionMoveField(RefObject<RowCursor> dstEdit, RefObject<RowCursor> srcEdit
+    public void TypedCollectionMoveField(Reference<RowCursor> dstEdit, Reference<RowCursor> srcEdit
 		, RowOptions options) {
         int encodedSize = this.SparseComputeSize(srcEdit);
         int numBytes = encodedSize - (srcEdit.get().valueOffset - srcEdit.get().metaOffset);
 
         // Insert the field metadata into its new location.
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shiftInsert;
-        OutObject<Integer> tempOut_shiftInsert = new OutObject<Integer>();
+        Out<Integer> tempOut_shiftInsert = new Out<Integer>();
         this.EnsureSparse(dstEdit, srcEdit.get().cellType, srcEdit.get().cellTypeArgs.clone(), numBytes,
 			options, tempOut_metaBytes, tempOut_spaceNeeded, tempOut_shiftInsert);
         shiftInsert = tempOut_shiftInsert.get();
@@ -1123,10 +1124,10 @@ public final class RowBuffer {
         this.length += shiftInsert;
 
         // Delete the old location.
-        OutObject<Integer> tempOut_metaBytes2 = new OutObject<Integer>();
-        OutObject<Integer> tempOut_spaceNeeded2 = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes2 = new Out<Integer>();
+        Out<Integer> tempOut_spaceNeeded2 = new Out<Integer>();
         int shiftDelete;
-        OutObject<Integer> tempOut_shiftDelete = new OutObject<Integer>();
+        Out<Integer> tempOut_shiftDelete = new Out<Integer>();
         this.EnsureSparse(srcEdit, srcEdit.get().cellType, srcEdit.get().cellTypeArgs.clone(), numBytes,
 			RowOptions.Delete, tempOut_metaBytes2, tempOut_spaceNeeded2, tempOut_shiftDelete);
         shiftDelete = tempOut_shiftDelete.get();
@@ -1166,13 +1167,13 @@ public final class RowBuffer {
      * operation is idempotent.
      * </p>
      */
-    public Result TypedCollectionUniqueIndexRebuild(RefObject<RowCursor> scope) {
+    public Result TypedCollectionUniqueIndexRebuild(Reference<RowCursor> scope) {
         checkArgument(scope.get().scopeType.IsUniqueScope);
         checkArgument(scope.get().index == 0);
         RowCursor dstEdit;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
 		// cannot be
-        // converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // converted using the 'Out' helper class unless the method is within the code being modified:
         scope.get().Clone(out dstEdit);
         if (dstEdit.count <= 1) {
             return Result.Success;
@@ -1185,16 +1186,16 @@ public final class RowBuffer {
         new UniqueIndexItem[dstEdit.count];
         dstEdit.metaOffset = scope.get().valueOffset;
         for (; dstEdit.index < dstEdit.count; dstEdit.index++) {
-            RefObject<RowCursor> tempRef_dstEdit =
-				new RefObject<RowCursor>(dstEdit);
-            this.ReadSparseMetadata(tempRef_dstEdit);
-            dstEdit = tempRef_dstEdit.get();
+            Reference<RowCursor> tempReference_dstEdit =
+				new Reference<RowCursor>(dstEdit);
+            this.ReadSparseMetadata(tempReference_dstEdit);
+            dstEdit = tempReference_dstEdit.get();
             Contract.Assert(dstEdit.pathOffset ==
             default)
-				RefObject<RowCursor> tempRef_dstEdit2 =
-					new RefObject<RowCursor>(dstEdit);
-                int elmSize = this.SparseComputeSize(tempRef_dstEdit2);
-                dstEdit = tempRef_dstEdit2.get();
+				Reference<RowCursor> tempReference_dstEdit2 =
+					new Reference<RowCursor>(dstEdit);
+                int elmSize = this.SparseComputeSize(tempReference_dstEdit2);
+                dstEdit = tempReference_dstEdit2.get();
 
                 UniqueIndexItem tempVar = new UniqueIndexItem();
                 tempVar.Code = dstEdit.cellType.LayoutCode;
@@ -1286,15 +1287,15 @@ public final class RowBuffer {
     }
 
     public void WriteDateTime(int offset, LocalDateTime value) {
-        RefObject<LocalDateTime> tempRef_value = new RefObject<LocalDateTime>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<LocalDateTime> tempReference_value = new Reference<LocalDateTime>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteDecimal(int offset, BigDecimal value) {
-        RefObject<BigDecimal> tempRef_value = new RefObject<BigDecimal>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<BigDecimal> tempReference_value = new Reference<BigDecimal>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -1320,53 +1321,53 @@ public final class RowBuffer {
     }
 
     public void WriteFloat128(int offset, Float128 value) {
-        RefObject<Float128> tempRef_value =
-			new RefObject<Float128>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<Float128> tempReference_value =
+			new Reference<Float128>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteFloat32(int offset, float value) {
-        RefObject<Float> tempRef_value = new RefObject<Float>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<Float> tempReference_value = new Reference<Float>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteFloat64(int offset, double value) {
-        RefObject<Double> tempRef_value = new RefObject<Double>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<Double> tempReference_value = new Reference<Double>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteGuid(int offset, UUID value) {
-        RefObject<UUID> tempRef_value = new RefObject<UUID>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<UUID> tempReference_value = new Reference<UUID>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteHeader(int offset, HybridRowHeader value) {
-        RefObject<HybridRowHeader> tempRef_value =
-			new RefObject<HybridRowHeader>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<HybridRowHeader> tempReference_value =
+			new Reference<HybridRowHeader>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteInt16(int offset, short value) {
-        RefObject<Short> tempRef_value = new RefObject<Short>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<Short> tempReference_value = new Reference<Short>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteInt32(int offset, int value) {
-        RefObject<Integer> tempRef_value = new RefObject<Integer>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<Integer> tempReference_value = new Reference<Integer>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteInt64(int offset, long value) {
-        RefObject<Long> tempRef_value = new RefObject<Long>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<Long> tempReference_value = new Reference<Long>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     public void WriteInt8(int offset, byte value) {
@@ -1377,21 +1378,21 @@ public final class RowBuffer {
     }
 
     public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
-        RefObject<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempRef_value =
-			new RefObject<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
+			new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
-    public void WriteNullable(RefObject<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                              UpdateOptions options, boolean hasValue, OutObject<RowCursor> newScope) {
+    public void WriteNullable(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
+                              UpdateOptions options, boolean hasValue, Out<RowCursor> newScope) {
         int numBytes = this.CountDefaultValue(scopeType, typeArgs.clone());
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1417,26 +1418,26 @@ public final class RowBuffer {
         newScope.get().index = 1;
 
         this.length += shift;
-        RefObject<RowBuffer> tempRef_this =
-			new RefObject<RowBuffer>(this);
-        RowCursorExtensions.MoveNext(newScope.get().clone(), tempRef_this);
-        this = tempRef_this.get();
+        Reference<RowBuffer> tempReference_this =
+			new Reference<RowBuffer>(this);
+        RowCursorExtensions.MoveNext(newScope.get().clone(), tempReference_this);
+        this = tempReference_this.get();
     }
 
     public void WriteSchemaId(int offset, SchemaId value) {
         this.WriteInt32(offset, value.getId());
     }
 
-    public void WriteSparseArray(RefObject<RowCursor> edit, LayoutScope scopeType, UpdateOptions options,
-                                 OutObject<RowCursor> newScope) {
+    public void WriteSparseArray(Reference<RowCursor> edit, LayoutScope scopeType, UpdateOptions options,
+                                 Out<RowCursor> newScope) {
         int numBytes = (LayoutCode.SIZE / Byte.SIZE); // end scope type code.
         TypeArgumentList typeArgs = TypeArgumentList.Empty;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1459,17 +1460,17 @@ public final class RowBuffer {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseBinary(ref RowCursor edit, ReadOnlySpan<byte> value, UpdateOptions
 	// options)
-    public void WriteSparseBinary(RefObject<RowCursor> edit, ReadOnlySpan<Byte> value, UpdateOptions options) {
+    public void WriteSparseBinary(Reference<RowCursor> edit, ReadOnlySpan<Byte> value, UpdateOptions options) {
         int len = value.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: int numBytes = len + RowBuffer.Count7BitEncodedUInt((ulong)len);
         int numBytes = len + RowBuffer.Count7BitEncodedUInt(len);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Binary, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1485,18 +1486,18 @@ public final class RowBuffer {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseBinary(ref RowCursor edit, ReadOnlySequence<byte> value, UpdateOptions
 	// options)
-    public void WriteSparseBinary(RefObject<RowCursor> edit, ReadOnlySequence<Byte> value,
+    public void WriteSparseBinary(Reference<RowCursor> edit, ReadOnlySequence<Byte> value,
                                   UpdateOptions options) {
         int len = (int)value.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: int numBytes = len + RowBuffer.Count7BitEncodedUInt((ulong)len);
         int numBytes = len + RowBuffer.Count7BitEncodedUInt(len);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Binary, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1509,14 +1510,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseBool(RefObject<RowCursor> edit, boolean value, UpdateOptions options) {
+    public void WriteSparseBool(Reference<RowCursor> edit, boolean value, UpdateOptions options) {
         int numBytes = 0;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, value ? LayoutType.Boolean : LayoutType.BooleanFalse, TypeArgumentList.Empty,
 			numBytes, options, tempOut_metaBytes, tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1529,14 +1530,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseDateTime(RefObject<RowCursor> edit, LocalDateTime value, UpdateOptions options) {
+    public void WriteSparseDateTime(Reference<RowCursor> edit, LocalDateTime value, UpdateOptions options) {
         int numBytes = 8;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.DateTime, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1549,15 +1550,15 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseDecimal(RefObject<RowCursor> edit, BigDecimal value, UpdateOptions options) {
+    public void WriteSparseDecimal(Reference<RowCursor> edit, BigDecimal value, UpdateOptions options) {
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
         int numBytes = sizeof(BigDecimal);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Decimal, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1571,14 +1572,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseFloat128(RefObject<RowCursor> edit, Float128 value, UpdateOptions options) {
+    public void WriteSparseFloat128(Reference<RowCursor> edit, Float128 value, UpdateOptions options) {
         int numBytes = Float128.Size;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Float128, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1591,14 +1592,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseFloat32(RefObject<RowCursor> edit, float value, UpdateOptions options) {
+    public void WriteSparseFloat32(Reference<RowCursor> edit, float value, UpdateOptions options) {
         int numBytes = (Float.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Float32, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1611,14 +1612,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseFloat64(RefObject<RowCursor> edit, double value, UpdateOptions options) {
+    public void WriteSparseFloat64(Reference<RowCursor> edit, double value, UpdateOptions options) {
         int numBytes = (Double.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Float64, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1631,14 +1632,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseGuid(RefObject<RowCursor> edit, UUID value, UpdateOptions options) {
+    public void WriteSparseGuid(Reference<RowCursor> edit, UUID value, UpdateOptions options) {
         int numBytes = 16;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Guid, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1651,14 +1652,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseInt16(RefObject<RowCursor> edit, short value, UpdateOptions options) {
+    public void WriteSparseInt16(Reference<RowCursor> edit, short value, UpdateOptions options) {
         int numBytes = (Short.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Int16, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1671,14 +1672,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseInt32(RefObject<RowCursor> edit, int value, UpdateOptions options) {
+    public void WriteSparseInt32(Reference<RowCursor> edit, int value, UpdateOptions options) {
         int numBytes = (Integer.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Int32, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1691,14 +1692,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseInt64(RefObject<RowCursor> edit, long value, UpdateOptions options) {
+    public void WriteSparseInt64(Reference<RowCursor> edit, long value, UpdateOptions options) {
         int numBytes = (Long.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Int64, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1711,14 +1712,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseInt8(RefObject<RowCursor> edit, byte value, UpdateOptions options) {
+    public void WriteSparseInt8(Reference<RowCursor> edit, byte value, UpdateOptions options) {
         int numBytes = (Byte.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Int8, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1732,15 +1733,15 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseMongoDbObjectId(RefObject<RowCursor> edit, MongoDbObjectId value,
+    public void WriteSparseMongoDbObjectId(Reference<RowCursor> edit, MongoDbObjectId value,
                                            UpdateOptions options) {
         int numBytes = MongoDbObjectId.Size;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, MongoDbObjectId, TypeArgumentList.Empty, numBytes, options,
 			tempOut_metaBytes, tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1754,14 +1755,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseNull(RefObject<RowCursor> edit, NullValue value, UpdateOptions options) {
+    public void WriteSparseNull(Reference<RowCursor> edit, NullValue value, UpdateOptions options) {
         int numBytes = 0;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Null, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1773,16 +1774,16 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseObject(RefObject<RowCursor> edit, LayoutScope scopeType, UpdateOptions options,
-                                  OutObject<RowCursor> newScope) {
+    public void WriteSparseObject(Reference<RowCursor> edit, LayoutScope scopeType, UpdateOptions options,
+                                  Out<RowCursor> newScope) {
         int numBytes = (LayoutCode.SIZE / Byte.SIZE); // end scope type code.
         TypeArgumentList typeArgs = TypeArgumentList.Empty;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1802,17 +1803,17 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseString(RefObject<RowCursor> edit, Utf8Span value, UpdateOptions options) {
+    public void WriteSparseString(Reference<RowCursor> edit, Utf8Span value, UpdateOptions options) {
         int len = value.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: int numBytes = len + RowBuffer.Count7BitEncodedUInt((ulong)len);
         int numBytes = len + RowBuffer.Count7BitEncodedUInt(len);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.Utf8, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1825,15 +1826,15 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseTuple(RefObject<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs
-		, UpdateOptions options, OutObject<RowCursor> newScope) {
+    public void WriteSparseTuple(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs
+		, UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = (LayoutCode.SIZE / Byte.SIZE) * (1 + typeArgs.getCount()); // nulls for each element.
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1869,16 +1870,16 @@ public final class RowBuffer {
         this.WriteUInt8(offset, (byte)code.getValue());
     }
 
-    public void WriteSparseUDT(RefObject<RowCursor> edit, LayoutScope scopeType, Layout udt,
-                               UpdateOptions options, OutObject<RowCursor> newScope) {
+    public void WriteSparseUDT(Reference<RowCursor> edit, LayoutScope scopeType, Layout udt,
+                               UpdateOptions options, Out<RowCursor> newScope) {
         TypeArgumentList typeArgs = new TypeArgumentList(udt.getSchemaId().clone());
         int numBytes = udt.getSize() + (LayoutCode.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1906,14 +1907,14 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseUInt16(ref RowCursor edit, ushort value, UpdateOptions options)
-    public void WriteSparseUInt16(RefObject<RowCursor> edit, short value, UpdateOptions options) {
+    public void WriteSparseUInt16(Reference<RowCursor> edit, short value, UpdateOptions options) {
         int numBytes = (Short.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.UInt16, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1928,14 +1929,14 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseUInt32(ref RowCursor edit, uint value, UpdateOptions options)
-    public void WriteSparseUInt32(RefObject<RowCursor> edit, int value, UpdateOptions options) {
+    public void WriteSparseUInt32(Reference<RowCursor> edit, int value, UpdateOptions options) {
         int numBytes = (Integer.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.UInt32, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1950,14 +1951,14 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseUInt64(ref RowCursor edit, ulong value, UpdateOptions options)
-    public void WriteSparseUInt64(RefObject<RowCursor> edit, long value, UpdateOptions options) {
+    public void WriteSparseUInt64(Reference<RowCursor> edit, long value, UpdateOptions options) {
         int numBytes = (Long.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.UInt64, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1972,14 +1973,14 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseUInt8(ref RowCursor edit, byte value, UpdateOptions options)
-    public void WriteSparseUInt8(RefObject<RowCursor> edit, byte value, UpdateOptions options) {
+    public void WriteSparseUInt8(Reference<RowCursor> edit, byte value, UpdateOptions options) {
         int numBytes = 1;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.UInt8, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -1992,14 +1993,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseUnixDateTime(RefObject<RowCursor> edit, UnixDateTime value, UpdateOptions options) {
+    public void WriteSparseUnixDateTime(Reference<RowCursor> edit, UnixDateTime value, UpdateOptions options) {
         int numBytes = 8;
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.UnixDateTime, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes
 			, tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2013,14 +2014,14 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteSparseVarInt(RefObject<RowCursor> edit, long value, UpdateOptions options) {
+    public void WriteSparseVarInt(Reference<RowCursor> edit, long value, UpdateOptions options) {
         int numBytes = RowBuffer.Count7BitEncodedInt(value);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.VarInt, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2036,14 +2037,14 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteSparseVarUInt(ref RowCursor edit, ulong value, UpdateOptions options)
-    public void WriteSparseVarUInt(RefObject<RowCursor> edit, long value, UpdateOptions options) {
+    public void WriteSparseVarUInt(Reference<RowCursor> edit, long value, UpdateOptions options) {
         int numBytes = RowBuffer.Count7BitEncodedUInt(value);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, LayoutType.VarUInt, TypeArgumentList.Empty, numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2064,15 +2065,15 @@ public final class RowBuffer {
         stream.Write(this.buffer.Slice(0, this.length));
     }
 
-    public void WriteTypedArray(RefObject<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                                UpdateOptions options, OutObject<RowCursor> newScope) {
+    public void WriteTypedArray(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
+                                UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = (Integer.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2093,15 +2094,15 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteTypedMap(RefObject<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                              UpdateOptions options, OutObject<RowCursor> newScope) {
+    public void WriteTypedMap(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
+                              UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = (Integer.SIZE / Byte.SIZE); // Sized scope.
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2122,15 +2123,15 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteTypedSet(RefObject<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                              UpdateOptions options, OutObject<RowCursor> newScope) {
+    public void WriteTypedSet(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
+                              UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = (Integer.SIZE / Byte.SIZE);
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2151,15 +2152,15 @@ public final class RowBuffer {
         this.length += shift;
     }
 
-    public void WriteTypedTuple(RefObject<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                                UpdateOptions options, OutObject<RowCursor> newScope) {
+    public void WriteTypedTuple(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
+                                UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = this.CountDefaultValue(scopeType, typeArgs.clone());
         int metaBytes;
-        OutObject<Integer> tempOut_metaBytes = new OutObject<Integer>();
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         this.EnsureSparse(edit, scopeType, typeArgs.clone(), numBytes, options, tempOut_metaBytes,
 			tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
@@ -2179,40 +2180,40 @@ public final class RowBuffer {
         newScope.get().count = typeArgs.getCount();
 
         this.length += shift;
-        RefObject<RowBuffer> tempRef_this =
-			new RefObject<RowBuffer>(this);
-        RowCursorExtensions.MoveNext(newScope.get().clone(), tempRef_this);
-        this = tempRef_this.get();
+        Reference<RowBuffer> tempReference_this =
+			new Reference<RowBuffer>(this);
+        RowCursorExtensions.MoveNext(newScope.get().clone(), tempReference_this);
+        this = tempReference_this.get();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteUInt16(int offset, ushort value)
     public void WriteUInt16(int offset, short value) {
-        RefObject<Short> tempRef_value = new RefObject<Short>(value);
+        Reference<Short> tempReference_value = new Reference<Short>(value);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MemoryMarshal.Write(this.buffer.Slice(offset), ref value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteUInt32(int offset, uint value)
     public void WriteUInt32(int offset, int value) {
-        RefObject<Integer> tempRef_value = new RefObject<Integer>(value);
+        Reference<Integer> tempReference_value = new Reference<Integer>(value);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MemoryMarshal.Write(this.buffer.Slice(offset), ref value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteUInt64(int offset, ulong value)
     public void WriteUInt64(int offset, long value) {
-        RefObject<Long> tempRef_value = new RefObject<Long>(value);
+        Reference<Long> tempReference_value = new Reference<Long>(value);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MemoryMarshal.Write(this.buffer.Slice(offset), ref value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
@@ -2224,19 +2225,19 @@ public final class RowBuffer {
     }
 
     public void WriteUnixDateTime(int offset, UnixDateTime value) {
-        RefObject<UnixDateTime> tempRef_value =
-			new RefObject<UnixDateTime>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempRef_value);
-        value = tempRef_value.get();
+        Reference<UnixDateTime> tempReference_value =
+			new Reference<UnixDateTime>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySpan<byte> value, bool exists, out int shift)
     public void WriteVariableBinary(int offset, ReadOnlySpan<Byte> value, boolean exists,
-									OutObject<Integer> shift) {
+									Out<Integer> shift) {
         int numBytes = value.Length;
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
         spaceNeeded = tempOut_spaceNeeded.get();
 
@@ -2249,10 +2250,10 @@ public final class RowBuffer {
     //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySequence<byte> value, bool exists, out int
 	// shift)
     public void WriteVariableBinary(int offset, ReadOnlySequence<Byte> value, boolean exists,
-									OutObject<Integer> shift) {
+									Out<Integer> shift) {
         int numBytes = (int)value.Length;
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
         spaceNeeded = tempOut_spaceNeeded.get();
 
@@ -2261,10 +2262,10 @@ public final class RowBuffer {
         this.length += shift.get();
     }
 
-    public void WriteVariableInt(int offset, long value, boolean exists, OutObject<Integer> shift) {
+    public void WriteVariableInt(int offset, long value, boolean exists, Out<Integer> shift) {
         int numBytes = RowBuffer.Count7BitEncodedInt(value);
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         this.EnsureVariable(offset, true, numBytes, exists, tempOut_spaceNeeded, shift);
         spaceNeeded = tempOut_spaceNeeded.get();
 
@@ -2274,10 +2275,10 @@ public final class RowBuffer {
         this.length += shift.get();
     }
 
-    public void WriteVariableString(int offset, Utf8Span value, boolean exists, OutObject<Integer> shift) {
+    public void WriteVariableString(int offset, Utf8Span value, boolean exists, Out<Integer> shift) {
         int numBytes = value.Length;
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
         spaceNeeded = tempOut_spaceNeeded.get();
 
@@ -2288,10 +2289,10 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteVariableUInt(int offset, ulong value, bool exists, out int shift)
-    public void WriteVariableUInt(int offset, long value, boolean exists, OutObject<Integer> shift) {
+    public void WriteVariableUInt(int offset, long value, boolean exists, Out<Integer> shift) {
         int numBytes = RowBuffer.Count7BitEncodedUInt(value);
         int spaceNeeded;
-        OutObject<Integer> tempOut_spaceNeeded = new OutObject<Integer>();
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
         this.EnsureVariable(offset, true, numBytes, exists, tempOut_spaceNeeded, shift);
         spaceNeeded = tempOut_spaceNeeded.get();
 
@@ -2384,15 +2385,15 @@ public final class RowBuffer {
         leftKey.metaOffset = left.valueOffset;
         leftKey.index = 0;
 
-        RefObject<RowCursor> tempRef_leftKey =
-			new RefObject<RowCursor>(leftKey);
-        this.ReadSparseMetadata(tempRef_leftKey);
-        leftKey = tempRef_leftKey.get();
+        Reference<RowCursor> tempReference_leftKey =
+			new Reference<RowCursor>(leftKey);
+        this.ReadSparseMetadata(tempReference_leftKey);
+        leftKey = tempReference_leftKey.get();
         checkState(leftKey.pathOffset == 0);
-        RefObject<RowCursor> tempRef_leftKey2 =
-			new RefObject<RowCursor>(leftKey);
-        int leftKeyLen = this.SparseComputeSize(tempRef_leftKey2) - (leftKey.valueOffset - leftKey.metaOffset);
-        leftKey = tempRef_leftKey2.get();
+        Reference<RowCursor> tempReference_leftKey2 =
+			new Reference<RowCursor>(leftKey);
+        int leftKeyLen = this.SparseComputeSize(tempReference_leftKey2) - (leftKey.valueOffset - leftKey.metaOffset);
+        leftKey = tempReference_leftKey2.get();
 
         RowCursor rightKey = new RowCursor();
         rightKey.layout = right.layout;
@@ -2402,15 +2403,15 @@ public final class RowBuffer {
         rightKey.metaOffset = right.valueOffset;
         rightKey.index = 0;
 
-        RefObject<RowCursor> tempRef_rightKey =
-			new RefObject<RowCursor>(rightKey);
-        this.ReadSparseMetadata(tempRef_rightKey);
-        rightKey = tempRef_rightKey.get();
+        Reference<RowCursor> tempReference_rightKey =
+			new Reference<RowCursor>(rightKey);
+        this.ReadSparseMetadata(tempReference_rightKey);
+        rightKey = tempReference_rightKey.get();
         checkState(rightKey.pathOffset == 0);
-        RefObject<RowCursor> tempRef_rightKey2 =
-			new RefObject<RowCursor>(rightKey);
-        int rightKeyLen = this.SparseComputeSize(tempRef_rightKey2) - (rightKey.valueOffset - rightKey.metaOffset);
-        rightKey = tempRef_rightKey2.get();
+        Reference<RowCursor> tempReference_rightKey2 =
+			new Reference<RowCursor>(rightKey);
+        int rightKeyLen = this.SparseComputeSize(tempReference_rightKey2) - (rightKey.valueOffset - rightKey.metaOffset);
+        rightKey = tempReference_rightKey2.get();
 
         return this.CompareFieldValue(leftKey.clone(), leftKeyLen, rightKey.clone(), rightKeyLen);
     }
@@ -2420,7 +2421,7 @@ public final class RowBuffer {
      * encoding.
      *
      * @param value The value to be encoded.
-     * @return The number of bytes needed to store the varint encoding of <see cref="value" />.
+     * @return The number of bytes needed to store the varint encoding of {@link value}.
      */
     private static int Count7BitEncodedInt(long value) {
         return RowBuffer.Count7BitEncodedUInt(RowBuffer.RotateSignToLsb(value));
@@ -2630,13 +2631,13 @@ public final class RowBuffer {
         }
     }
 
-    private static int CountSparsePath(RefObject<RowCursor> edit) {
+    private static int CountSparsePath(Reference<RowCursor> edit) {
         if (!edit.get().writePathToken.getIsNull()) {
             return edit.get().writePathToken.Varint.length;
         }
 
-        OutObject<StringToken> tempOut_writePathToken =
-			new OutObject<StringToken>();
+        Out<StringToken> tempOut_writePathToken =
+			new Out<StringToken>();
         if (edit.get().layout.getTokenizer().TryFindToken(edit.get().writePath, tempOut_writePathToken)) {
             edit.get().argValue.writePathToken = tempOut_writePathToken.get();
             return edit.get().writePathToken.Varint.length;
@@ -2668,9 +2669,9 @@ public final class RowBuffer {
     //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] private void EnsureSparse(ref RowCursor edit,
 	// LayoutType cellType, TypeArgumentList typeArgs, int numBytes, UpdateOptions options, out int metaBytes, out
 	// int spaceNeeded, out int shift)
-    private void EnsureSparse(RefObject<RowCursor> edit, LayoutType cellType, TypeArgumentList typeArgs,
-                              int numBytes, UpdateOptions options, OutObject<Integer> metaBytes,
-                              OutObject<Integer> spaceNeeded, OutObject<Integer> shift) {
+    private void EnsureSparse(Reference<RowCursor> edit, LayoutType cellType, TypeArgumentList typeArgs,
+                              int numBytes, UpdateOptions options, Out<Integer> metaBytes,
+                              Out<Integer> spaceNeeded, Out<Integer> shift) {
         this.EnsureSparse(edit, cellType, typeArgs.clone(), numBytes, RowOptions.forValue(options), metaBytes,
 			spaceNeeded, shift);
     }
@@ -2691,10 +2692,10 @@ public final class RowBuffer {
      * @param shift       On success, the number of bytes the length of the row buffer was increased
      *                    (which may be negative if the row buffer was shrunk).
      */
-    private void EnsureSparse(RefObject<RowCursor> edit, LayoutType cellType, TypeArgumentList typeArgs,
-                              int numBytes, RowOptions options, OutObject<Integer> metaBytes,
-                              OutObject<Integer> spaceNeeded,
-                              OutObject<Integer> shift) {
+    private void EnsureSparse(Reference<RowCursor> edit, LayoutType cellType, TypeArgumentList typeArgs,
+                              int numBytes, RowOptions options, Out<Integer> metaBytes,
+                              Out<Integer> spaceNeeded,
+                              Out<Integer> shift) {
         int metaOffset = edit.get().metaOffset;
         int spaceAvailable = 0;
 
@@ -2759,13 +2760,13 @@ public final class RowBuffer {
     }
 
     private void EnsureVariable(int offset, boolean isVarint, int numBytes, boolean exists,
-                                OutObject<Integer> spaceNeeded, OutObject<Integer> shift) {
+                                Out<Integer> spaceNeeded, Out<Integer> shift) {
         int spaceAvailable = 0;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ulong existingValueBytes = 0;
         long existingValueBytes = 0;
         if (exists) {
-            OutObject<Integer> tempOut_spaceAvailable = new OutObject<Integer>();
+            Out<Integer> tempOut_spaceAvailable = new Out<Integer>();
             existingValueBytes = this.Read7BitEncodedUInt(offset, tempOut_spaceAvailable);
             spaceAvailable = tempOut_spaceAvailable.get();
         }
@@ -2827,7 +2828,7 @@ public final class RowBuffer {
      * best choice.
      * </p>
      */
-    private boolean InsertionSort(RefObject<RowCursor> scope, RefObject<RowCursor> dstEdit,
+    private boolean InsertionSort(Reference<RowCursor> scope, Reference<RowCursor> dstEdit,
                                   Span<UniqueIndexItem> uniqueIndex) {
         RowCursor leftEdit = dstEdit.get().clone();
         RowCursor rightEdit = dstEdit.get().clone();
@@ -2877,7 +2878,7 @@ public final class RowBuffer {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: private ReadOnlySpan<byte> ReadBinary(int offset, out int sizeLenInBytes)
-    private ReadOnlySpan<Byte> ReadBinary(int offset, OutObject<Integer> sizeLenInBytes) {
+    private ReadOnlySpan<Byte> ReadBinary(int offset, Out<Integer> sizeLenInBytes) {
         int numBytes = (int)this.Read7BitEncodedUInt(offset, sizeLenInBytes);
         return this.buffer.Slice(offset + sizeLenInBytes.get(), numBytes);
     }
@@ -2908,7 +2909,7 @@ public final class RowBuffer {
      *             undefined.
      *             </paramref>.
      */
-    private void ReadSparseMetadata(RefObject<RowCursor> edit) {
+    private void ReadSparseMetadata(Reference<RowCursor> edit) {
         if (edit.get().scopeType.HasImplicitTypeCode(edit)) {
             edit.get().scopeType.SetImplicitTypeCode(edit);
             edit.get().valueOffset = edit.get().metaOffset;
@@ -2924,27 +2925,27 @@ public final class RowBuffer {
                 return;
             }
 
-            RefObject<RowBuffer> tempRef_this =
-				new RefObject<RowBuffer>(this);
+            Reference<RowBuffer> tempReference_this =
+				new Reference<RowBuffer>(this);
             int sizeLenInBytes;
-            OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
-            edit.get().cellTypeArgs = edit.get().cellType.ReadTypeArgumentList(tempRef_this,
+            Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
+            edit.get().cellTypeArgs = edit.get().cellType.ReadTypeArgumentList(tempReference_this,
 				edit.get().valueOffset, tempOut_sizeLenInBytes).clone();
             sizeLenInBytes = tempOut_sizeLenInBytes.get();
-            this = tempRef_this.get();
+            this = tempReference_this.get();
             edit.get().valueOffset += sizeLenInBytes;
         }
 
-        RefObject<RowBuffer> tempRef_this2 =
-			new RefObject<RowBuffer>(this);
-        edit.get().scopeType.ReadSparsePath(tempRef_this2, edit);
-        this = tempRef_this2.get();
+        Reference<RowBuffer> tempReference_this2 =
+			new Reference<RowBuffer>(this);
+        edit.get().scopeType.ReadSparsePath(tempReference_this2, edit);
+        this = tempReference_this2.get();
     }
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [Conditional("DEBUG")] private void ReadSparsePrimitiveTypeCode(ref RowCursor edit, LayoutType
 	// code)
-    private void ReadSparsePrimitiveTypeCode(RefObject<RowCursor> edit, LayoutType code) {
+    private void ReadSparsePrimitiveTypeCode(Reference<RowCursor> edit, LayoutType code) {
         checkState(edit.get().exists);
 
         if (edit.get().scopeType.HasImplicitTypeCode(edit)) {
@@ -2976,9 +2977,9 @@ public final class RowBuffer {
             checkState(edit.get().pathToken == 0);
         } else {
             int _;
-            OutObject<Integer> tempOut__ = new OutObject<Integer>();
+            Out<Integer> tempOut__ = new Out<Integer>();
             int pathOffset;
-            OutObject<Integer> tempOut_pathOffset = new OutObject<Integer>();
+            Out<Integer> tempOut_pathOffset = new Out<Integer>();
             int token = this.ReadSparsePathLen(edit.get().layout,
 				edit.get().metaOffset + (LayoutCode.SIZE / Byte.SIZE), tempOut__, tempOut_pathOffset);
             pathOffset = tempOut_pathOffset.get();
@@ -2988,7 +2989,7 @@ public final class RowBuffer {
         }
     }
 
-    private Utf8Span ReadString(int offset, OutObject<Integer> sizeLenInBytes) {
+    private Utf8Span ReadString(int offset, Out<Integer> sizeLenInBytes) {
         int numBytes = (int)this.Read7BitEncodedUInt(offset, sizeLenInBytes);
         return Utf8Span.UnsafeFromUtf8BytesNoValidation(this.buffer.Slice(offset + sizeLenInBytes.get(), numBytes));
     }
@@ -2999,7 +3000,7 @@ public final class RowBuffer {
      * @param edit The sparse scope to search.
      * @return The 0-based byte offset immediately following the scope end marker.
      */
-    private int SkipScope(RefObject<RowCursor> edit) {
+    private int SkipScope(Reference<RowCursor> edit) {
         while (this.SparseIteratorMoveNext(edit)) {
         }
 
@@ -3087,7 +3088,7 @@ public final class RowBuffer {
                 ///#pragma warning disable SA1137 // Elements should have the same indentation
             {
                 int sizeLenInBytes;
-                OutObject<Integer> tempOut_sizeLenInBytes = new OutObject<Integer>();
+                Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
                 int numBytes = (int)this.Read7BitEncodedUInt(metaOffset + metaBytes, tempOut_sizeLenInBytes);
                 sizeLenInBytes = tempOut_sizeLenInBytes.get();
                 return metaBytes + sizeLenInBytes + numBytes;
@@ -3096,7 +3097,7 @@ public final class RowBuffer {
             case VarInt:
             case VarUInt: {
                 int sizeLenInBytes;
-                OutObject<Integer> tempOut_sizeLenInBytes2 = new OutObject<Integer>();
+                Out<Integer> tempOut_sizeLenInBytes2 = new Out<Integer>();
                 this.Read7BitEncodedUInt(metaOffset + metaBytes, tempOut_sizeLenInBytes2);
                 sizeLenInBytes = tempOut_sizeLenInBytes2.get();
                 return metaBytes + sizeLenInBytes;
@@ -3116,7 +3117,7 @@ public final class RowBuffer {
      * @param edit The edit structure describing the field to measure.
      * @return The length (in bytes) of the encoded field including the metadata and the value.
      */
-    private int SparseComputeSize(RefObject<RowCursor> edit) {
+    private int SparseComputeSize(Reference<RowCursor> edit) {
         if (!(edit.get().cellType instanceof LayoutScope)) {
             return this.SparseComputePrimitiveSize(edit.get().cellType, edit.get().metaOffset,
 				edit.get().valueOffset);
@@ -3124,10 +3125,10 @@ public final class RowBuffer {
 
         // Compute offset to end of value for current value.
         RowCursor newScope = this.SparseIteratorReadScope(edit, true).clone();
-		RefObject<RowCursor> tempRef_newScope =
-			new RefObject<RowCursor>(newScope);
-        int tempVar = this.SkipScope(tempRef_newScope) - edit.get().metaOffset;
-        newScope = tempRef_newScope.get();
+		Reference<RowCursor> tempReference_newScope =
+			new Reference<RowCursor>(newScope);
+        int tempVar = this.SkipScope(tempReference_newScope) - edit.get().metaOffset;
+        newScope = tempReference_newScope.get();
         return tempVar;
     }
 
@@ -3384,14 +3385,14 @@ public final class RowBuffer {
         }
     }
 
-    private void WriteSparseMetadata(RefObject<RowCursor> edit, LayoutType cellType,
+    private void WriteSparseMetadata(Reference<RowCursor> edit, LayoutType cellType,
                                      TypeArgumentList typeArgs, int metaBytes) {
         int metaOffset = edit.get().metaOffset;
         if (!edit.get().scopeType.HasImplicitTypeCode(edit)) {
-            RefObject<RowBuffer> tempRef_this =
-				new RefObject<RowBuffer>(this);
-            metaOffset += cellType.WriteTypeArgument(tempRef_this, metaOffset, typeArgs.clone());
-            this = tempRef_this.get();
+            Reference<RowBuffer> tempReference_this =
+				new Reference<RowBuffer>(this);
+            metaOffset += cellType.WriteTypeArgument(tempReference_this, metaOffset, typeArgs.clone());
+            this = tempReference_this.get();
         }
 
         this.WriteSparsePath(edit, metaOffset);
@@ -3399,7 +3400,7 @@ public final class RowBuffer {
         checkState(edit.get().valueOffset == edit.get().metaOffset + metaBytes);
     }
 
-    private void WriteSparsePath(RefObject<RowCursor> edit, int offset) {
+    private void WriteSparsePath(Reference<RowCursor> edit, int offset) {
         // Some scopes don't encode paths, therefore the cost is always zero.
         if (edit.get().scopeType.IsIndexedScope) {
             edit.get().pathToken = 0;
@@ -3408,8 +3409,8 @@ public final class RowBuffer {
         }
 
         StringToken _;
-        OutObject<StringToken> tempOut__ =
-			new OutObject<StringToken>();
+        Out<StringToken> tempOut__ =
+			new Out<StringToken>();
         checkState(!edit.get().layout.getTokenizer().TryFindToken(edit.get().writePath, tempOut__) || !edit.get().writePathToken.getIsNull());
         _ = tempOut__.get();
         if (!edit.get().writePathToken.getIsNull()) {
@@ -3437,12 +3438,12 @@ public final class RowBuffer {
     }
 
     /**
-     * <see cref="UniqueIndexItem" /> represents a single item within a set/map scope that needs
+     * {@link UniqueIndexItem} represents a single item within a set/map scope that needs
      * to be indexed.
      * <p>
      * <p>
      * This structure is used when rebuilding a set/map index during row streaming via
-     * <see cref="IO.RowWriter" />.
+     * {@link IO.RowWriter}.
      * <para />
      * Each item encodes its offsets and length within the row.
      */

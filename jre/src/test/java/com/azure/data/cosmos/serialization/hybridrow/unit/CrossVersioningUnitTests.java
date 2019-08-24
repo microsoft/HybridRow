@@ -5,7 +5,8 @@
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import Newtonsoft.Json.*;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -578,7 +579,7 @@ public final class CrossVersioningUnitTests {
             this.Y = y;
         }
 
-        public void Dispatch(RefObject<RowOperationDispatcher> dispatcher, RefObject<RowCursor> scope) {
+        public void Dispatch(Reference<RowOperationDispatcher> dispatcher, Reference<RowCursor> scope) {
             dispatcher.get().LayoutCodeSwitch(scope, "x", value:this.X)
             dispatcher.get().LayoutCodeSwitch(scope, "y", value:this.Y)
         }

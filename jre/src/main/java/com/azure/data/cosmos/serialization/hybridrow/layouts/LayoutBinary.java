@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -35,11 +36,11 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // byte[] value)
     @Override
-    public Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
-                            OutObject<byte[]> value) {
+    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+                            Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadFixed(ref b, ref scope, col, out ReadOnlySpan<byte> span);
         Result r = this.ReadFixed(b, scope, col, out span);
@@ -51,8 +52,8 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // ReadOnlySpan<byte> value)
-    public Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
-                            OutObject<ReadOnlySpan<Byte>> value) {
+    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+                            Out<ReadOnlySpan<Byte>> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
@@ -67,10 +68,10 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte[] value)
     @Override
-    public Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             OutObject<byte[]> value) {
+    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadSparse(ref b, ref edit, out ReadOnlySpan<byte> span);
         Result r = this.ReadSparse(b, edit, out span);
@@ -81,7 +82,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ReadOnlySpan<byte> value)
-    public Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, OutObject<ReadOnlySpan<Byte>> value) {
+    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<ReadOnlySpan<Byte>> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.set(null);
@@ -96,11 +97,11 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // byte[] value)
     @Override
-    public Result ReadVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col
-        , OutObject<byte[]> value) {
+    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
+        , Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadVariable(ref b, ref scope, col, out ReadOnlySpan<byte> span);
         Result r = this.ReadVariable(b, scope, col, out span);
@@ -112,8 +113,8 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // ReadOnlySpan<byte> value)
-    public Result ReadVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col
-        , OutObject<ReadOnlySpan<Byte>> value) {
+    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
+        , Out<ReadOnlySpan<Byte>> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             value.set(null);
@@ -130,7 +131,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, byte[]
     // value)
     @Override
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              byte[] value) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -141,7 +142,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySpan<byte> value)
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              ReadOnlySpan<Byte> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
@@ -158,7 +159,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySequence<byte> value)
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              ReadOnlySequence<Byte> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
@@ -173,7 +174,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     }
 
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, byte[] value) {
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte[] value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
 
@@ -182,7 +183,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, byte[] value,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte[] value,
                               UpdateOptions options) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -190,7 +191,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return this.WriteSparse(b, edit, new ReadOnlySpan<Byte>(value), options);
     }
 
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               ReadOnlySpan<Byte> value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
@@ -199,7 +200,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ReadOnlySpan<byte> value,
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               ReadOnlySpan<Byte> value, UpdateOptions options) {
         Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
@@ -210,7 +211,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return Result.Success;
     }
 
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               ReadOnlySequence<Byte> value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
@@ -219,7 +220,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ReadOnlySequence<byte> value,
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               ReadOnlySequence<Byte> value, UpdateOptions options) {
         Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
@@ -234,7 +235,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // byte[] value)
     @Override
-    public Result WriteVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, byte[] value) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -245,7 +246,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySpan<byte> value)
-    public Result WriteVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, ReadOnlySpan<Byte> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -261,7 +262,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
             col.getOffset());
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().SetBit(scope.get().start, col.getNullBit().clone());
@@ -273,7 +274,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySequence<byte> value)
-    public Result WriteVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, ReadOnlySequence<Byte> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -289,7 +290,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
             col.getOffset());
         int shift;
-        OutObject<Integer> tempOut_shift = new OutObject<Integer>();
+        Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().SetBit(scope.get().start, col.getNullBit().clone());

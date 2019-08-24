@@ -251,10 +251,10 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
     }
 
     /**
-     * Creates a <see cref="Utf8String" /> from a UTF16 encoding string.
+     * Creates a {@link Utf8String} from a UTF16 encoding string.
      *
      * @param string The UTF16 encoding string.
-     * @return A new <see cref="Utf8String" />.
+     * @return A new {@link Utf8String}.
      * <p>
      * This method must transcode the UTF-16 into UTF-8 which both requires allocation and is a size of data operation.
      */

@@ -41,7 +41,7 @@ public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
     }
 
     /**
-     * Initializes a new instance of the <see cref="TypeArgumentList" /> struct.
+     * Initializes a new instance of the {@link TypeArgumentList} struct.
      *
      * @param schemaId For UDT fields, the schema id of the nested layout.
      */
@@ -141,7 +141,7 @@ public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
     }
 
     /**
-     * Enumerates the elements of a <see cref="TypeArgumentList" />.
+     * Enumerates the elements of a {@link TypeArgumentList}.
      */
     //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may
     // differ from the original:
@@ -157,7 +157,7 @@ public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
         private TypeArgument[] list;
 
         /**
-         * Initializes a new instance of the <see cref="Enumerator" /> struct.
+         * Initializes a new instance of the {@link Enumerator} struct.
          *
          * @param list The list to enumerate.
          */

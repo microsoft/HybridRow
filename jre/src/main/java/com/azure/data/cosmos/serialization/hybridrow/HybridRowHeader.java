@@ -28,7 +28,7 @@ public final class HybridRowHeader {
     private HybridRowVersion Version = HybridRowVersion.values()[0];
 
     /**
-     * Initializes a new instance of the <see cref="HybridRowHeader"/> struct.
+     * Initializes a new instance of the {@link HybridRowHeader} struct.
      *
      * @param version  The version of the HybridRow library used to write this row.
      * @param schemaId The unique identifier of the schema whose layout was used to write this row.

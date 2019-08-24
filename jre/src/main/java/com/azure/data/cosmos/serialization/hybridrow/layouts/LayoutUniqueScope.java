@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -21,7 +22,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         super(code, immutable, isSizedScope, false, true, isTypedScope);
     }
 
-    public abstract TypeArgument FieldType(RefObject<RowCursor> scope);
+    public abstract TypeArgument FieldType(Reference<RowCursor> scope);
 
     /**
      * Search for a matching field within a unique index.
@@ -35,8 +36,8 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
      * <p>
      * The pattern field is delete whether the find succeeds or fails.
      */
-    public final Result Find(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
-                             RefObject<RowCursor> patternScope, OutObject<RowCursor> value) {
+    public final Result Find(Reference<RowBuffer> b, Reference<RowCursor> scope,
+                             Reference<RowCursor> patternScope, Out<RowCursor> value) {
         Result result = LayoutType.PrepareSparseMove(b, scope, this, this.FieldType(scope).clone(), patternScope, UpdateOptions.Update, value.clone());
 
         if (result != Result.Success) {
@@ -52,11 +53,11 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public Result MoveField(ref RowBuffer b, ref RowCursor destinationScope, ref RowCursor
     // sourceEdit, UpdateOptions options = UpdateOptions.Upsert)
-    public final Result MoveField(RefObject<RowBuffer> b, RefObject<RowCursor> destinationScope,
-                                  RefObject<RowCursor> sourceEdit, UpdateOptions options) {
+    public final Result MoveField(Reference<RowBuffer> b, Reference<RowCursor> destinationScope,
+                                  Reference<RowCursor> sourceEdit, UpdateOptions options) {
         RowCursor dstEdit;
-        OutObject<RowCursor> tempOut_dstEdit =
-            new OutObject<RowCursor>();
+        Out<RowCursor> tempOut_dstEdit =
+            new Out<RowCursor>();
         Result result = LayoutType.PrepareSparseMove(b, destinationScope, this,
             this.FieldType(destinationScope).clone(), sourceEdit, options, tempOut_dstEdit);
         dstEdit = tempOut_dstEdit.get();
@@ -66,10 +67,10 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         }
 
         // Perform the move.
-        RefObject<RowCursor> tempRef_dstEdit =
-            new RefObject<RowCursor>(dstEdit);
-        b.get().TypedCollectionMoveField(tempRef_dstEdit, sourceEdit, RowOptions.forValue(options));
-        dstEdit = tempRef_dstEdit.get();
+        Reference<RowCursor> tempReference_dstEdit =
+            new Reference<RowCursor>(dstEdit);
+        b.get().TypedCollectionMoveField(tempReference_dstEdit, sourceEdit, RowOptions.forValue(options));
+        dstEdit = tempReference_dstEdit.get();
 
         // TODO: it would be "better" if the destinationScope were updated to point to the
         // highest item seen.  Then we would avoid the maximum reparse.
@@ -92,8 +93,8 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
      * The source field is delete whether the move succeeds or fails.
      */
 
-    public final Result MoveField(RefObject<RowBuffer> b, RefObject<RowCursor> destinationScope,
-                                  RefObject<RowCursor> sourceEdit) {
+    public final Result MoveField(Reference<RowBuffer> b, Reference<RowCursor> destinationScope,
+                                  Reference<RowCursor> sourceEdit) {
         return MoveField(b, destinationScope, sourceEdit, UpdateOptions.Upsert);
     }
 
@@ -102,12 +103,12 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
     // TypeArgumentList typeArgs, TContext context, WriterFunc<TContext> func, UpdateOptions options = UpdateOptions
     // .Upsert)
     @Override
-    public <TContext> Result WriteScope(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public <TContext> Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                         TypeArgumentList typeArgs, TContext context, WriterFunc<TContext> func,
                                         UpdateOptions options) {
         RowCursor uniqueScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.WriteScope(b, scope, typeArgs.clone(), out uniqueScope, options);
         if (r != Result.Success) {
             return r;
@@ -115,39 +116,39 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
 
         RowCursor childScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         uniqueScope.Clone(out childScope);
         childScope.deferUniqueIndex = true;
-        RefObject<RowCursor> tempRef_childScope =
-            new RefObject<RowCursor>(childScope);
+        Reference<RowCursor> tempReference_childScope =
+            new Reference<RowCursor>(childScope);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
         r = func == null ? null : func.Invoke(ref b, ref childScope, context) ??Result.Success;
-        childScope = tempRef_childScope.get();
+        childScope = tempReference_childScope.get();
         if (r != Result.Success) {
             this.DeleteScope(b, scope);
             return r;
         }
 
         uniqueScope.count = childScope.count;
-        RefObject<RowCursor> tempRef_uniqueScope =
-            new RefObject<RowCursor>(uniqueScope);
-        r = b.get().TypedCollectionUniqueIndexRebuild(tempRef_uniqueScope);
-        uniqueScope = tempRef_uniqueScope.get();
+        Reference<RowCursor> tempReference_uniqueScope =
+            new Reference<RowCursor>(uniqueScope);
+        r = b.get().TypedCollectionUniqueIndexRebuild(tempReference_uniqueScope);
+        uniqueScope = tempReference_uniqueScope.get();
         if (r != Result.Success) {
             this.DeleteScope(b, scope);
             return r;
         }
 
-        RefObject<RowCursor> tempRef_childScope2 =
-            new RefObject<RowCursor>(childScope);
+        Reference<RowCursor> tempReference_childScope2 =
+            new Reference<RowCursor>(childScope);
         RowCursorExtensions.Skip(scope.get().clone(), b,
-            tempRef_childScope2);
-        childScope = tempRef_childScope2.get();
+            tempReference_childScope2);
+        childScope = tempReference_childScope2.get();
         return Result.Success;
     }
 
     @Override
-    public <TContext> Result WriteScope(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public <TContext> Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                         TypeArgumentList typeArgs, TContext context, WriterFunc<TContext> func) {
         return WriteScope(b, scope, typeArgs, context, func, UpdateOptions.Upsert);
     }

@@ -31,8 +31,8 @@ public enum RowOptions {
     /**
      * Update an existing value or insert a new value, if no value exists.
      * <p>
-     * If a value exists, then this operation becomes <see cref="Update" />, otherwise it
-     * becomes <see cref="Insert" />.
+     * If a value exists, then this operation becomes {@link Update}, otherwise it
+     * becomes {@link Insert}.
      */
     Upsert(3),
 
@@ -40,7 +40,7 @@ public enum RowOptions {
      * Insert a new value moving existing values to the right.
      * <p>
      * Within an array scope, inserts a new value immediately at the index moving all subsequent
-     * items to the right. In any other scope behaves the same as <see cref="Upsert" />.
+     * items to the right. In any other scope behaves the same as {@link Upsert}.
      */
     InsertAt(4),
 

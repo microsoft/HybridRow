@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -30,32 +31,32 @@ public final class LayoutTypedSet extends LayoutUniqueScope {
     }
 
     @Override
-    public TypeArgument FieldType(RefObject<RowCursor> scope) {
+    public TypeArgument FieldType(Reference<RowCursor> scope) {
         return scope.get().scopeTypeArgs.get(0).clone();
     }
 
     @Override
-    public boolean HasImplicitTypeCode(RefObject<RowCursor> edit) {
+    public boolean HasImplicitTypeCode(Reference<RowCursor> edit) {
         checkState(edit.get().index >= 0);
         checkState(edit.get().scopeTypeArgs.getCount() == 1);
         return !LayoutCodeTraits.AlwaysRequiresTypeCode(edit.get().scopeTypeArgs.get(0).getType().LayoutCode);
     }
 
     @Override
-    public TypeArgumentList ReadTypeArgumentList(RefObject<RowBuffer> row, int offset,
-                                                 OutObject<Integer> lenInBytes) {
+    public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
+                                                 Out<Integer> lenInBytes) {
         return new TypeArgumentList(new TypeArgument[] { ReadTypeArgument(row, offset, lenInBytes) });
     }
 
     @Override
-    public void SetImplicitTypeCode(RefObject<RowCursor> edit) {
+    public void SetImplicitTypeCode(Reference<RowCursor> edit) {
         edit.get().cellType = edit.get().scopeTypeArgs.get(0).getType();
         edit.get().cellTypeArgs = edit.get().scopeTypeArgs.get(0).getTypeArgs().clone();
     }
 
     @Override
-    public Result WriteScope(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             TypeArgumentList typeArgs, OutObject<RowCursor> value) {
+    public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             TypeArgumentList typeArgs, Out<RowCursor> value) {
         return WriteScope(b, edit, typeArgs, value, UpdateOptions.Upsert);
     }
 
@@ -63,8 +64,8 @@ public final class LayoutTypedSet extends LayoutUniqueScope {
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteScope(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             TypeArgumentList typeArgs, OutObject<RowCursor> value, UpdateOptions options) {
+    public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
             value.set(null);
@@ -76,7 +77,7 @@ public final class LayoutTypedSet extends LayoutUniqueScope {
     }
 
     @Override
-    public int WriteTypeArgument(RefObject<RowBuffer> row, int offset, TypeArgumentList value) {
+    public int WriteTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         checkArgument(value.getCount() == 1);
         row.get().WriteSparseTypeCode(offset, this.LayoutCode);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);

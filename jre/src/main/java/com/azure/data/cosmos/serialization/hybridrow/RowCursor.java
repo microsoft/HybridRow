@@ -9,7 +9,8 @@ package com.azure.data.cosmos.serialization.hybridrow;
 
 // ReSharper disable InconsistentNaming
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutScope;
@@ -30,7 +31,7 @@ public final class RowCursor {
      */
     public LayoutType cellType;
     /**
-     * For types with generic parameters (e.g. <see cref="LayoutTuple" />, the type parameters.
+     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
     public TypeArgumentList cellTypeArgs = new TypeArgumentList();
     /**
@@ -102,7 +103,7 @@ public final class RowCursor {
      */
     public StringToken writePathToken = new StringToken();
 
-    public static RowCursor Create(RefObject<RowBuffer> row) {
+    public static RowCursor Create(Reference<RowBuffer> row) {
         SchemaId schemaId = row.get().ReadSchemaId(1).clone();
         Layout layout = row.get().getResolver().Resolve(schemaId.clone());
         int sparseSegmentOffset = row.get().ComputeVariableValueOffset(layout, HybridRowHeader.Size,
@@ -221,7 +222,7 @@ public final class RowCursor {
     LayoutType getScopeType()
 
     /**
-     * For types with generic parameters (e.g. <see cref="LayoutTuple" />, the type parameters.
+     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [DebuggerBrowsable(DebuggerBrowsableState.Never)] public TypeArgumentList ScopeTypeArgs

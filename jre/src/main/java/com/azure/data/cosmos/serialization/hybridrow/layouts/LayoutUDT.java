@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -28,16 +29,16 @@ public final class LayoutUDT extends LayoutPropertyScope {
     }
 
     @Override
-    public TypeArgumentList ReadTypeArgumentList(RefObject<RowBuffer> row, int offset,
-                                                 OutObject<Integer> lenInBytes) {
+    public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
+                                                 Out<Integer> lenInBytes) {
         SchemaId schemaId = row.get().ReadSchemaId(offset).clone();
         lenInBytes.set(SchemaId.Size);
         return new TypeArgumentList(schemaId.clone());
     }
 
     @Override
-    public Result WriteScope(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             TypeArgumentList typeArgs, OutObject<RowCursor> value) {
+    public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             TypeArgumentList typeArgs, Out<RowCursor> value) {
         return WriteScope(b, edit, typeArgs, value, UpdateOptions.Upsert);
     }
 
@@ -45,8 +46,8 @@ public final class LayoutUDT extends LayoutPropertyScope {
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteScope(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             TypeArgumentList typeArgs, OutObject<RowCursor> value, UpdateOptions options) {
+    public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Layout udt = b.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
         Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
@@ -59,7 +60,7 @@ public final class LayoutUDT extends LayoutPropertyScope {
     }
 
     @Override
-    public int WriteTypeArgument(RefObject<RowBuffer> row, int offset, TypeArgumentList value) {
+    public int WriteTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         row.get().WriteSparseTypeCode(offset, this.LayoutCode);
         row.get().WriteSchemaId(offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), value.getSchemaId().clone());
         return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.Size;

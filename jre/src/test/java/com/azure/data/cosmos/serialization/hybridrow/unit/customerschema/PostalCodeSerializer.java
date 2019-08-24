@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit.customerschema;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
@@ -22,13 +23,13 @@ import azure.data.cosmos.serialization.hybridrow.unit.*;
 public final class PostalCodeSerializer {
     public static TypeArgument TypeArg = new TypeArgument(LayoutType.UDT, new TypeArgumentList(new SchemaId(1)));
 
-    public static Result Read(RefObject<RowReader> reader, OutObject<PostalCode> obj) {
+    public static Result Read(Reference<RowReader> reader, Out<PostalCode> obj) {
         obj.set(new PostalCode());
         while (reader.get().Read()) {
             Result r;
             switch (reader.get().getPath()) {
                 case "zip":
-                    OutObject<Integer> tempOut_Zip = new OutObject<Integer>();
+                    Out<Integer> tempOut_Zip = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_Zip);
                     obj.get().argValue.Zip = tempOut_Zip.get();
                     if (r != Result.Success) {
@@ -38,7 +39,7 @@ public final class PostalCodeSerializer {
                     break;
                 case "plus4":
                     short value;
-                    OutObject<Short> tempOut_value = new OutObject<Short>();
+                    Out<Short> tempOut_value = new Out<Short>();
                     r = reader.get().ReadInt16(tempOut_value);
                     value = tempOut_value.get();
                     if (r != Result.Success) {
@@ -53,7 +54,7 @@ public final class PostalCodeSerializer {
         return Result.Success;
     }
 
-    public static Result Write(RefObject<RowWriter> writer, TypeArgument typeArg, PostalCode obj) {
+    public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, PostalCode obj) {
         Result r;
         r = writer.get().WriteInt32("zip", obj.Zip);
         if (r != Result.Success) {

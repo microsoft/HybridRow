@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -17,11 +18,11 @@ import static com.google.common.base.Preconditions.checkArgument;
  * <typeparamref name="T" />.
  *
  *
- * <see cref="LayoutType{T}" /> is an immutable, stateless, helper class.  It provides
+ * {@link LayoutType{T}} is an immutable, stateless, helper class.  It provides
  * methods for manipulating hybrid row fields of a particular type, and properties that describe the
  * layout of fields of that type.
  * <para />
- * <see cref="LayoutType{T}" /> is immutable.
+ * {@link LayoutType{T}} is immutable.
  */
 public abstract class LayoutType<T> extends LayoutType {
     private TypeArgument typeArg = new TypeArgument();
@@ -31,7 +32,7 @@ public abstract class LayoutType<T> extends LayoutType {
         this.typeArg = new TypeArgument(this);
     }
 
-    public final Result DeleteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public final Result DeleteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                     LayoutColumn col) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -53,7 +54,7 @@ public abstract class LayoutType<T> extends LayoutType {
      * If a value exists, then it is removed.  The remainder of the row is resized to accomodate
      * a decrease in required space.  If no value exists this operation is a no-op.
      */
-    public final Result DeleteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit) {
+    public final Result DeleteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit) {
         Result result = LayoutType.PrepareSparseDelete(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             return result;
@@ -69,7 +70,7 @@ public abstract class LayoutType<T> extends LayoutType {
      * If a value exists, then it is removed.  The remainder of the row is resized to accomodate
      * a decrease in required space.  If no value exists this operation is a no-op.
      */
-    public final Result DeleteVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public final Result DeleteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                        LayoutColumn col) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -87,7 +88,7 @@ public abstract class LayoutType<T> extends LayoutType {
         return Result.Success;
     }
 
-    public final Result HasValue(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public final Result HasValue(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                  LayoutColumn col) {
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             return Result.NotFound;
@@ -96,28 +97,28 @@ public abstract class LayoutType<T> extends LayoutType {
         return Result.Success;
     }
 
-    public abstract Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
-                                     LayoutColumn col, OutObject<T> value);
+    public abstract Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope,
+                                     LayoutColumn col, Out<T> value);
 
-    public abstract Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, OutObject<T> value);
+    public abstract Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<T> value);
 
-    public Result ReadVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col
-        , OutObject<T> value) {
+    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
+        , Out<T> value) {
         value.set(null);
         return Result.Failure;
     }
 
-    public abstract Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public abstract Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                       LayoutColumn col, T value);
 
-    public abstract Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, T value);
+    public abstract Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, T value);
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public abstract Result WriteSparse(ref RowBuffer b, ref RowCursor edit, T value, UpdateOptions
     // options = UpdateOptions.Upsert);
-    public abstract Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, T value, UpdateOptions options);
+    public abstract Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, T value, UpdateOptions options);
 
-    public Result WriteVariable(RefObject<RowBuffer> b, RefObject<RowCursor> scope,
+    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, T value) {
         return Result.Failure;
     }

@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
@@ -93,11 +94,11 @@ public final class RowOperationDispatcher {
     }
 
     public RowReader GetReader() {
-        RefObject<RowBuffer> tempRef_Row =
-            new RefObject<RowBuffer>(this.Row);
+        Reference<RowBuffer> tempReference_Row =
+            new Reference<RowBuffer>(this.Row);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
         return new RowReader(ref this.Row)
-        this.Row = tempRef_Row.get();
+        this.Row = tempReference_Row.get();
         return tempVar;
     }
 
@@ -121,43 +122,43 @@ public final class RowOperationDispatcher {
     //ORIGINAL LINE: public void LayoutCodeSwitch(string path = null, LayoutType type = null, TypeArgumentList
     // typeArgs = default, object value = null)
     public void LayoutCodeSwitch(String path, LayoutType type, TypeArgumentList typeArgs, Object value) {
-        RefObject<RowBuffer> tempRef_Row =
-            new RefObject<RowBuffer>(this.Row);
-        RowCursor root = RowCursor.Create(tempRef_Row);
-        this.Row = tempRef_Row.get();
-        RefObject<RowCursor> tempRef_root =
-            new RefObject<RowCursor>(root);
-        this.LayoutCodeSwitch(tempRef_root, path, type, typeArgs.clone(), value);
-        root = tempRef_root.get();
+        Reference<RowBuffer> tempReference_Row =
+            new Reference<RowBuffer>(this.Row);
+        RowCursor root = RowCursor.Create(tempReference_Row);
+        this.Row = tempReference_Row.get();
+        Reference<RowCursor> tempReference_root =
+            new Reference<RowCursor>(root);
+        this.LayoutCodeSwitch(tempReference_root, path, type, typeArgs.clone(), value);
+        root = tempReference_root.get();
     }
 
-    public void LayoutCodeSwitch(RefObject<RowCursor> scope, String path, LayoutType type,
+    public void LayoutCodeSwitch(Reference<RowCursor> scope, String path, LayoutType type,
                                  TypeArgumentList typeArgs) {
         LayoutCodeSwitch(scope, path, type, typeArgs, null);
     }
 
-    public void LayoutCodeSwitch(RefObject<RowCursor> scope, String path, LayoutType type) {
+    public void LayoutCodeSwitch(Reference<RowCursor> scope, String path, LayoutType type) {
         LayoutCodeSwitch(scope, path, type, null, null);
     }
 
-    public void LayoutCodeSwitch(RefObject<RowCursor> scope, String path) {
+    public void LayoutCodeSwitch(Reference<RowCursor> scope, String path) {
         LayoutCodeSwitch(scope, path, null, null, null);
     }
 
-    public void LayoutCodeSwitch(RefObject<RowCursor> scope) {
+    public void LayoutCodeSwitch(Reference<RowCursor> scope) {
         LayoutCodeSwitch(scope, null, null, null, null);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public void LayoutCodeSwitch(ref RowCursor scope, string path = null, LayoutType type = null,
     // TypeArgumentList typeArgs = default, object value = null)
-    public void LayoutCodeSwitch(RefObject<RowCursor> scope, String path, LayoutType type,
+    public void LayoutCodeSwitch(Reference<RowCursor> scope, String path, LayoutType type,
                                  TypeArgumentList typeArgs, Object value) {
         LayoutColumn col = null;
         if (type == null) {
             assert path != null;
-            OutObject<LayoutColumn> tempOut_col =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col =
+                new Out<LayoutColumn>();
             assert scope.get().getLayout().TryFind(path, tempOut_col);
             col = tempOut_col.get();
             assert col != null;
@@ -166,217 +167,217 @@ public final class RowOperationDispatcher {
         }
 
         if ((path != null) && (col == null || col.getStorage() == StorageKind.Sparse)) {
-            RefObject<RowBuffer> tempRef_Row =
-                new RefObject<RowBuffer>(this.Row);
-            scope.get().Find(tempRef_Row, path);
-            this.Row = tempRef_Row.get();
+            Reference<RowBuffer> tempReference_Row =
+                new Reference<RowBuffer>(this.Row);
+            scope.get().Find(tempReference_Row, path);
+            this.Row = tempReference_Row.get();
         }
 
         switch (type.LayoutCode) {
             case Null:
-                RefObject<RowOperationDispatcher> tempRef_this = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutNull, NullValue>Dispatch(tempRef_this, scope, col, type, NullValue.Default);
-                this = tempRef_this.get();
+                Reference<RowOperationDispatcher> tempReference_this = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutNull, NullValue>Dispatch(tempReference_this, scope, col, type, NullValue.Default);
+                this = tempReference_this.get();
                 break;
             case Boolean:
-                RefObject<RowOperationDispatcher> tempRef_this2 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutBoolean, Boolean>Dispatch(tempRef_this2, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this2 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutBoolean, Boolean>Dispatch(tempReference_this2, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this2.get();
+                this = tempReference_this2.get();
 
                 break;
             case Int8:
-                RefObject<RowOperationDispatcher> tempRef_this3 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutInt8, Byte>Dispatch(tempRef_this3, scope, col, type, value != null ?
+                Reference<RowOperationDispatcher> tempReference_this3 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutInt8, Byte>Dispatch(tempReference_this3, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this3.get();
+                this = tempReference_this3.get();
 
                 break;
             case Int16:
-                RefObject<RowOperationDispatcher> tempRef_this4 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutInt16, Short>Dispatch(tempRef_this4, scope, col, type, value != null ?
+                Reference<RowOperationDispatcher> tempReference_this4 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutInt16, Short>Dispatch(tempReference_this4, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this4.get();
+                this = tempReference_this4.get();
 
                 break;
             case Int32:
-                RefObject<RowOperationDispatcher> tempRef_this5 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutInt32, Integer>Dispatch(tempRef_this5, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this5 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutInt32, Integer>Dispatch(tempReference_this5, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this5.get();
+                this = tempReference_this5.get();
                 break;
             case Int64:
-                RefObject<RowOperationDispatcher> tempRef_this6 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutInt64, Long>Dispatch(tempRef_this6, scope, col, type, value != null ?
+                Reference<RowOperationDispatcher> tempReference_this6 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutInt64, Long>Dispatch(tempReference_this6, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this6.get();
+                this = tempReference_this6.get();
                 break;
             case UInt8:
-                RefObject<RowOperationDispatcher> tempRef_this7 = new RefObject<RowOperationDispatcher>(this);
+                Reference<RowOperationDispatcher> tempReference_this7 = new Reference<RowOperationDispatcher>(this);
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: this.dispatcher.Dispatch<LayoutUInt8, byte>(tempRef_this7, scope, col, type,
                 // (Nullable<byte>)value != null ? value : default);
-                this.dispatcher.<LayoutUInt8, Byte>Dispatch(tempRef_this7, scope, col, type, value != null ?
+                this.dispatcher.<LayoutUInt8, Byte>Dispatch(tempReference_this7, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this7.get();
+                this = tempReference_this7.get();
                 break;
             case UInt16:
-                RefObject<RowOperationDispatcher> tempRef_this8 = new RefObject<RowOperationDispatcher>(this);
+                Reference<RowOperationDispatcher> tempReference_this8 = new Reference<RowOperationDispatcher>(this);
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: this.dispatcher.Dispatch<LayoutUInt16, ushort>(tempRef_this8, scope, col, type,
                 // (Nullable<ushort>)value != null ? value : default);
-                this.dispatcher.<LayoutUInt16, Short>Dispatch(tempRef_this8, scope, col, type, value != null ?
+                this.dispatcher.<LayoutUInt16, Short>Dispatch(tempReference_this8, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this8.get();
+                this = tempReference_this8.get();
 
                 break;
             case UInt32:
-                RefObject<RowOperationDispatcher> tempRef_this9 = new RefObject<RowOperationDispatcher>(this);
+                Reference<RowOperationDispatcher> tempReference_this9 = new Reference<RowOperationDispatcher>(this);
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: this.dispatcher.Dispatch<LayoutUInt32, uint>(tempRef_this9, scope, col, type,
                 // (Nullable<uint>)value != null ? value : default);
-                this.dispatcher.<LayoutUInt32, Integer>Dispatch(tempRef_this9, scope, col, type,
+                this.dispatcher.<LayoutUInt32, Integer>Dispatch(tempReference_this9, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this9.get();
+                this = tempReference_this9.get();
                 break;
             case UInt64:
-                RefObject<RowOperationDispatcher> tempRef_this10 = new RefObject<RowOperationDispatcher>(this);
+                Reference<RowOperationDispatcher> tempReference_this10 = new Reference<RowOperationDispatcher>(this);
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: this.dispatcher.Dispatch<LayoutUInt64, ulong>(tempRef_this10, scope, col, type,
                 // (Nullable<ulong>)value != null ? value : default);
-                this.dispatcher.<LayoutUInt64, Long>Dispatch(tempRef_this10, scope, col, type, value != null ?
+                this.dispatcher.<LayoutUInt64, Long>Dispatch(tempReference_this10, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this10.get();
+                this = tempReference_this10.get();
 
                 break;
             case VarInt:
-                RefObject<RowOperationDispatcher> tempRef_this11 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutVarInt, Long>Dispatch(tempRef_this11, scope, col, type, value != null ?
+                Reference<RowOperationDispatcher> tempReference_this11 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutVarInt, Long>Dispatch(tempReference_this11, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this11.get();
+                this = tempReference_this11.get();
                 break;
             case VarUInt:
-                RefObject<RowOperationDispatcher> tempRef_this12 = new RefObject<RowOperationDispatcher>(this);
+                Reference<RowOperationDispatcher> tempReference_this12 = new Reference<RowOperationDispatcher>(this);
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: this.dispatcher.Dispatch<LayoutVarUInt, ulong>(tempRef_this12, scope, col, type,
                 // (Nullable<ulong>)value != null ? value : default);
-                this.dispatcher.<LayoutVarUInt, Long>Dispatch(tempRef_this12, scope, col, type, value != null ?
+                this.dispatcher.<LayoutVarUInt, Long>Dispatch(tempReference_this12, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this12.get();
+                this = tempReference_this12.get();
 
                 break;
             case Float32:
-                RefObject<RowOperationDispatcher> tempRef_this13 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutFloat32, Float>Dispatch(tempRef_this13, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this13 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutFloat32, Float>Dispatch(tempReference_this13, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this13.get();
+                this = tempReference_this13.get();
 
                 break;
             case Float64:
-                RefObject<RowOperationDispatcher> tempRef_this14 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutFloat64, Double>Dispatch(tempRef_this14, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this14 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutFloat64, Double>Dispatch(tempReference_this14, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this14.get();
+                this = tempReference_this14.get();
 
                 break;
             case Float128:
-                RefObject<RowOperationDispatcher> tempRef_this15 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutFloat128, Float128>Dispatch(tempRef_this15, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this15 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutFloat128, Float128>Dispatch(tempReference_this15, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this15.get();
+                this = tempReference_this15.get();
 
                 break;
             case Decimal:
-                RefObject<RowOperationDispatcher> tempRef_this16 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutDecimal, BigDecimal>Dispatch(tempRef_this16, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this16 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutDecimal, BigDecimal>Dispatch(tempReference_this16, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this16.get();
+                this = tempReference_this16.get();
 
                 break;
             case DateTime:
-                RefObject<RowOperationDispatcher> tempRef_this17 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutDateTime, LocalDateTime>Dispatch(tempRef_this17, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this17 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutDateTime, LocalDateTime>Dispatch(tempReference_this17, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this17.get();
+                this = tempReference_this17.get();
 
                 break;
             case UnixDateTime:
-                RefObject<RowOperationDispatcher> tempRef_this18 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutUnixDateTime, UnixDateTime>Dispatch(tempRef_this18, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this18 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutUnixDateTime, UnixDateTime>Dispatch(tempReference_this18, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this18.get();
+                this = tempReference_this18.get();
 
                 break;
             case Guid:
-                RefObject<RowOperationDispatcher> tempRef_this19 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutGuid, UUID>Dispatch(tempRef_this19, scope, col, type, value != null ?
+                Reference<RowOperationDispatcher> tempReference_this19 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutGuid, UUID>Dispatch(tempReference_this19, scope, col, type, value != null ?
                     value :
             default)
-                this = tempRef_this19.get();
+                this = tempReference_this19.get();
                 break;
             case MongoDbObjectId:
-                RefObject<RowOperationDispatcher> tempRef_this20 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutMongoDbObjectId, MongoDbObjectId>Dispatch(tempRef_this20, scope, col, type,
+                Reference<RowOperationDispatcher> tempReference_this20 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutMongoDbObjectId, MongoDbObjectId>Dispatch(tempReference_this20, scope, col, type,
                     value != null ? value :
             default)
-                this = tempRef_this20.get();
+                this = tempReference_this20.get();
 
                 break;
             case Utf8:
-                RefObject<RowOperationDispatcher> tempRef_this21 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutUtf8, String>Dispatch(tempRef_this21, scope, col, type, (String)value);
-                this = tempRef_this21.get();
+                Reference<RowOperationDispatcher> tempReference_this21 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.<LayoutUtf8, String>Dispatch(tempReference_this21, scope, col, type, (String)value);
+                this = tempReference_this21.get();
 
                 break;
             case Binary:
-                RefObject<RowOperationDispatcher> tempRef_this22 = new RefObject<RowOperationDispatcher>(this);
+                Reference<RowOperationDispatcher> tempReference_this22 = new Reference<RowOperationDispatcher>(this);
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: this.dispatcher.Dispatch<LayoutBinary, byte[]>(ref this, ref scope, col, type,
                 // (byte[])value);
-                this.dispatcher.<LayoutBinary, byte[]>Dispatch(tempRef_this22, scope, col, type, (byte[])value);
-                this = tempRef_this22.get();
+                this.dispatcher.<LayoutBinary, byte[]>Dispatch(tempReference_this22, scope, col, type, (byte[])value);
+                this = tempReference_this22.get();
 
                 break;
             case ObjectScope:
             case ImmutableObjectScope:
-                RefObject<RowOperationDispatcher> tempRef_this23 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchObject(tempRef_this23, scope);
-                this = tempRef_this23.get();
+                Reference<RowOperationDispatcher> tempReference_this23 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchObject(tempReference_this23, scope);
+                this = tempReference_this23.get();
                 break;
             case TypedArrayScope:
             case ImmutableTypedArrayScope:
-                RefObject<RowOperationDispatcher> tempRef_this24 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchArray(tempRef_this24, scope, type, typeArgs.clone(), value);
-                this = tempRef_this24.get();
+                Reference<RowOperationDispatcher> tempReference_this24 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchArray(tempReference_this24, scope, type, typeArgs.clone(), value);
+                this = tempReference_this24.get();
                 break;
             case TypedSetScope:
             case ImmutableTypedSetScope:
-                RefObject<RowOperationDispatcher> tempRef_this25 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchSet(tempRef_this25, scope, type, typeArgs.clone(), value);
-                this = tempRef_this25.get();
+                Reference<RowOperationDispatcher> tempReference_this25 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchSet(tempReference_this25, scope, type, typeArgs.clone(), value);
+                this = tempReference_this25.get();
                 break;
             case TypedMapScope:
             case ImmutableTypedMapScope:
-                RefObject<RowOperationDispatcher> tempRef_this26 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchMap(tempRef_this26, scope, type, typeArgs.clone(), value);
-                this = tempRef_this26.get();
+                Reference<RowOperationDispatcher> tempReference_this26 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchMap(tempReference_this26, scope, type, typeArgs.clone(), value);
+                this = tempReference_this26.get();
                 break;
             case TupleScope:
             case ImmutableTupleScope:
@@ -386,20 +387,20 @@ public final class RowOperationDispatcher {
             case ImmutableTaggedScope:
             case Tagged2Scope:
             case ImmutableTagged2Scope:
-                RefObject<RowOperationDispatcher> tempRef_this27 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchTuple(tempRef_this27, scope, type, typeArgs.clone(), value);
-                this = tempRef_this27.get();
+                Reference<RowOperationDispatcher> tempReference_this27 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchTuple(tempReference_this27, scope, type, typeArgs.clone(), value);
+                this = tempReference_this27.get();
                 break;
             case NullableScope:
-                RefObject<RowOperationDispatcher> tempRef_this28 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchNullable(tempRef_this28, scope, type, typeArgs.clone(), value);
-                this = tempRef_this28.get();
+                Reference<RowOperationDispatcher> tempReference_this28 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchNullable(tempReference_this28, scope, type, typeArgs.clone(), value);
+                this = tempReference_this28.get();
                 break;
             case Schema:
             case ImmutableSchema:
-                RefObject<RowOperationDispatcher> tempRef_this29 = new RefObject<RowOperationDispatcher>(this);
-                this.dispatcher.DispatchUDT(tempRef_this29, scope, type, typeArgs.clone(), value);
-                this = tempRef_this29.get();
+                Reference<RowOperationDispatcher> tempReference_this29 = new Reference<RowOperationDispatcher>(this);
+                this.dispatcher.DispatchUDT(tempReference_this29, scope, type, typeArgs.clone(), value);
+                this = tempReference_this29.get();
                 break;
             default:
                 if (logger.)

@@ -36,7 +36,7 @@ package com.azure.data.cosmos.serialization.hybridrow;
 //C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
 public final class Float128 {
     /**
-     * The size (in bytes) of a <see cref="Float128" />.
+     * The size (in bytes) of a {@link Float128}.
      */
     public static final int Size = (Long.SIZE / Byte.SIZE) + (Long.SIZE / Byte.SIZE);
     /**
@@ -51,7 +51,7 @@ public final class Float128 {
     public long Low;
 
     /**
-     * Initializes a new instance of the <see cref="Float128" /> struct.
+     * Initializes a new instance of the {@link Float128} struct.
      *
      * @param high the high-order 64 bits.
      * @param low  the low-order 64 bits.

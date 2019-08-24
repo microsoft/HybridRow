@@ -115,19 +115,19 @@ public enum TypeKind {
     Float128(15),
 
     /**
-     * 128-bit floating point value.  See <see cref="decimal" />
+     * 128-bit floating point value.  See {@link decimal}
      */
     Decimal(16),
 
     /**
-     * 64-bit date/time value in 100ns increments from C# epoch.  See <see cref="System.DateTime" />
+     * 64-bit date/time value in 100ns increments from C# epoch.  See {@link System.DateTime}
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [EnumMember(Value = "datetime")] DateTime,
     DateTime(17),
 
     /**
-     * 64-bit date/time value in milliseconds increments from Unix epoch.  See <see cref="UnixDateTime" />
+     * 64-bit date/time value in milliseconds increments from Unix epoch.  See {@link UnixDateTime}
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [EnumMember(Value = "unixdatetime")] UnixDateTime,
@@ -193,7 +193,7 @@ public enum TypeKind {
 
     /**
      * An untyped sparse field.
-     * May only be used to define the type within a nested scope (e.g. <see cref="Object"/> or <see cref="Array"/>.
+     * May only be used to define the type within a nested scope (e.g. {@link Object} or {@link Array}.
      */
     Any(30);
 

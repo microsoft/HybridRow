@@ -4,7 +4,7 @@
 
 package tangible;
 
-import com.azure.data.cosmos.core.OutObject;
+import com.azure.data.cosmos.core.Out;
 
 //----------------------------------------------------------------------------------------
 //	Copyright © 2007 - 2019 Tangible Software Solutions, Inc.
@@ -13,7 +13,7 @@ import com.azure.data.cosmos.core.OutObject;
 //	This class is used to convert some of the C# TryParse methods to Java.
 //----------------------------------------------------------------------------------------
 public final class TryParseHelper {
-    public static boolean tryParseBoolean(String s, OutObject<Boolean> result) {
+    public static boolean tryParseBoolean(String s, Out<Boolean> result) {
         try {
             result.set(Boolean.parseBoolean(s));
             return true;
@@ -22,7 +22,7 @@ public final class TryParseHelper {
         }
     }
 
-    public static boolean tryParseByte(String s, OutObject<Byte> result) {
+    public static boolean tryParseByte(String s, Out<Byte> result) {
         try {
             result.set(Byte.parseByte(s));
             return true;
@@ -31,7 +31,7 @@ public final class TryParseHelper {
         }
     }
 
-    public static boolean tryParseDouble(String s, OutObject<Double> result) {
+    public static boolean tryParseDouble(String s, Out<Double> result) {
         try {
             result.set(Double.parseDouble(s));
             return true;
@@ -40,7 +40,7 @@ public final class TryParseHelper {
         }
     }
 
-    public static boolean tryParseFloat(String s, OutObject<Float> result) {
+    public static boolean tryParseFloat(String s, Out<Float> result) {
         try {
             result.set(Float.parseFloat(s));
             return true;
@@ -49,7 +49,7 @@ public final class TryParseHelper {
         }
     }
 
-    public static boolean tryParseInt(String s, OutObject<Integer> result) {
+    public static boolean tryParseInt(String s, Out<Integer> result) {
         try {
             result.set(Integer.parseInt(s));
             return true;
@@ -58,7 +58,7 @@ public final class TryParseHelper {
         }
     }
 
-    public static boolean tryParseLong(String s, OutObject<Long> result) {
+    public static boolean tryParseLong(String s, Out<Long> result) {
         try {
             result.set(Long.parseLong(s));
             return true;
@@ -67,7 +67,7 @@ public final class TryParseHelper {
         }
     }
 
-    public static boolean tryParseShort(String s, OutObject<Short> result) {
+    public static boolean tryParseShort(String s, Out<Short> result) {
         try {
             result.set(Short.parseShort(s));
             return true;

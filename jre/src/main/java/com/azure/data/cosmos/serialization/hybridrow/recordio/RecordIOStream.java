@@ -4,7 +4,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
-import com.azure.data.cosmos.core.OutObject;
+import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -33,7 +33,7 @@ public final class RecordIOStream {
      * @param stm          The stream to read from.
      * @param visitRecord  A (required) delegate that is called once for each record.
      *                     <p>
-     *                     <paramref name="visitRecord" /> is passed a <see cref="Memory{T}" /> of the byte sequence
+     *                     <paramref name="visitRecord" /> is passed a {@link Memory{T}} of the byte sequence
      *                     of the
      *                     record body's row buffer.
      *                     </p>
@@ -45,7 +45,7 @@ public final class RecordIOStream {
      *                     over.
      *                     </p>
      *                     <p>
-     *                     <paramref name="visitSegment" /> is passed a <see cref="Memory{T}" /> of the byte sequence of
+     *                     <paramref name="visitSegment" /> is passed a {@link Memory{T}} of the byte sequence of
      *                     the segment header's row buffer.
      *                     </p>
      *                     <p>If <paramref name="visitSegment" /> returns an error then the sequence is aborted.</p>
@@ -109,12 +109,12 @@ public final class RecordIOStream {
             while (avail.Length > 0) {
                 // Loop around processing available data until we don't have anymore
                 RecordIOParser.ProductionType prodType;
-                OutObject<RecordIOParser.ProductionType> tempOut_prodType = new OutObject<RecordIOParser.ProductionType>();
+                Out<RecordIOParser.ProductionType> tempOut_prodType = new Out<RecordIOParser.ProductionType>();
                 Memory<Byte> record;
-                OutObject<Memory<Byte>> tempOut_record = new OutObject<Memory<Byte>>();
-                OutObject<Integer> tempOut_need = new OutObject<Integer>();
+                Out<Memory<Byte>> tempOut_record = new Out<Memory<Byte>>();
+                Out<Integer> tempOut_need = new Out<Integer>();
                 int consumed;
-                OutObject<Integer> tempOut_consumed = new OutObject<Integer>();
+                Out<Integer> tempOut_consumed = new Out<Integer>();
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: Result r = parser.Process(avail, out RecordIOParser.ProductionType prodType, out
                 // Memory<byte> record, out need, out int consumed);
@@ -207,7 +207,7 @@ public final class RecordIOStream {
             segment.clone(), index ->
         {
             ReadOnlyMemory<Byte> buffer;
-            OutObject<ReadOnlyMemory<Byte>> tempOut_buffer = new OutObject<ReadOnlyMemory<Byte>>();
+            Out<ReadOnlyMemory<Byte>> tempOut_buffer = new Out<ReadOnlyMemory<Byte>>();
             buffer = tempOut_buffer.get();
             return new ValueTask<(Result, ReadOnlyMemory < Byte >) > ((r,buffer))
         }, resizer);
@@ -250,7 +250,7 @@ public final class RecordIOStream {
 
         // Write a RecordIO stream.
         Memory<Byte> metadata;
-        OutObject<Memory<Byte>> tempOut_metadata = new OutObject<Memory<Byte>>();
+        Out<Memory<Byte>> tempOut_metadata = new Out<Memory<Byte>>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = RecordIOStream.FormatSegment(segment, resizer, out Memory<byte> metadata);
         Result r = RecordIOStream.FormatSegment(segment.clone(), resizer, tempOut_metadata);
@@ -277,7 +277,7 @@ public final class RecordIOStream {
                 break;
             }
 
-            OutObject<Memory<Byte>> tempOut_metadata2 = new OutObject<Memory<Byte>>();
+            Out<Memory<Byte>> tempOut_metadata2 = new Out<Memory<Byte>>();
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: r = RecordIOStream.FormatRow(body, resizer, out metadata);
             r = RecordIOStream.FormatRow(body, resizer, tempOut_metadata2);
@@ -311,9 +311,9 @@ public final class RecordIOStream {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: private static Result FormatRow(ReadOnlyMemory<byte> body, MemorySpanResizer<byte> resizer, out Memory<byte> block)
-    private static Result FormatRow(ReadOnlyMemory<Byte> body, MemorySpanResizer<Byte> resizer, OutObject<Memory<Byte>> block) {
+    private static Result FormatRow(ReadOnlyMemory<Byte> body, MemorySpanResizer<Byte> resizer, Out<Memory<Byte>> block) {
         RowBuffer row;
-        OutObject<RowBuffer> tempOut_row = new OutObject<RowBuffer>();
+        Out<RowBuffer> tempOut_row = new Out<RowBuffer>();
         Result r = RecordIOFormatter.FormatRecord(body, tempOut_row, resizer);
         row = tempOut_row.get();
         if (r != Result.Success) {
@@ -337,10 +337,10 @@ public final class RecordIOStream {
     //ORIGINAL LINE: private static Result FormatSegment(Segment segment, MemorySpanResizer<byte> resizer, out
     // Memory<byte> block)
     private static Result FormatSegment(Segment segment, MemorySpanResizer<Byte> resizer,
-                                        OutObject<Memory<Byte>> block) {
+                                        Out<Memory<Byte>> block) {
         RowBuffer row;
-        OutObject<RowBuffer> tempOut_row =
-            new OutObject<RowBuffer>();
+        Out<RowBuffer> tempOut_row =
+            new Out<RowBuffer>();
         Result r = RecordIOFormatter.FormatSegment(segment.clone(), tempOut_row, resizer);
         row = tempOut_row.get();
         if (r != Result.Success) {
@@ -364,6 +364,6 @@ public final class RecordIOStream {
      */
     @FunctionalInterface
     public interface ProduceFunc {
-        Result invoke(long index, OutObject<ReadOnlyMemory<Byte>> buffer);
+        Result invoke(long index, Out<ReadOnlyMemory<Byte>> buffer);
     }
 }

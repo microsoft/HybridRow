@@ -8,8 +8,8 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
  * Array properties represent an unbounded set of zero or more items.
  * <p>
  * Arrays may be typed or untyped.  Within typed arrays, all items MUST be the same type. The
- * type of items is specified via <see cref="Items" />. Typed arrays may be stored more efficiently
- * than untyped arrays. When <see cref="Items" /> is unspecified, the array is untyped and its items
+ * type of items is specified via {@link Items}. Typed arrays may be stored more efficiently
+ * than untyped arrays. When {@link Items} is unspecified, the array is untyped and its items
  * may be heterogeneous.
  */
 public class ArrayPropertyType extends ScopePropertyType {

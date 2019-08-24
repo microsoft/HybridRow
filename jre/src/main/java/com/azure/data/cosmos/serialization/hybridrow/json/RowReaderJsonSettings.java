@@ -20,7 +20,7 @@ public final class RowReaderJsonSettings {
 
     /**
      * The quote character to use.
-     * May be <see cref="lang:\""/> or <see cref="'" />.
+     * May be <see cref="lang:\""/> or {@link '}.
      */
     public char QuoteChar;
 

@@ -16,7 +16,7 @@ public class TuplePropertyType extends ScopePropertyType {
     private ArrayList<PropertyType> items;
 
     /**
-     * Initializes a new instance of the <see cref="TuplePropertyType" /> class.
+     * Initializes a new instance of the {@link TuplePropertyType} class.
      */
     public TuplePropertyType() {
         this.items = new ArrayList<PropertyType>();

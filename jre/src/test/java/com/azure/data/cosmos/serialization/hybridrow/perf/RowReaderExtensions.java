@@ -4,13 +4,14 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
 import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableTagged2Scope;
 
 public final class RowReaderExtensions {
-    public static Result VisitReader(RefObject<RowReader> reader) {
+    public static Result VisitReader(Reference<RowReader> reader) {
         while (reader.get().Read()) {
             Utf8Span path = reader.get().getPathSpan();
             switch (reader.get().getType().LayoutCode) {

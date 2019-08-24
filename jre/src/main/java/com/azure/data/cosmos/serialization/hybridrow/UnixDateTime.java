@@ -7,7 +7,7 @@ package com.azure.data.cosmos.serialization.hybridrow;
 /**
  * A wall clock time expressed in milliseconds since the Unix Epoch.
  * <p>
- * A <see cref="UnixDateTime" /> is a fixed length value-type providing millisecond
+ * A {@link UnixDateTime} is a fixed length value-type providing millisecond
  * granularity as a signed offset from the Unix Epoch (midnight, January 1, 1970 UTC).
  */
 // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
@@ -21,9 +21,9 @@ package com.azure.data.cosmos.serialization.hybridrow;
 public final class UnixDateTime implements IEquatable<UnixDateTime> {
     /**
      * The unix epoch.
-     * <see cref="UnixDateTime" /> values are signed values centered on <see cref="Epoch" />.
+     * {@link UnixDateTime} values are signed values centered on {@link Epoch}.
      * <para />
-     * This is the same value as default(<see cref="UnixDateTime" />).
+     * This is the same value as default({@link UnixDateTime}).
      */
     public static final UnixDateTime Epoch = new UnixDateTime();
     /**
@@ -31,15 +31,15 @@ public final class UnixDateTime implements IEquatable<UnixDateTime> {
      */
     public static final int Size = (Long.SIZE / Byte.SIZE);
     /**
-     * The number of milliseconds since <see cref="Epoch" />.
+     * The number of milliseconds since {@link Epoch}.
      * This value may be negative.
      */
     private long Milliseconds;
 
     /**
-     * Initializes a new instance of the <see cref="UnixDateTime" /> struct.
+     * Initializes a new instance of the {@link UnixDateTime} struct.
      *
-     * @param milliseconds The number of milliseconds since <see cref="Epoch" />.
+     * @param milliseconds The number of milliseconds since {@link Epoch}.
      */
     public UnixDateTime() {
     }
@@ -53,7 +53,7 @@ public final class UnixDateTime implements IEquatable<UnixDateTime> {
     }
 
     /**
-     * Returns true if this is the same value as <see cref="other" />.
+     * Returns true if this is the same value as {@link other}.
      *
      * @param other The value to compare against.
      * @return True if the two values are the same.
@@ -63,7 +63,7 @@ public final class UnixDateTime implements IEquatable<UnixDateTime> {
     }
 
     /**
-     * <see cref="object.Equals(object)" /> overload.
+     * {@link object.Equals(object)} overload.
      */
     @Override
     public boolean equals(Object obj) {
@@ -75,7 +75,7 @@ public final class UnixDateTime implements IEquatable<UnixDateTime> {
     }
 
     /**
-     * <see cref="object.GetHashCode" /> overload.
+     * {@link object.GetHashCode} overload.
      */
     @Override
     public int hashCode() {

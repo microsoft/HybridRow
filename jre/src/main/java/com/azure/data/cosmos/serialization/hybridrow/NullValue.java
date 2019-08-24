@@ -17,12 +17,12 @@ package com.azure.data.cosmos.serialization.hybridrow;
 public final class NullValue implements IEquatable<NullValue> {
     /**
      * The default null literal.
-     * This is the same value as default(<see cref="NullValue" />).
+     * This is the same value as default({@link NullValue}).
      */
     public static final NullValue Default = new NullValue();
 
     /**
-     * Returns true if this is the same value as <see cref="other" />.
+     * Returns true if this is the same value as {@link other}.
      *
      * @param other The value to compare against.
      * @return True if the two values are the same.
@@ -32,7 +32,7 @@ public final class NullValue implements IEquatable<NullValue> {
     }
 
     /**
-     * <see cref="object.Equals(object)" /> overload.
+     * {@link object.Equals(object)} overload.
      */
     @Override
     public boolean equals(Object obj) {
@@ -44,7 +44,7 @@ public final class NullValue implements IEquatable<NullValue> {
     }
 
     /**
-     * <see cref="object.GetHashCode" /> overload.
+     * {@link object.GetHashCode} overload.
      */
     @Override
     public int hashCode() {

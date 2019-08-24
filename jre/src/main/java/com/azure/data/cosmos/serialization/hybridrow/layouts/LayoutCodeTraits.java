@@ -18,7 +18,7 @@ public final class LayoutCodeTraits {
     /**
      * Returns a canonicalized version of the layout code.
      * <p>
-     * Some codes (e.g. <see cref="LayoutCode.Boolean" /> use multiple type codes to also encode
+     * Some codes (e.g. {@link LayoutCode.Boolean} use multiple type codes to also encode
      * values.  This function converts actual value based code into the canonicalized type code for schema
      * comparisons.
      *

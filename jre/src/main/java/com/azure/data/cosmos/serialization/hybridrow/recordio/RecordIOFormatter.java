@@ -4,7 +4,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
-import com.azure.data.cosmos.core.OutObject;
+import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowHeader;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
@@ -15,7 +15,7 @@ public final class RecordIOFormatter {
     public static final Layout RecordLayout = SystemSchema.LayoutResolver.Resolve(SystemSchema.RecordSchemaId);
     public static final Layout SegmentLayout = SystemSchema.LayoutResolver.Resolve(SystemSchema.SegmentSchemaId);
 
-    public static Result FormatRecord(ReadOnlyMemory<Byte> body, OutObject<RowBuffer> row) {
+    public static Result FormatRecord(ReadOnlyMemory<Byte> body, Out<RowBuffer> row) {
         return FormatRecord(body, row, null);
     }
 
@@ -23,7 +23,7 @@ public final class RecordIOFormatter {
     //ORIGINAL LINE: public static Result FormatRecord(ReadOnlyMemory<byte> body, out RowBuffer row,
     // ISpanResizer<byte> resizer = default)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public static Result FormatRecord(ReadOnlyMemory<Byte> body, OutObject<RowBuffer> row,
+    public static Result FormatRecord(ReadOnlyMemory<Byte> body, Out<RowBuffer> row,
                                       ISpanResizer<Byte> resizer) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
@@ -37,7 +37,7 @@ public final class RecordIOFormatter {
             RecordSerializer.Write, row.clone());
     }
 
-    public static Result FormatSegment(Segment segment, OutObject<RowBuffer> row) {
+    public static Result FormatSegment(Segment segment, Out<RowBuffer> row) {
         return FormatSegment(segment, row, null);
     }
 
@@ -45,7 +45,7 @@ public final class RecordIOFormatter {
     //ORIGINAL LINE: public static Result FormatSegment(Segment segment, out RowBuffer row, ISpanResizer<byte>
     // resizer = default)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public static Result FormatSegment(Segment segment, OutObject<RowBuffer> row, ISpanResizer<Byte> resizer) {
+    public static Result FormatSegment(Segment segment, Out<RowBuffer> row, ISpanResizer<Byte> resizer) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
@@ -62,7 +62,7 @@ public final class RecordIOFormatter {
     //ORIGINAL LINE: private static Result FormatObject<T>(ISpanResizer<byte> resizer, int initialCapacity, Layout
     // layout, T obj, RowWriter.WriterFunc<T> writer, out RowBuffer row)
     private static <T> Result FormatObject(ISpanResizer<Byte> resizer, int initialCapacity, Layout layout, T obj,
-                                           RowWriter.WriterFunc<T> writer, OutObject<RowBuffer> row) {
+                                           RowWriter.WriterFunc<T> writer, Out<RowBuffer> row) {
         row.set(new RowBuffer(initialCapacity, resizer));
         row.get().InitLayout(HybridRowVersion.V1, layout, SystemSchema.LayoutResolver);
         Result r = RowWriter.WriteBuffer(row.clone(), obj, writer);

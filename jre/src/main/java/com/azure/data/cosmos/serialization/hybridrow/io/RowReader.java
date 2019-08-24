@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -55,21 +56,22 @@ import static com.google.common.base.Preconditions.checkState;
 
 
 /**
- * A forward-only, streaming, field reader for <see cref="RowBuffer" />.
+ * A forward-only, streaming, field reader for {@link RowBuffer}.
  * <p>
- * A <see cref="RowReader" /> allows the traversal in a streaming, left to right fashion, of
+ * A {@link RowReader} allows the traversal in a streaming, left to right fashion, of
  * an entire HybridRow. The row's layout provides decoding for any schematized portion of the row.
  * However, unschematized sparse fields are read directly from the sparse segment with or without
  * schematization allowing all fields within the row, both known and unknown, to be read.
  * <para />
- * Modifying a <see cref="RowBuffer" /> invalidates any reader or child reader associated with it.  In
- * general <see cref="RowBuffer" />'s should not be mutated while being enumerated.
+ * Modifying a {@link RowBuffer} invalidates any reader or child reader associated with it.  In
+ * general {@link RowBuffer}'s should not be mutated while being enumerated.
  */
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
 // from the original:
 //ORIGINAL LINE: public ref struct RowReader
 //C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# ref struct:
 public final class RowReader {
+
     private int columnIndex;
     private ReadOnlySpan<LayoutColumn> columns;
     private RowCursor cursor = new RowCursor();
@@ -79,35 +81,35 @@ public final class RowReader {
     private States state = States.values()[0];
 
     /**
-     * Initializes a new instance of the <see cref="RowReader" /> struct.
+     * Initializes a new instance of the {@link RowReader} struct.
      *
      * @param row   The row to be read.
      * @param scope The scope whose fields should be enumerated.
      *              <p>
-     *              A <see cref="RowReader" /> instance traverses all of the top-level fields of a given
+     *              A {@link RowReader} instance traverses all of the top-level fields of a given
      *              scope.  If the root scope is provided then all top-level fields in the row are enumerated.  Nested
-     *              child <see cref="RowReader" /> instances can be access through the <see cref="ReadScope" /> method
+     *              child {@link RowReader} instances can be access through the {@link ReadScope} method
      *              to process nested content.
      */
     public RowReader() {
     }
 
     /**
-     * Initializes a new instance of the <see cref="RowReader" /> struct.
+     * Initializes a new instance of the {@link RowReader} struct.
      *
      * @param row   The row to be read.
      * @param scope The scope whose fields should be enumerated.
      *              <p>
-     *              A <see cref="RowReader" /> instance traverses all of the top-level fields of a given
+     *              A {@link RowReader} instance traverses all of the top-level fields of a given
      *              scope.  If the root scope is provided then all top-level fields in the row are enumerated.  Nested
-     *              child <see cref="RowReader" /> instances can be access through the <see cref="ReadScope" /> method
+     *              child {@link RowReader} instances can be access through the {@link ReadScope} method
      *              to process nested content.
      */
-    public RowReader(RefObject<RowBuffer> row) {
+    public RowReader(Reference<RowBuffer> row) {
         this(row, RowCursor.Create(row));
     }
 
-    public RowReader(RefObject<RowBuffer> row, final Checkpoint checkpoint) {
+    public RowReader(Reference<RowBuffer> row, final Checkpoint checkpoint) {
         this.row = row.get().clone();
         this.columns = checkpoint.Cursor.layout.getColumns();
         this.schematizedCount = checkpoint.Cursor.layout.getNumFixed() + checkpoint.Cursor.layout.getNumVariable();
@@ -117,7 +119,7 @@ public final class RowReader {
         this.columnIndex = checkpoint.ColumnIndex;
     }
 
-    private RowReader(RefObject<RowBuffer> row, final RowCursor scope) {
+    private RowReader(Reference<RowBuffer> row, final RowCursor scope) {
         this.cursor = scope.clone();
         this.row = row.get().clone();
         this.columns = this.cursor.layout.getColumns();
@@ -140,16 +142,16 @@ public final class RowReader {
                 return true;
             case Sparse:
                 if (this.cursor.cellType instanceof LayoutNullable) {
-                    RefObject<RowCursor> tempRef_cursor =
-                        new RefObject<RowCursor>(this.cursor);
-                    RowCursor nullableScope = this.row.SparseIteratorReadScope(tempRef_cursor, true).clone();
-                    this.cursor = tempRef_cursor.get();
-                    RefObject<RowBuffer> tempRef_row =
-                        new RefObject<RowBuffer>(this.row);
-                    RefObject<RowCursor> tempRef_nullableScope = new RefObject<RowCursor>(nullableScope);
-                    boolean tempVar = LayoutNullable.HasValue(tempRef_row, tempRef_nullableScope) == Result.Success;
-                    nullableScope = tempRef_nullableScope.get();
-                    this.row = tempRef_row.get();
+                    Reference<RowCursor> tempReference_cursor =
+                        new Reference<RowCursor>(this.cursor);
+                    RowCursor nullableScope = this.row.SparseIteratorReadScope(tempReference_cursor, true).clone();
+                    this.cursor = tempReference_cursor.get();
+                    Reference<RowBuffer> tempReference_row =
+                        new Reference<RowBuffer>(this.row);
+                    Reference<RowCursor> tempReference_nullableScope = new Reference<RowCursor>(nullableScope);
+                    boolean tempVar = LayoutNullable.HasValue(tempReference_row, tempReference_nullableScope) == Result.Success;
+                    nullableScope = tempReference_nullableScope.get();
+                    this.row = tempReference_row.get();
                     return tempVar;
                 }
 
@@ -163,7 +165,7 @@ public final class RowReader {
      * The 0-based index, relative to the start of the scope, of the field (if positioned on a
      * field, undefined otherwise).
      * <p>
-     * When enumerating a non-indexed scope, this value is always 0 (see <see cref="Path" />).
+     * When enumerating a non-indexed scope, this value is always 0 (see {@link Path}).
      */
     public int getIndex() {
         switch (this.state) {
@@ -187,7 +189,7 @@ public final class RowReader {
      * The path, relative to the scope, of the field (if positioned on a field, undefined
      * otherwise).
      * <p>
-     * When enumerating an indexed scope, this value is always null (see <see cref="Index" />).
+     * When enumerating an indexed scope, this value is always null (see {@link Index}).
      */
     public UtfAnyString getPath() {
         switch (this.state) {
@@ -198,10 +200,10 @@ public final class RowReader {
                     return null;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                Utf8Span span = this.row.ReadSparsePath(tempRef_cursor);
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                Utf8Span span = this.row.ReadSparsePath(tempReference_cursor);
+                this.cursor = tempReference_cursor.get();
                 return Utf8String.CopyFrom(span);
             default:
                 return null;
@@ -212,17 +214,17 @@ public final class RowReader {
      * The path, relative to the scope, of the field (if positioned on a field, undefined
      * otherwise).
      * <p>
-     * When enumerating an indexed scope, this value is always null (see <see cref="Index" />).
+     * When enumerating an indexed scope, this value is always null (see {@link Index}).
      */
     public Utf8Span getPathSpan() {
         switch (this.state) {
             case Schematized:
                 return this.columns[this.columnIndex].Path.Span;
             case Sparse:
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                Utf8Span tempVar = this.row.ReadSparsePath(tempRef_cursor);
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                Utf8Span tempVar = this.row.ReadSparsePath(tempReference_cursor);
+                this.cursor = tempReference_cursor.get();
                 return tempVar;
             default:
                 return null;
@@ -314,16 +316,16 @@ public final class RowReader {
 
             case Sparse: {
 
-                RefObject<RowBuffer> tempRef_row = new RefObject<RowBuffer>(this.row);
+                Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
 
                 if (!RowCursorExtensions.MoveNext(this.cursor.clone(),
-                    tempRef_row)) {
-                    this.row = tempRef_row.get();
+                    tempReference_row)) {
+                    this.row = tempReference_row.get();
                     this.state = States.Done;
                     // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
                     //   goto case States.Done;
                 } else {
-                    this.row = tempRef_row.get();
+                    this.row = tempReference_row.get();
                 }
 
                 return true;
@@ -345,10 +347,10 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadBinary(out byte[] value)
-    public Result ReadBinary(OutObject<byte[]> value) {
+    public Result ReadBinary(Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadBinary(out ReadOnlySpan<byte> span);
         Result r = this.ReadBinary(out span);
@@ -365,7 +367,7 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadBinary(out ReadOnlySpan<byte> value)
-    public Result ReadBinary(OutObject<ReadOnlySpan<Byte>> value) {
+    public Result ReadBinary(Out<ReadOnlySpan<Byte>> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -375,10 +377,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseBinary(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseBinary(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -387,12 +389,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a <see cref="bool" />.
+     * Read the current field as a {@link bool}.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadBool(OutObject<Boolean> value) {
+    public Result ReadBool(Out<Boolean> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -402,10 +404,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseBool(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseBool(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(false);
@@ -414,12 +416,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length <see cref="DateTime" /> value.
+     * Read the current field as a fixed length {@link DateTime} value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadDateTime(OutObject<LocalDateTime> value) {
+    public Result ReadDateTime(Out<LocalDateTime> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -429,10 +431,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseDateTime(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseDateTime(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(LocalDateTime.MIN);
@@ -441,12 +443,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length <see cref="decimal" /> value.
+     * Read the current field as a fixed length {@link decimal} value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadDecimal(OutObject<BigDecimal> value) {
+    public Result ReadDecimal(Out<BigDecimal> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -456,10 +458,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseDecimal(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseDecimal(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(new BigDecimal(0));
@@ -473,7 +475,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadFloat128(OutObject<Float128> value) {
+    public Result ReadFloat128(Out<Float128> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
@@ -483,10 +485,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseFloat128(tempRef_cursor).clone());
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseFloat128(tempReference_cursor).clone());
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -500,7 +502,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadFloat32(OutObject<Float> value) {
+    public Result ReadFloat32(Out<Float> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -510,10 +512,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseFloat32(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseFloat32(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -527,7 +529,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadFloat64(OutObject<Double> value) {
+    public Result ReadFloat64(Out<Double> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -537,10 +539,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseFloat64(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseFloat64(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -549,12 +551,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length <see cref="Guid" /> value.
+     * Read the current field as a fixed length {@link Guid} value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadGuid(OutObject<UUID> value) {
+    public Result ReadGuid(Out<UUID> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -564,10 +566,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseGuid(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseGuid(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -581,7 +583,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadInt16(OutObject<Short> value) {
+    public Result ReadInt16(Out<Short> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -591,10 +593,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseInt16(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseInt16(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -608,7 +610,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadInt32(OutObject<Integer> value) {
+    public Result ReadInt32(Out<Integer> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -618,10 +620,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseInt32(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseInt32(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -635,7 +637,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadInt64(OutObject<Long> value) {
+    public Result ReadInt64(Out<Long> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -645,10 +647,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseInt64(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseInt64(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -662,7 +664,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadInt8(OutObject<Byte> value) {
+    public Result ReadInt8(Out<Byte> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -672,10 +674,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseInt8(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseInt8(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -684,12 +686,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length <see cref="MongoDbObjectId" /> value.
+     * Read the current field as a fixed length {@link MongoDbObjectId} value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadMongoDbObjectId(OutObject<MongoDbObjectId> value) {
+    public Result ReadMongoDbObjectId(Out<MongoDbObjectId> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
@@ -699,10 +701,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseMongoDbObjectId(tempRef_cursor).clone());
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseMongoDbObjectId(tempReference_cursor).clone());
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -716,7 +718,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadNull(OutObject<NullValue> value) {
+    public Result ReadNull(Out<NullValue> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
@@ -726,10 +728,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseNull(tempRef_cursor).clone());
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseNull(tempReference_cursor).clone());
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -746,15 +748,15 @@ public final class RowReader {
      * Nested child readers are independent of their parent.
      */
     public RowReader ReadScope() {
-        RefObject<RowCursor> tempRef_cursor =
-            new RefObject<RowCursor>(this.cursor);
-        RowCursor newScope = this.row.SparseIteratorReadScope(tempRef_cursor, true).clone();
-        this.cursor = tempRef_cursor.get();
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(this.row);
+        Reference<RowCursor> tempReference_cursor =
+            new Reference<RowCursor>(this.cursor);
+        RowCursor newScope = this.row.SparseIteratorReadScope(tempReference_cursor, true).clone();
+        this.cursor = tempReference_cursor.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(this.row);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
         return new RowReader(ref this.row, newScope)
-        this.row = tempRef_row.get();
+        this.row = tempReference_row.get();
         return tempVar;
     }
 
@@ -765,32 +767,32 @@ public final class RowReader {
      * objects, arrays, tuples, set, and maps.
      */
     public <TContext> Result ReadScope(TContext context, ReaderFunc<TContext> func) {
-        RefObject<RowCursor> tempRef_cursor =
-            new RefObject<RowCursor>(this.cursor);
-        RowCursor childScope = this.row.SparseIteratorReadScope(tempRef_cursor, true).clone();
-        this.cursor = tempRef_cursor.get();
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(this.row);
-        RowReader nestedReader = new RowReader(tempRef_row, childScope.clone());
-        this.row = tempRef_row.get();
+        Reference<RowCursor> tempReference_cursor =
+            new Reference<RowCursor>(this.cursor);
+        RowCursor childScope = this.row.SparseIteratorReadScope(tempReference_cursor, true).clone();
+        this.cursor = tempReference_cursor.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(this.row);
+        RowReader nestedReader = new RowReader(tempReference_row, childScope.clone());
+        this.row = tempReference_row.get();
 
-        RefObject<RowReader> tempRef_nestedReader =
-            new RefObject<RowReader>(nestedReader);
+        Reference<RowReader> tempReference_nestedReader =
+            new Reference<RowReader>(nestedReader);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
         Result result = func == null ? null : func.Invoke(ref nestedReader, context) ??Result.Success;
-        nestedReader = tempRef_nestedReader.get();
+        nestedReader = tempReference_nestedReader.get();
         if (result != Result.Success) {
             return result;
         }
 
-        RefObject<RowBuffer> tempRef_row2 =
-            new RefObject<RowBuffer>(this.row);
-        RefObject<RowCursor> tempRef_cursor2 =
-            new RefObject<RowCursor>(nestedReader.cursor);
-        RowCursorExtensions.Skip(this.cursor.clone(), tempRef_row2,
-            tempRef_cursor2);
-        nestedReader.cursor = tempRef_cursor2.get();
-        this.row = tempRef_row2.get();
+        Reference<RowBuffer> tempReference_row2 =
+            new Reference<RowBuffer>(this.row);
+        Reference<RowCursor> tempReference_cursor2 =
+            new Reference<RowCursor>(nestedReader.cursor);
+        RowCursorExtensions.Skip(this.cursor.clone(), tempReference_row2,
+            tempReference_cursor2);
+        nestedReader.cursor = tempReference_cursor2.get();
+        this.row = tempReference_row2.get();
         return Result.Success;
     }
 
@@ -800,10 +802,10 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadString(OutObject<String> value) {
+    public Result ReadString(Out<String> value) {
         Utf8Span span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadString(out span);
         value.set((r == Result.Success) ? span.toString() :)
         default
@@ -816,10 +818,10 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadString(OutObject<Utf8String> value) {
+    public Result ReadString(Out<Utf8String> value) {
         Utf8Span span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadString(out span);
         value.set((r == Result.Success) ? Utf8String.CopyFrom(span) :)
         default
@@ -832,7 +834,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadString(OutObject<Utf8Span> value) {
+    public Result ReadString(Out<Utf8Span> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -842,10 +844,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseString(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseString(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -861,7 +863,7 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadUInt16(out ushort value)
-    public Result ReadUInt16(OutObject<Short> value) {
+    public Result ReadUInt16(Out<Short> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -871,10 +873,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseUInt16(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseUInt16(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -890,7 +892,7 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadUInt32(out uint value)
-    public Result ReadUInt32(OutObject<Integer> value) {
+    public Result ReadUInt32(Out<Integer> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -900,10 +902,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseUInt32(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseUInt32(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -919,7 +921,7 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadUInt64(out ulong value)
-    public Result ReadUInt64(OutObject<Long> value) {
+    public Result ReadUInt64(Out<Long> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -929,10 +931,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseUInt64(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseUInt64(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -948,7 +950,7 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadUInt8(out byte value)
-    public Result ReadUInt8(OutObject<Byte> value) {
+    public Result ReadUInt8(Out<Byte> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -958,10 +960,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseUInt8(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseUInt8(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -970,12 +972,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length <see cref="UnixDateTime" /> value.
+     * Read the current field as a fixed length {@link UnixDateTime} value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadUnixDateTime(OutObject<UnixDateTime> value) {
+    public Result ReadUnixDateTime(Out<UnixDateTime> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
@@ -985,10 +987,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseUnixDateTime(tempRef_cursor).clone());
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseUnixDateTime(tempReference_cursor).clone());
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(null);
@@ -1002,7 +1004,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    public Result ReadVarInt(OutObject<Long> value) {
+    public Result ReadVarInt(Out<Long> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -1012,10 +1014,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseVarInt(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseVarInt(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -1031,7 +1033,7 @@ public final class RowReader {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadVarUInt(out ulong value)
-    public Result ReadVarUInt(OutObject<Long> value) {
+    public Result ReadVarUInt(Out<Long> value) {
         switch (this.state) {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
@@ -1041,10 +1043,10 @@ public final class RowReader {
                     return Result.TypeMismatch;
                 }
 
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                value.set(this.row.ReadSparseVarUInt(tempRef_cursor));
-                this.cursor = tempRef_cursor.get();
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                value.set(this.row.ReadSparseVarUInt(tempReference_cursor));
+                this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
                 value.set(0);
@@ -1062,22 +1064,22 @@ public final class RowReader {
      * <p>
      * <p>
      * The reader must not have been advanced since the child reader was created with ReadScope.
-     * This method can be used when the overload of <see cref="ReadScope" /> that takes a
-     * <see cref="ReaderFunc{TContext}" /> is not an option, such as when TContext is a ref struct.
+     * This method can be used when the overload of {@link ReadScope} that takes a
+     * {@link ReaderFunc{TContext}} is not an option, such as when TContext is a ref struct.
      */
-    public Result SkipScope(RefObject<RowReader> nestedReader) {
+    public Result SkipScope(Reference<RowReader> nestedReader) {
         if (nestedReader.get().cursor.start != this.cursor.valueOffset) {
             return Result.Failure;
         }
 
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(this.row);
-        RefObject<RowCursor> tempRef_cursor =
-            new RefObject<RowCursor>(nestedReader.get().cursor);
-        RowCursorExtensions.Skip(this.cursor.clone(), tempRef_row,
-            tempRef_cursor);
-        nestedReader.get().argValue.cursor = tempRef_cursor.get();
-        this.row = tempRef_row.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(this.row);
+        Reference<RowCursor> tempReference_cursor =
+            new Reference<RowCursor>(nestedReader.get().cursor);
+        RowCursorExtensions.Skip(this.cursor.clone(), tempReference_row,
+            tempReference_cursor);
+        nestedReader.get().argValue.cursor = tempReference_cursor.get();
+        this.row = tempReference_row.get();
         return Result.Success;
     }
 
@@ -1101,7 +1103,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    private <TValue> Result ReadPrimitiveValue(OutObject<TValue> value) {
+    private <TValue> Result ReadPrimitiveValue(Out<TValue> value) {
         LayoutColumn col = this.columns[this.columnIndex];
         LayoutType t = this.columns[this.columnIndex].Type;
         if (!(t instanceof LayoutType<TValue>)) {
@@ -1111,20 +1113,20 @@ public final class RowReader {
 
         switch (col == null ? null : col.getStorage()) {
             case Fixed:
-                RefObject<RowBuffer> tempRef_row =
-                    new RefObject<RowBuffer>(this.row);
-                RefObject<RowCursor> tempRef_cursor =
-                    new RefObject<RowCursor>(this.cursor);
-                Result tempVar = t.<LayoutType<TValue>>TypeAs().ReadFixed(tempRef_row, tempRef_cursor, col, value);
-                this.cursor = tempRef_cursor.get();
-                this.row = tempRef_row.get();
+                Reference<RowBuffer> tempReference_row =
+                    new Reference<RowBuffer>(this.row);
+                Reference<RowCursor> tempReference_cursor =
+                    new Reference<RowCursor>(this.cursor);
+                Result tempVar = t.<LayoutType<TValue>>TypeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
+                this.cursor = tempReference_cursor.get();
+                this.row = tempReference_row.get();
                 return tempVar;
             case Variable:
-                RefObject<RowBuffer> tempRef_row2 = new RefObject<RowBuffer>(this.row);
-                RefObject<RowCursor> tempRef_cursor2 = new RefObject<RowCursor>(this.cursor);
-                Result tempVar2 = t.<LayoutType<TValue>>TypeAs().ReadVariable(tempRef_row2, tempRef_cursor2, col, value);
-                this.cursor = tempRef_cursor2.get();
-                this.row = tempRef_row2.get();
+                Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
+                Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
+                Result tempVar2 = t.<LayoutType<TValue>>TypeAs().ReadVariable(tempReference_row2, tempReference_cursor2, col, value);
+                this.cursor = tempReference_cursor2.get();
+                this.row = tempReference_row2.get();
                 return tempVar2;
             default:
                 throw new IllegalStateException();
@@ -1139,7 +1141,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    private Result ReadPrimitiveValue(OutObject<Utf8Span> value) {
+    private Result ReadPrimitiveValue(Out<Utf8Span> value) {
         LayoutColumn col = this.columns[this.columnIndex];
         LayoutType t = this.columns[this.columnIndex].Type;
         if (!(t instanceof ILayoutUtf8SpanReadable)) {
@@ -1149,18 +1151,19 @@ public final class RowReader {
 
         switch (col == null ? null : col.getStorage()) {
             case Fixed:
-                RefObject<RowBuffer> tempRef_row = new RefObject<RowBuffer>(this.row);
-                RefObject<RowCursor> tempRef_cursor = new RefObject<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutUtf8SpanReadable>TypeAs().ReadFixed(tempRef_row, tempRef_cursor, col, value);
-                this.cursor = tempRef_cursor.get();
-                this.row = tempRef_row.get();
+                Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
+                Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
+                Result tempVar = t.<ILayoutUtf8SpanReadable>TypeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
+                this.cursor = tempReference_cursor.get();
+                this.row = tempReference_row.get();
                 return tempVar;
             case Variable:
-                RefObject<RowBuffer> tempRef_row2 = new RefObject<RowBuffer>(this.row);
-                RefObject<RowCursor> tempRef_cursor2 = new RefObject<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutUtf8SpanReadable>TypeAs().ReadVariable(tempRef_row2, tempRef_cursor2, col, value);
-                this.cursor = tempRef_cursor2.get();
-                this.row = tempRef_row2.get();
+                Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
+                Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
+                Result tempVar2 = t.<ILayoutUtf8SpanReadable>TypeAs().ReadVariable(tempReference_row2,
+                    tempReference_cursor2, col, value);
+                this.cursor = tempReference_cursor2.get();
+                this.row = tempReference_row2.get();
                 return tempVar2;
             default:
                 throw new IllegalStateException();
@@ -1176,7 +1179,7 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return Success if the read is successful, an error code otherwise.
      */
-    private <TElement> Result ReadPrimitiveValue(OutObject<ReadOnlySpan<TElement>> value) {
+    private <TElement> Result ReadPrimitiveValue(Out<ReadOnlySpan<TElement>> value) {
         LayoutColumn col = this.columns[this.columnIndex];
         LayoutType t = this.columns[this.columnIndex].Type;
         if (!(t instanceof ILayoutSpanReadable<TElement>)) {
@@ -1186,18 +1189,18 @@ public final class RowReader {
 
         switch (col == null ? null : col.getStorage()) {
             case Fixed:
-                RefObject<RowBuffer> tempRef_row = new RefObject<RowBuffer>(this.row);
-                RefObject<RowCursor> tempRef_cursor = new RefObject<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutSpanReadable<TElement>>TypeAs().ReadFixed(tempRef_row, tempRef_cursor, col, value);
-                this.cursor = tempRef_cursor.get();
-                this.row = tempRef_row.get();
+                Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
+                Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
+                Result tempVar = t.<ILayoutSpanReadable<TElement>>TypeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
+                this.cursor = tempReference_cursor.get();
+                this.row = tempReference_row.get();
                 return tempVar;
             case Variable:
-                RefObject<RowBuffer> tempRef_row2 = new RefObject<RowBuffer>(this.row);
-                RefObject<RowCursor> tempRef_cursor2 = new RefObject<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutSpanReadable<TElement>>TypeAs().ReadVariable(tempRef_row2, tempRef_cursor2, col, value);
-                this.cursor = tempRef_cursor2.get();
-                this.row = tempRef_row2.get();
+                Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
+                Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
+                Result tempVar2 = t.<ILayoutSpanReadable<TElement>>TypeAs().ReadVariable(tempReference_row2, tempReference_cursor2, col, value);
+                this.cursor = tempReference_cursor2.get();
+                this.row = tempReference_row2.get();
                 return tempVar2;
             default:
                 throw new IllegalStateException();
@@ -1244,7 +1247,7 @@ public final class RowReader {
     }
 
     /**
-     * A function to reader content from a <see cref="RowBuffer" />.
+     * A function to reader content from a {@link RowBuffer}.
      * <typeparam name="TContext">The type of the context value passed by the caller.</typeparam>
      *
      * @param reader  A forward-only cursor for writing content.
@@ -1253,12 +1256,12 @@ public final class RowReader {
      */
     @FunctionalInterface
     public interface ReaderFunc<TContext> {
-        Result invoke(RefObject<RowReader> reader, TContext context);
+        Result invoke(Reference<RowReader> reader, TContext context);
     }
 
     /**
-     * An encapsulation of the current state of a <see cref="RowReader" /> that can be used to
-     * recreate the <see cref="RowReader" /> in the same logical position.
+     * An encapsulation of the current state of a {@link RowReader} that can be used to
+     * recreate the {@link RowReader} in the same logical position.
      */
     //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
     //ORIGINAL LINE: public readonly struct Checkpoint

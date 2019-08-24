@@ -4,8 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -74,16 +74,16 @@ public class BenchmarkSuiteBase {
     // Dictionary<Utf8String, object> rowValue)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     protected static Result LoadOneRow(Memory<Byte> buffer, LayoutResolver resolver,
-                                       OutObject<HashMap<Utf8String, Object>> rowValue) {
+                                       Out<HashMap<Utf8String, Object>> rowValue) {
         RowBuffer row = new RowBuffer(buffer.Span, HybridRowVersion.V1, resolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row);
-        row = tempRef_row.get();
-        RefObject<RowReader> tempRef_reader =
-            new RefObject<RowReader>(reader);
-        Result tempVar = DiagnosticConverter.ReaderToDynamic(tempRef_reader, rowValue);
-        reader = tempRef_reader.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row);
+        row = tempReference_row.get();
+        Reference<RowReader> tempReference_reader =
+            new Reference<RowReader>(reader);
+        Result tempVar = DiagnosticConverter.ReaderToDynamic(tempReference_reader, rowValue);
+        reader = tempReference_reader.get();
         return tempVar;
     }
 

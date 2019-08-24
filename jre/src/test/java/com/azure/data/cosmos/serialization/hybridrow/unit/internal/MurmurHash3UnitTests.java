@@ -4,7 +4,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit.internal;
 
-import com.azure.data.cosmos.serialization.hybridrow.internal.MurmurHash3;
+import com.azure.data.cosmos.serialization.hybridrow.internal.Murmur3Hash;
 
 import java.util.Random;
 
@@ -31,45 +31,45 @@ public class MurmurHash3UnitTests {
     // 0x0EB26F6D1CCEB258UL), (0xA3B6D57EBEB965D1UL, 0xE8078FCC5D8C2E3EUL), (0x91ABF587B38224F6UL,
     // 0x35899665A8A9252CUL), (0xF05B1AF0487EE2D4UL, 0x5D7496C1665DDE12UL)};
 
-    private static final MurmurHash3.Value[] EXPECTED_VALUES = new MurmurHash3.Value[] {
-        new MurmurHash3.Value(0x56F1549659CBEE1AL, 0xCEB3EE124C3E3855L),
-        new MurmurHash3.Value(0xFE84B58886F9D717L, 0xD24C5DE024F5EA6BL),
-        new MurmurHash3.Value(0x89F6250648BB11BFL, 0x95595FB9D4CF58B0L),
-        new MurmurHash3.Value(0xC76AFDB39EDC6262L, 0xB9286AF4FADAF497L),
-        new MurmurHash3.Value(0xC2CB4D9B3C9C247EL, 0xB465D40116B8B7A2L),
-        new MurmurHash3.Value(0x317178F5B26D0B35L, 0x1D564F53E2E468ADL),
-        new MurmurHash3.Value(0xE8D75F7C05F43F09L, 0xA81CEA052AE92D6FL),
-        new MurmurHash3.Value(0x8F837665508C08A8L, 0x2A74E6E47E5497BCL),
-        new MurmurHash3.Value(0x609778FDA1AFD731L, 0x3EB1A0E3BFC653E4L),
-        new MurmurHash3.Value(0x0F59B8965FA49D1AL, 0xCB3BC158243A5DEEL),
-        new MurmurHash3.Value(0x7A6D0AC9C98F5908L, 0xBC93D3042C3E7178L),
-        new MurmurHash3.Value(0x863FE5AEBA9A3DFAL, 0xDF42416658CB87C5L),
-        new MurmurHash3.Value(0xDB4C82337C8FB216L, 0xCA7616B64ABF6B3DL),
-        new MurmurHash3.Value(0x0049223177425B48L, 0x25510D7246BC3C2CL),
-        new MurmurHash3.Value(0x31AC129B24F82CABL, 0xCD7174C2040E9834L),
-        new MurmurHash3.Value(0xCE39465288116345L, 0x1CE6A26BA2E9E67DL),
-        new MurmurHash3.Value(0xD2BE55791E13DB17L, 0xCF30BF3D93B3A9FAL),
-        new MurmurHash3.Value(0x43E323DD0F079145L, 0xF06721555571ABBAL),
-        new MurmurHash3.Value(0xB0CE9F170A96F5BCL, 0x18EE95960369D702L),
-        new MurmurHash3.Value(0xBFFAF6BEBC84A2A9L, 0xE0612B6FC0C9D502L),
-        new MurmurHash3.Value(0x33E2D699697BC2DAL, 0xB7E9CD6313DE05EEL),
-        new MurmurHash3.Value(0xCBFD7D8DA2A962BFL, 0xCF4C281A7750E88AL),
-        new MurmurHash3.Value(0xBD8D863F83863088L, 0x01AFFBDE3D405D35L),
-        new MurmurHash3.Value(0xBA2E05DF3328C7DBL, 0x9620867ADDFE6579L),
-        new MurmurHash3.Value(0xC57BD1FB63CA0947L, 0xE1391F8454D4EA9FL),
-        new MurmurHash3.Value(0x6AB710460A5BF9BAL, 0x11D7E13FBEF63775L),
-        new MurmurHash3.Value(0x55C2C7C95F41C483L, 0xA4DCC9F547A89563L),
-        new MurmurHash3.Value(0x8AA5A2031027F216L, 0x1653FC7AD6CC6104L),
-        new MurmurHash3.Value(0xAD8A899FF093D9A5L, 0x0EB26F6D1CCEB258L),
-        new MurmurHash3.Value(0xA3B6D57EBEB965D1L, 0xE8078FCC5D8C2E3EL),
-        new MurmurHash3.Value(0x91ABF587B38224F6L, 0x35899665A8A9252CL),
-        new MurmurHash3.Value(0xF05B1AF0487EE2D4L, 0x5D7496C1665DDE12L) };
+    private static final Murmur3Hash.Code[] EXPECTED_VALUES = new Murmur3Hash.Code[] {
+        new Murmur3Hash.Code(0x56F1549659CBEE1AL, 0xCEB3EE124C3E3855L),
+        new Murmur3Hash.Code(0xFE84B58886F9D717L, 0xD24C5DE024F5EA6BL),
+        new Murmur3Hash.Code(0x89F6250648BB11BFL, 0x95595FB9D4CF58B0L),
+        new Murmur3Hash.Code(0xC76AFDB39EDC6262L, 0xB9286AF4FADAF497L),
+        new Murmur3Hash.Code(0xC2CB4D9B3C9C247EL, 0xB465D40116B8B7A2L),
+        new Murmur3Hash.Code(0x317178F5B26D0B35L, 0x1D564F53E2E468ADL),
+        new Murmur3Hash.Code(0xE8D75F7C05F43F09L, 0xA81CEA052AE92D6FL),
+        new Murmur3Hash.Code(0x8F837665508C08A8L, 0x2A74E6E47E5497BCL),
+        new Murmur3Hash.Code(0x609778FDA1AFD731L, 0x3EB1A0E3BFC653E4L),
+        new Murmur3Hash.Code(0x0F59B8965FA49D1AL, 0xCB3BC158243A5DEEL),
+        new Murmur3Hash.Code(0x7A6D0AC9C98F5908L, 0xBC93D3042C3E7178L),
+        new Murmur3Hash.Code(0x863FE5AEBA9A3DFAL, 0xDF42416658CB87C5L),
+        new Murmur3Hash.Code(0xDB4C82337C8FB216L, 0xCA7616B64ABF6B3DL),
+        new Murmur3Hash.Code(0x0049223177425B48L, 0x25510D7246BC3C2CL),
+        new Murmur3Hash.Code(0x31AC129B24F82CABL, 0xCD7174C2040E9834L),
+        new Murmur3Hash.Code(0xCE39465288116345L, 0x1CE6A26BA2E9E67DL),
+        new Murmur3Hash.Code(0xD2BE55791E13DB17L, 0xCF30BF3D93B3A9FAL),
+        new Murmur3Hash.Code(0x43E323DD0F079145L, 0xF06721555571ABBAL),
+        new Murmur3Hash.Code(0xB0CE9F170A96F5BCL, 0x18EE95960369D702L),
+        new Murmur3Hash.Code(0xBFFAF6BEBC84A2A9L, 0xE0612B6FC0C9D502L),
+        new Murmur3Hash.Code(0x33E2D699697BC2DAL, 0xB7E9CD6313DE05EEL),
+        new Murmur3Hash.Code(0xCBFD7D8DA2A962BFL, 0xCF4C281A7750E88AL),
+        new Murmur3Hash.Code(0xBD8D863F83863088L, 0x01AFFBDE3D405D35L),
+        new Murmur3Hash.Code(0xBA2E05DF3328C7DBL, 0x9620867ADDFE6579L),
+        new Murmur3Hash.Code(0xC57BD1FB63CA0947L, 0xE1391F8454D4EA9FL),
+        new Murmur3Hash.Code(0x6AB710460A5BF9BAL, 0x11D7E13FBEF63775L),
+        new Murmur3Hash.Code(0x55C2C7C95F41C483L, 0xA4DCC9F547A89563L),
+        new Murmur3Hash.Code(0x8AA5A2031027F216L, 0x1653FC7AD6CC6104L),
+        new Murmur3Hash.Code(0xAD8A899FF093D9A5L, 0x0EB26F6D1CCEB258L),
+        new Murmur3Hash.Code(0xA3B6D57EBEB965D1L, 0xE8078FCC5D8C2E3EL),
+        new Murmur3Hash.Code(0x91ABF587B38224F6L, 0x35899665A8A9252CL),
+        new Murmur3Hash.Code(0xF05B1AF0487EE2D4L, 0x5D7496C1665DDE12L) };
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //   ORIGINAL LINE:
     //   [TestMethod][Owner("jthunter")] public void Hash128Check()
     public final void Hash128Check() {
-        // Generate deterministic data for which the MurmurHash3 is known (see Expected).
+        // Generate deterministic data for which the Murmur3Hash is known (see Expected).
         Random rand = new Random(42);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: byte[][] samples = new byte[MurmurHash3UnitTests.Expected.Length][];
@@ -88,7 +88,7 @@ public class MurmurHash3UnitTests {
             //ORIGINAL LINE: byte[] sample = samples[i];
             byte[] sample = samples[i];
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# deconstruction declarations:
-            ( long low, long high) = MurmurHash3.Hash128(sample, (0, 0))
+            ( long low, long high) = Murmur3Hash.Hash128(sample, (0, 0))
             System.out.println(String.format("(0x%016XUL, 0x%1.16XUL),", high, low));
             assert MurmurHash3UnitTests.EXPECTED_VALUES[i].high == high;
             assert MurmurHash3UnitTests.EXPECTED_VALUES[i].low == low;
@@ -96,7 +96,7 @@ public class MurmurHash3UnitTests {
 
         // Measure performance.
         long ticks = MurmurHash3UnitTests.MeasureLoop(samples);
-        System.out.println(String.format("MurmurHash3: %1$s", ticks));
+        System.out.println(String.format("Murmur3Hash: %1$s", ticks));
     }
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
@@ -117,7 +117,7 @@ public class MurmurHash3UnitTests {
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: foreach (byte[] sample in samples)
             for (byte[] sample : samples) {
-                MurmurHash3.Hash128(sample, (0, 0))
+                Murmur3Hash.Hash128(sample, (0, 0))
             }
         }
 

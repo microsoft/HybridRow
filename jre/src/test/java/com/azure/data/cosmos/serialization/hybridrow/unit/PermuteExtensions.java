@@ -5,7 +5,7 @@
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 /**
- * Extension methods for computing permutations of <see cref="IEnumerable{T}"/>.
+ * Extension methods for computing permutations of {@link IEnumerable{T}}.
  */
 public final class PermuteExtensions {
     /**

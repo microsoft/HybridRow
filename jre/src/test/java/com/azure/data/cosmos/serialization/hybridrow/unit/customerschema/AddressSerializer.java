@@ -4,20 +4,21 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit.customerschema;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import azure.data.cosmos.serialization.hybridrow.unit.*;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
 
 public final class AddressSerializer {
-    public static Result Read(RefObject<RowReader> reader, OutObject<Address> obj) {
+    public static Result Read(Reference<RowReader> reader, Out<Address> obj) {
         obj.set(new Address());
         while (reader.get().Read()) {
             Result r;
             switch (reader.get().getPath()) {
                 case "street":
-                    OutObject<String> tempOut_Street = new OutObject<String>();
+                    Out<String> tempOut_Street = new Out<String>();
                     r = reader.get().ReadString(tempOut_Street);
                     obj.get().argValue.Street = tempOut_Street.get();
                     if (r != Result.Success) {
@@ -26,7 +27,7 @@ public final class AddressSerializer {
 
                     break;
                 case "city":
-                    OutObject<String> tempOut_City = new OutObject<String>();
+                    Out<String> tempOut_City = new Out<String>();
                     r = reader.get().ReadString(tempOut_City);
                     obj.get().argValue.City = tempOut_City.get();
                     if (r != Result.Success) {
@@ -35,7 +36,7 @@ public final class AddressSerializer {
 
                     break;
                 case "state":
-                    OutObject<String> tempOut_State = new OutObject<String>();
+                    Out<String> tempOut_State = new Out<String>();
                     r = reader.get().ReadString(tempOut_State);
                     obj.get().argValue.State = tempOut_State.get();
                     if (r != Result.Success) {
@@ -44,13 +45,13 @@ public final class AddressSerializer {
 
                     break;
                 case "postal_code":
-                    RefObject<RowReader> tempRef_child =
-                        new RefObject<RowReader>(child);
-                    OutObject<PostalCode> tempOut_PostalCode = new OutObject<PostalCode>();
+                    Reference<RowReader> tempReference_child =
+                        new Reference<RowReader>(child);
+                    Out<PostalCode> tempOut_PostalCode = new Out<PostalCode>();
                     // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
-                    r = reader.get().ReadScope(obj.get(), (ref RowReader child, Address parent) -> PostalCodeSerializer.Read(tempRef_child, tempOut_PostalCode));
+                    r = reader.get().ReadScope(obj.get(), (ref RowReader child, Address parent) -> PostalCodeSerializer.Read(tempReference_child, tempOut_PostalCode));
                     parent.PostalCode = tempOut_PostalCode.get();
-                    child = tempRef_child.get();
+                    child = tempReference_child.get();
 
                     if (r != Result.Success) {
                         return r;
@@ -63,7 +64,7 @@ public final class AddressSerializer {
         return Result.Success;
     }
 
-    public static Result Write(RefObject<RowWriter> writer, TypeArgument typeArg, Address obj) {
+    public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Address obj) {
         Result r;
         if (obj.Street != null) {
             r = writer.get().WriteString("street", obj.Street);

@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * Object properties map to multiple columns depending on the number of internal properties
  * within the defined object structure.  Object properties are provided as a convince in schema
  * design.  They are effectively equivalent to defining the same properties explicitly via
- * <see cref="PrimitivePropertyType" /> with nested property paths.
+ * {@link PrimitivePropertyType} with nested property paths.
  */
 public class ObjectPropertyType extends ScopePropertyType {
     /**
@@ -21,7 +21,7 @@ public class ObjectPropertyType extends ScopePropertyType {
     private ArrayList<Property> properties;
 
     /**
-     * Initializes a new instance of the <see cref="ObjectPropertyType" /> class.
+     * Initializes a new instance of the {@link ObjectPropertyType} class.
      */
     public ObjectPropertyType() {
         this.properties = new ArrayList<Property>();

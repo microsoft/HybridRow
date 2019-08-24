@@ -16,7 +16,7 @@ import java.util.ArrayList;
 //ORIGINAL LINE: [JsonObject] public class Namespace
 public class Namespace {
     /**
-     * The standard settings used by the JSON parser for interpreting <see cref="Namespace" />
+     * The standard settings used by the JSON parser for interpreting {@link Namespace}
      * documents.
      */
     private static final JsonSerializerSettings NamespaceParseSettings = new JsonSerializerSettings() {
@@ -35,12 +35,12 @@ public class Namespace {
     //ORIGINAL LINE: [JsonProperty(PropertyName = "version")] public SchemaLanguageVersion Version {get;set;}
     private SchemaLanguageVersion Version = SchemaLanguageVersion.values()[0];
     /**
-     * The set of schemas that make up the <see cref="Namespace" />.
+     * The set of schemas that make up the {@link Namespace}.
      */
     private ArrayList<Schema> schemas;
 
     /**
-     * Initializes a new instance of the <see cref="Namespace" /> class.
+     * Initializes a new instance of the {@link Namespace} class.
      */
     public Namespace() {
         this.setSchemas(new ArrayList<Schema>());
@@ -55,7 +55,7 @@ public class Namespace {
     }
 
     /**
-     * The set of schemas that make up the <see cref="Namespace" />.
+     * The set of schemas that make up the {@link Namespace}.
      * <p>
      * Namespaces may consist of zero or more table schemas along with zero or more UDT schemas.
      * Table schemas can only reference UDT schemas defined in the same namespace.  UDT schemas can

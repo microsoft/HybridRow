@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowHeader;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -47,9 +48,9 @@ public final class RecordIOParser {
      *                 recommended that Process not be called again until at least this number of bytes are available.
      * @param consumed The number of bytes consumed from the input buffer. This number may be less
      *                 than the total buffer size if the parser moved to a new state.
-     * @return <see cref="azure.data.cosmos.serialization.hybridrow.Result.Success" /> if no error
+     * @return {@link azure.data.cosmos.serialization.hybridrow.Result.Success} if no error
      * has occurred, otherwise a valid
-     * <see cref="azure.data.cosmos.serialization.hybridrow.Result" /> of the last error encountered
+     * {@link azure.data.cosmos.serialization.hybridrow.Result} of the last error encountered
      * during parsing.
      * <p>
      * >
@@ -57,9 +58,9 @@ public final class RecordIOParser {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result Process(Memory<byte> buffer, out ProductionType type, out Memory<byte> record, out
     // int need, out int consumed)
-    public Result Process(Memory<Byte> buffer, OutObject<ProductionType> type,
-                          OutObject<Memory<Byte>> record, OutObject<Integer> need,
-                          OutObject<Integer> consumed) {
+    public Result Process(Memory<Byte> buffer, Out<ProductionType> type,
+                          Out<Memory<Byte>> record, Out<Integer> need,
+                          Out<Integer> consumed) {
         Result r = Result.Failure;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Memory<byte> b = buffer;
@@ -82,17 +83,17 @@ public final class RecordIOParser {
                 //ORIGINAL LINE: Span<byte> span = b.Span.Slice(0, minimalSegmentRowSize);
                 Span<Byte> span = b.Span.Slice(0, minimalSegmentRowSize);
                 RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
-                RefObject<RowBuffer> tempRef_row =
-                    new RefObject<RowBuffer>(row);
-                RowReader reader = new RowReader(tempRef_row);
-                row = tempRef_row.get();
-                RefObject<RowReader> tempRef_reader =
-                    new RefObject<RowReader>(reader);
-                OutObject<Segment> tempOut_segment =
-                    new OutObject<Segment>();
-                r = SegmentSerializer.Read(tempRef_reader, tempOut_segment);
+                Reference<RowBuffer> tempReference_row =
+                    new Reference<RowBuffer>(row);
+                RowReader reader = new RowReader(tempReference_row);
+                row = tempReference_row.get();
+                Reference<RowReader> tempReference_reader =
+                    new Reference<RowReader>(reader);
+                Out<Segment> tempOut_segment =
+                    new Out<Segment>();
+                r = SegmentSerializer.Read(tempReference_reader, tempOut_segment);
                 this.segment = tempOut_segment.get();
-                reader = tempRef_reader.get();
+                reader = tempReference_reader.get();
                 if (r != Result.Success) {
                     break;
                 }
@@ -113,17 +114,17 @@ public final class RecordIOParser {
                 //ORIGINAL LINE: Span<byte> span = b.Span.Slice(0, this.segment.Length);
                 Span<Byte> span = b.Span.Slice(0, this.segment.Length);
                 RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
-                RefObject<RowBuffer> tempRef_row2 =
-                    new RefObject<RowBuffer>(row);
-                RowReader reader = new RowReader(tempRef_row2);
-                row = tempRef_row2.get();
-                RefObject<RowReader> tempRef_reader2 =
-                    new RefObject<RowReader>(reader);
-                OutObject<Segment> tempOut_segment2
-                    = new OutObject<Segment>();
-                r = SegmentSerializer.Read(tempRef_reader2, tempOut_segment2);
+                Reference<RowBuffer> tempReference_row2 =
+                    new Reference<RowBuffer>(row);
+                RowReader reader = new RowReader(tempReference_row2);
+                row = tempReference_row2.get();
+                Reference<RowReader> tempReference_reader2 =
+                    new Reference<RowReader>(reader);
+                Out<Segment> tempOut_segment2
+                    = new Out<Segment>();
+                r = SegmentSerializer.Read(tempReference_reader2, tempOut_segment2);
                 this.segment = tempOut_segment2.get();
-                reader = tempRef_reader2.get();
+                reader = tempReference_reader2.get();
                 if (r != Result.Success) {
                     break;
                 }
@@ -146,7 +147,7 @@ public final class RecordIOParser {
 
                 HybridRowHeader header;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 MemoryMarshal.TryRead(b.Span, out header);
                 if (header.Version != HybridRowVersion.V1) {
@@ -182,15 +183,15 @@ public final class RecordIOParser {
                 //ORIGINAL LINE: Span<byte> span = b.Span.Slice(0, minimalRecordRowSize);
                 Span<Byte> span = b.Span.Slice(0, minimalRecordRowSize);
                 RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
-                RefObject<RowBuffer> tempRef_row3 =
-                    new RefObject<RowBuffer>(row);
-                RowReader reader = new RowReader(tempRef_row3);
-                row = tempRef_row3.get();
-                RefObject<RowReader> tempRef_reader3 = new RefObject<RowReader>(reader);
-                OutObject<Record> tempOut_record = new OutObject<Record>();
-                r = RecordSerializer.Read(tempRef_reader3, tempOut_record);
+                Reference<RowBuffer> tempReference_row3 =
+                    new Reference<RowBuffer>(row);
+                RowReader reader = new RowReader(tempReference_row3);
+                row = tempReference_row3.get();
+                Reference<RowReader> tempReference_reader3 = new Reference<RowReader>(reader);
+                Out<Record> tempOut_record = new Out<Record>();
+                r = RecordSerializer.Read(tempReference_reader3, tempOut_record);
                 this.record = tempOut_record.get();
-                reader = tempRef_reader3.get();
+                reader = tempReference_reader3.get();
                 if (r != Result.Success) {
                     break;
                 }

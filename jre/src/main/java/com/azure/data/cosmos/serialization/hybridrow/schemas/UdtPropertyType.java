@@ -17,7 +17,7 @@ public class UdtPropertyType extends ScopePropertyType {
     /**
      * The identifier of the UDT schema defining the structure for the nested row.
      * <p>
-     * The UDT schema MUST be defined within the same <see cref="Namespace" /> as the schema that
+     * The UDT schema MUST be defined within the same {@link Namespace} as the schema that
      * references it.
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
@@ -26,9 +26,9 @@ public class UdtPropertyType extends ScopePropertyType {
     /**
      * The unique identifier for a schema.
      * <p>
-     * Optional uniquifier if multiple versions of <see cref="Name" /> appears within the Namespace.
+     * Optional uniquifier if multiple versions of {@link Name} appears within the Namespace.
      * <p>
-     * If multiple versions of a UDT are defined within the <see cref="Namespace" /> then the globally
+     * If multiple versions of a UDT are defined within the {@link Namespace} then the globally
      * unique identifier of the specific version referenced MUST be provided.
      * </p>
      */

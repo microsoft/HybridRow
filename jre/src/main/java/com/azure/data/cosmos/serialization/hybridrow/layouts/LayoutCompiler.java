@@ -4,7 +4,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
+import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.ArrayPropertyType;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.MapPropertyType;
@@ -53,8 +53,8 @@ public final class LayoutCompiler {
                                       ArrayList<Property> properties) {
         for (Property p : properties) {
             TypeArgumentList typeArgs = new TypeArgumentList();
-            OutObject<TypeArgumentList> tempOut_typeArgs =
-                new OutObject<TypeArgumentList>();
+            Out<TypeArgumentList> tempOut_typeArgs =
+                new Out<TypeArgumentList>();
             LayoutType type = LayoutCompiler.LogicalToPhysicalType(ns, p.getPropertyType(), tempOut_typeArgs);
             typeArgs = tempOut_typeArgs.get();
             switch (LayoutCodeTraits.ClearImmutableBit(type.LayoutCode)) {
@@ -149,7 +149,7 @@ public final class LayoutCompiler {
     }
 
     private static LayoutType LogicalToPhysicalType(Namespace ns, PropertyType logicalType,
-                                                    OutObject<TypeArgumentList> typeArgs) {
+                                                    Out<TypeArgumentList> typeArgs) {
         typeArgs.set(TypeArgumentList.Empty);
         boolean tempVar =
             (logicalType instanceof ScopePropertyType ? (ScopePropertyType)logicalType : null).getImmutable();
@@ -209,7 +209,7 @@ public final class LayoutCompiler {
                 ArrayPropertyType ap = (ArrayPropertyType)logicalType;
                 if ((ap.getItems() != null) && (ap.getItems().getType() != TypeKind.Any)) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
-                    OutObject<TypeArgumentList> tempOut_itemTypeArgs = new OutObject<TypeArgumentList>();
+                    Out<TypeArgumentList> tempOut_itemTypeArgs = new Out<TypeArgumentList>();
                     LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, ap.getItems(), tempOut_itemTypeArgs);
                     itemTypeArgs = tempOut_itemTypeArgs.get();
                     if (ap.getItems().getNullable()) {
@@ -228,7 +228,7 @@ public final class LayoutCompiler {
                 SetPropertyType sp = (SetPropertyType)logicalType;
                 if ((sp.getItems() != null) && (sp.getItems().getType() != TypeKind.Any)) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
-                    OutObject<TypeArgumentList> tempOut_itemTypeArgs2 = new OutObject<TypeArgumentList>();
+                    Out<TypeArgumentList> tempOut_itemTypeArgs2 = new Out<TypeArgumentList>();
                     LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, sp.getItems(),
                         tempOut_itemTypeArgs2);
                     itemTypeArgs = tempOut_itemTypeArgs2.get();
@@ -251,7 +251,7 @@ public final class LayoutCompiler {
                 MapPropertyType mp = (MapPropertyType)logicalType;
                 if ((mp.getKeys() != null) && (mp.getKeys().getType() != TypeKind.Any) && (mp.getValues() != null) && (mp.getValues().getType() != TypeKind.Any)) {
                     TypeArgumentList keyTypeArgs = new TypeArgumentList();
-                    OutObject<TypeArgumentList> tempOut_keyTypeArgs = new OutObject<TypeArgumentList>();
+                    Out<TypeArgumentList> tempOut_keyTypeArgs = new Out<TypeArgumentList>();
                     LayoutType keyType = LayoutCompiler.LogicalToPhysicalType(ns, mp.getKeys(), tempOut_keyTypeArgs);
                     keyTypeArgs = tempOut_keyTypeArgs.get();
                     if (mp.getKeys().getNullable()) {
@@ -261,7 +261,7 @@ public final class LayoutCompiler {
                     }
 
                     TypeArgumentList valueTypeArgs = new TypeArgumentList();
-                    OutObject<TypeArgumentList> tempOut_valueTypeArgs = new OutObject<TypeArgumentList>();
+                    Out<TypeArgumentList> tempOut_valueTypeArgs = new Out<TypeArgumentList>();
                     LayoutType valueType = LayoutCompiler.LogicalToPhysicalType(ns, mp.getValues(),
                         tempOut_valueTypeArgs);
                     valueTypeArgs = tempOut_valueTypeArgs.get();
@@ -288,7 +288,7 @@ public final class LayoutCompiler {
                 TypeArgument[] args = new TypeArgument[tp.getItems().size()];
                 for (int i = 0; i < tp.getItems().size(); i++) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
-                    OutObject<TypeArgumentList> tempOut_itemTypeArgs3 = new OutObject<TypeArgumentList>();
+                    Out<TypeArgumentList> tempOut_itemTypeArgs3 = new Out<TypeArgumentList>();
                     LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, tp.getItems().get(i),
                         tempOut_itemTypeArgs3);
                     itemTypeArgs = tempOut_itemTypeArgs3.get();
@@ -316,7 +316,7 @@ public final class LayoutCompiler {
                 tgArgs[0] = new TypeArgument(LayoutType.UInt8, TypeArgumentList.Empty);
                 for (int i = 0; i < tg.getItems().size(); i++) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
-                    OutObject<TypeArgumentList> tempOut_itemTypeArgs4 = new OutObject<TypeArgumentList>();
+                    Out<TypeArgumentList> tempOut_itemTypeArgs4 = new Out<TypeArgumentList>();
                     LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, tg.getItems().get(i),
                         tempOut_itemTypeArgs4);
                     itemTypeArgs = tempOut_itemTypeArgs4.get();

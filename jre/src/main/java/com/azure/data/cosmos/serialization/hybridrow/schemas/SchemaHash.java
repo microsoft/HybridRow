@@ -16,8 +16,8 @@ public final class SchemaHash {
     //	default)
     //		{
     //			(ulong low, ulong high) hash = seed;
-    //			hash = MurmurHash3.Hash128(schema.SchemaId, hash);
-    //			hash = MurmurHash3.Hash128(schema.Type, hash);
+    //			hash = Murmur3Hash.Hash128(schema.SchemaId, hash);
+    //			hash = Murmur3Hash.Hash128(schema.Type, hash);
     //			hash = SchemaHash.ComputeHash(ns, schema.Options, hash);
     //			if (schema.PartitionKeys != null)
     //			{
@@ -59,12 +59,12 @@ public final class SchemaHash {
     //	seed = default)
     //		{
     //			(ulong low, ulong high) hash = seed;
-    //			hash = MurmurHash3.Hash128(options == null ? null : options.DisallowUnschematized ?? false, hash);
-    //			hash = MurmurHash3.Hash128(options == null ? null : options.EnablePropertyLevelTimestamp ?? false,
+    //			hash = Murmur3Hash.Hash128(options == null ? null : options.DisallowUnschematized ?? false, hash);
+    //			hash = Murmur3Hash.Hash128(options == null ? null : options.EnablePropertyLevelTimestamp ?? false,
     //			hash);
     //			if (options == null ? null : options.DisableSystemPrefix ?? false)
     //			{
-    //				hash = MurmurHash3.Hash128(true, hash);
+    //				hash = Murmur3Hash.Hash128(true, hash);
     //			}
     //
     //			return hash;
@@ -76,7 +76,7 @@ public final class SchemaHash {
     //		{
     //			Contract.Requires(p != null);
     //			(ulong low, ulong high) hash = seed;
-    //			hash = MurmurHash3.Hash128(p.Path, hash);
+    //			hash = Murmur3Hash.Hash128(p.Path, hash);
     //			hash = SchemaHash.ComputeHash(ns, p.PropertyType, hash);
     //			return hash;
     //		}
@@ -87,21 +87,21 @@ public final class SchemaHash {
     //		{
     //			Contract.Requires(p != null);
     //			(ulong low, ulong high) hash = seed;
-    //			hash = MurmurHash3.Hash128(p.Type, hash);
-    //			hash = MurmurHash3.Hash128(p.Nullable, hash);
+    //			hash = Murmur3Hash.Hash128(p.Type, hash);
+    //			hash = Murmur3Hash.Hash128(p.Nullable, hash);
     //			if (p.ApiType != null)
     //			{
-    //				hash = MurmurHash3.Hash128(p.ApiType, hash);
+    //				hash = Murmur3Hash.Hash128(p.ApiType, hash);
     //			}
     //
     //			switch (p)
     //			{
     //				case PrimitivePropertyType pp:
-    //					hash = MurmurHash3.Hash128(pp.Storage, hash);
-    //					hash = MurmurHash3.Hash128(pp.Length, hash);
+    //					hash = Murmur3Hash.Hash128(pp.Storage, hash);
+    //					hash = Murmur3Hash.Hash128(pp.Length, hash);
     //					break;
     //				case ScopePropertyType pp:
-    //					hash = MurmurHash3.Hash128(pp.Immutable, hash);
+    //					hash = Murmur3Hash.Hash128(pp.Immutable, hash);
     //					switch (p)
     //					{
     //						case ArrayPropertyType spp:
@@ -199,7 +199,7 @@ public final class SchemaHash {
     //			(ulong low, ulong high) hash = seed;
     //			if (key != null)
     //			{
-    //				hash = MurmurHash3.Hash128(key.Path, hash);
+    //				hash = Murmur3Hash.Hash128(key.Path, hash);
     //			}
     //
     //			return hash;
@@ -211,8 +211,8 @@ public final class SchemaHash {
     //			(ulong low, ulong high) hash = seed;
     //			if (key != null)
     //			{
-    //				hash = MurmurHash3.Hash128(key.Path, hash);
-    //				hash = MurmurHash3.Hash128(key.Direction, hash);
+    //				hash = Murmur3Hash.Hash128(key.Path, hash);
+    //				hash = Murmur3Hash.Hash128(key.Direction, hash);
     //			}
     //
     //			return hash;
@@ -224,7 +224,7 @@ public final class SchemaHash {
     //			(ulong low, ulong high) hash = seed;
     //			if (key != null)
     //			{
-    //				hash = MurmurHash3.Hash128(key.Path, hash);
+    //				hash = Murmur3Hash.Hash128(key.Path, hash);
     //			}
     //
     //			return hash;

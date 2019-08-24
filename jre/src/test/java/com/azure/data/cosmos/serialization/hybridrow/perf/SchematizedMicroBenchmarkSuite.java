@@ -6,7 +6,8 @@ package com.azure.data.cosmos.serialization.hybridrow.perf;
 
 import MongoDB.Bson.IO.*;
 import Newtonsoft.Json.*;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -408,14 +409,14 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
         }
 
         BenchmarkContext ignoredContext = null;
-        RefObject<BenchmarkContext> tempRef_ignoredContext = new RefObject<BenchmarkContext>(ignoredContext);
+        Reference<BenchmarkContext> tempReference_ignoredContext = new Reference<BenchmarkContext>(ignoredContext);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "BSON",
         // innerLoopIterations, ref ignoredContext, (ref BenchmarkContext _, byte[] tableValue) =>
         MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "BSON", innerLoopIterations,
-            tempRef_ignoredContext, (ref BenchmarkContext _, byte[] tableValue) ->
+            tempReference_ignoredContext, (ref BenchmarkContext _, byte[] tableValue) ->
         {
             try (MemoryStream stm = new MemoryStream(tableValue)) {
                 try (BsonBinaryReader bsonReader = new BsonBinaryReader(stm)) {
@@ -423,7 +424,7 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
                 }
             }
         }, (ref BenchmarkContext _, byte[] tableValue) -> tableValue.length, expectedSerialized);
-        ignoredContext = tempRef_ignoredContext.get();
+        ignoredContext = tempReference_ignoredContext.get();
     }
 
     private static void BsonWriteBenchmark(LayoutResolverNamespace resolver, String schemaName, String dataSetName,
@@ -433,16 +434,16 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
         try (BsonRowGenerator writer = new BsonRowGenerator(BenchmarkSuiteBase.InitialCapacity, layout, resolver)) {
             BenchmarkContext ignoredContext = null;
 
-            RefObject<BenchmarkContext> tempRef_ignoredContext = new RefObject<BenchmarkContext>(ignoredContext);
+            Reference<BenchmarkContext> tempReference_ignoredContext = new Reference<BenchmarkContext>(ignoredContext);
             // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are
             // not converted by C# to Java Converter:
             MicroBenchmarkSuiteBase.Benchmark("Schematized", "Write", dataSetName, "BSON", innerLoopIterations,
-                tempRef_ignoredContext, (ref BenchmarkContext _, HashMap<Utf8String, Object> tableValue) ->
+                tempReference_ignoredContext, (ref BenchmarkContext _, HashMap<Utf8String, Object> tableValue) ->
             {
                 writer.Reset();
                 writer.WriteBuffer(tableValue);
             }, (ref BenchmarkContext _, HashMap<Utf8String, Object> tableValue) -> writer.getLength(), expected);
-            ignoredContext = tempRef_ignoredContext.get();
+            ignoredContext = tempReference_ignoredContext.get();
         }
     }
 
@@ -474,14 +475,14 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
         BenchmarkContext ignoredContext = null;
         jsonSerializer.Converters.Add(new Utf8StringJsonConverter());
 
-        RefObject<BenchmarkContext> tempRef_ignoredContext = new RefObject<BenchmarkContext>(ignoredContext);
+        Reference<BenchmarkContext> tempReference_ignoredContext = new Reference<BenchmarkContext>(ignoredContext);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "JSON",
         // innerLoopIterations, ref ignoredContext, (ref BenchmarkContext _, byte[] tableValue) =>
         MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "JSON", innerLoopIterations,
-            tempRef_ignoredContext, (ref BenchmarkContext _, byte[] tableValue) ->
+            tempReference_ignoredContext, (ref BenchmarkContext _, byte[] tableValue) ->
         {
             try (MemoryStream jsonStream = new MemoryStream(tableValue)) {
                 try (InputStreamReader textReader = new InputStreamReader(jsonStream)) {
@@ -493,7 +494,7 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
                 }
             }
         }, (ref BenchmarkContext _, byte[] tableValue) -> tableValue.length, expectedSerialized);
-        ignoredContext = tempRef_ignoredContext.get();
+        ignoredContext = tempReference_ignoredContext.get();
     }
 
     private static void JsonWriteBenchmark(String dataSetName, int innerLoopIterations, ArrayList<HashMap<Utf8String,
@@ -506,18 +507,18 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
                     BenchmarkContext ignoredContext = null;
                     jsonSerializer.Converters.Add(new Utf8StringJsonConverter());
 
-                    RefObject<BenchmarkContext> tempRef_ignoredContext = new RefObject<BenchmarkContext>(ignoredContext);
+                    Reference<BenchmarkContext> tempReference_ignoredContext = new Reference<BenchmarkContext>(ignoredContext);
                     // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword -
                     // these are not converted by C# to Java Converter:
                     MicroBenchmarkSuiteBase.Benchmark("Schematized", "Write", dataSetName, "JSON",
-                        innerLoopIterations, tempRef_ignoredContext, (ref BenchmarkContext _, HashMap<Utf8String,
+                        innerLoopIterations, tempReference_ignoredContext, (ref BenchmarkContext _, HashMap<Utf8String,
                             Object> tableValue) ->
                     {
                         jsonStream.SetLength(0);
                         jsonSerializer.Serialize(jsonWriter, tableValue);
                         jsonWriter.Flush();
                     }, (ref BenchmarkContext _, HashMap<Utf8String, Object> value) -> jsonStream.Length, expected);
-                    ignoredContext = tempRef_ignoredContext.get();
+                    ignoredContext = tempReference_ignoredContext.get();
                 }
             }
         }
@@ -544,20 +545,20 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
             expectedSerialized.add((Byte)context.StreamingWriter.ToArray());
         }
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "Layout",
         // innerLoopIterations, ref context, (ref BenchmarkContext ctx, byte[] tableValue) =>
         MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "Layout", innerLoopIterations,
-            tempRef_context, (ref BenchmarkContext ctx, byte[] tableValue) ->
+            tempReference_context, (ref BenchmarkContext ctx, byte[] tableValue) ->
         {
             VisitRowGenerator visitor = new VisitRowGenerator(tableValue.AsSpan(), resolver);
             Result r = visitor.DispatchLayout(layout);
             ResultAssert.IsSuccess(r);
         }, (ref BenchmarkContext ctx, byte[] tableValue) -> tableValue.length, expectedSerialized);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 
     private static void LayoutWriteBenchmark(LayoutResolverNamespace resolver, String schemaName, String dataSetName,
@@ -567,17 +568,17 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
         BenchmarkContext context = new BenchmarkContext();
         context.PatchWriter = new WriteRowGenerator(BenchmarkSuiteBase.InitialCapacity, layout, resolver);
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         MicroBenchmarkSuiteBase.Benchmark("Schematized", "Write", dataSetName, "Layout", innerLoopIterations,
-            tempRef_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> dict) ->
+            tempReference_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> dict) ->
         {
             ctx.PatchWriter.Reset();
             Result r = ctx.PatchWriter.DispatchLayout(layout, dict);
             ResultAssert.IsSuccess(r);
         }, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> _) -> ctx.PatchWriter.Length, expected);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 
     private static void StreamingReadBenchmark(LayoutResolverNamespace resolver, String schemaName, String dataSetName, int innerLoopIterations, ArrayList<HashMap<Utf8String, Object>> expected) {
@@ -599,19 +600,20 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
             expectedSerialized.add((Byte)context.StreamingWriter.ToArray());
         }
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "HybridRow", innerLoopIterations, ref context, (ref BenchmarkContext ctx, byte[] tableValue) =>
-        MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "HybridRow", innerLoopIterations, tempRef_context, (ref BenchmarkContext ctx, byte[] tableValue) ->
+        MicroBenchmarkSuiteBase.Benchmark("Schematized", "Read", dataSetName, "HybridRow", innerLoopIterations,
+            tempReference_context, (ref BenchmarkContext ctx, byte[] tableValue) ->
         {
             RowBuffer row = new RowBuffer(tableValue.AsSpan(), HybridRowVersion.V1, resolver);
-            RefObject<RowBuffer> tempRef_row = new RefObject<RowBuffer>(row);
-            RowReader reader = new RowReader(tempRef_row);
-            row = tempRef_row.get();
+            Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(row);
+            RowReader reader = new RowReader(tempReference_row);
+            row = tempReference_row.get();
             RowReaderExtensions.VisitReader(reader.clone());
         }, (ref BenchmarkContext ctx, byte[] tableValue) -> tableValue.length, expectedSerialized);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 
     private static void StreamingWriteBenchmark(LayoutResolverNamespace resolver, String schemaName,
@@ -622,17 +624,17 @@ public final class SchematizedMicroBenchmarkSuite extends MicroBenchmarkSuiteBas
         BenchmarkContext context = new BenchmarkContext();
         context.StreamingWriter = new StreamingRowGenerator(BenchmarkSuiteBase.InitialCapacity, layout, resolver);
 
-        RefObject<BenchmarkContext> tempRef_context = new RefObject<BenchmarkContext>(context);
+        Reference<BenchmarkContext> tempReference_context = new Reference<BenchmarkContext>(context);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         MicroBenchmarkSuiteBase.Benchmark("Schematized", "Write", dataSetName, "HybridRow", innerLoopIterations,
-            tempRef_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) ->
+            tempReference_context, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> tableValue) ->
         {
             ctx.StreamingWriter.Reset();
 
             Result r = ctx.StreamingWriter.WriteBuffer(tableValue);
             ResultAssert.IsSuccess(r);
         }, (ref BenchmarkContext ctx, HashMap<Utf8String, Object> _) -> ctx.StreamingWriter.Length, expected);
-        context = tempRef_context.get();
+        context = tempReference_context.get();
     }
 }

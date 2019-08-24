@@ -11,7 +11,7 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
 public class PrimarySortKey {
     /**
      * The logical path of the referenced property.
-     * Primary keys MUST refer to properties defined within the same <see cref="Schema" />.
+     * Primary keys MUST refer to properties defined within the same {@link Schema}.
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [JsonProperty(PropertyName = "direction", Required = Required.DisallowNull)] public
@@ -19,7 +19,7 @@ public class PrimarySortKey {
     private SortDirection Direction = SortDirection.values()[0];
     /**
      * The logical path of the referenced property.
-     * Primary keys MUST refer to properties defined within the same <see cref="Schema" />.
+     * Primary keys MUST refer to properties defined within the same {@link Schema}.
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [JsonProperty(PropertyName = "path", Required = Required.Always)] public string Path {get;set;}

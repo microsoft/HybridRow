@@ -9,7 +9,7 @@ import Newtonsoft.Json.Converters.*;
 import Newtonsoft.Json.Linq.*;
 
 /**
- * Helper class for parsing the polymorphic <see cref="PropertyType" /> subclasses from JSON.
+ * Helper class for parsing the polymorphic {@link PropertyType} subclasses from JSON.
  */
 public class PropertySchemaConverter extends JsonConverter {
     @Override
@@ -35,7 +35,7 @@ public class PropertySchemaConverter extends JsonConverter {
 
         JToken value;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         if (!propSchema.TryGetValue("type", out value)) {
             throw new JsonSerializationException("Required \"type\" property missing.");
         }

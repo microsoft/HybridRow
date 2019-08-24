@@ -4,40 +4,44 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
+import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
+import com.azure.data.cosmos.serialization.hybridrow.schemas.Schema;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A Layout describes the structure of a Hybrd Row.
+ * A Layout describes the structure of a Hybrid Row
  * <p>
- * A layout indicates the number, order, and type of all schematized columns to be stored
- * within a hybrid row.  The order and type of columns defines the physical ordering of bytes used to
- * encode the row and impacts the cost of updating the row.
- * <para />
- * A layout is created by compiling a <see cref="Schema" /> through <see cref="Schema.Compile" /> or
- * by constructor through a <see cref="LayoutBuilder" />.
- * <para />
- * <see cref="Layout" /> is immutable.
+ * A layout indicates the number, order, and type of all schematized columns to be stored within a hybrid row. The
+ * order and type of columns defines the physical ordering of bytes used to encode the row and impacts the cost of
+ * updating the row.
+ * <p>
+ * A layout is created by compiling a {@link Schema} through {@link Schema#Compile(Namespace)} or by constructor through
+ * a {@link LayoutBuilder}.
+ *
+ * {@link Layout} is immutable.
  */
 public final class Layout {
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes",
-    // Justification = "Type is immutable.")] public static readonly Layout Empty = SystemSchema.LayoutResolver
-    // .Resolve(SystemSchema.EmptySchemaId);
+
+    // TODO: C# TO JAVA CONVERTER:
+    //  Java annotations will not correspond to .NET attributes:
+    //  ORIGINAL LINE:
+    //  [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Type is immutable.")] public static readonly Layout Empty = SystemSchema.LayoutResolver.Resolve(SystemSchema.EmptySchemaId);
+
     public static final Layout Empty = SystemSchema.LayoutResolver.Resolve(SystemSchema.EmptySchemaId);
     /**
      * Name of the layout.
      * <p>
-     * Usually this is the name of the <see cref="Schema" /> from which this
-     * <see cref="Layout" /> was generated.
+     * Usually this is the name of the {@link Schema} from which this {@link Layout} was generated.
      */
     private String Name;
     /**
-     * The number of bitmask bytes allocated within the layout.
+     * The number of bit mask bytes allocated within the layout.
      * <p>
      * A presence bit is allocated for each fixed and variable-length field.  Sparse columns
      * never have presence bits.  Fixed boolean allocate an additional bit from the bitmask to store their
@@ -53,7 +57,7 @@ public final class Layout {
      */
     private int NumVariable;
     /**
-     * Unique identifier of the schema from which this <see cref="Layout" /> was generated.
+     * Unique identifier of the schema from which this {@link Layout} was generated.
      */
     private com.azure.data.cosmos.serialization.hybridrow.SchemaId SchemaId = new SchemaId();
     /**
@@ -67,8 +71,7 @@ public final class Layout {
     private HashMap<String, LayoutColumn> pathStringMap;
     private LayoutColumn[] topColumns;
 
-    public Layout(String name, SchemaId schemaId, int numBitmaskBytes, int minRequiredSize,
-                  ArrayList<LayoutColumn> columns) {
+    public Layout(String name, SchemaId schemaId, int numBitmaskBytes, int minRequiredSize, ArrayList<LayoutColumn> columns) {
         this.Name = name;
         this.SchemaId = schemaId.clone();
         this.NumBitmaskBytes = numBitmaskBytes;
@@ -133,10 +136,11 @@ public final class Layout {
      * Finds a column specification for a column with a matching path.
      *
      * @param path   The path of the column to find.
-     * @param column If found, the column specification, otherwise null.
-     * @return True if a column with the path is found, otherwise false.
+     * @param column If found, the column specification, otherwise {@code null}.
+     * @return {@code true} if a column with the path is found, otherwise {@code false}.
      */
-    public boolean TryFind(UtfAnyString path, OutObject<LayoutColumn> column) {
+    public boolean TryFind(UtfAnyString path, Out<LayoutColumn> column) {
+
         if (path.IsNull) {
             column.set(null);
             return false;
@@ -156,12 +160,12 @@ public final class Layout {
      * @param column If found, the column specification, otherwise null.
      * @return True if a column with the path is found, otherwise false.
      */
-    public boolean TryFind(String path, OutObject<LayoutColumn> column) {
+    public boolean TryFind(String path, Out<LayoutColumn> column) {
         return (this.pathStringMap.containsKey(path) && (column.set(this.pathStringMap.get(path))) == column.get());
     }
 
     /**
-     * Returns a human readable diagnostic string representation of this <see cref="Layout" />.
+     * Returns a human readable diagnostic string representation of this {@link Layout}.
      * This representation should only be used for debugging and diagnostic purposes.
      */
     @Override

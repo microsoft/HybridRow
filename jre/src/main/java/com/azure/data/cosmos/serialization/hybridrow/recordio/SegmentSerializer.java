@@ -4,8 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -14,20 +14,20 @@ import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
 public final class SegmentSerializer {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public static Result Read(Span<byte> span, LayoutResolver resolver, out Segment obj)
-    public static Result Read(Span<Byte> span, LayoutResolver resolver, OutObject<Segment> obj) {
+    public static Result Read(Span<Byte> span, LayoutResolver resolver, Out<Segment> obj) {
         RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, resolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row);
-        row = tempRef_row.get();
-        RefObject<RowReader> tempRef_reader =
-            new RefObject<RowReader>(reader);
-        Result tempVar = SegmentSerializer.Read(tempRef_reader, obj.clone());
-        reader = tempRef_reader.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row);
+        row = tempReference_row.get();
+        Reference<RowReader> tempReference_reader =
+            new Reference<RowReader>(reader);
+        Result tempVar = SegmentSerializer.Read(tempReference_reader, obj.clone());
+        reader = tempReference_reader.get();
         return tempVar;
     }
 
-    public static Result Read(RefObject<RowReader> reader, OutObject<Segment> obj) {
+    public static Result Read(Reference<RowReader> reader, Out<Segment> obj) {
         obj.set(null);
         while (reader.get().Read()) {
             Result r;
@@ -35,7 +35,7 @@ public final class SegmentSerializer {
             // TODO: use Path tokens here.
             switch (reader.get().getPath().toString()) {
                 case "length":
-                    OutObject<Integer> tempOut_Length = new OutObject<Integer>();
+                    Out<Integer> tempOut_Length = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_Length);
                     obj.get().argValue.Length = tempOut_Length.get();
                     if (r != Result.Success) {
@@ -50,7 +50,7 @@ public final class SegmentSerializer {
 
                     break;
                 case "comment":
-                    OutObject<String> tempOut_Comment = new OutObject<String>();
+                    Out<String> tempOut_Comment = new Out<String>();
                     r = reader.get().ReadString(tempOut_Comment);
                     obj.get().argValue.Comment = tempOut_Comment.get();
                     if (r != Result.Success) {
@@ -59,7 +59,7 @@ public final class SegmentSerializer {
 
                     break;
                 case "sdl":
-                    OutObject<String> tempOut_SDL = new OutObject<String>();
+                    Out<String> tempOut_SDL = new Out<String>();
                     r = reader.get().ReadString(tempOut_SDL);
                     obj.get().argValue.SDL = tempOut_SDL.get();
                     if (r != Result.Success) {
@@ -73,7 +73,7 @@ public final class SegmentSerializer {
         return Result.Success;
     }
 
-    public static Result Write(RefObject<RowWriter> writer, TypeArgument typeArg, Segment obj) {
+    public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Segment obj) {
         Result r;
         if (obj.Comment != null) {
             r = writer.get().WriteString("comment", obj.Comment);

@@ -19,7 +19,7 @@ public final class TypeArgument implements IEquatable<TypeArgument> {
     private TypeArgumentList typeArgs = new TypeArgumentList();
 
     /**
-     * Initializes a new instance of the <see cref="TypeArgument" /> struct.
+     * Initializes a new instance of the {@link TypeArgument} struct.
      *
      * @param type The type of the constraint.
      */
@@ -34,7 +34,7 @@ public final class TypeArgument implements IEquatable<TypeArgument> {
     }
 
     /**
-     * Initializes a new instance of the <see cref="TypeArgument" /> struct.
+     * Initializes a new instance of the {@link TypeArgument} struct.
      *
      * @param type     The type of the constraint.
      * @param typeArgs For generic types the type parameters.

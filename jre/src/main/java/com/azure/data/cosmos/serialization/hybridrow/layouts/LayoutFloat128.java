@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -29,8 +30,8 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     }
 
     @Override
-    public Result ReadFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
-                            OutObject<Float128> value) {
+    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+                            Out<Float128> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             value.set(null);
@@ -42,8 +43,8 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     }
 
     @Override
-    public Result ReadSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit,
-                             OutObject<Float128> value) {
+    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+                             Out<Float128> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.set(null);
@@ -55,7 +56,7 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     }
 
     @Override
-    public Result WriteFixed(RefObject<RowBuffer> b, RefObject<RowCursor> scope, LayoutColumn col,
+    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              Float128 value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (scope.get().immutable) {
@@ -71,7 +72,7 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, Float128 value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, Float128 value,
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Float128 value,
                               UpdateOptions options) {
         Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
@@ -83,7 +84,7 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     }
 
     @Override
-    public Result WriteSparse(RefObject<RowBuffer> b, RefObject<RowCursor> edit, Float128 value) {
+    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Float128 value) {
         return WriteSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }

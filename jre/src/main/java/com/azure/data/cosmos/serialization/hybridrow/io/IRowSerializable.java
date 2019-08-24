@@ -4,7 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 
@@ -19,5 +20,5 @@ public interface IRowSerializable {
      * @param typeArg The schematized layout type, if a schema is available.
      * @return Success if the write is successful, the error code otherwise.
      */
-    Result write(RefObject<RowWriter> writer, TypeArgument typeArg);
+    Result write(Reference<RowWriter> writer, TypeArgument typeArg);
 }

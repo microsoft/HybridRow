@@ -165,7 +165,7 @@ HashMap<SchemaId, Schema> ids
 /**
      * Visit an entire namespace and validate its constraints.
      *
-     * @param ns      The <see cref="Namespace" /> to validate.
+     * @param ns      The {@link Namespace} to validate.
      * @param schemas A map from schema names within the namespace to their schemas.
      * @param ids     A map from schema ids within the namespace to their schemas.
      */
@@ -174,7 +174,7 @@ HashMap<SchemaId, Schema> ids
     /**
      * Visit a single schema and validate its constraints.
      *
-     * @param s       The <see cref="Schema" /> to validate.
+     * @param s       The {@link Schema} to validate.
      * @param schemas A map from schema names within the namespace to their schemas.
      * @param ids     A map from schema ids within the namespace to their schemas.
      */
@@ -263,7 +263,7 @@ private static void Visit(PropertyType p, PropertyType parent, HashMap<(String, 
         }
 
         /**
-         * Validate <paramref name="id" /> is a valid <see cref="SchemaId" />.
+         * Validate <paramref name="id" /> is a valid {@link SchemaId}.
          *
          * @param id    The id to check.
          * @param label Diagnostic label describing <paramref name="id" />.

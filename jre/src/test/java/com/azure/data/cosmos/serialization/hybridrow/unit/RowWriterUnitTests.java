@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
@@ -54,12 +55,12 @@ public final class RowWriterUnitTests {
         row.InitLayout(HybridRowVersion.V1, layout, this.resolver);
 
         int writerLength = 0;
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        ResultAssert.IsSuccess(RowWriter.WriteBuffer(tempRef_row, null, (ref RowWriter writer,
-                                                                         TypeArgument rootTypeArg, Object ignored) ->
+        ResultAssert.IsSuccess(RowWriter.WriteBuffer(tempReference_row, null, (ref RowWriter writer,
+                                                                               TypeArgument rootTypeArg, Object ignored) ->
         {
             ResultAssert.IsSuccess(writer.WriteNull("null"));
             ResultAssert.IsSuccess(writer.WriteBool("bool", true));
@@ -127,8 +128,8 @@ public final class RowWriterUnitTests {
                 new ReadOnlySequence<Byte>(new byte[] { (byte)0, (byte)1, (byte)2 })));
 
             LayoutColumn col;
-            OutObject<LayoutColumn> tempOut_col =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col =
+                new Out<LayoutColumn>();
             assert layout.TryFind("array_t<int8>", tempOut_col);
             col = tempOut_col.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new byte[] { -86, -87,
@@ -141,8 +142,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col2 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col2 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("array_t<array_t<float32>>", tempOut_col2);
             col = tempOut_col2.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new float[][]
@@ -166,8 +167,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col3 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col3 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("array_t<utf8>", tempOut_col3);
             col = tempOut_col3.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new String[] { "abc",
@@ -180,8 +181,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col4 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col4 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("tuple<varint,int64>", tempOut_col4);
             col = tempOut_col4.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(),
@@ -194,8 +195,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col5 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col5 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("tuple<null,tuple<int8,int8>>", tempOut_col5);
             col = tempOut_col5.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(),
@@ -216,8 +217,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col6 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col6 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("tuple<bool,udt>", tempOut_col6);
             col = tempOut_col6.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create(false,
@@ -225,23 +226,23 @@ public final class RowWriterUnitTests {
                 RowReaderUnitTests.Point> values) ->
             {
                 ResultAssert.IsSuccess(writer2.WriteBool(null, values.Item1));
-                RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempRef_writer3 =
-                    new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer3);
+                Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer3 =
+                    new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer3);
                 ResultAssert.IsSuccess(writer2.WriteScope(null, typeArg.getTypeArgs().get(1).clone(), values.Item2,
-                    (ref RowWriter writer3, TypeArgument typeArg2, IRowSerializable values2) -> values2.Write(tempRef_writer3, typeArg2.clone())));
-                writer3 = tempRef_writer3.get();
+                    (ref RowWriter writer3, TypeArgument typeArg2, IRowSerializable values2) -> values2.Write(tempReference_writer3, typeArg2.clone())));
+                writer3 = tempReference_writer3.get();
 
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col7 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col7 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("nullable<int32,int64>", tempOut_col7);
             col = tempOut_col7.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create(null,
                 (Long)123L), (ref RowWriter writer2, TypeArgument typeArg, Tuple<Integer, Long> values) ->
             {
-                RowWriter.WriterFunc<Integer> f0 = (RefObject<RowWriter> writer, TypeArgument typeArg,
+                RowWriter.WriterFunc<Integer> f0 = (Reference<RowWriter> writer, TypeArgument typeArg,
                                                     Integer context) -> null.invoke(writer, typeArg.clone(), context);
                 if (values.Item1 != null) {
                     f0 = (ref RowWriter writer3, TypeArgument typeArg2, Integer value) -> writer3.WriteInt32(null,
@@ -251,7 +252,7 @@ public final class RowWriterUnitTests {
                 ResultAssert.IsSuccess(writer2.WriteScope(null, typeArg.getTypeArgs().get(0).clone(), values.Item1,
                     f0));
 
-                RowWriter.WriterFunc<Long> f1 = (RefObject<RowWriter> writer, TypeArgument typeArg,
+                RowWriter.WriterFunc<Long> f1 = (Reference<RowWriter> writer, TypeArgument typeArg,
                                                  Long context) -> null.invoke(writer, typeArg.clone(), context);
                 if (values.Item2 != null) {
                     f1 = (ref RowWriter writer3, TypeArgument typeArg2, Long value) -> writer3.WriteInt64(null,
@@ -263,8 +264,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col8 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col8 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("tagged<utf8>", tempOut_col8);
             col = tempOut_col8.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create((byte)3,
@@ -275,8 +276,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col9 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col9 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("tagged<bool,utf8>", tempOut_col9);
             col = tempOut_col9.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create((byte)5,
@@ -288,8 +289,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col10 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col10 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("set_t<utf8>", tempOut_col10);
             col = tempOut_col10.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new String[] { "abc",
@@ -302,8 +303,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col11 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col11 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("set_t<array_t<int8>>", tempOut_col11);
             col = tempOut_col11.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new byte[][]
@@ -328,8 +329,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col12 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col12 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("set_t<set_t<int32>>", tempOut_col12);
             col = tempOut_col12.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new int[][]
@@ -354,8 +355,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col13 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col13 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("set_t<udt>", tempOut_col13);
             col = tempOut_col13.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(),
@@ -367,18 +368,18 @@ public final class RowWriterUnitTests {
                 }, (ref RowWriter writer2, TypeArgument typeArg, RowReaderUnitTests.Point[] values) ->
             {
                 for (RowReaderUnitTests.Point value : values) {
-                    RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempRef_writer3 =
-                        new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer3);
+                    Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer3 =
+                        new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer3);
                     ResultAssert.IsSuccess(writer2.WriteScope(null, typeArg.getTypeArgs().get(0).clone(), value,
-                        (ref RowWriter writer3, TypeArgument typeArg2, IRowSerializable values2) -> values2.Write(tempRef_writer3, typeArg2.clone())));
-                    writer3 = tempRef_writer3.get();
+                        (ref RowWriter writer3, TypeArgument typeArg2, IRowSerializable values2) -> values2.Write(tempReference_writer3, typeArg2.clone())));
+                    writer3 = tempReference_writer3.get();
                 }
 
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col14 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col14 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("map_t<utf8,utf8>", tempOut_col14);
             col = tempOut_col14.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1,
@@ -400,8 +401,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col15 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col15 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("map_t<int8,array_t<int8>>", tempOut_col15);
             col = tempOut_col15.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1,
@@ -432,8 +433,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col16 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col16 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("map_t<int16,map_t<int32,int32>>", tempOut_col16);
             col = tempOut_col16.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1,
@@ -472,8 +473,8 @@ public final class RowWriterUnitTests {
                 return Result.Success;
             }));
 
-            OutObject<LayoutColumn> tempOut_col17 =
-                new OutObject<LayoutColumn>();
+            Out<LayoutColumn> tempOut_col17 =
+                new Out<LayoutColumn>();
             assert layout.TryFind("map_t<float64,udt>", tempOut_col17);
             col = tempOut_col17.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1, T2>[] { Tuple.Create(1.0, new RowReaderUnitTests.Point(1, 2)), Tuple.Create(2.0, new RowReaderUnitTests.Point(3, 4)), Tuple.Create(3.0, new RowReaderUnitTests.Point(5, 6)) }, (ref RowWriter writer2, TypeArgument typeArg, Tuple<Double, RowReaderUnitTests.Point>[] values) ->
@@ -482,9 +483,9 @@ public final class RowWriterUnitTests {
                     ResultAssert.IsSuccess(writer2.WriteScope(null, new TypeArgument(LayoutType.TypedTuple, typeArg.getTypeArgs().clone()), value, (ref RowWriter writer3, TypeArgument typeArg2, Tuple<Double, RowReaderUnitTests.Point> values2) ->
                     {
                         ResultAssert.IsSuccess(writer3.WriteFloat64(null, values2.Item1));
-                        RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempRef_writer4 = new RefObject<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer4);
-                        ResultAssert.IsSuccess(writer3.WriteScope(null, typeArg2.getTypeArgs().get(1).clone(), values2.Item2, (ref RowWriter writer4, TypeArgument typeArg3, IRowSerializable values3) -> values3.Write(tempRef_writer4, typeArg3.clone())));
-                        writer4 = tempRef_writer4.get();
+                        Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer4 = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer4);
+                        ResultAssert.IsSuccess(writer3.WriteScope(null, typeArg2.getTypeArgs().get(1).clone(), values2.Item2, (ref RowWriter writer4, TypeArgument typeArg3, IRowSerializable values3) -> values3.Write(tempReference_writer4, typeArg3.clone())));
+                        writer4 = tempReference_writer4.get();
 
                         return Result.Success;
                     }));
@@ -497,14 +498,14 @@ public final class RowWriterUnitTests {
             writerLength = writer.Length;
             return Result.Success;
         }));
-        row = tempRef_row.get();
+        row = tempReference_row.get();
 
-        RefObject<RowBuffer> tempRef_row2 = new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row2);
-        row = tempRef_row2.get();
+        Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row2);
+        row = tempReference_row2.get();
         assert reader.getLength() == writerLength;
-        RefObject<RowReader> tempRef_reader = new RefObject<RowReader>(reader);
-        RowReaderUnitTests.PrintReader(tempRef_reader, 0);
-        reader = tempRef_reader.get();
+        Reference<RowReader> tempReference_reader = new Reference<RowReader>(reader);
+        RowReaderUnitTests.PrintReader(tempReference_reader, 0);
+        reader = tempReference_reader.get();
     }
 }

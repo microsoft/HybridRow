@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -67,39 +68,39 @@ public final class SerializerUnitTest {
         // Write the request by serializing it to a row.
         RowBuffer row = new RowBuffer(SerializerUnitTest.InitialRowSize);
         row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        Result r = RowWriter.WriteBuffer(tempRef_row, request, BatchRequestSerializer.Write);
-        row = tempRef_row.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        Result r = RowWriter.WriteBuffer(tempReference_row, request, BatchRequestSerializer.Write);
+        row = tempReference_row.get();
         assert Result.Success == r;
         System.out.printf("Length of serialized row: %1$s" + "\r\n", row.getLength());
 
         // Read the row back again.
-        RefObject<RowBuffer> tempRef_row2 =
-            new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row2);
-        row = tempRef_row2.get();
-        RefObject<RowReader> tempRef_reader =
-            new RefObject<RowReader>(reader);
+        Reference<RowBuffer> tempReference_row2 =
+            new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row2);
+        row = tempReference_row2.get();
+        Reference<RowReader> tempReference_reader =
+            new Reference<RowReader>(reader);
         BatchRequest _;
-        OutObject<BatchRequest> tempOut__ = new OutObject<BatchRequest>();
-        r = BatchRequestSerializer.Read(tempRef_reader, tempOut__);
+        Out<BatchRequest> tempOut__ = new Out<BatchRequest>();
+        r = BatchRequestSerializer.Read(tempReference_reader, tempOut__);
         _ = tempOut__.get();
-        reader = tempRef_reader.get();
+        reader = tempReference_reader.get();
         assert Result.Success == r;
 
         // Dump the materialized request to the console.
-        RefObject<RowBuffer> tempRef_row3 =
-            new RefObject<RowBuffer>(row);
-        reader = new RowReader(tempRef_row3);
-        row = tempRef_row3.get();
-        RefObject<RowReader> tempRef_reader2 =
-            new RefObject<RowReader>(reader);
+        Reference<RowBuffer> tempReference_row3 =
+            new Reference<RowBuffer>(row);
+        reader = new RowReader(tempReference_row3);
+        row = tempReference_row3.get();
+        Reference<RowReader> tempReference_reader2 =
+            new Reference<RowReader>(reader);
         String dumpStr;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
-        r = DiagnosticConverter.ReaderToString(tempRef_reader2, out dumpStr);
-        reader = tempRef_reader2.get();
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        r = DiagnosticConverter.ReaderToString(tempReference_reader2, out dumpStr);
+        reader = tempReference_reader2.get();
         assert Result.Success == r;
         System.out.println(dumpStr);
     }
@@ -136,14 +137,14 @@ public final class SerializerUnitTest {
         public static final TypeArgument TypeArg = new TypeArgument(LayoutType.UDT,
             new TypeArgumentList(new SchemaId(2)));
 
-        public static Result Read(RefObject<RowReader> reader, OutObject<BatchOperation> operation) {
+        public static Result Read(Reference<RowReader> reader, Out<BatchOperation> operation) {
             BatchOperation retval = new BatchOperation();
             operation.set(null);
             while (reader.get().Read()) {
                 Result r;
                 switch (reader.get().getPath()) {
                     case "operationType":
-                        OutObject<Integer> tempOut_OperationType = new OutObject<Integer>();
+                        Out<Integer> tempOut_OperationType = new Out<Integer>();
                         r = reader.get().ReadInt32(tempOut_OperationType);
                         retval.OperationType = tempOut_OperationType.get();
                         if (r != Result.Success) {
@@ -152,21 +153,21 @@ public final class SerializerUnitTest {
 
                         break;
                     case "headers":
-                        RefObject<RowReader> tempRef_child = new RefObject<RowReader>(child);
-                        OutObject<BatchRequestHeaders> tempOut_Headers = new OutObject<BatchRequestHeaders>();
+                        Reference<RowReader> tempReference_child = new Reference<RowReader>(child);
+                        Out<BatchRequestHeaders> tempOut_Headers = new Out<BatchRequestHeaders>();
                         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword
                         // - these are not converted by C# to Java Converter:
                         r = reader.get().ReadScope(retval,
-                            (ref RowReader child, BatchOperation parent) -> BatchRequestHeadersSerializer.Read(tempRef_child, tempOut_Headers));
+                            (ref RowReader child, BatchOperation parent) -> BatchRequestHeadersSerializer.Read(tempReference_child, tempOut_Headers));
                         parent.Headers = tempOut_Headers.get();
-                        child = tempRef_child.get();
+                        child = tempReference_child.get();
                         if (r != Result.Success) {
                             return r;
                         }
 
                         break;
                     case "resourceType":
-                        OutObject<Integer> tempOut_ResourceType = new OutObject<Integer>();
+                        Out<Integer> tempOut_ResourceType = new Out<Integer>();
                         r = reader.get().ReadInt32(tempOut_ResourceType);
                         retval.ResourceType = tempOut_ResourceType.get();
                         if (r != Result.Success) {
@@ -175,7 +176,7 @@ public final class SerializerUnitTest {
 
                         break;
                     case "resourcePath":
-                        OutObject<String> tempOut_ResourcePath = new OutObject<String>();
+                        Out<String> tempOut_ResourcePath = new Out<String>();
                         r = reader.get().ReadString(tempOut_ResourcePath);
                         retval.ResourcePath = tempOut_ResourcePath.get();
                         if (r != Result.Success) {
@@ -184,7 +185,7 @@ public final class SerializerUnitTest {
 
                         break;
                     case "resourceBody":
-                        OutObject<Byte> tempOut_ResourceBody = new OutObject<Byte>();
+                        Out<Byte> tempOut_ResourceBody = new Out<Byte>();
                         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                         //ORIGINAL LINE: r = reader.ReadBinary(out retval.ResourceBody);
                         r = reader.get().ReadBinary(tempOut_ResourceBody);
@@ -201,7 +202,7 @@ public final class SerializerUnitTest {
             return Result.Success;
         }
 
-        public static Result Write(RefObject<RowWriter> writer, TypeArgument typeArg,
+        public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg,
                                    BatchOperation operation) {
             Result r = writer.get().WriteInt32("operationType", operation.OperationType);
             if (r != Result.Success) {
@@ -241,14 +242,14 @@ public final class SerializerUnitTest {
         public static final TypeArgument TypeArg = new TypeArgument(LayoutType.UDT,
             new TypeArgumentList(new SchemaId(1)));
 
-        public static Result Read(RefObject<RowReader> reader,
-                                  OutObject<BatchRequestHeaders> header) {
+        public static Result Read(Reference<RowReader> reader,
+                                  Out<BatchRequestHeaders> header) {
             BatchRequestHeaders retval = new BatchRequestHeaders();
             header.set(null);
             while (reader.get().Read()) {
                 switch (reader.get().getPath()) {
                     case "sampleRequestHeader":
-                        OutObject<Long> tempOut_SampleRequestHeader = new OutObject<Long>();
+                        Out<Long> tempOut_SampleRequestHeader = new Out<Long>();
                         Result r = reader.get().ReadInt64(tempOut_SampleRequestHeader);
                         retval.SampleRequestHeader = tempOut_SampleRequestHeader.get();
                         if (r != Result.Success) {
@@ -263,7 +264,7 @@ public final class SerializerUnitTest {
             return Result.Success;
         }
 
-        public static Result Write(RefObject<RowWriter> writer, TypeArgument typeArg,
+        public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg,
                                    BatchRequestHeaders header) {
             Result r = writer.get().WriteInt64("sampleRequestHeader", header.SampleRequestHeader);
             return r;
@@ -273,12 +274,12 @@ public final class SerializerUnitTest {
     public static class BatchRequestSerializer {
         public static final TypeArgument OperationsTypeArg = new TypeArgument(LayoutType.TypedArray, new TypeArgumentList(new TypeArgument[] { BatchOperationSerializer.TypeArg }));
 
-        public static Result Read(RefObject<RowReader> reader, OutObject<BatchRequest> request) {
+        public static Result Read(Reference<RowReader> reader, Out<BatchRequest> request) {
             assert reader.get().Read();
             checkState(reader.get().getPath().equals("operations"));
 
             java.util.ArrayList<BatchOperation> operations;
-            OutObject<ArrayList<TItem>> tempOut_operations = new OutObject<ArrayList<TItem>>();
+            Out<ArrayList<TItem>> tempOut_operations = new Out<ArrayList<TItem>>();
             Result r = RowReaderExtensions.ReadList(reader.get().clone(), BatchOperationSerializer.Read, tempOut_operations);
             operations = tempOut_operations.get();
             if (r != Result.Success) {
@@ -292,7 +293,7 @@ public final class SerializerUnitTest {
             return Result.Success;
         }
 
-        public static Result Write(RefObject<RowWriter> writer, TypeArgument typeArg, BatchRequest request) {
+        public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, BatchRequest request) {
             // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
             return writer.get().WriteScope("operations", BatchRequestSerializer.OperationsTypeArg, request.Operations, (ref RowWriter writer2, TypeArgument typeArg2, ArrayList<BatchOperation> operations) ->
             {

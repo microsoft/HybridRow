@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -55,26 +56,26 @@ public final class TypedArrayUnitTests {
         t1.Priority = new ArrayList<Tuple<String, Long>>(Arrays.asList(Tuple.Create("80's", 100L), Tuple.Create(
             "classics", 100L), Tuple.Create("pop", 50L)));
 
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        RefObject<RowBuffer> tempRef_row2 =
-            new RefObject<RowBuffer>(row);
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        Reference<RowBuffer> tempReference_row2 =
+            new Reference<RowBuffer>(row);
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
-        this.WriteTagged(tempRef_row, RowCursor.Create(tempRef_row2, out _), t1);
-        row = tempRef_row2.get();
-        row = tempRef_row.get();
-        RefObject<RowBuffer> tempRef_row3 =
-            new RefObject<RowBuffer>(row);
-        RefObject<RowBuffer> tempRef_row4 =
-            new RefObject<RowBuffer>(row);
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        this.WriteTagged(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        row = tempReference_row2.get();
+        row = tempReference_row.get();
+        Reference<RowBuffer> tempReference_row3 =
+            new Reference<RowBuffer>(row);
+        Reference<RowBuffer> tempReference_row4 =
+            new Reference<RowBuffer>(row);
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
-        Tagged t2 = this.ReadTagged(tempRef_row3, RowCursor.Create(tempRef_row4, out _));
-        row = tempRef_row4.get();
-        row = tempRef_row3.get();
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        Tagged t2 = this.ReadTagged(tempReference_row3, RowCursor.Create(tempReference_row4, out _));
+        row = tempReference_row4.get();
+        row = tempReference_row3.get();
         assert t1 == t2;
     }
 
@@ -88,56 +89,56 @@ public final class TypedArrayUnitTests {
             x -> x.Name.equals("Tagged")).SchemaId);
     }
 
-    private static SimilarMatch ReadSimilarMatch(RefObject<RowBuffer> row,
-                                                 RefObject<RowCursor> matchScope) {
+    private static SimilarMatch ReadSimilarMatch(Reference<RowBuffer> row,
+                                                 Reference<RowCursor> matchScope) {
         Layout matchLayout = matchScope.get().getLayout();
         SimilarMatch m = new SimilarMatch();
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert matchLayout.TryFind("thumbprint", out c);
-        OutObject<String> tempOut_Thumbprint = new OutObject<String>();
+        Out<String> tempOut_Thumbprint = new Out<String>();
         ResultAssert.IsSuccess(c.<LayoutUtf8>TypeAs().ReadFixed(row, matchScope, c, tempOut_Thumbprint));
         m.Thumbprint = tempOut_Thumbprint.get();
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert matchLayout.TryFind("score", out c);
-        OutObject<Double> tempOut_Score = new OutObject<Double>();
+        Out<Double> tempOut_Score = new Out<Double>();
         ResultAssert.IsSuccess(c.<LayoutFloat64>TypeAs().ReadFixed(row, matchScope, c, tempOut_Score));
         m.Score = tempOut_Score.get();
         return m;
     }
 
-    private Tagged ReadTagged(RefObject<RowBuffer> row, RefObject<RowCursor> root) {
+    private Tagged ReadTagged(Reference<RowBuffer> row, Reference<RowCursor> root) {
         Tagged value = new Tagged();
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("title", out c);
-        OutObject<String> tempOut_Title = new OutObject<String>();
+        Out<String> tempOut_Title = new Out<String>();
         ResultAssert.IsSuccess(c.<LayoutUtf8>TypeAs().ReadVariable(row, root, c, tempOut_Title));
         value.Title = tempOut_Title.get();
 
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("tags", out c);
         RowCursor tagsScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         root.get().Clone(out tagsScope).Find(row, c.Path);
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'RefObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref tagsScope, out tagsScope) == Result.Success) {
             value.Tags = new ArrayList<String>();
             while (tagsScope.MoveNext(row)) {
                 String item;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 ResultAssert.IsSuccess(c.TypeArgs[0].Type.<LayoutUtf8>TypeAs().ReadSparse(row, ref tagsScope,
                     out item));
@@ -146,47 +147,47 @@ public final class TypedArrayUnitTests {
         }
 
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("options", out c);
         RowCursor optionsScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         root.get().Clone(out optionsScope).Find(row, c.Path);
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'RefObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref optionsScope, out optionsScope) == Result.Success) {
             value.Options = new ArrayList<Integer>();
             while (optionsScope.MoveNext(row)) {
                 TypeArgument itemType = c.TypeArgs[0];
-                RefObject<RowCursor> tempRef_optionsScope =
-                    new RefObject<RowCursor>(optionsScope);
+                Reference<RowCursor> tempReference_optionsScope =
+                    new Reference<RowCursor>(optionsScope);
                 RowCursor nullableScope;
-                OutObject<RowCursor> tempOut_nullableScope =
-                    new OutObject<RowCursor>();
+                Out<RowCursor> tempOut_nullableScope =
+                    new Out<RowCursor>();
                 ResultAssert.IsSuccess(itemType.getType().<LayoutNullable>TypeAs().ReadScope(row,
-                    tempRef_optionsScope, tempOut_nullableScope));
+                    tempReference_optionsScope, tempOut_nullableScope));
                 nullableScope = tempOut_nullableScope.get();
-                optionsScope = tempRef_optionsScope.get();
+                optionsScope = tempReference_optionsScope.get();
 
                 if (nullableScope.MoveNext(row)) {
-                    RefObject<RowCursor> tempRef_nullableScope = new RefObject<RowCursor>(nullableScope);
-                    ResultAssert.IsSuccess(LayoutNullable.HasValue(row, tempRef_nullableScope));
-                    nullableScope = tempRef_nullableScope.get();
+                    Reference<RowCursor> tempReference_nullableScope = new Reference<RowCursor>(nullableScope);
+                    ResultAssert.IsSuccess(LayoutNullable.HasValue(row, tempReference_nullableScope));
+                    nullableScope = tempReference_nullableScope.get();
 
-                    RefObject<RowCursor> tempRef_nullableScope2 = new RefObject<RowCursor>(nullableScope);
+                    Reference<RowCursor> tempReference_nullableScope2 = new Reference<RowCursor>(nullableScope);
                     int itemValue;
-                    OutObject<Integer> tempOut_itemValue = new OutObject<Integer>();
-                    ResultAssert.IsSuccess(itemType.getTypeArgs().get(0).getType().<LayoutInt32>TypeAs().ReadSparse(row, tempRef_nullableScope2, tempOut_itemValue));
+                    Out<Integer> tempOut_itemValue = new Out<Integer>();
+                    ResultAssert.IsSuccess(itemType.getTypeArgs().get(0).getType().<LayoutInt32>TypeAs().ReadSparse(row, tempReference_nullableScope2, tempOut_itemValue));
                     itemValue = tempOut_itemValue.get();
-                    nullableScope = tempRef_nullableScope2.get();
+                    nullableScope = tempReference_nullableScope2.get();
 
                     value.Options.add(itemValue);
                 } else {
-                    RefObject<RowCursor> tempRef_nullableScope3 = new RefObject<RowCursor>(nullableScope);
-                    ResultAssert.NotFound(LayoutNullable.HasValue(row, tempRef_nullableScope3));
-                    nullableScope = tempRef_nullableScope3.get();
+                    Reference<RowCursor> tempReference_nullableScope3 = new Reference<RowCursor>(nullableScope);
+                    ResultAssert.NotFound(LayoutNullable.HasValue(row, tempReference_nullableScope3));
+                    nullableScope = tempReference_nullableScope3.get();
 
                     value.Options.add(null);
                 }
@@ -194,184 +195,184 @@ public final class TypedArrayUnitTests {
         }
 
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("ratings", out c);
         RowCursor ratingsScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         root.get().Clone(out ratingsScope).Find(row, c.Path);
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'RefObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref ratingsScope, out ratingsScope) == Result.Success) {
             value.Ratings = new ArrayList<ArrayList<Double>>();
             TypeArgument innerType = c.TypeArgs[0];
             LayoutTypedArray innerLayout = innerType.getType().<LayoutTypedArray>TypeAs();
             RowCursor innerScope = null;
-            RefObject<RowCursor> tempRef_innerScope =
-                new RefObject<RowCursor>(innerScope);
-            while (ratingsScope.MoveNext(row, tempRef_innerScope)) {
-                innerScope = tempRef_innerScope.get();
+            Reference<RowCursor> tempReference_innerScope =
+                new Reference<RowCursor>(innerScope);
+            while (ratingsScope.MoveNext(row, tempReference_innerScope)) {
+                innerScope = tempReference_innerScope.get();
                 ArrayList<Double> item = new ArrayList<Double>();
-                RefObject<RowCursor> tempRef_ratingsScope =
-                    new RefObject<RowCursor>(ratingsScope);
-                OutObject<RowCursor> tempOut_innerScope =
-                    new OutObject<RowCursor>();
-                ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempRef_ratingsScope, tempOut_innerScope));
+                Reference<RowCursor> tempReference_ratingsScope =
+                    new Reference<RowCursor>(ratingsScope);
+                Out<RowCursor> tempOut_innerScope =
+                    new Out<RowCursor>();
+                ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempReference_ratingsScope, tempOut_innerScope));
                 innerScope = tempOut_innerScope.get();
-                ratingsScope = tempRef_ratingsScope.get();
+                ratingsScope = tempReference_ratingsScope.get();
                 while (RowCursorExtensions.MoveNext(innerScope.clone()
                     , row)) {
                     LayoutFloat64 itemLayout = innerType.getTypeArgs().get(0).getType().<LayoutFloat64>TypeAs();
-                    RefObject<RowCursor> tempRef_innerScope2
-                        = new RefObject<RowCursor>(innerScope);
+                    Reference<RowCursor> tempReference_innerScope2
+                        = new Reference<RowCursor>(innerScope);
                     double innerItem;
-                    OutObject<Double> tempOut_innerItem = new OutObject<Double>();
-                    ResultAssert.IsSuccess(itemLayout.ReadSparse(row, tempRef_innerScope2, tempOut_innerItem));
+                    Out<Double> tempOut_innerItem = new Out<Double>();
+                    ResultAssert.IsSuccess(itemLayout.ReadSparse(row, tempReference_innerScope2, tempOut_innerItem));
                     innerItem = tempOut_innerItem.get();
-                    innerScope = tempRef_innerScope2.get();
+                    innerScope = tempReference_innerScope2.get();
                     item.add(innerItem);
                 }
 
                 value.Ratings.add(item);
             }
-            innerScope = tempRef_innerScope.get();
+            innerScope = tempReference_innerScope.get();
         }
 
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("similars", out c);
         RowCursor similarsScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         root.get().Clone(out similarsScope).Find(row, c.Path);
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'RefObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref similarsScope, out similarsScope) == Result.Success) {
             value.Similars = new ArrayList<SimilarMatch>();
             while (similarsScope.MoveNext(row)) {
                 TypeArgument innerType = c.TypeArgs[0];
                 LayoutUDT innerLayout = innerType.getType().<LayoutUDT>TypeAs();
-                RefObject<RowCursor> tempRef_similarsScope =
-                    new RefObject<RowCursor>(similarsScope);
+                Reference<RowCursor> tempReference_similarsScope =
+                    new Reference<RowCursor>(similarsScope);
                 RowCursor matchScope;
-                OutObject<RowCursor> tempOut_matchScope =
-                    new OutObject<RowCursor>();
-                ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempRef_similarsScope, tempOut_matchScope));
+                Out<RowCursor> tempOut_matchScope =
+                    new Out<RowCursor>();
+                ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempReference_similarsScope, tempOut_matchScope));
                 matchScope = tempOut_matchScope.get();
-                similarsScope = tempRef_similarsScope.get();
-                RefObject<RowCursor> tempRef_matchScope =
-                    new RefObject<RowCursor>(matchScope);
-                SimilarMatch item = TypedArrayUnitTests.ReadSimilarMatch(row, tempRef_matchScope);
-                matchScope = tempRef_matchScope.get();
+                similarsScope = tempReference_similarsScope.get();
+                Reference<RowCursor> tempReference_matchScope =
+                    new Reference<RowCursor>(matchScope);
+                SimilarMatch item = TypedArrayUnitTests.ReadSimilarMatch(row, tempReference_matchScope);
+                matchScope = tempReference_matchScope.get();
                 value.Similars.add(item);
             }
         }
 
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("priority", out c);
         RowCursor priorityScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         root.get().Clone(out priorityScope).Find(row, c.Path);
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'RefObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref priorityScope, out priorityScope) == Result.Success) {
             value.Priority = new ArrayList<Tuple<String, Long>>();
             RowCursor tupleScope = null;
-            RefObject<RowCursor> tempRef_tupleScope =
-                new RefObject<RowCursor>(tupleScope);
-            while (priorityScope.MoveNext(row, tempRef_tupleScope)) {
-                tupleScope = tempRef_tupleScope.get();
+            Reference<RowCursor> tempReference_tupleScope =
+                new Reference<RowCursor>(tupleScope);
+            while (priorityScope.MoveNext(row, tempReference_tupleScope)) {
+                tupleScope = tempReference_tupleScope.get();
                 TypeArgument innerType = c.TypeArgs[0];
                 LayoutIndexedScope innerLayout = innerType.getType().<LayoutIndexedScope>TypeAs();
 
-                RefObject<RowCursor> tempRef_priorityScope =
-                    new RefObject<RowCursor>(priorityScope);
-                OutObject<RowCursor> tempOut_tupleScope =
-                    new OutObject<RowCursor>();
-                ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempRef_priorityScope, tempOut_tupleScope));
+                Reference<RowCursor> tempReference_priorityScope =
+                    new Reference<RowCursor>(priorityScope);
+                Out<RowCursor> tempOut_tupleScope =
+                    new Out<RowCursor>();
+                ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempReference_priorityScope, tempOut_tupleScope));
                 tupleScope = tempOut_tupleScope.get();
-                priorityScope = tempRef_priorityScope.get();
+                priorityScope = tempReference_priorityScope.get();
                 assert RowCursorExtensions.MoveNext(tupleScope.clone()
                     , row);
-                RefObject<RowCursor> tempRef_tupleScope2 =
-                    new RefObject<RowCursor>(tupleScope);
+                Reference<RowCursor> tempReference_tupleScope2 =
+                    new Reference<RowCursor>(tupleScope);
                 String item1;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 ResultAssert.IsSuccess(innerType.getTypeArgs().get(0).getType().<LayoutUtf8>TypeAs().ReadSparse(row,
-                    tempRef_tupleScope2, out item1));
-                tupleScope = tempRef_tupleScope2.get();
+                    tempReference_tupleScope2, out item1));
+                tupleScope = tempReference_tupleScope2.get();
 
                 assert RowCursorExtensions.MoveNext(tupleScope.clone()
                     , row);
-                RefObject<RowCursor> tempRef_tupleScope3 =
-                    new RefObject<RowCursor>(tupleScope);
+                Reference<RowCursor> tempReference_tupleScope3 =
+                    new Reference<RowCursor>(tupleScope);
                 long item2;
-                OutObject<Long> tempOut_item2 = new OutObject<Long>();
+                Out<Long> tempOut_item2 = new Out<Long>();
                 ResultAssert.IsSuccess(innerType.getTypeArgs().get(1).getType().<LayoutInt64>TypeAs().ReadSparse(row,
-                    tempRef_tupleScope3, tempOut_item2));
+                    tempReference_tupleScope3, tempOut_item2));
                 item2 = tempOut_item2.get();
-                tupleScope = tempRef_tupleScope3.get();
+                tupleScope = tempReference_tupleScope3.get();
 
                 value.Priority.add(Tuple.Create(item1, item2));
             }
-            tupleScope = tempRef_tupleScope.get();
+            tupleScope = tempReference_tupleScope.get();
         }
 
         return value;
     }
 
-    private static void WriteSimilarMatch(RefObject<RowBuffer> row, RefObject<RowCursor> matchScope
+    private static void WriteSimilarMatch(Reference<RowBuffer> row, Reference<RowCursor> matchScope
         , TypeArgumentList typeArgs, SimilarMatch m) {
         Layout matchLayout = row.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert matchLayout.TryFind("thumbprint", out c);
         ResultAssert.IsSuccess(c.<LayoutUtf8>TypeAs().WriteFixed(row, matchScope, c, m.Thumbprint));
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert matchLayout.TryFind("score", out c);
         ResultAssert.IsSuccess(c.<LayoutFloat64>TypeAs().WriteFixed(row, matchScope, c, m.Score));
     }
 
-    private void WriteTagged(RefObject<RowBuffer> row, RefObject<RowCursor> root, Tagged value) {
+    private void WriteTagged(Reference<RowBuffer> row, Reference<RowCursor> root, Tagged value) {
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert this.layout.TryFind("title", out c);
         ResultAssert.IsSuccess(c.<LayoutUtf8>TypeAs().WriteVariable(row, root, c, value.Title));
 
         if (value.Tags != null) {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             assert this.layout.TryFind("tags", out c);
             RowCursor tagsScope;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             root.get().Clone(out tagsScope).Find(row, c.Path);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-            // cannot be converted using the 'RefObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, ref tagsScope, c.TypeArgs,
                 out tagsScope));
             for (String item : value.Tags) {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 ResultAssert.IsSuccess(c.TypeArgs[0].Type.<LayoutUtf8>TypeAs().WriteSparse(row, ref tagsScope, item));
                 assert !tagsScope.MoveNext(row);
@@ -380,19 +381,19 @@ public final class TypedArrayUnitTests {
 
         if (value.Options != null) {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             assert this.layout.TryFind("options", out c);
             RowCursor optionsScope;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             root.get().Clone(out optionsScope).Find(row, c.Path);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-            // cannot be converted using the 'RefObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, ref optionsScope, c.TypeArgs,
                 out optionsScope));
@@ -400,22 +401,22 @@ public final class TypedArrayUnitTests {
                 TypeArgument itemType = c.TypeArgs[0];
                 RowCursor nullableScope;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 ResultAssert.IsSuccess(itemType.getType().<LayoutNullable>TypeAs().WriteScope(row, ref optionsScope,
                     itemType.getTypeArgs().clone(), item != null, out nullableScope));
 
                 if (item != null) {
-                    RefObject<RowCursor> tempRef_nullableScope = new RefObject<RowCursor>(nullableScope);
-                    ResultAssert.IsSuccess(itemType.getTypeArgs().get(0).getType().<LayoutInt32>TypeAs().WriteSparse(row, tempRef_nullableScope, item.intValue()));
-                    nullableScope = tempRef_nullableScope.get();
+                    Reference<RowCursor> tempReference_nullableScope = new Reference<RowCursor>(nullableScope);
+                    ResultAssert.IsSuccess(itemType.getTypeArgs().get(0).getType().<LayoutInt32>TypeAs().WriteSparse(row, tempReference_nullableScope, item.intValue()));
+                    nullableScope = tempReference_nullableScope.get();
                 }
 
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 assert !optionsScope.MoveNext(row, ref nullableScope);
             }
@@ -423,19 +424,19 @@ public final class TypedArrayUnitTests {
 
         if (value.Ratings != null) {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             assert this.layout.TryFind("ratings", out c);
             RowCursor ratingsScope;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             root.get().Clone(out ratingsScope).Find(row, c.Path);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-            // cannot be converted using the 'RefObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, ref ratingsScope, c.TypeArgs,
                 out ratingsScope));
@@ -443,26 +444,26 @@ public final class TypedArrayUnitTests {
                 assert item != null;
                 TypeArgument innerType = c.TypeArgs[0];
                 LayoutTypedArray innerLayout = innerType.getType().<LayoutTypedArray>TypeAs();
-                RefObject<RowCursor> tempRef_ratingsScope =
-                    new RefObject<RowCursor>(ratingsScope);
+                Reference<RowCursor> tempReference_ratingsScope =
+                    new Reference<RowCursor>(ratingsScope);
                 RowCursor innerScope;
-                OutObject<RowCursor> tempOut_innerScope =
-                    new OutObject<RowCursor>();
-                ResultAssert.IsSuccess(innerLayout.WriteScope(row, tempRef_ratingsScope,
+                Out<RowCursor> tempOut_innerScope =
+                    new Out<RowCursor>();
+                ResultAssert.IsSuccess(innerLayout.WriteScope(row, tempReference_ratingsScope,
                     innerType.getTypeArgs().clone(), tempOut_innerScope));
                 innerScope = tempOut_innerScope.get();
-                ratingsScope = tempRef_ratingsScope.get();
+                ratingsScope = tempReference_ratingsScope.get();
                 for (double innerItem : item) {
                     LayoutFloat64 itemLayout = innerType.getTypeArgs().get(0).getType().<LayoutFloat64>TypeAs();
-                    RefObject<RowCursor> tempRef_innerScope =
-                        new RefObject<RowCursor>(innerScope);
-                    ResultAssert.IsSuccess(itemLayout.WriteSparse(row, tempRef_innerScope, innerItem));
-                    innerScope = tempRef_innerScope.get();
+                    Reference<RowCursor> tempReference_innerScope =
+                        new Reference<RowCursor>(innerScope);
+                    ResultAssert.IsSuccess(itemLayout.WriteSparse(row, tempReference_innerScope, innerItem));
+                    innerScope = tempReference_innerScope.get();
                     assert !innerScope.MoveNext(row);
                 }
 
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 assert !ratingsScope.MoveNext(row, ref innerScope);
             }
@@ -470,41 +471,41 @@ public final class TypedArrayUnitTests {
 
         if (value.Similars != null) {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             assert this.layout.TryFind("similars", out c);
             RowCursor similarsScope;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             root.get().Clone(out similarsScope).Find(row, c.Path);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-            // cannot be converted using the 'RefObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, ref similarsScope, c.TypeArgs,
                 out similarsScope));
             for (SimilarMatch item : value.Similars) {
                 TypeArgument innerType = c.TypeArgs[0];
                 LayoutUDT innerLayout = innerType.getType().<LayoutUDT>TypeAs();
-                RefObject<RowCursor> tempRef_similarsScope =
-                    new RefObject<RowCursor>(similarsScope);
+                Reference<RowCursor> tempReference_similarsScope =
+                    new Reference<RowCursor>(similarsScope);
                 RowCursor matchScope;
-                OutObject<RowCursor> tempOut_matchScope =
-                    new OutObject<RowCursor>();
-                ResultAssert.IsSuccess(innerLayout.WriteScope(row, tempRef_similarsScope,
+                Out<RowCursor> tempOut_matchScope =
+                    new Out<RowCursor>();
+                ResultAssert.IsSuccess(innerLayout.WriteScope(row, tempReference_similarsScope,
                     innerType.getTypeArgs().clone(), tempOut_matchScope));
                 matchScope = tempOut_matchScope.get();
-                similarsScope = tempRef_similarsScope.get();
-                RefObject<RowCursor> tempRef_matchScope =
-                    new RefObject<RowCursor>(matchScope);
-                TypedArrayUnitTests.WriteSimilarMatch(row, tempRef_matchScope, innerType.getTypeArgs().clone(), item);
-                matchScope = tempRef_matchScope.get();
+                similarsScope = tempReference_similarsScope.get();
+                Reference<RowCursor> tempReference_matchScope =
+                    new Reference<RowCursor>(matchScope);
+                TypedArrayUnitTests.WriteSimilarMatch(row, tempReference_matchScope, innerType.getTypeArgs().clone(), item);
+                matchScope = tempReference_matchScope.get();
 
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 assert !similarsScope.MoveNext(row, ref matchScope);
             }
@@ -512,19 +513,19 @@ public final class TypedArrayUnitTests {
 
         if (value.Priority != null) {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             assert this.layout.TryFind("priority", out c);
             RowCursor priorityScope;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             root.get().Clone(out priorityScope).Find(row, c.Path);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-            // cannot be converted using the 'OutObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-            // cannot be converted using the 'RefObject' helper class unless the method is within the code being
+            // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, ref priorityScope, c.TypeArgs,
                 out priorityScope));
@@ -533,27 +534,27 @@ public final class TypedArrayUnitTests {
                 LayoutIndexedScope innerLayout = innerType.getType().<LayoutIndexedScope>TypeAs();
                 RowCursor tupleScope;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
-                // these cannot be converted using the 'OutObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 ResultAssert.IsSuccess(innerLayout.WriteScope(row, ref priorityScope, innerType.getTypeArgs().clone()
                     , out tupleScope));
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 ResultAssert.IsSuccess(innerType.getTypeArgs().get(0).getType().<LayoutUtf8>TypeAs().WriteSparse(row,
                     ref tupleScope, item.Item1));
                 assert tupleScope.MoveNext(row);
-                RefObject<RowCursor> tempRef_tupleScope =
-                    new RefObject<RowCursor>(tupleScope);
+                Reference<RowCursor> tempReference_tupleScope =
+                    new Reference<RowCursor>(tupleScope);
                 ResultAssert.IsSuccess(innerType.getTypeArgs().get(1).getType().<LayoutInt64>TypeAs().WriteSparse(row
-                    , tempRef_tupleScope, item.Item2));
-                tupleScope = tempRef_tupleScope.get();
+                    , tempReference_tupleScope, item.Item2));
+                tupleScope = tempReference_tupleScope.get();
 
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
-                // these cannot be converted using the 'RefObject' helper class unless the method is within the code
+                // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 assert !priorityScope.MoveNext(row, ref tupleScope);
             }

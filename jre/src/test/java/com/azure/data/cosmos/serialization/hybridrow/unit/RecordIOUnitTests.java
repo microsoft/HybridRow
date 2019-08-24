@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -102,7 +103,7 @@ public class RecordIOUnitTests {
                     return Result.Success;
                 }
 
-                OutObject<ReadOnlyMemory<Byte>> tempOut_body = new OutObject<ReadOnlyMemory<Byte>>();
+                Out<ReadOnlyMemory<Byte>> tempOut_body = new Out<ReadOnlyMemory<Byte>>();
                 Task tempVar5 = this.WriteAddress(resizer, addresses[index], tempOut_body);
                 body = tempOut_body.get();
                 return tempVar5;
@@ -121,7 +122,7 @@ public class RecordIOUnitTests {
                 assert !record.IsEmpty;
 
                 Address obj;
-                OutObject<Address> tempOut_obj = new OutObject<Address>();
+                Out<Address> tempOut_obj = new Out<Address>();
                 r = this.ReadAddress(record, tempOut_obj);
                 obj = tempOut_obj.get();
                 ResultAssert.IsSuccess(r);
@@ -132,8 +133,8 @@ public class RecordIOUnitTests {
                 assert !segment.IsEmpty;
 
                 Segment obj;
-                OutObject<Segment> tempOut_obj =
-                    new OutObject<Segment>();
+                Out<Segment> tempOut_obj =
+                    new Out<Segment>();
                 r = this.ReadSegment(segment, tempOut_obj);
                 obj = tempOut_obj.get();
                 ResultAssert.IsSuccess(r);
@@ -154,21 +155,21 @@ public class RecordIOUnitTests {
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: private Result ReadAddress(Memory<byte> buffer, out Address obj)
-    private Result ReadAddress(Memory<Byte> buffer, OutObject<Address> obj) {
+    private Result ReadAddress(Memory<Byte> buffer, Out<Address> obj) {
         RowBuffer row = new RowBuffer(buffer.Span, HybridRowVersion.V1, this.resolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row);
-        row = tempRef_row.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row);
+        row = tempReference_row.get();
 
         // Use the reader to dump to the screen.
-        RefObject<RowReader> tempRef_reader =
-            new RefObject<RowReader>(reader);
+        Reference<RowReader> tempReference_reader =
+            new Reference<RowReader>(reader);
         String str;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
-        Result r = DiagnosticConverter.ReaderToString(tempRef_reader, out str);
-        reader = tempRef_reader.get();
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        Result r = DiagnosticConverter.ReaderToString(tempReference_reader, out str);
+        reader = tempReference_reader.get();
         if (r != Result.Success) {
             obj.set(null);
             return r;
@@ -177,33 +178,33 @@ public class RecordIOUnitTests {
         System.out.println(str);
 
         // Reset the reader and materialize the object.
-        RefObject<RowBuffer> tempRef_row2 =
-            new RefObject<RowBuffer>(row);
-        reader = new RowReader(tempRef_row2);
-        row = tempRef_row2.get();
-        RefObject<RowReader> tempRef_reader2 =
-            new RefObject<RowReader>(reader);
-        Result tempVar = AddressSerializer.Read(tempRef_reader2, obj);
-        reader = tempRef_reader2.get();
+        Reference<RowBuffer> tempReference_row2 =
+            new Reference<RowBuffer>(row);
+        reader = new RowReader(tempReference_row2);
+        row = tempReference_row2.get();
+        Reference<RowReader> tempReference_reader2 =
+            new Reference<RowReader>(reader);
+        Result tempVar = AddressSerializer.Read(tempReference_reader2, obj);
+        reader = tempReference_reader2.get();
         return tempVar;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: private Result ReadSegment(Memory<byte> buffer, out Segment obj)
-    private Result ReadSegment(Memory<Byte> buffer, OutObject<Segment> obj) {
+    private Result ReadSegment(Memory<Byte> buffer, Out<Segment> obj) {
         RowBuffer row = new RowBuffer(buffer.Span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        RowReader reader = new RowReader(tempRef_row);
-        row = tempRef_row.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        RowReader reader = new RowReader(tempReference_row);
+        row = tempReference_row.get();
 
         // Use the reader to dump to the screen.
-        RefObject<RowReader> tempRef_reader =
-            new RefObject<RowReader>(reader);
+        Reference<RowReader> tempReference_reader =
+            new Reference<RowReader>(reader);
         String str;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
-        Result r = DiagnosticConverter.ReaderToString(tempRef_reader, out str);
-        reader = tempRef_reader.get();
+        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        Result r = DiagnosticConverter.ReaderToString(tempReference_reader, out str);
+        reader = tempReference_reader.get();
         if (r != Result.Success) {
             obj.set(null);
             return r;
@@ -212,12 +213,12 @@ public class RecordIOUnitTests {
         System.out.println(str);
 
         // Reset the reader and materialize the object.
-        RefObject<RowBuffer> tempRef_row2 = new RefObject<RowBuffer>(row);
-        reader = new RowReader(tempRef_row2);
-        row = tempRef_row2.get();
-        RefObject<RowReader> tempRef_reader2 = new RefObject<RowReader>(reader);
-        Result tempVar = SegmentSerializer.Read(tempRef_reader2, obj.clone());
-        reader = tempRef_reader2.get();
+        Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(row);
+        reader = new RowReader(tempReference_row2);
+        row = tempReference_row2.get();
+        Reference<RowReader> tempReference_reader2 = new Reference<RowReader>(reader);
+        Result tempVar = SegmentSerializer.Read(tempReference_reader2, obj.clone());
+        reader = tempReference_reader2.get();
         return tempVar;
     }
 
@@ -225,13 +226,13 @@ public class RecordIOUnitTests {
     //ORIGINAL LINE: private Result WriteAddress(MemorySpanResizer<byte> resizer, Address obj, out
     // ReadOnlyMemory<byte> buffer)
     private Result WriteAddress(MemorySpanResizer<Byte> resizer, Address obj,
-                                OutObject<ReadOnlyMemory<Byte>> buffer) {
+                                Out<ReadOnlyMemory<Byte>> buffer) {
         RowBuffer row = new RowBuffer(RecordIOUnitTests.InitialRowSize, resizer);
         row.InitLayout(HybridRowVersion.V1, this.addressLayout, this.resolver);
-        RefObject<RowBuffer> tempRef_row =
-            new RefObject<RowBuffer>(row);
-        Result r = RowWriter.WriteBuffer(tempRef_row, obj, AddressSerializer.Write);
-        row = tempRef_row.get();
+        Reference<RowBuffer> tempReference_row =
+            new Reference<RowBuffer>(row);
+        Result r = RowWriter.WriteBuffer(tempReference_row, obj, AddressSerializer.Write);
+        row = tempReference_row.get();
         if (r != Result.Success) {
             buffer.set(null);
             return r;

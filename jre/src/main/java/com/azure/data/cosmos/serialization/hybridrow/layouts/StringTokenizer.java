@@ -4,7 +4,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.OutObject;
+import com.azure.data.cosmos.core.Out;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ public final class StringTokenizer {
     private HashMap<Utf8String, StringToken> tokens;
 
     /**
-     * Initializes a new instance of the <see cref="StringTokenizer" /> class.
+     * Initializes a new instance of the {@link StringTokenizer} class.
      */
     public StringTokenizer() {
         this.tokens = new HashMap<Utf8String, StringToken>(Map.ofEntries(Map.entry(Utf8String.Empty,
@@ -68,7 +68,7 @@ public final class StringTokenizer {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public bool TryFindString(ulong token, out Utf8String path)
-    public boolean TryFindString(long token, OutObject<Utf8String> path) {
+    public boolean TryFindString(long token, Out<Utf8String> path) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: if (token >= (ulong)this.strings.Count)
         if (token >= (long)this.strings.size()) {
@@ -87,7 +87,7 @@ public final class StringTokenizer {
      * @param token If successful, the string's assigned token.
      * @return True if successful, false otherwise.
      */
-    public boolean TryFindToken(UtfAnyString path, OutObject<StringToken> token) {
+    public boolean TryFindToken(UtfAnyString path, Out<StringToken> token) {
         if (path.IsNull) {
             token.set(null);
             return false;

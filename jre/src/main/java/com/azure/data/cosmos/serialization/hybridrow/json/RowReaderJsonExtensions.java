@@ -4,8 +4,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.json;
 
-import com.azure.data.cosmos.core.OutObject;
-import com.azure.data.cosmos.core.RefObject;
+import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -16,26 +17,26 @@ import java.util.UUID;
 
 public final class RowReaderJsonExtensions {
     /**
-     * Project a JSON document from a HybridRow <see cref="RowReader"/>.
+     * Project a JSON document from a HybridRow {@link RowReader}.
      *
      * @param reader The reader to project to JSON.
      * @param str    If successful, the JSON document that corresponds to the <paramref name="reader"/>.
      * @return The result.
      */
-    public static Result ToJson(RefObject<RowReader> reader, OutObject<String> str) {
+    public static Result ToJson(Reference<RowReader> reader, Out<String> str) {
         return RowReaderJsonExtensions.ToJson(reader.get().clone(), new RowReaderJsonSettings("  "), str);
     }
 
     /**
-     * Project a JSON document from a HybridRow <see cref="RowReader"/>.
+     * Project a JSON document from a HybridRow {@link RowReader}.
      *
      * @param reader   The reader to project to JSON.
      * @param settings Settings that control how the JSON document is formatted.
      * @param str      If successful, the JSON document that corresponds to the <paramref name="reader"/>.
      * @return The result.
      */
-    public static Result ToJson(RefObject<RowReader> reader, RowReaderJsonSettings settings,
-                                OutObject<String> str) {
+    public static Result ToJson(Reference<RowReader> reader, RowReaderJsonSettings settings,
+                                Out<String> str) {
         ReaderStringContext ctx = new ReaderStringContext(new StringBuilder(),
             new RowReaderJsonSettings(settings.IndentChars, settings.QuoteChar == '\'' ? '\'' : '"'), 1);
 
@@ -52,7 +53,7 @@ public final class RowReaderJsonExtensions {
         return Result.Success;
     }
 
-    private static Result ToJson(RefObject<RowReader> reader, ReaderStringContext ctx) {
+    private static Result ToJson(Reference<RowReader> reader, ReaderStringContext ctx) {
         int index = 0;
         while (reader.get().Read()) {
             String path = !reader.get().getPath().IsNull ? String.format("%1$s%2$s%3$s:", ctx.Settings.QuoteChar,
@@ -75,8 +76,8 @@ public final class RowReaderJsonExtensions {
             switch (reader.get().getType().LayoutCode) {
                 case Null: {
                     NullValue _;
-                    OutObject<NullValue> tempOut__ =
-                        new OutObject<NullValue>();
+                    Out<NullValue> tempOut__ =
+                        new Out<NullValue>();
                     r = reader.get().ReadNull(tempOut__);
                     _ = tempOut__.get();
                     if (r != Result.Success) {
@@ -89,7 +90,7 @@ public final class RowReaderJsonExtensions {
 
                 case Boolean: {
                     boolean value;
-                    OutObject<Boolean> tempOut_value = new OutObject<Boolean>();
+                    Out<Boolean> tempOut_value = new Out<Boolean>();
                     r = reader.get().ReadBool(tempOut_value);
                     value = tempOut_value.get();
                     if (r != Result.Success) {
@@ -102,7 +103,7 @@ public final class RowReaderJsonExtensions {
 
                 case Int8: {
                     byte value;
-                    OutObject<Byte> tempOut_value2 = new OutObject<Byte>();
+                    Out<Byte> tempOut_value2 = new Out<Byte>();
                     r = reader.get().ReadInt8(tempOut_value2);
                     value = tempOut_value2.get();
                     if (r != Result.Success) {
@@ -115,7 +116,7 @@ public final class RowReaderJsonExtensions {
 
                 case Int16: {
                     short value;
-                    OutObject<Short> tempOut_value3 = new OutObject<Short>();
+                    Out<Short> tempOut_value3 = new Out<Short>();
                     r = reader.get().ReadInt16(tempOut_value3);
                     value = tempOut_value3.get();
                     if (r != Result.Success) {
@@ -128,7 +129,7 @@ public final class RowReaderJsonExtensions {
 
                 case Int32: {
                     int value;
-                    OutObject<Integer> tempOut_value4 = new OutObject<Integer>();
+                    Out<Integer> tempOut_value4 = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_value4);
                     value = tempOut_value4.get();
                     if (r != Result.Success) {
@@ -141,7 +142,7 @@ public final class RowReaderJsonExtensions {
 
                 case Int64: {
                     long value;
-                    OutObject<Long> tempOut_value5 = new OutObject<Long>();
+                    Out<Long> tempOut_value5 = new Out<Long>();
                     r = reader.get().ReadInt64(tempOut_value5);
                     value = tempOut_value5.get();
                     if (r != Result.Success) {
@@ -154,7 +155,7 @@ public final class RowReaderJsonExtensions {
 
                 case UInt8: {
                     byte value;
-                    OutObject<Byte> tempOut_value6 = new OutObject<Byte>();
+                    Out<Byte> tempOut_value6 = new Out<Byte>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt8(out byte value);
                     r = reader.get().ReadUInt8(tempOut_value6);
@@ -169,7 +170,7 @@ public final class RowReaderJsonExtensions {
 
                 case UInt16: {
                     short value;
-                    OutObject<Short> tempOut_value7 = new OutObject<Short>();
+                    Out<Short> tempOut_value7 = new Out<Short>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt16(out ushort value);
                     r = reader.get().ReadUInt16(tempOut_value7);
@@ -184,7 +185,7 @@ public final class RowReaderJsonExtensions {
 
                 case UInt32: {
                     int value;
-                    OutObject<Integer> tempOut_value8 = new OutObject<Integer>();
+                    Out<Integer> tempOut_value8 = new Out<Integer>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt32(out uint value);
                     r = reader.get().ReadUInt32(tempOut_value8);
@@ -199,7 +200,7 @@ public final class RowReaderJsonExtensions {
 
                 case UInt64: {
                     long value;
-                    OutObject<Long> tempOut_value9 = new OutObject<Long>();
+                    Out<Long> tempOut_value9 = new Out<Long>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt64(out ulong value);
                     r = reader.get().ReadUInt64(tempOut_value9);
@@ -214,7 +215,7 @@ public final class RowReaderJsonExtensions {
 
                 case VarInt: {
                     long value;
-                    OutObject<Long> tempOut_value10 = new OutObject<Long>();
+                    Out<Long> tempOut_value10 = new Out<Long>();
                     r = reader.get().ReadVarInt(tempOut_value10);
                     value = tempOut_value10.get();
                     if (r != Result.Success) {
@@ -227,7 +228,7 @@ public final class RowReaderJsonExtensions {
 
                 case VarUInt: {
                     long value;
-                    OutObject<Long> tempOut_value11 = new OutObject<Long>();
+                    Out<Long> tempOut_value11 = new Out<Long>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadVarUInt(out ulong value);
                     r = reader.get().ReadVarUInt(tempOut_value11);
@@ -242,7 +243,7 @@ public final class RowReaderJsonExtensions {
 
                 case Float32: {
                     float value;
-                    OutObject<Float> tempOut_value12 = new OutObject<Float>();
+                    Out<Float> tempOut_value12 = new Out<Float>();
                     r = reader.get().ReadFloat32(tempOut_value12);
                     value = tempOut_value12.get();
                     if (r != Result.Success) {
@@ -255,7 +256,7 @@ public final class RowReaderJsonExtensions {
 
                 case Float64: {
                     double value;
-                    OutObject<Double> tempOut_value13 = new OutObject<Double>();
+                    Out<Double> tempOut_value13 = new Out<Double>();
                     r = reader.get().ReadFloat64(tempOut_value13);
                     value = tempOut_value13.get();
                     if (r != Result.Success) {
@@ -268,8 +269,8 @@ public final class RowReaderJsonExtensions {
 
                 case Float128: {
                     Float128 _;
-                    OutObject<Float128> tempOut__2 =
-                        new OutObject<Float128>();
+                    Out<Float128> tempOut__2 =
+                        new Out<Float128>();
                     r = reader.get().ReadFloat128(tempOut__2);
                     _ = tempOut__2.get();
                     if (r != Result.Success) {
@@ -283,7 +284,7 @@ public final class RowReaderJsonExtensions {
 
                 case Decimal: {
                     java.math.BigDecimal value;
-                    OutObject<BigDecimal> tempOut_value14 = new OutObject<BigDecimal>();
+                    Out<BigDecimal> tempOut_value14 = new Out<BigDecimal>();
                     r = reader.get().ReadDecimal(tempOut_value14);
                     value = tempOut_value14.get();
                     if (r != Result.Success) {
@@ -296,7 +297,7 @@ public final class RowReaderJsonExtensions {
 
                 case DateTime: {
                     java.time.LocalDateTime value;
-                    OutObject<LocalDateTime> tempOut_value15 = new OutObject<LocalDateTime>();
+                    Out<LocalDateTime> tempOut_value15 = new Out<LocalDateTime>();
                     r = reader.get().ReadDateTime(tempOut_value15);
                     value = tempOut_value15.get();
                     if (r != Result.Success) {
@@ -311,8 +312,8 @@ public final class RowReaderJsonExtensions {
 
                 case UnixDateTime: {
                     UnixDateTime value;
-                    OutObject<UnixDateTime> tempOut_value16 =
-                        new OutObject<UnixDateTime>();
+                    Out<UnixDateTime> tempOut_value16 =
+                        new Out<UnixDateTime>();
                     r = reader.get().ReadUnixDateTime(tempOut_value16);
                     value = tempOut_value16.get();
                     if (r != Result.Success) {
@@ -325,7 +326,7 @@ public final class RowReaderJsonExtensions {
 
                 case Guid: {
                     java.util.UUID value;
-                    OutObject<UUID> tempOut_value17 = new OutObject<UUID>();
+                    Out<UUID> tempOut_value17 = new Out<UUID>();
                     r = reader.get().ReadGuid(tempOut_value17);
                     value = tempOut_value17.get();
                     if (r != Result.Success) {
@@ -340,7 +341,7 @@ public final class RowReaderJsonExtensions {
 
                 case MongoDbObjectId: {
                     MongoDbObjectId value;
-                    OutObject<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempOut_value18 = new OutObject<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>();
+                    Out<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempOut_value18 = new Out<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>();
                     r = reader.get().ReadMongoDbObjectId(tempOut_value18);
                     value = tempOut_value18.get();
                     if (r != Result.Success) {
@@ -359,7 +360,7 @@ public final class RowReaderJsonExtensions {
                 case Utf8: {
                     Utf8Span value;
                     // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword
-                    // - these cannot be converted using the 'OutObject' helper class unless the method is within the
+                    // - these cannot be converted using the 'Out' helper class unless the method is within the
                     // code being modified:
                     r = reader.get().ReadString(out value);
                     if (r != Result.Success) {
@@ -374,7 +375,7 @@ public final class RowReaderJsonExtensions {
 
                 case Binary: {
                     ReadOnlySpan<Byte> value;
-                    // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'OutObject' helper class unless the method is within the code being modified:
+                    // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadBinary(out ReadOnlySpan<byte> value);
                     r = reader.get().ReadBinary(out value);

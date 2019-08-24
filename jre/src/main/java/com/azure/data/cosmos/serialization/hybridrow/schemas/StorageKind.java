@@ -13,9 +13,9 @@ public enum StorageKind {
     /**
      * The property defines a sparse column.
      * <p>
-     * Columns marked <see cref="Sparse" /> consume no space in the row when not present.  When
+     * Columns marked {@link Sparse} consume no space in the row when not present.  When
      * present they appear in an unordered linked list at the end of the row.  Access time for
-     * <see cref="Sparse" /> columns is proportional to the number of <see cref="Sparse" /> columns in the
+     * {@link Sparse} columns is proportional to the number of {@link Sparse} columns in the
      * row.
      */
     Sparse(0),
@@ -35,9 +35,9 @@ public enum StorageKind {
      * present it will also consume a variable number of bytes to encode the length preceding the actual
      * value.
      * <p>
-     * When a <em>long</em> value is marked <see cref="Variable" /> then a null-bit is reserved and
-     * the value is optionally encoded as <see cref="Variable" /> if small enough to fit, otherwise the
-     * null-bit is set and the value is encoded as <see cref="Sparse" />.
+     * When a <em>long</em> value is marked {@link Variable} then a null-bit is reserved and
+     * the value is optionally encoded as {@link Variable} if small enough to fit, otherwise the
+     * null-bit is set and the value is encoded as {@link Sparse}.
      * </p>
      */
     Variable(2);
