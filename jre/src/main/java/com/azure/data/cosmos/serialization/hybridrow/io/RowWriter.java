@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -169,13 +168,13 @@ public final class RowWriter {
         RowWriter writer = new RowWriter(row, tempReference_scope);
         scope = tempReference_scope.get();
         TypeArgument typeArg = new TypeArgument(LayoutType.UDT,
-            new TypeArgumentList(scope.layout.getSchemaId().clone()));
+            new TypeArgumentList(scope.layout.schemaId().clone()));
         Reference<RowWriter> tempReference_writer =
             new Reference<RowWriter>(writer);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
         Result result = func(ref writer, typeArg, context);
         writer = tempReference_writer.get();
-        row.set(writer.row.clone());
+        row.setAndGet(writer.row.clone());
         return result;
     }
 

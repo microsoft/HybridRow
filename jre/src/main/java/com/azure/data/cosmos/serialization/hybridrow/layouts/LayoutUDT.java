@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -32,7 +31,7 @@ public final class LayoutUDT extends LayoutPropertyScope {
     public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
         SchemaId schemaId = row.get().ReadSchemaId(offset).clone();
-        lenInBytes.set(SchemaId.Size);
+        lenInBytes.setAndGet(SchemaId.Size);
         return new TypeArgumentList(schemaId.clone());
     }
 
@@ -51,7 +50,7 @@ public final class LayoutUDT extends LayoutPropertyScope {
         Layout udt = b.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
         Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 

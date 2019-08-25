@@ -15,7 +15,7 @@ import com.azure.data.cosmos.core.Out;
 public final class TryParseHelper {
     public static boolean tryParseBoolean(String s, Out<Boolean> result) {
         try {
-            result.set(Boolean.parseBoolean(s));
+            result.setAndGet(Boolean.parseBoolean(s));
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -24,7 +24,7 @@ public final class TryParseHelper {
 
     public static boolean tryParseByte(String s, Out<Byte> result) {
         try {
-            result.set(Byte.parseByte(s));
+            result.setAndGet(Byte.parseByte(s));
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -33,7 +33,7 @@ public final class TryParseHelper {
 
     public static boolean tryParseDouble(String s, Out<Double> result) {
         try {
-            result.set(Double.parseDouble(s));
+            result.setAndGet(Double.parseDouble(s));
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -42,7 +42,7 @@ public final class TryParseHelper {
 
     public static boolean tryParseFloat(String s, Out<Float> result) {
         try {
-            result.set(Float.parseFloat(s));
+            result.setAndGet(Float.parseFloat(s));
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -51,7 +51,7 @@ public final class TryParseHelper {
 
     public static boolean tryParseInt(String s, Out<Integer> result) {
         try {
-            result.set(Integer.parseInt(s));
+            result.setAndGet(Integer.parseInt(s));
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -60,7 +60,7 @@ public final class TryParseHelper {
 
     public static boolean tryParseLong(String s, Out<Long> result) {
         try {
-            result.set(Long.parseLong(s));
+            result.setAndGet(Long.parseLong(s));
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -69,7 +69,7 @@ public final class TryParseHelper {
 
     public static boolean tryParseShort(String s, Out<Short> result) {
         try {
-            result.set(Short.parseShort(s));
+            result.setAndGet(Short.parseShort(s));
             return true;
         } catch (NumberFormatException e) {
             return false;

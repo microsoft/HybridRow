@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -36,11 +35,11 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
                             Out<BigDecimal> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(new BigDecimal(0));
+            value.setAndGet(new BigDecimal(0));
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadDecimal(scope.get().start + col.getOffset()));
+        value.setAndGet(b.get().ReadDecimal(scope.get().start + col.getOffset()));
         return Result.Success;
     }
 
@@ -49,11 +48,11 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
                              Out<BigDecimal> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(new BigDecimal(0));
+            value.setAndGet(new BigDecimal(0));
             return result;
         }
 
-        value.set(b.get().ReadSparseDecimal(edit));
+        value.setAndGet(b.get().ReadSparseDecimal(edit));
         return Result.Success;
     }
 

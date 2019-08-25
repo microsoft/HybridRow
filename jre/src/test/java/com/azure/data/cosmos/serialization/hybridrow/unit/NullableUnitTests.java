@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -100,11 +99,11 @@ public final class NullableUnitTests {
             nullableScope.clone());
         value = tempOut_value.get();
         if ((r != Result.Success) && (r != Result.NotFound)) {
-            item.set(null);
+            item.setAndGet(null);
             return r;
         }
 
-        item.set((r == Result.NotFound) ? null : value);
+        item.setAndGet((r == Result.NotFound) ? null : value);
         return Result.Success;
     }
 
@@ -122,7 +121,7 @@ public final class NullableUnitTests {
                                                     Out<RowCursor> nullableScope) {
         Result r = itemType.getType().<LayoutNullable>TypeAs().ReadScope(row, scope, nullableScope.clone());
         if (r != Result.Success) {
-            item.set(null);
+            item.setAndGet(null);
             return r;
         }
 
@@ -133,7 +132,7 @@ public final class NullableUnitTests {
         }
 
         ResultAssert.NotFound(LayoutNullable.HasValue(row, nullableScope.clone()));
-        item.set(null);
+        item.setAndGet(null);
         return Result.NotFound;
     }
 

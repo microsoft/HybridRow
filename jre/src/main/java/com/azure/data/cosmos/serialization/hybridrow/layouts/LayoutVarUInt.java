@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -42,7 +41,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
     public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
-        value.set(0);
+        value.setAndGet(0);
         return Result.Failure;
     }
 
@@ -52,11 +51,11 @@ public final class LayoutVarUInt extends LayoutType<Long> {
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Long> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(0);
+            value.setAndGet(0);
             return result;
         }
 
-        value.set(b.get().ReadSparseVarUInt(edit));
+        value.setAndGet(b.get().ReadSparseVarUInt(edit));
         return Result.Success;
     }
 
@@ -67,13 +66,13 @@ public final class LayoutVarUInt extends LayoutType<Long> {
     public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Long> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(0);
+            value.setAndGet(0);
             return Result.NotFound;
         }
 
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
             col.getOffset());
-        value.set(b.get().ReadVariableUInt(varOffset));
+        value.setAndGet(b.get().ReadVariableUInt(varOffset));
         return Result.Success;
     }
 

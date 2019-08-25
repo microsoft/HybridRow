@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -34,11 +33,11 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
                             Out<MongoDbObjectId> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(null);
+            value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadMongoDbObjectId(scope.get().start + col.getOffset()).clone());
+        value.setAndGet(b.get().ReadMongoDbObjectId(scope.get().start + col.getOffset()).clone());
         return Result.Success;
     }
 
@@ -47,11 +46,11 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
                              Out<MongoDbObjectId> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 
-        value.set(b.get().ReadSparseMongoDbObjectId(edit).clone());
+        value.setAndGet(b.get().ReadSparseMongoDbObjectId(edit).clone());
         return Result.Success;
     }
 

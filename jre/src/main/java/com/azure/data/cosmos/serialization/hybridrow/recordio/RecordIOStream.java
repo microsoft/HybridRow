@@ -317,11 +317,11 @@ public final class RecordIOStream {
         Result r = RecordIOFormatter.FormatRecord(body, tempOut_row, resizer);
         row = tempOut_row.get();
         if (r != Result.Success) {
-            block.set(null);
+            block.setAndGet(null);
             return r;
         }
 
-        block.set(resizer.getMemory().Slice(0, row.Length));
+        block.setAndGet(resizer.getMemory().Slice(0, row.Length));
         return Result.Success;
     }
 
@@ -344,11 +344,11 @@ public final class RecordIOStream {
         Result r = RecordIOFormatter.FormatSegment(segment.clone(), tempOut_row, resizer);
         row = tempOut_row.get();
         if (r != Result.Success) {
-            block.set(null);
+            block.setAndGet(null);
             return r;
         }
 
-        block.set(resizer.getMemory().Slice(0, row.Length));
+        block.setAndGet(resizer.getMemory().Slice(0, row.Length));
         return Result.Success;
     }
 

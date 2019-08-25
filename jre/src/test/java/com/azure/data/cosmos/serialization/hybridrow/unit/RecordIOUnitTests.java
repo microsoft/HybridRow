@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -171,7 +170,7 @@ public class RecordIOUnitTests {
         Result r = DiagnosticConverter.ReaderToString(tempReference_reader, out str);
         reader = tempReference_reader.get();
         if (r != Result.Success) {
-            obj.set(null);
+            obj.setAndGet(null);
             return r;
         }
 
@@ -206,7 +205,7 @@ public class RecordIOUnitTests {
         Result r = DiagnosticConverter.ReaderToString(tempReference_reader, out str);
         reader = tempReference_reader.get();
         if (r != Result.Success) {
-            obj.set(null);
+            obj.setAndGet(null);
             return r;
         }
 
@@ -234,11 +233,11 @@ public class RecordIOUnitTests {
         Result r = RowWriter.WriteBuffer(tempReference_row, obj, AddressSerializer.Write);
         row = tempReference_row.get();
         if (r != Result.Success) {
-            buffer.set(null);
+            buffer.setAndGet(null);
             return r;
         }
 
-        buffer.set(resizer.getMemory().Slice(0, row.getLength()));
+        buffer.setAndGet(resizer.getMemory().Slice(0, row.getLength()));
         return Result.Success;
     }
 }

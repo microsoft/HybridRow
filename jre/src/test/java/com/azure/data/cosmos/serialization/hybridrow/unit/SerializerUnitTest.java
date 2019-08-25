@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -139,7 +138,7 @@ public final class SerializerUnitTest {
 
         public static Result Read(Reference<RowReader> reader, Out<BatchOperation> operation) {
             BatchOperation retval = new BatchOperation();
-            operation.set(null);
+            operation.setAndGet(null);
             while (reader.get().Read()) {
                 Result r;
                 switch (reader.get().getPath()) {
@@ -198,7 +197,7 @@ public final class SerializerUnitTest {
                 }
             }
 
-            operation.set(retval);
+            operation.setAndGet(retval);
             return Result.Success;
         }
 
@@ -245,7 +244,7 @@ public final class SerializerUnitTest {
         public static Result Read(Reference<RowReader> reader,
                                   Out<BatchRequestHeaders> header) {
             BatchRequestHeaders retval = new BatchRequestHeaders();
-            header.set(null);
+            header.setAndGet(null);
             while (reader.get().Read()) {
                 switch (reader.get().getPath()) {
                     case "sampleRequestHeader":
@@ -260,7 +259,7 @@ public final class SerializerUnitTest {
                 }
             }
 
-            header.set(retval);
+            header.setAndGet(retval);
             return Result.Success;
         }
 
@@ -283,11 +282,11 @@ public final class SerializerUnitTest {
             Result r = RowReaderExtensions.ReadList(reader.get().clone(), BatchOperationSerializer.Read, tempOut_operations);
             operations = tempOut_operations.get();
             if (r != Result.Success) {
-                request.set(null);
+                request.setAndGet(null);
                 return r;
             }
 
-            request.set(new BatchRequest());
+            request.setAndGet(new BatchRequest());
             request.get().Operations = operations;
 
             return Result.Success;

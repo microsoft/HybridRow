@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -968,7 +967,7 @@ public final class TypedMapUnitTests {
     private static <TKey, TValue> Result ReadKeyValue(Reference<RowBuffer> row,
                                                       Reference<RowCursor> scope, TypeArgumentList typeArgs,
                                                       Out<KeyValuePair<TKey, TValue>> pair) {
-        pair.set(null);
+        pair.setAndGet(null);
         LayoutIndexedScope tupleLayout = LayoutType.TypedTuple;
         RowCursor tupleScope;
         Out<RowCursor> tempOut_tupleScope =
@@ -1003,7 +1002,7 @@ public final class TypedMapUnitTests {
             return r;
         }
 
-        pair.set(new KeyValuePair<TKey, TValue>(key, value));
+        pair.setAndGet(new KeyValuePair<TKey, TValue>(key, value));
         return Result.Success;
     }
 

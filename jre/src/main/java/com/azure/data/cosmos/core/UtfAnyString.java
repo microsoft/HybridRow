@@ -1,543 +1,418 @@
-package Microsoft.Azure.Cosmos.Core.Utf8;
-
-// ------------------------------------------------------------
+//------------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
-// ------------------------------------------------------------
+//------------------------------------------------------------
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-///#pragma warning disable CA2225 // Operator overloads have named alternates
+package com.azure.data.cosmos.core;
 
-// ReSharper disable once UseNameofExpression
+import javax.annotation.Nonnull;
 
-/** A string whose memory representation may be either UTF8 or UTF16.
- 
- This type supports polymorphic use of <see cref="string" /> and <see cref="Utf8String" />
- when equality, hashing, and comparison are needed against either encoding.  An API leveraging
- <see cref="UtfAnyString" /> can avoid separate method overloads while still accepting either
- encoding without imposing additional allocations.
- 
-*/
-//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [DebuggerDisplay("{ToString()}")] public readonly struct UtfAnyString : IEquatable<UtfAnyString>, IComparable<UtfAnyString>, IEquatable<Utf8String>, IComparable<Utf8String>, IEquatable<string>, IComparable<string>
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
-//ORIGINAL LINE: [DebuggerDisplay("{ToString()}")] public readonly struct UtfAnyString : IEquatable<UtfAnyString>, IComparable<UtfAnyString>, IEquatable<Utf8String>, IComparable<Utf8String>, IEquatable<string>, IComparable<string>
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
-public final class UtfAnyString implements IEquatable<UtfAnyString>, java.lang.Comparable<UtfAnyString>, IEquatable<Utf8String>, java.lang.Comparable<Utf8String>, IEquatable<String>, java.lang.Comparable<String>
-{
-	public static UtfAnyString getEmpty()
-	{
-		return "";
+import static com.azure.data.cosmos.core.Utf8String.transcodeUtf16;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * A string whose memory representation may be either UTF-8 or UTF-16
+ * <p>
+ * This type supports polymorphic use of {@link String} and {@link Utf8String} when equality, hashing, and comparison
+ * are needed against either encoding.  An API leveraging {@link UtfAnyString} can avoid separate method overloads
+ * while still accepting either encoding without imposing additional allocations.
+ */
+public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString> {
+
+	private static final UtfAnyString EMPTY = new UtfAnyString("");
+	private static final int NULL_HASHCODE = reduceHashCode(5_381, 5_381);
+
+	private CharSequence buffer;
+
+	public UtfAnyString() {
 	}
 
-	private Object buffer;
-
-//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] public UtfAnyString(string utf16String)
-	public UtfAnyString()
-	{
+	public UtfAnyString(final String string) {
+		this.buffer = string;
 	}
 
-	public UtfAnyString(String utf16String)
-	{
-		this.buffer = utf16String;
-	}
-
-//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] public UtfAnyString(Utf8String utf8String)
-	public UtfAnyString(Utf8String utf8String)
-	{
+	public UtfAnyString(final Utf8String utf8String) {
 		this.buffer = utf8String;
 	}
 
-	public boolean getIsUtf8()
-	{
-		return this.buffer instanceof Utf8String;
+	private UtfAnyString(final CharSequence sequence) {
+		this.buffer = sequence;
 	}
 
-	public boolean getIsUtf16()
-	{
-		return this.buffer instanceof String;
+	/**
+	 * {@code true} if the {@link UtfAnyString} is empty
+	 */
+	public boolean isEmpty() {
+		return this.buffer != null && this.buffer.length() == 0;
 	}
 
-	/** True if the length is empty.
-	*/
-	public boolean getIsNull()
-	{
+	/**
+	 * {@code true} if the {@link UtfAnyString} is {@code null}
+	 */
+	public boolean isNull() {
 		return null == this.buffer;
 	}
 
-	/** True if the length is empty.
-	*/
-	public boolean getIsEmpty()
-	{
-		if (null == this.buffer)
-		{
+	public boolean isUtf16() {
+		return this.buffer instanceof String;
+	}
+
+	public boolean isUtf8() {
+		return this.buffer instanceof Utf8String;
+	}
+
+	/**
+	 * Returns the {@code char} value at the specified {@code index}
+	 * <p>
+	 * An index ranges from zero to {@link UtfAnyString#length()} minus one. The first {@code char} value of the
+	 * sequence is at index zero, the next at index one, and so on, as for array indexing. If the {@code char}
+	 * value specified by the {@code index} is a surrogate, the surrogate (not the surrogate pair) is returned.
+	 *
+	 * @param index the index of the {@code char} value to be returned
+	 * @return the specified {@code char} value
+	 * @throws IndexOutOfBoundsException if the {@code index} argument is negative or not less than
+	 * {@link UtfAnyString#length()}
+	 * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}.
+	 */
+	@Override
+	public char charAt(final int index) {
+		if (this.buffer == null) {
+			throw new UnsupportedOperationException("String is null");
+		}
+		return this.buffer.charAt(index);
+	}
+
+	public UtfAnyString clone() {
+		return new UtfAnyString(this.buffer);
+	}
+
+	public int compareTo(@Nonnull final String other) {
+
+		checkNotNull(other);
+
+		if (other == this.buffer) {
+			return 0;
+		}
+
+		if (this.buffer == null) {
+			return -1;
+		}
+
+		return this.buffer instanceof String
+			? ((String) this.buffer).compareTo(other)
+			: ((Utf8String) this.buffer).compareTo(other);
+	}
+
+	public int compareTo(@Nonnull final Utf8String other) {
+
+		checkNotNull(other);
+
+		if (other == this.buffer) {
+			return 0;
+		}
+
+		if (this.buffer == null) {
+			return -1;
+		}
+
+		return this.buffer instanceof String
+			? -other.compareTo((String) this.buffer)
+			: ((Utf8String) this.buffer).compareTo(other);
+	}
+
+	@Override
+	public int compareTo(@Nonnull final UtfAnyString other) {
+
+		checkNotNull(other);
+
+		if (other.buffer == this.buffer) {
+			return 0;
+		}
+
+		if (other.buffer == null) {
+			return 1;
+		}
+
+		if (this.buffer == null) {
+			return -1;
+		}
+
+		if (this.buffer instanceof String) {
+			return other.buffer instanceof String
+				? ((String) this.buffer).compareTo((String) other.buffer)
+				: -((Utf8String) other.buffer).compareTo((String) this.buffer);
+		}
+
+		return ((Utf8String) this.buffer).compareTo((Utf8String) other.buffer);
+	}
+
+	public static UtfAnyString empty() {
+		return EMPTY;
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+
+		if (other == null) {
 			return false;
 		}
 
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return s.Length == 0;
-			default:
-				return ((Utf8String)this.buffer).getIsEmpty();
-		}
-	}
-
-//C# TO JAVA CONVERTER TODO TASK: The following operator overload is not converted by C# to Java Converter:
-	public static implicit operator UtfAnyString(String utf16String)
-	{
-		return new UtfAnyString(utf16String);
-	}
-
-//C# TO JAVA CONVERTER TODO TASK: The following operator overload is not converted by C# to Java Converter:
-	public static implicit operator string(UtfAnyString str)
-	{
-		return str.buffer == null ? null : str.buffer.toString();
-	}
-
-	@Override
-	public String toString()
-	{
-		// ReSharper disable once AssignNullToNotNullAttribute
-		return this.buffer == null ? null : this.buffer.toString();
-	}
-
-	public Utf8String ToUtf8String()
-	{
-		if (null == this.buffer)
-		{
-			return null;
+		if (other instanceof String) {
+			return this.equals((String) other);
 		}
 
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return Utf8String.TranscodeUtf16(s);
-			default:
-				return (Utf8String)this.buffer;
-		}
-	}
-
-	public boolean ReferenceEquals(UtfAnyString other)
-	{
-		return this.buffer == other.buffer;
-	}
-
-	public boolean equals(UtfAnyString other)
-	{
-		if (null == this.buffer)
-		{
-			return null == other.buffer;
+		if (other instanceof Utf8String) {
+			return this.equals((Utf8String) other);
 		}
 
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return other.equals(s);
-			default:
-				return other.equals((Utf8String)this.buffer);
-		}
-	}
-
-	public boolean equals(Utf8Span other)
-	{
-		return other.equals(this.buffer);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		switch (obj)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return this.equals(s);
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case Utf8String s:
-			case Utf8String s:
-				return this.equals(s);
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case UtfAnyString s:
-			case UtfAnyString s:
-				return this.equals(s);
+		if (other instanceof UtfAnyString) {
+			return this.equals((UtfAnyString) other);
 		}
 
 		return false;
 	}
 
-	public boolean equals(Utf8String other)
-	{
-		if (null == other)
-		{
+	public boolean equals(final String other) {
+
+		if (null == this.buffer) {
+			return null == other;
+		}
+
+		if (this.buffer instanceof String) {
+			return other.contentEquals(this.buffer);  // skips the type check that String.equals performs
+		}
+
+		return ((Utf8String) this.buffer).equals(other);
+	}
+
+	public boolean equals(final Utf8String other) {
+
+		if (null == other) {
 			return null == this.buffer;
 		}
 
 		return other.equals(this.buffer);
 	}
 
-	public boolean equals(String other)
-	{
-		if (null == this.buffer)
-		{
-			return null == other;
+	public boolean equals(final UtfAnyString other) {
+
+		if (null == other) {
+			return false;
 		}
 
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return String.equals(s, other);
-			default:
-				return ((Utf8String)this.buffer).equals(other);
+		if (null == this.buffer) {
+			return null == other.buffer;
 		}
-	}
 
-	public static boolean opEquals(UtfAnyString left, UtfAnyString right)
-	{
-		return left.equals(right.clone());
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, UtfAnyString right)
-	{
-		return !left.equals(right.clone());
-	}
-
-	public static boolean opEquals(UtfAnyString left, String right)
-	{
-		return left.equals(right);
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, String right)
-	{
-		return !left.equals(right);
-	}
-
-	public static boolean opEquals(String left, UtfAnyString right)
-	{
-		return right.equals(left);
-	}
-
-	public static boolean opNotEquals(String left, UtfAnyString right)
-	{
-		return !right.equals(left);
-	}
-
-	public static boolean opEquals(UtfAnyString left, Utf8String right)
-	{
-		return left.equals(right);
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, Utf8String right)
-	{
-		return !left.equals(right);
-	}
-
-	public static boolean opEquals(Utf8String left, UtfAnyString right)
-	{
-		return right.equals(left);
-	}
-
-	public static boolean opNotEquals(Utf8String left, UtfAnyString right)
-	{
-		return !right.equals(left);
-	}
-
-	public static boolean opEquals(UtfAnyString left, Utf8Span right)
-	{
-		return left.equals(right);
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, Utf8Span right)
-	{
-		return !left.equals(right);
-	}
-
-	public static boolean opEquals(Utf8Span left, UtfAnyString right)
-	{
-		return right.equals(left);
-	}
-
-	public static boolean opNotEquals(Utf8Span left, UtfAnyString right)
-	{
-		return !right.equals(left);
+		return this.buffer instanceof String ? other.buffer.equals(this.buffer) : this.buffer.equals(other.buffer);
 	}
 
 	@Override
-	public int hashCode()
-	{
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: uint hash1 = 5381;
-		int hash1 = 5381;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: uint hash2 = hash1;
-		int hash2 = hash1;
+	public int hashCode() {
 
-		if (null == this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: There is no Java equivalent to 'unchecked' in this context:
-//ORIGINAL LINE: return unchecked((int)(hash1 + (hash2 * 1566083941)));
-			return (int)(hash1 + (hash2 * 1566083941));
+		final long[] hash = { 5_381, 5_381 };
+
+		if (this.buffer == null) {
+			return NULL_HASHCODE;
 		}
 
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-//C# TO JAVA CONVERTER TODO TASK: There is no equivalent to an 'unchecked' block in Java:
-				unchecked
-				{
-					Utf16LittleEndianCodePointEnumerator thisEnumerator = new Utf16LittleEndianCodePointEnumerator(s);
-					for (int i = 0; thisEnumerator.MoveNext(); i++)
-					{
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: uint c = thisEnumerator.Current;
-						int c = thisEnumerator.Current;
-						if (i % 2 == 0)
-						{
-							hash1 = ((hash1 << 5) + hash1) ^ c;
-						}
-						else
-						{
-							hash2 = ((hash2 << 5) + hash2) ^ c;
-						}
-					}
+		if (this.buffer instanceof String) {
 
-					return (int)(hash1 + (hash2 * 1566083941));
+			final int ignored = ((String) buffer).codePoints().reduce(0, (index, codePoint) -> {
+				if (index % 2 == 0) {
+					hash[0] = ((hash[0] << 5) + hash[0]) ^ codePoint;
+				} else {
+					hash[1] = ((hash[1] << 5) + hash[1]) ^ codePoint;
 				}
+				return index;
+			});
 
-			default:
-				return this.buffer.hashCode();
-		}
-	}
-
-	public static boolean opLessThan(UtfAnyString left, UtfAnyString right)
-	{
-		return left.CompareTo(right.clone()) < 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, UtfAnyString right)
-	{
-		return left.CompareTo(right.clone()) <= 0;
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, UtfAnyString right)
-	{
-		return left.CompareTo(right.clone()) > 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, UtfAnyString right)
-	{
-		return left.CompareTo(right.clone()) >= 0;
-	}
-
-	public static boolean opLessThan(UtfAnyString left, String right)
-	{
-		return left.CompareTo(right) < 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, String right)
-	{
-		return left.CompareTo(right) <= 0;
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, String right)
-	{
-		return left.CompareTo(right) > 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, String right)
-	{
-		return left.CompareTo(right) >= 0;
-	}
-
-	public static boolean opLessThan(String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) >= 0;
-	}
-
-	public static boolean opLessThanOrEquals(String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) > 0;
-	}
-
-	public static boolean opGreaterThan(String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) <= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) < 0;
-	}
-
-	public static boolean opLessThan(UtfAnyString left, Utf8String right)
-	{
-		return left.CompareTo(right) < 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, Utf8String right)
-	{
-		return left.CompareTo(right) <= 0;
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, Utf8String right)
-	{
-		return left.CompareTo(right) > 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, Utf8String right)
-	{
-		return left.CompareTo(right) >= 0;
-	}
-
-	public static boolean opLessThan(Utf8String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) >= 0;
-	}
-
-	public static boolean opLessThanOrEquals(Utf8String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) > 0;
-	}
-
-	public static boolean opGreaterThan(Utf8String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) <= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(Utf8String left, UtfAnyString right)
-	{
-		return right.CompareTo(left) < 0;
-	}
-
-	public static boolean opLessThan(UtfAnyString left, Utf8Span right)
-	{
-		return left.CompareTo(right) < 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, Utf8Span right)
-	{
-		return left.CompareTo(right) <= 0;
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, Utf8Span right)
-	{
-		return left.CompareTo(right) > 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, Utf8Span right)
-	{
-		return left.CompareTo(right) >= 0;
-	}
-
-	public static boolean opLessThan(Utf8Span left, UtfAnyString right)
-	{
-		return right.CompareTo(left) >= 0;
-	}
-
-	public static boolean opLessThanOrEquals(Utf8Span left, UtfAnyString right)
-	{
-		return right.CompareTo(left) > 0;
-	}
-
-	public static boolean opGreaterThan(Utf8Span left, UtfAnyString right)
-	{
-		return right.CompareTo(left) <= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(Utf8Span left, UtfAnyString right)
-	{
-		return right.CompareTo(left) < 0;
-	}
-
-	public int CompareTo(UtfAnyString other)
-	{
-		if (null == other.buffer)
-		{
-			return null == this.buffer ? 0 : 1;
+			return reduceHashCode(hash[0], hash[1]);
 		}
 
-		switch (other.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return this.CompareTo(s);
-			default:
-				return this.CompareTo((Utf8String)other.buffer);
-		}
+		return this.buffer.hashCode();
 	}
 
-	public int CompareTo(Utf8String other)
-	{
-		if (null == this.buffer)
-		{
-			return null == other ? 0 : -1;
+	/**
+	 * Returns the length of this character sequence.  The length is the number
+	 * of 16-bit {@code char}s in the sequence.
+	 *
+	 * @return the number of {@code char}s in this sequence
+	 *
+	 * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}
+	 */
+	@Override
+	public int length() {
+		if (this.buffer == null) {
+			throw new UnsupportedOperationException("String is null");
 		}
-
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return -other.getSpan().CompareTo(s);
-			default:
-				return -other.getSpan().CompareTo((Utf8String)this.buffer);
-		}
+		return this.buffer.length();
 	}
 
-	public int CompareTo(Utf8Span other)
-	{
-		if (null == this.buffer)
-		{
-			return -1;
-		}
-
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return -other.CompareTo(s);
-			default:
-				return -other.CompareTo((Utf8String)this.buffer);
-		}
+	public static boolean opEquals(UtfAnyString left, UtfAnyString right) {
+		return left.equals(right.clone());
 	}
 
-	public int CompareTo(String other)
-	{
-		if (null == this.buffer)
-		{
-			return null == other ? 0 : -1;
-		}
-
-		switch (this.buffer)
-		{
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# pattern variables in 'case' statements:
-//ORIGINAL LINE: case string s:
-			case String s:
-				return String.Compare(s, other, StringComparison.Ordinal);
-			default:
-				return ((Utf8String)this.buffer).compareTo(other);
-		}
+	public static boolean opEquals(UtfAnyString left, String right) {
+		return left.equals(right);
 	}
 
-	public UtfAnyString clone()
-	{
-		UtfAnyString varCopy = new UtfAnyString();
+	public static boolean opEquals(String left, UtfAnyString right) {
+		return right.equals(left);
+	}
 
-		varCopy.buffer = this.buffer;
+	public static boolean opEquals(UtfAnyString left, Utf8String right) {
+		return left.equals(right);
+	}
 
-		return varCopy;
+	public static boolean opEquals(Utf8String left, UtfAnyString right) {
+		return right.equals(left);
+	}
+
+	public static boolean opGreaterThan(UtfAnyString left, UtfAnyString right) {
+		return left.compareTo(right.clone()) > 0;
+	}
+
+	public static boolean opGreaterThan(UtfAnyString left, String right) {
+		return left.compareTo(right) > 0;
+	}
+
+	public static boolean opGreaterThan(String left, UtfAnyString right) {
+		return right.compareTo(left) <= 0;
+	}
+
+	public static boolean opGreaterThan(UtfAnyString left, Utf8String right) {
+		return left.compareTo(right) > 0;
+	}
+
+	public static boolean opGreaterThan(Utf8String left, UtfAnyString right) {
+		return right.compareTo(left) <= 0;
+	}
+
+	public static boolean opGreaterThanOrEquals(UtfAnyString left, UtfAnyString right) {
+		return left.compareTo(right.clone()) >= 0;
+	}
+
+	public static boolean opGreaterThanOrEquals(UtfAnyString left, String right) {
+		return left.compareTo(right) >= 0;
+	}
+
+	public static boolean opGreaterThanOrEquals(String left, UtfAnyString right) {
+		return right.compareTo(left) < 0;
+	}
+
+	public static boolean opGreaterThanOrEquals(UtfAnyString left, Utf8String right) {
+		return left.compareTo(right) >= 0;
+	}
+
+	public static boolean opGreaterThanOrEquals(Utf8String left, UtfAnyString right) {
+		return right.compareTo(left) < 0;
+	}
+
+	public static boolean opLessThan(UtfAnyString left, UtfAnyString right) {
+		return left.compareTo(right.clone()) < 0;
+	}
+
+	public static boolean opLessThan(UtfAnyString left, String right) {
+		return left.compareTo(right) < 0;
+	}
+
+	public static boolean opLessThan(String left, UtfAnyString right) {
+		return right.compareTo(left) >= 0;
+	}
+
+	public static boolean opLessThan(UtfAnyString left, Utf8String right) {
+		return left.compareTo(right) < 0;
+	}
+
+	public static boolean opLessThan(Utf8String left, UtfAnyString right) {
+		return right.compareTo(left) >= 0;
+	}
+
+	public static boolean opLessThanOrEquals(UtfAnyString left, UtfAnyString right) {
+		return left.compareTo(right.clone()) <= 0;
+	}
+
+	public static boolean opLessThanOrEquals(UtfAnyString left, String right) {
+		return left.compareTo(right) <= 0;
+	}
+
+	public static boolean opLessThanOrEquals(String left, UtfAnyString right) {
+		return right.compareTo(left) > 0;
+	}
+
+	public static boolean opLessThanOrEquals(UtfAnyString left, Utf8String right) {
+		return left.compareTo(right) <= 0;
+	}
+
+	public static boolean opLessThanOrEquals(Utf8String left, UtfAnyString right) {
+		return right.compareTo(left) > 0;
+	}
+
+	public static boolean opNotEquals(UtfAnyString left, UtfAnyString right) {
+		return !left.equals(right.clone());
+	}
+
+	public static boolean opNotEquals(UtfAnyString left, String right) {
+		return !left.equals(right);
+	}
+
+	public static boolean opNotEquals(String left, UtfAnyString right) {
+		return !right.equals(left);
+	}
+
+	public static boolean opNotEquals(UtfAnyString left, Utf8String right) {
+		return !left.equals(right);
+	}
+
+	public static boolean opNotEquals(Utf8String left, UtfAnyString right) {
+		return !right.equals(left);
+	}
+
+	/**
+	 * Returns a {@code CharSequence} that is a subsequence of this sequence
+	 * <p>
+	 * The subsequence starts with the {@code char} value at the specified index and ends with the{@code char} value at
+	 * index {@code end - 1}. The length (in {@code char}s) of the returned sequence is {@code end - start}, so if
+	 * {@code start == end}, an empty sequence is returned.
+	 *
+	 * @param start the start index, inclusive
+	 * @param end   the end index, exclusive
+	 * @return the specified subsequence
+	 * @throws IndexOutOfBoundsException     if {@code start} or {@code end} are negative, {@code end} is greater than
+	 *                                       {@link UtfAnyString#length()}, or {@code start} is greater than {@code
+	 *                                       end}.
+	 * @throws UnsupportedOperationException if string is {@code null}
+	 */
+	@Override
+	@Nonnull
+	public CharSequence subSequence(final int start, final int end) {
+		if (this.buffer == null) {
+			throw new UnsupportedOperationException("String is null");
+		}
+		return this.buffer.subSequence(start, end);
+	}
+
+	@Override
+	@Nonnull
+	public String toString() {
+		return String.valueOf(this.buffer);
+	}
+
+	public String toUtf16() {
+		if (null == this.buffer) {
+			return null;
+		}
+		return this.buffer instanceof String ? (String) this.buffer : this.buffer.toString();
+	}
+
+	public Utf8String toUtf8() {
+		if (null == this.buffer) {
+			return null;
+		}
+		return this.buffer instanceof String ? transcodeUtf16((String) this.buffer) : (Utf8String) this.buffer;
+	}
+
+	private static int reduceHashCode(final long h1, final long h2) {
+		return Long.valueOf(h1 + (h2 * 1_566_083_941L)).intValue();
 	}
 }

@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -35,7 +34,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadFixed(b, scope, col, out span);
-        value.set((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.Success) ? span.toString() :)
         default
         return r;
     }
@@ -45,11 +44,11 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(null);
+            value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadFixedString(scope.get().start + col.getOffset(), col.getSize()));
+        value.setAndGet(b.get().ReadFixedString(scope.get().start + col.getOffset(), col.getSize()));
         return Result.Success;
     }
 
@@ -60,7 +59,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadSparse(b, edit, out span);
-        value.set((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.Success) ? span.toString() :)
         default
         return r;
     }
@@ -68,11 +67,11 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Utf8Span> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 
-        value.set(b.get().ReadSparseString(edit));
+        value.setAndGet(b.get().ReadSparseString(edit));
         return Result.Success;
     }
 
@@ -83,7 +82,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadVariable(b, scope, col, out span);
-        value.set((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.Success) ? span.toString() :)
         default
         return r;
     }
@@ -92,13 +91,13 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         , Out<Utf8Span> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(null);
+            value.setAndGet(null);
             return Result.NotFound;
         }
 
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
             col.getOffset());
-        value.set(b.get().ReadVariableString(varOffset));
+        value.setAndGet(b.get().ReadVariableString(varOffset));
         return Result.Success;
     }
 

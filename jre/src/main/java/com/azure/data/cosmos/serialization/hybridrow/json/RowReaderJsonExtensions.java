@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.json;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -43,13 +42,13 @@ public final class RowReaderJsonExtensions {
         ctx.Builder.append("{");
         Result result = RowReaderJsonExtensions.ToJson(reader, ctx.clone());
         if (result != Result.Success) {
-            str.set(null);
+            str.setAndGet(null);
             return result;
         }
 
         ctx.Builder.append(ctx.NewLine);
         ctx.Builder.append("}");
-        str.set(ctx.Builder.toString());
+        str.setAndGet(ctx.Builder.toString());
         return Result.Success;
     }
 

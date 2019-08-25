@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -35,11 +34,11 @@ public final class LayoutGuid extends LayoutType<UUID> {
                             Out<UUID> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(null);
+            value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadGuid(scope.get().start + col.getOffset()));
+        value.setAndGet(b.get().ReadGuid(scope.get().start + col.getOffset()));
         return Result.Success;
     }
 
@@ -48,11 +47,11 @@ public final class LayoutGuid extends LayoutType<UUID> {
                              Out<UUID> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 
-        value.set(b.get().ReadSparseGuid(edit));
+        value.setAndGet(b.get().ReadSparseGuid(edit));
         return Result.Success;
     }
 

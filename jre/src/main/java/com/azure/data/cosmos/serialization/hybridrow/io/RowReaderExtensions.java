@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
 import java.util.ArrayList;
@@ -61,11 +60,11 @@ public final class RowReaderExtensions {
         });
 
         if (r != Result.Success) {
-            list.set(null);
+            list.setAndGet(null);
             return r;
         }
 
-        list.set(ctx.List);
+        list.setAndGet(ctx.List);
         return Result.Success;
     }
 

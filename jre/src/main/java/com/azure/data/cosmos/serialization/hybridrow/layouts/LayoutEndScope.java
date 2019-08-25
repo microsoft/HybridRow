@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -40,7 +39,7 @@ public final class LayoutEndScope extends LayoutScope {
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> scope,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Contract.Fail("Cannot write an EndScope directly");
-        value.set(null);
+        value.setAndGet(null);
         return Result.Failure;
     }
 }

@@ -36,7 +36,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
-        value.set(0);
+        value.setAndGet(0);
         return Result.Failure;
     }
 
@@ -44,11 +44,11 @@ public final class LayoutVarInt extends LayoutType<Long> {
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Long> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(0);
+            value.setAndGet(0);
             return result;
         }
 
-        value.set(b.get().ReadSparseVarInt(edit));
+        value.setAndGet(b.get().ReadSparseVarInt(edit));
         return Result.Success;
     }
 
@@ -56,13 +56,13 @@ public final class LayoutVarInt extends LayoutType<Long> {
     public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Long> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(0);
+            value.setAndGet(0);
             return Result.NotFound;
         }
 
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
             col.getOffset());
-        value.set(b.get().ReadVariableInt(varOffset));
+        value.setAndGet(b.get().ReadVariableInt(varOffset));
         return Result.Success;
     }
 

@@ -44,7 +44,7 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     @Override
     public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
-        lenInBytes.set(0);
+        lenInBytes.setAndGet(0);
         TypeArgument[] retval = new TypeArgument[3];
         retval[0] = new TypeArgument(UInt8, TypeArgumentList.Empty);
         for (int i = 1; i < 3; i++) {
@@ -52,7 +52,7 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
             Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
             retval[i] = ReadTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
             itemLenInBytes = tempOut_itemLenInBytes.get();
-            lenInBytes.set(lenInBytes.get() + itemLenInBytes);
+            lenInBytes.setAndGet(lenInBytes.get() + itemLenInBytes);
         }
 
         return new TypeArgumentList(retval);
@@ -78,7 +78,7 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 

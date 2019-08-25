@@ -28,7 +28,7 @@ public final class SegmentSerializer {
     }
 
     public static Result Read(Reference<RowReader> reader, Out<Segment> obj) {
-        obj.set(null);
+        obj.setAndGet(null);
         while (reader.get().Read()) {
             Result r;
 

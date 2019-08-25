@@ -53,7 +53,7 @@ public final class LayoutTypedTuple extends LayoutIndexedScope {
             Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
             retval[i] = LayoutType.ReadTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
             itemLenInBytes = tempOut_itemLenInBytes.get();
-            lenInBytes.set(lenInBytes.get() + itemLenInBytes);
+            lenInBytes.setAndGet(lenInBytes.get() + itemLenInBytes);
         }
 
         return new TypeArgumentList(retval);
@@ -79,7 +79,7 @@ public final class LayoutTypedTuple extends LayoutIndexedScope {
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Result result = LayoutType.PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 

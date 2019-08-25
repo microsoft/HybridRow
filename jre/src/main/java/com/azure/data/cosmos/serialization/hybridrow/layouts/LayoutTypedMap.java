@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -48,14 +47,14 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     @Override
     public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
-        lenInBytes.set(0);
+        lenInBytes.setAndGet(0);
         TypeArgument[] retval = new TypeArgument[2];
         for (int i = 0; i < 2; i++) {
             int itemLenInBytes;
             Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
             retval[i] = ReadTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
             itemLenInBytes = tempOut_itemLenInBytes.get();
-            lenInBytes.set(lenInBytes.get() + itemLenInBytes);
+            lenInBytes.setAndGet(lenInBytes.get() + itemLenInBytes);
         }
 
         return new TypeArgumentList(retval);
@@ -82,7 +81,7 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 

@@ -5,58 +5,38 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
+import com.azure.data.cosmos.core.Utf8String;
+import com.azure.data.cosmos.core.UtfAnyString;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
 public final class StringTokenizer {
-    /**
-     * The number of unique tokens described by the encoding.
-     */
-    private int Count;
-    private HashMap<String, StringToken> stringTokens;
-    private ArrayList<Utf8String> strings;
-    private HashMap<Utf8String, StringToken> tokens;
+
+    private final HashMap<String, StringToken> stringTokens;
+    private final ArrayList<Utf8String> strings;
+    private final HashMap<Utf8String, StringToken> tokens;
+
+    private int count;
 
     /**
      * Initializes a new instance of the {@link StringTokenizer} class.
      */
     public StringTokenizer() {
-        this.tokens = new HashMap<Utf8String, StringToken>(Map.ofEntries(Map.entry(Utf8String.Empty,
-            new StringToken(0, Utf8String.Empty))));
-        this.stringTokens = new HashMap<String, StringToken>(Map.ofEntries(Map.entry("", new StringToken(0,
-            Utf8String.Empty))));
-        this.strings = new ArrayList<Utf8String>(Arrays.asList(Utf8String.Empty));
-        this.setCount(1);
-    }
 
-    public int getCount() {
-        return Count;
-    }
+        this.tokens = new HashMap<Utf8String, StringToken>(
+            Map.ofEntries(Map.entry(Utf8String.EMPTY, new StringToken(0, Utf8String.EMPTY))));
 
-    private void setCount(int value) {
-        Count = value;
-    }
+        this.stringTokens = new HashMap<String, StringToken>(
+            Map.ofEntries(Map.entry("", new StringToken(0, Utf8String.EMPTY))));
 
-    /**
-     * Assign a token to the string.
-     * If the string already has a token, that token is returned instead.
-     *
-     * @param path The string to assign a new token.
-     * @return The token assigned to the string.
-     */
-    public StringToken Add(Utf8String path) {
-        checkArgument(path != null);
-
-        StringToken token;
-        if (this.tokens.containsKey(path) && (token = this.tokens.get(path)) == token) {
-            return token;
-        }
-
-        token = this.AllocateToken(path).clone();
-        return token;
+        this.strings = new ArrayList<Utf8String>(Collections.singletonList(Utf8String.EMPTY));
+        this.count = 1;
     }
 
     /**
@@ -66,17 +46,14 @@ public final class StringTokenizer {
      * @param path  If successful, the token's assigned string.
      * @return True if successful, false otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public bool TryFindString(ulong token, out Utf8String path)
-    public boolean TryFindString(long token, Out<Utf8String> path) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: if (token >= (ulong)this.strings.Count)
+    public boolean tryFindString(long token, Out<Utf8String> path) {
+
         if (token >= (long)this.strings.size()) {
-            path.set(null);
+            path.setAndGet(null);
             return false;
         }
 
-        path.set(this.strings.get((int)token));
+        path.setAndGet(this.strings.get((int) token));
         return true;
     }
 
@@ -87,17 +64,45 @@ public final class StringTokenizer {
      * @param token If successful, the string's assigned token.
      * @return True if successful, false otherwise.
      */
-    public boolean TryFindToken(UtfAnyString path, Out<StringToken> token) {
-        if (path.IsNull) {
-            token.set(null);
+    public boolean tryFindToken(UtfAnyString path, Out<StringToken> token) {
+
+        if (path.isNull()) {
+            token.setAndGet(null);
             return false;
         }
 
-        if (path.IsUtf8) {
-            return (this.tokens.containsKey(path.ToUtf8String()) && (token.set(this.tokens.get(path.ToUtf8String()))) == token.get());
+        if (path.isUtf8()) {
+            return (this.tokens.containsKey(path.toUtf8()) && (token.setAndGet(this.tokens.get(path.toUtf8()))) == token.get());
         }
 
-        return (this.stringTokens.containsKey(path.toString()) && (token.set(this.stringTokens.get(path.toString()))) == token.get());
+        return (this.stringTokens.containsKey(path.toUtf16()) && (token.setAndGet(this.stringTokens.get(path.toUtf16()))) == token.get());
+    }
+
+    /**
+     * Assign a token to the string.
+     * If the string already has a token, that token is returned instead.
+     *
+     * @param path The string to assign a new token.
+     * @return The token assigned to the string.
+     */
+    public StringToken add(Utf8String path) {
+
+        checkArgument(path != null);
+        StringToken token;
+
+        if (this.tokens.containsKey(path) && (token = this.tokens.get(path)) == token) {
+            return token;
+        }
+
+        token = this.allocateToken(path).clone();
+        return token;
+    }
+
+    /**
+     * The number of unique tokens described by the encoding.
+     */
+    public int count() {
+        return this.count;
     }
 
     /**
@@ -106,17 +111,15 @@ public final class StringTokenizer {
      * @param path The string that needs a new token.
      * @return The new allocated token.
      */
-    private StringToken AllocateToken(Utf8String path) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: ulong id = (ulong)this.Count++;
-        long id = this.getCount();
-        this.setCount(this.getCount() + 1);
-        StringToken token = new StringToken(id, path);
+    private StringToken allocateToken(Utf8String path) {
+
+        final long id = this.count++;
+        final StringToken token = new StringToken(id, path);
+
         this.tokens.put(path, token.clone());
         this.stringTokens.put(path.toString(), token.clone());
         this.strings.add(path);
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: Contract.Assert((ulong)this.strings.Count - 1 == id);
+
         checkState((long)this.strings.size() - 1 == id);
         return token.clone();
     }

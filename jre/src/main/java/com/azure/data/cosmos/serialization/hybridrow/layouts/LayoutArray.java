@@ -48,7 +48,7 @@ public final class LayoutArray extends LayoutIndexedScope {
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
         Result result = PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 

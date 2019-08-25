@@ -5,7 +5,6 @@
 package com.azure.data.cosmos.serialization.hybridrow;
 
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
 
@@ -123,7 +122,7 @@ public final class RowCursorExtensions {
 
         // TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
         //#if DEBUG
-        childScope.set(null);
+        childScope.setAndGet(null);
         //#endif
     }
 }

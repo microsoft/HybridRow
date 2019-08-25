@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -38,11 +37,11 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
                             Out<Boolean> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(false);
+            value.setAndGet(false);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadBit(scope.get().start, col.getBoolBit().clone()));
+        value.setAndGet(b.get().ReadBit(scope.get().start, col.getBoolBit().clone()));
         return Result.Success;
     }
 
@@ -51,11 +50,11 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
                              Out<Boolean> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(false);
+            value.setAndGet(false);
             return result;
         }
 
-        value.set(b.get().ReadSparseBool(edit));
+        value.setAndGet(b.get().ReadSparseBool(edit));
         return Result.Success;
     }
 

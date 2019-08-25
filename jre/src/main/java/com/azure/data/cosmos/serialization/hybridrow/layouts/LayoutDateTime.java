@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -35,11 +34,11 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
                             Out<LocalDateTime> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(LocalDateTime.MIN);
+            value.setAndGet(LocalDateTime.MIN);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadDateTime(scope.get().start + col.getOffset()));
+        value.setAndGet(b.get().ReadDateTime(scope.get().start + col.getOffset()));
         return Result.Success;
     }
 
@@ -48,11 +47,11 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
                              Out<LocalDateTime> value) {
         Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(LocalDateTime.MIN);
+            value.setAndGet(LocalDateTime.MIN);
             return result;
         }
 
-        value.set(b.get().ReadSparseDateTime(edit));
+        value.setAndGet(b.get().ReadSparseDateTime(edit));
         return Result.Success;
     }
 

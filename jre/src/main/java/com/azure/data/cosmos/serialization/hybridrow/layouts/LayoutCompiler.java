@@ -150,7 +150,7 @@ public final class LayoutCompiler {
 
     private static LayoutType LogicalToPhysicalType(Namespace ns, PropertyType logicalType,
                                                     Out<TypeArgumentList> typeArgs) {
-        typeArgs.set(TypeArgumentList.Empty);
+        typeArgs.setAndGet(TypeArgumentList.Empty);
         boolean tempVar =
             (logicalType instanceof ScopePropertyType ? (ScopePropertyType)logicalType : null).getImmutable();
         boolean immutable =
@@ -218,7 +218,7 @@ public final class LayoutCompiler {
                         itemType = itemType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
                     }
 
-                    typeArgs.set(new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
+                    typeArgs.setAndGet(new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
                         itemTypeArgs.clone()) }));
                     return immutable ? LayoutType.ImmutableTypedArray : LayoutType.TypedArray;
                 }
@@ -238,7 +238,7 @@ public final class LayoutCompiler {
                         itemType = itemType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
                     }
 
-                    typeArgs.set(new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
+                    typeArgs.setAndGet(new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
                         itemTypeArgs.clone()) }));
                     return immutable ? LayoutType.ImmutableTypedSet : LayoutType.TypedSet;
                 }
@@ -271,7 +271,7 @@ public final class LayoutCompiler {
                         valueType = valueType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
                     }
 
-                    typeArgs.set(new TypeArgumentList(new TypeArgument[]
+                    typeArgs.setAndGet(new TypeArgumentList(new TypeArgument[]
                         {
                             new TypeArgument(keyType, keyTypeArgs.clone()),
                             new TypeArgument(valueType, valueTypeArgs.clone())
@@ -301,7 +301,7 @@ public final class LayoutCompiler {
                     args[i] = new TypeArgument(itemType, itemTypeArgs.clone());
                 }
 
-                typeArgs.set(new TypeArgumentList(args));
+                typeArgs.setAndGet(new TypeArgumentList(args));
                 return immutable ? LayoutType.ImmutableTypedTuple : LayoutType.TypedTuple;
 
             case Tagged:
@@ -329,7 +329,7 @@ public final class LayoutCompiler {
                     tgArgs[i + 1] = new TypeArgument(itemType, itemTypeArgs.clone());
                 }
 
-                typeArgs.set(new TypeArgumentList(tgArgs));
+                typeArgs.setAndGet(new TypeArgumentList(tgArgs));
                 switch (tg.getItems().size()) {
                     case 1:
                         return immutable ? LayoutType.ImmutableTagged : LayoutType.Tagged;
@@ -358,7 +358,7 @@ public final class LayoutCompiler {
                         up.getName(), up.getSchemaId().clone()));
                 }
 
-                typeArgs.set(new TypeArgumentList(udtSchema.getSchemaId().clone()));
+                typeArgs.setAndGet(new TypeArgumentList(udtSchema.getSchemaId().clone()));
                 return immutable ? LayoutType.ImmutableUDT : LayoutType.UDT;
 
             default:

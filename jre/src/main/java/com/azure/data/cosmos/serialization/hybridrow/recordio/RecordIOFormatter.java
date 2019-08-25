@@ -63,11 +63,11 @@ public final class RecordIOFormatter {
     // layout, T obj, RowWriter.WriterFunc<T> writer, out RowBuffer row)
     private static <T> Result FormatObject(ISpanResizer<Byte> resizer, int initialCapacity, Layout layout, T obj,
                                            RowWriter.WriterFunc<T> writer, Out<RowBuffer> row) {
-        row.set(new RowBuffer(initialCapacity, resizer));
+        row.setAndGet(new RowBuffer(initialCapacity, resizer));
         row.get().InitLayout(HybridRowVersion.V1, layout, SystemSchema.LayoutResolver);
         Result r = RowWriter.WriteBuffer(row.clone(), obj, writer);
         if (r != Result.Success) {
-            row.set(null);
+            row.setAndGet(null);
             return r;
         }
 

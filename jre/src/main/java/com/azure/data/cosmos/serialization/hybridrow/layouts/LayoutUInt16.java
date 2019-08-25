@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -38,11 +37,11 @@ public final class LayoutUInt16 extends LayoutType<Short> {
                             Out<Short> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(0);
+            value.setAndGet(0);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadUInt16(scope.get().start + col.getOffset()));
+        value.setAndGet(b.get().ReadUInt16(scope.get().start + col.getOffset()));
         return Result.Success;
     }
 
@@ -53,11 +52,11 @@ public final class LayoutUInt16 extends LayoutType<Short> {
                              Out<Short> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(0);
+            value.setAndGet(0);
             return result;
         }
 
-        value.set(b.get().ReadSparseUInt16(edit));
+        value.setAndGet(b.get().ReadSparseUInt16(edit));
         return Result.Success;
     }
 

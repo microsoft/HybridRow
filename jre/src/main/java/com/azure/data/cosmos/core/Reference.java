@@ -10,8 +10,8 @@ import java.util.Objects;
  * A container object which may or may not contain a non-null value
  *
  * This is a value-based class and as such use of identity-sensitive operations--including reference equality
- * ({@code ==}), identity hash code, or synchronization--on instances of {@Ref} may have unpredictable results and
- * should be avoided.
+ * ({@code ==}), identity hash code, or synchronization--on instances of {@Reference} may have unpredictable results
+ * and should be avoided.
  *
  * @param <T>
  */
@@ -20,7 +20,7 @@ public final class Reference<T> {
     private volatile T value;
 
     public Reference(T value) {
-        this.set(value);
+        this.setAndGet(value);
     }
 
     public T get() {
@@ -29,6 +29,9 @@ public final class Reference<T> {
 
     public void set(T value) {
         this.value = value;
+    }
+    public T setAndGet(T value) {
+        return this.value = value;
     }
 
     /**

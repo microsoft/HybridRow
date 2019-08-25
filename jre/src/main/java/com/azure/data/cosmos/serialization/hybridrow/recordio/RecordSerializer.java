@@ -6,12 +6,11 @@ package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
 public final class RecordSerializer {
     public static Result Read(Reference<RowReader> reader, Out<Record> obj) {
-        obj.set(null);
+        obj.setAndGet(null);
         while (reader.get().Read()) {
             Result r;
 

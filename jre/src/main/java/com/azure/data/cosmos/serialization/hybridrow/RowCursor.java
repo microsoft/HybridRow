@@ -10,7 +10,6 @@ package com.azure.data.cosmos.serialization.hybridrow;
 // ReSharper disable InconsistentNaming
 
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutScope;
@@ -107,7 +106,7 @@ public final class RowCursor {
         SchemaId schemaId = row.get().ReadSchemaId(1).clone();
         Layout layout = row.get().getResolver().Resolve(schemaId.clone());
         int sparseSegmentOffset = row.get().ComputeVariableValueOffset(layout, HybridRowHeader.Size,
-            layout.getNumVariable());
+            layout.numVariable());
         RowCursor tempVar = new RowCursor();
         tempVar.layout = layout;
         tempVar.scopeType = LayoutType.UDT;

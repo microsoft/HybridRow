@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -35,11 +34,11 @@ public final class LayoutUnixDateTime extends LayoutType<com.azure.data.cosmos.s
                             Out<UnixDateTime> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(null);
+            value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadUnixDateTime(scope.get().start + col.getOffset()).clone());
+        value.setAndGet(b.get().ReadUnixDateTime(scope.get().start + col.getOffset()).clone());
         return Result.Success;
     }
 
@@ -48,11 +47,11 @@ public final class LayoutUnixDateTime extends LayoutType<com.azure.data.cosmos.s
                              Out<UnixDateTime> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 
-        value.set(b.get().ReadSparseUnixDateTime(edit).clone());
+        value.setAndGet(b.get().ReadSparseUnixDateTime(edit).clone());
         return Result.Success;
     }
 

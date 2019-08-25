@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -385,44 +384,44 @@ public abstract class LayoutType implements ILayoutType {
         // Prepare the delete of the source.
         Result result = LayoutType.PrepareSparseDelete(b, srcEdit, elementType.getType().LayoutCode);
         if (result != Result.Success) {
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return result;
         }
 
         if (!srcEdit.get().exists) {
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return Result.NotFound;
         }
 
         if (destinationScope.get().immutable) {
             b.get().DeleteSparse(srcEdit);
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return Result.InsufficientPermissions;
         }
 
         if (!srcEdit.get().cellTypeArgs.equals(elementType.getTypeArgs().clone())) {
             b.get().DeleteSparse(srcEdit);
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return Result.TypeConstraint;
         }
 
         if (options == UpdateOptions.InsertAt) {
             b.get().DeleteSparse(srcEdit);
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return Result.TypeConstraint;
         }
 
         // Prepare the insertion at the destination.
-        dstEdit.set(b.get().PrepareSparseMove(destinationScope, srcEdit).clone());
+        dstEdit.setAndGet(b.get().PrepareSparseMove(destinationScope, srcEdit).clone());
         if ((options == UpdateOptions.Update) && (!dstEdit.get().exists)) {
             b.get().DeleteSparse(srcEdit);
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return Result.NotFound;
         }
 
         if ((options == UpdateOptions.Insert) && dstEdit.get().exists) {
             b.get().DeleteSparse(srcEdit);
-            dstEdit.set(null);
+            dstEdit.setAndGet(null);
             return Result.Exists;
         }
 
@@ -504,12 +503,12 @@ public abstract class LayoutType implements ILayoutType {
         Out<Integer> tempOut_argsLenInBytes = new Out<Integer>();
         TypeArgumentList itemTypeArgs = itemCode.ReadTypeArgumentList(row, offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), tempOut_argsLenInBytes).clone();
         argsLenInBytes = tempOut_argsLenInBytes.get();
-        lenInBytes.set((com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + argsLenInBytes);
+        lenInBytes.setAndGet((com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + argsLenInBytes);
         return new TypeArgument(itemCode, itemTypeArgs.clone());
     }
 
     public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset, Out<Integer> lenInBytes) {
-        lenInBytes.set(0);
+        lenInBytes.setAndGet(0);
         return TypeArgumentList.Empty;
     }
 

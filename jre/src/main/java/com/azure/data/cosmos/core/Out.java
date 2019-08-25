@@ -27,6 +27,10 @@ public final class Out<T> {
         this.value = value;
     }
 
+    public T setAndGet(T value) {
+        return this.value = value;
+    }
+
     /**
      * {@code true} if there is a value present, otherwise {@code false}
      * <p>

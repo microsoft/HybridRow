@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -33,11 +32,11 @@ public final class LayoutFloat32 extends LayoutType<Float> {
                             Out<Float> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
-            value.set(0);
+            value.setAndGet(0);
             return Result.NotFound;
         }
 
-        value.set(b.get().ReadFloat32(scope.get().start + col.getOffset()));
+        value.setAndGet(b.get().ReadFloat32(scope.get().start + col.getOffset()));
         return Result.Success;
     }
 
@@ -46,11 +45,11 @@ public final class LayoutFloat32 extends LayoutType<Float> {
                              Out<Float> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(0);
+            value.setAndGet(0);
             return result;
         }
 
-        value.set(b.get().ReadSparseFloat32(edit));
+        value.setAndGet(b.get().ReadSparseFloat32(edit));
         return Result.Success;
     }
 

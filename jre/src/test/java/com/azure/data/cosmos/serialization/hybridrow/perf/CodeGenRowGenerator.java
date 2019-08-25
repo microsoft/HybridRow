@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.perf;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -53,7 +52,7 @@ public final class CodeGenRowGenerator {
         this.row = new RowBuffer(capacity, resizer);
         this.row.InitLayout(HybridRowVersion.V1, layout, resolver);
 
-        switch (layout.getName()) {
+        switch (layout.name()) {
             case "Hotels":
                 this.dispatcher = new HotelsHybridRowSerializer(layout, resolver);
                 break;
@@ -67,7 +66,7 @@ public final class CodeGenRowGenerator {
                 break;
 
             default:
-                throw new IllegalStateException(lenientFormat("Unknown schema will be ignored: %s", layout.getName()));
+                throw new IllegalStateException(lenientFormat("Unknown schema will be ignored: %s", layout.name()));
                 this.dispatcher = null;
                 break;
         }

@@ -6,14 +6,13 @@ package com.azure.data.cosmos.serialization.hybridrow.unit.customerschema;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import azure.data.cosmos.serialization.hybridrow.unit.*;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
 
 public final class AddressSerializer {
     public static Result Read(Reference<RowReader> reader, Out<Address> obj) {
-        obj.set(new Address());
+        obj.setAndGet(new Address());
         while (reader.get().Read()) {
             Result r;
             switch (reader.get().getPath()) {

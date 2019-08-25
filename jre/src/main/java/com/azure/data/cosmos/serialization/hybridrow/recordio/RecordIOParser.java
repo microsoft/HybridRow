@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowHeader;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -65,8 +64,8 @@ public final class RecordIOParser {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Memory<byte> b = buffer;
         Memory<Byte> b = buffer;
-        type.set(ProductionType.None);
-        record.set(null);
+        type.setAndGet(ProductionType.None);
+        record.setAndGet(null);
         switch (this.state) {
             case Start:
                 this.state = State.NeedSegmentLength;
@@ -74,8 +73,8 @@ public final class RecordIOParser {
             case NeedSegmentLength: {
                 int minimalSegmentRowSize = HybridRowHeader.Size + RecordIOFormatter.SegmentLayout.getSize();
                 if (b.Length < minimalSegmentRowSize) {
-                    need.set(minimalSegmentRowSize);
-                    consumed.set(buffer.Length - b.Length);
+                    need.setAndGet(minimalSegmentRowSize);
+                    consumed.setAndGet(buffer.Length - b.Length);
                     return Result.InsufficientBuffer;
                 }
 
@@ -105,8 +104,8 @@ public final class RecordIOParser {
 
             case NeedSegment: {
                 if (b.Length < this.segment.Length) {
-                    need.set(this.segment.Length);
-                    consumed.set(buffer.Length - b.Length);
+                    need.setAndGet(this.segment.Length);
+                    consumed.setAndGet(buffer.Length - b.Length);
                     return Result.InsufficientBuffer;
                 }
 
@@ -129,19 +128,19 @@ public final class RecordIOParser {
                     break;
                 }
 
-                record.set(b.Slice(0, span.Length));
+                record.setAndGet(b.Slice(0, span.Length));
                 b = b.Slice(span.Length);
-                need.set(0);
+                need.setAndGet(0);
                 this.state = State.NeedHeader;
-                consumed.set(buffer.Length - b.Length);
-                type.set(ProductionType.Segment);
+                consumed.setAndGet(buffer.Length - b.Length);
+                type.setAndGet(ProductionType.Segment);
                 return Result.Success;
             }
 
             case NeedHeader: {
                 if (b.Length < HybridRowHeader.Size) {
-                    need.set(HybridRowHeader.Size);
-                    consumed.set(buffer.Length - b.Length);
+                    need.setAndGet(HybridRowHeader.Size);
+                    consumed.setAndGet(buffer.Length - b.Length);
                     return Result.InsufficientBuffer;
                 }
 
@@ -174,8 +173,8 @@ public final class RecordIOParser {
             case NeedRecord: {
                 int minimalRecordRowSize = HybridRowHeader.Size + RecordIOFormatter.RecordLayout.getSize();
                 if (b.Length < minimalRecordRowSize) {
-                    need.set(minimalRecordRowSize);
-                    consumed.set(buffer.Length - b.Length);
+                    need.setAndGet(minimalRecordRowSize);
+                    consumed.setAndGet(buffer.Length - b.Length);
                     return Result.InsufficientBuffer;
                 }
 
@@ -204,12 +203,12 @@ public final class RecordIOParser {
 
             case NeedRow: {
                 if (b.Length < this.record.Length) {
-                    need.set(this.record.Length);
-                    consumed.set(buffer.Length - b.Length);
+                    need.setAndGet(this.record.Length);
+                    consumed.setAndGet(buffer.Length - b.Length);
                     return Result.InsufficientBuffer;
                 }
 
-                record.set(b.Slice(0, this.record.Length));
+                record.setAndGet(b.Slice(0, this.record.Length));
 
                 // Validate that the record has not been corrupted.
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -221,17 +220,17 @@ public final class RecordIOParser {
                 }
 
                 b = b.Slice(this.record.Length);
-                need.set(0);
+                need.setAndGet(0);
                 this.state = State.NeedHeader;
-                consumed.set(buffer.Length - b.Length);
-                type.set(ProductionType.Record);
+                consumed.setAndGet(buffer.Length - b.Length);
+                type.setAndGet(ProductionType.Record);
                 return Result.Success;
             }
         }
 
         this.state = State.Error;
-        need.set(0);
-        consumed.set(buffer.Length - b.Length);
+        need.setAndGet(0);
+        consumed.setAndGet(buffer.Length - b.Length);
         return r;
     }
 

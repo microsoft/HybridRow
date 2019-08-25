@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -38,7 +37,7 @@ public final class LayoutNull extends LayoutType<NullValue> {
     public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<NullValue> value) {
         checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        value.set(NullValue.Default);
+        value.setAndGet(NullValue.Default);
         if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
             return Result.NotFound;
         }
@@ -51,11 +50,11 @@ public final class LayoutNull extends LayoutType<NullValue> {
                              Out<NullValue> value) {
         Result result = PrepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
-            value.set(null);
+            value.setAndGet(null);
             return result;
         }
 
-        value.set(b.get().ReadSparseNull(edit).clone());
+        value.setAndGet(b.get().ReadSparseNull(edit).clone());
         return Result.Success;
     }
 

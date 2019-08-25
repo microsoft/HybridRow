@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBit;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode;
@@ -117,8 +116,8 @@ public final class RowBuffer {
         HybridRowHeader header = this.ReadHeader(0).clone();
         checkState(header.getVersion() == version);
         Layout layout = resolver.Resolve(header.getSchemaId().clone());
-        checkState(SchemaId.opEquals(header.getSchemaId().clone(), layout.getSchemaId().clone()));
-        checkState(HybridRowHeader.Size + layout.getSize() <= this.length);
+        checkState(SchemaId.opEquals(header.getSchemaId().clone(), layout.schemaId().clone()));
+        checkState(HybridRowHeader.Size + layout.size() <= this.length);
     }
 
     /**
@@ -156,11 +155,11 @@ public final class RowBuffer {
             return scopeOffset;
         }
 
-        int index = layout.getNumFixed() + varIndex;
-        ReadOnlySpan<LayoutColumn> columns = layout.getColumns();
+        int index = layout.numFixed() + varIndex;
+        ReadOnlySpan<LayoutColumn> columns = layout.columns();
         checkState(index <= columns.Length);
-        int offset = scopeOffset + layout.getSize();
-        for (int i = layout.getNumFixed(); i < index; i++) {
+        int offset = scopeOffset + layout.size();
+        for (int i = layout.numFixed(); i < index; i++) {
             LayoutColumn col = columns[i];
             if (this.ReadBit(scopeOffset, col.getNullBit().clone())) {
                 int lengthSizeInBytes;
@@ -277,14 +276,14 @@ public final class RowBuffer {
         this.resolver = resolver;
 
         // Ensure sufficient space for fixed schema fields.
-        this.Ensure(HybridRowHeader.Size + layout.getSize());
-        this.length = HybridRowHeader.Size + layout.getSize();
+        this.Ensure(HybridRowHeader.Size + layout.size());
+        this.length = HybridRowHeader.Size + layout.size();
 
         // Clear all presence bits.
-        this.buffer.Slice(HybridRowHeader.Size, layout.getSize()).Fill(0);
+        this.buffer.Slice(HybridRowHeader.Size, layout.size()).Fill(0);
 
         // Set the header.
-        this.WriteHeader(0, new HybridRowHeader(version, layout.getSchemaId().clone()));
+        this.WriteHeader(0, new HybridRowHeader(version, layout.schemaId().clone()));
     }
 
     /**
@@ -360,7 +359,7 @@ public final class RowBuffer {
         //ORIGINAL LINE: ulong b = this.buffer[offset];
         long b = this.buffer[offset];
         if (b < 0x80L) {
-            lenInBytes.set(1);
+            lenInBytes.setAndGet(1);
             return b;
         }
 
@@ -375,7 +374,7 @@ public final class RowBuffer {
             shift += 7;
         } while (b >= 0x80L);
 
-        lenInBytes.set(shift / 7);
+        lenInBytes.setAndGet(shift / 7);
         return retval;
     }
 
@@ -625,14 +624,14 @@ public final class RowBuffer {
         int token = (int)this.Read7BitEncodedUInt(offset, tempOut_sizeLenInBytes);
         sizeLenInBytes = tempOut_sizeLenInBytes.get();
         if (token < layout.getTokenizer().getCount()) {
-            pathLenInBytes.set(sizeLenInBytes);
-            pathOffset.set(offset);
+            pathLenInBytes.setAndGet(sizeLenInBytes);
+            pathOffset.setAndGet(offset);
             return token;
         }
 
         int numBytes = token - layout.getTokenizer().getCount();
-        pathLenInBytes.set(numBytes + sizeLenInBytes);
-        pathOffset.set(offset + sizeLenInBytes);
+        pathLenInBytes.setAndGet(numBytes + sizeLenInBytes);
+        pathOffset.setAndGet(offset + sizeLenInBytes);
         return token;
     }
 
@@ -1065,7 +1064,7 @@ public final class RowBuffer {
                 {
                     Layout udt = this.resolver.Resolve(edit.get().cellTypeArgs.getSchemaId().clone());
                     int valueOffset = this.ComputeVariableValueOffset(udt, edit.get().valueOffset,
-						udt.getNumVariable());
+						udt.numVariable());
                     RowCursor tempVar6 = new RowCursor();
                     tempVar6.scopeType = scopeType;
                     tempVar6.scopeTypeArgs = edit.get().cellTypeArgs.clone();
@@ -1407,7 +1406,7 @@ public final class RowBuffer {
         }
 
         int valueOffset = edit.get().valueOffset + 1;
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -1446,7 +1445,7 @@ public final class RowBuffer {
         this.WriteSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
         this.WriteSparseTypeCode(edit.get().valueOffset, LayoutCode.EndScope);
         checkState(spaceNeeded == metaBytes + numBytes);
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -1792,7 +1791,7 @@ public final class RowBuffer {
         this.WriteSparseMetadata(edit, scopeType, TypeArgumentList.Empty, metaBytes);
         this.WriteSparseTypeCode(edit.get().valueOffset, LayoutCode.EndScope);
         checkState(spaceNeeded == metaBytes + numBytes);
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = TypeArgumentList.Empty;
         newScope.get().start = edit.get().valueOffset;
@@ -1849,7 +1848,7 @@ public final class RowBuffer {
 
         this.WriteSparseTypeCode(valueOffset, LayoutCode.EndScope);
         checkState(spaceNeeded == metaBytes + numBytes);
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -1872,8 +1871,8 @@ public final class RowBuffer {
 
     public void WriteSparseUDT(Reference<RowCursor> edit, LayoutScope scopeType, Layout udt,
                                UpdateOptions options, Out<RowCursor> newScope) {
-        TypeArgumentList typeArgs = new TypeArgumentList(udt.getSchemaId().clone());
-        int numBytes = udt.getSize() + (LayoutCode.SIZE / Byte.SIZE);
+        TypeArgumentList typeArgs = new TypeArgumentList(udt.schemaId().clone());
+        int numBytes = udt.size() + (LayoutCode.SIZE / Byte.SIZE);
         int metaBytes;
         Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
@@ -1888,13 +1887,13 @@ public final class RowBuffer {
         this.WriteSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
 
         // Clear all presence bits.
-        this.buffer.Slice(edit.get().valueOffset, udt.getSize()).Fill(0);
+        this.buffer.Slice(edit.get().valueOffset, udt.size()).Fill(0);
 
         // Write scope terminator.
-        int valueOffset = edit.get().valueOffset + udt.getSize();
+        int valueOffset = edit.get().valueOffset + udt.size();
         this.WriteSparseTypeCode(valueOffset, LayoutCode.EndScope);
         checkState(spaceNeeded == metaBytes + numBytes);
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -2083,7 +2082,7 @@ public final class RowBuffer {
         checkState(spaceNeeded == metaBytes + numBytes);
         this.WriteUInt32(edit.get().valueOffset, 0);
         int valueOffset = edit.get().valueOffset + (Integer.SIZE / Byte.SIZE); // Point after the Size
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -2112,7 +2111,7 @@ public final class RowBuffer {
         checkState(spaceNeeded == metaBytes + numBytes);
         this.WriteUInt32(edit.get().valueOffset, 0);
         int valueOffset = edit.get().valueOffset + (Integer.SIZE / Byte.SIZE); // Point after the Size
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -2141,7 +2140,7 @@ public final class RowBuffer {
         checkState(spaceNeeded == metaBytes + numBytes);
         this.WriteUInt32(edit.get().valueOffset, 0);
         int valueOffset = edit.get().valueOffset + (Integer.SIZE / Byte.SIZE); // Point after the Size
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -2170,7 +2169,7 @@ public final class RowBuffer {
         int numWritten = this.WriteDefaultValue(edit.get().valueOffset, scopeType, typeArgs.clone());
         checkState(numBytes == numWritten);
         checkState(spaceNeeded == metaBytes + numBytes);
-        newScope.set(new RowCursor());
+        newScope.setAndGet(new RowCursor());
         newScope.get().scopeType = scopeType;
         newScope.get().scopeTypeArgs = typeArgs.clone();
         newScope.get().start = edit.get().valueOffset;
@@ -2701,15 +2700,15 @@ public final class RowBuffer {
 
         // Compute the metadata offsets
         if (edit.get().scopeType.HasImplicitTypeCode(edit)) {
-            metaBytes.set(0);
+            metaBytes.setAndGet(0);
         } else {
-            metaBytes.set(cellType.CountTypeArgument(typeArgs.clone()));
+            metaBytes.setAndGet(cellType.CountTypeArgument(typeArgs.clone()));
         }
 
         if (!edit.get().scopeType.IsIndexedScope) {
             checkState(edit.get().writePath != null);
             int pathLenInBytes = RowBuffer.CountSparsePath(edit);
-            metaBytes.set(metaBytes.get() + pathLenInBytes);
+            metaBytes.setAndGet(metaBytes.get() + pathLenInBytes);
         }
 
         if (edit.get().exists) {
@@ -2717,8 +2716,8 @@ public final class RowBuffer {
             spaceAvailable = this.SparseComputeSize(edit);
         }
 
-        spaceNeeded.set(options == RowOptions.Delete ? 0 : metaBytes.get() + numBytes);
-        shift.set(spaceNeeded.get() - spaceAvailable);
+        spaceNeeded.setAndGet(options == RowOptions.Delete ? 0 : metaBytes.get() + numBytes);
+        shift.setAndGet(spaceNeeded.get() - spaceAvailable);
         if (shift.get() > 0) {
             this.Ensure(this.length + shift.get());
         }
@@ -2772,15 +2771,15 @@ public final class RowBuffer {
         }
 
         if (isVarint) {
-            spaceNeeded.set(numBytes);
+            spaceNeeded.setAndGet(numBytes);
         } else {
             spaceAvailable += (int)existingValueBytes; // size already in spaceAvailable
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: spaceNeeded = numBytes + RowBuffer.Count7BitEncodedUInt((ulong)numBytes);
-            spaceNeeded.set(numBytes + RowBuffer.Count7BitEncodedUInt(numBytes));
+            spaceNeeded.setAndGet(numBytes + RowBuffer.Count7BitEncodedUInt(numBytes));
         }
 
-        shift.set(spaceNeeded.get() - spaceAvailable);
+        shift.setAndGet(spaceNeeded.get() - spaceAvailable);
         if (shift.get() > 0) {
             this.Ensure(this.length + shift.get());
             this.buffer.Slice(offset + spaceAvailable, this.length - (offset + spaceAvailable)).CopyTo(this.buffer.Slice(offset + spaceNeeded.get()));
@@ -2798,8 +2797,8 @@ public final class RowBuffer {
     private boolean InitReadFrom(HybridRowVersion rowVersion) {
         HybridRowHeader header = this.ReadHeader(0).clone();
         Layout layout = this.resolver.Resolve(header.getSchemaId().clone());
-        checkState(SchemaId.opEquals(header.getSchemaId().clone(), layout.getSchemaId().clone()));
-		return (header.getVersion() == rowVersion) && (HybridRowHeader.Size + layout.getSize() <= this.length);
+        checkState(SchemaId.opEquals(header.getSchemaId().clone(), layout.schemaId().clone()));
+		return (header.getVersion() == rowVersion) && (HybridRowHeader.Size + layout.size() <= this.length);
 	}
 
     /**
