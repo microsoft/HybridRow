@@ -7,9 +7,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [DebuggerDisplay("{FullPath + \": \" + Type.Name + TypeArgs.ToString()}")] public sealed class
-// LayoutColumn
 public final class LayoutColumn {
     /**
      * For bool fields, 0-based index into the bit mask for the bool value.

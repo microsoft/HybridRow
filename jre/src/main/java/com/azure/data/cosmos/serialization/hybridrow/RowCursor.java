@@ -11,6 +11,7 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTuple;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.StringToken;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
@@ -26,7 +27,7 @@ public final class RowCursor {
     /**
      * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
-    public TypeArgumentList cellTypeArgs = new TypeArgumentList();
+    public TypeArgumentList cellTypeArgs;
     /**
      * If true, this scope is an unique index scope whose index will be built after its items are written.
      */
@@ -54,41 +55,39 @@ public final class RowCursor {
     private Layout layout;
     private int metaOffset;
     private LayoutScope scopeType;
-    private TypeArgumentList scopeTypeArgs = new TypeArgumentList();
+    private TypeArgumentList scopeTypeArgs;
     private int start;
     private int valueOffset;
     private UtfAnyString writePath;
     private StringToken writePathToken = new StringToken();
 
-    public static RowCursor Create(Reference<RowBuffer> row) {
+    public static RowCursor Create(RowBuffer row) {
 
-        final SchemaId schemaId = row.get().ReadSchemaId(1);
-        final Layout layout = row.get().resolver().Resolve(schemaId);
-        final int sparseSegmentOffset = row.get().computeVariableValueOffset(layout, HybridRowHeader.SIZE,
-            layout.numVariable());
+        final SchemaId schemaId = row.ReadSchemaId(1);
+        final Layout layout = row.resolver().Resolve(schemaId);
+        final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.SIZE, layout.numVariable());
 
-        final RowCursor cursor = new RowCursor()
+        return new RowCursor()
             .layout(layout)
-            .scopeType(LayoutType.UDT)
+            .scopeType(LayoutTypes.UDT)
             .scopeTypeArgs(new TypeArgumentList(schemaId))
             .start(HybridRowHeader.SIZE)
             .metaOffset(sparseSegmentOffset)
             .valueOffset(sparseSegmentOffset);
-
-        return cursor;
     }
 
-    public static RowCursor Create(RowBuffer row) {
+    public static RowCursor CreateForAppend(RowBuffer row) {
 
         final SchemaId schemaId = row.ReadSchemaId(1);
-        final Layout layout = row.Resolver.Resolve(schemaId);
-        final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.Size,
-            layout.NumVariable);
+        final Layout layout = row.resolver().Resolve(schemaId);
 
         return new RowCursor()
             .layout(layout)
-            .scopeType(LayoutType.UDT)
-            .scopeTypeArgs(new TypeArgumentList(schemaId, HybridRowHeader.SIZE, sparseSegmentOffset, sparseSegmentOffset);
+            .scopeType(LayoutTypes.UDT)
+            .scopeTypeArgs(new TypeArgumentList(schemaId))
+            .start(HybridRowHeader.SIZE)
+            .metaOffset(row.length())
+            .valueOffset(row.length());
     }
 
     /**
@@ -102,18 +101,6 @@ public final class RowCursor {
         this.count = count;
         return this;
     }
-
-    // TODO: C# TO JAVA CONVERTER: 'ref return' methods are not converted by C# to Java Converter:
-    //	public static ref RowCursor CreateForAppend(ref RowBuffer row, out RowCursor cursor)
-    //		{
-    //			SchemaId schemaId = row.ReadSchemaId(1);
-    //			Layout layout = row.Resolver.Resolve(schemaId);
-    //			cursor = new RowCursor { layout = layout, scopeType = LayoutType.UDT, scopeTypeArgs = new
-    //			TypeArgumentList(schemaId), start = HybridRowHeader.Size, metaOffset = row.Length, valueOffset = row
-    //			.Length};
-    //
-    //			return ref cursor;
-    //		}
 
     /**
      * If {@code true}, this scope's nested fields cannot be updated individually
@@ -213,19 +200,19 @@ public final class RowCursor {
             }
 
             TypeArgument scopeTypeArg = (this.scopeType() instanceof LayoutEndScope)
-                ? new TypeArgument()
-                : new TypeArgument(this.scopeType(), this.scopeTypeArgs().clone());
+                ? TypeArgument.NONE
+                : new TypeArgument(this.scopeType(), this.scopeTypeArgs());
 
             TypeArgument typeArg = (this.cellType == null) || (this.cellType instanceof LayoutEndScope)
-                ? new TypeArgument()
-                : new TypeArgument(this.cellType, this.cellTypeArgs.clone());
+                ? TypeArgument.NONE
+                : new TypeArgument(this.cellType, this.cellTypeArgs);
 
             String pathOrIndex = this.writePath().isNull() ? String.valueOf(this.index()) : this.writePath().toString();
 
             return lenientFormat("%s[%s] : %s@%s/%s%s",
-                scopeTypeArg.clone(),
+                scopeTypeArg,
                 pathOrIndex,
-                typeArg.clone(),
+                typeArg,
                 this.metaOffset(),
                 this.valueOffset(),
                 this.immutable() ? " immutable" : "");

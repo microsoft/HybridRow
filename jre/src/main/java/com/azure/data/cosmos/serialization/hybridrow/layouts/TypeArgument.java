@@ -8,8 +8,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TypeArgument {
 
+    public static final TypeArgument NONE = new TypeArgument();
     private final LayoutType type;
     private final TypeArgumentList typeArgs;
+
+    private TypeArgument() {
+        this.type = null;
+        this.typeArgs = null;
+    }
 
     /**
      * Initializes a new instance of the {@link TypeArgument} struct.

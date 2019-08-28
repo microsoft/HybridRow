@@ -6,6 +6,7 @@ package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
@@ -51,10 +52,6 @@ import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkState;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1034 // Nested types should not be visible
-
-
 /**
  * A forward-only, streaming, field reader for {@link RowBuffer}.
  * <p>
@@ -66,10 +63,6 @@ import static com.google.common.base.Preconditions.checkState;
  * Modifying a {@link RowBuffer} invalidates any reader or child reader associated with it.  In
  * general {@link RowBuffer}'s should not be mutated while being enumerated.
  */
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: public ref struct RowReader
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# ref struct:
 public final class RowReader {
 
     private int columnIndex;
