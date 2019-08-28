@@ -12,23 +12,21 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 public final class LayoutTagged2 extends LayoutIndexedScope {
     public LayoutTagged2(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableTagged2Scope :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.Tagged2Scope, immutable, isSizedScope:
-        true, isFixedArity:true, isUniqueScope:false, isTypedScope:true)
+        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_TAGGED2_SCOPE :
+            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TAGGED2_SCOPE, immutable, isSizedScope():
+        true, isFixedArity():true, isUniqueScope():false, isTypedScope():true)
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return this.Immutable ? "im_tagged2_t" : "tagged2_t";
     }
 
-    @Override
-    public int CountTypeArgument(TypeArgumentList value) {
-        checkState(value.getCount() == 3);
+    public int countTypeArgument(TypeArgumentList value) {
+        checkState(value.count() == 3);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
-        for (int i = 1; i < value.getCount(); i++) {
+        for (int i = 1; i < value.count(); i++) {
             TypeArgument arg = value.get(i).clone();
-            lenInBytes += arg.getType().CountTypeArgument(arg.getTypeArgs().clone());
+            lenInBytes += arg.type().CountTypeArgument(arg.typeArgs().clone());
         }
 
         return lenInBytes;
@@ -36,21 +34,21 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
 
     @Override
     public boolean HasImplicitTypeCode(Reference<RowCursor> edit) {
-        checkState(edit.get().index >= 0);
-        checkState(edit.get().scopeTypeArgs.getCount() > edit.get().index);
-        return !LayoutCodeTraits.AlwaysRequiresTypeCode(edit.get().scopeTypeArgs.get(edit.get().index).getType().LayoutCode);
+        checkState(edit.get().index() >= 0);
+        checkState(edit.get().scopeTypeArgs().count() > edit.get().index());
+        return !LayoutCodeTraits.AlwaysRequiresTypeCode(edit.get().scopeTypeArgs().get(edit.get().index()).type().LayoutCode);
     }
 
     @Override
-    public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
+    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
         lenInBytes.setAndGet(0);
         TypeArgument[] retval = new TypeArgument[3];
-        retval[0] = new TypeArgument(UInt8, TypeArgumentList.Empty);
+        retval[0] = new TypeArgument(UInt8, TypeArgumentList.EMPTY);
         for (int i = 1; i < 3; i++) {
             int itemLenInBytes;
             Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
-            retval[i] = ReadTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
+            retval[i] = readTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
             itemLenInBytes = tempOut_itemLenInBytes.get();
             lenInBytes.setAndGet(lenInBytes.get() + itemLenInBytes);
         }
@@ -60,8 +58,8 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
 
     @Override
     public void SetImplicitTypeCode(Reference<RowCursor> edit) {
-        edit.get().cellType = edit.get().scopeTypeArgs.get(edit.get().index).getType();
-        edit.get().cellTypeArgs = edit.get().scopeTypeArgs.get(edit.get().index).getTypeArgs().clone();
+        edit.get().cellType = edit.get().scopeTypeArgs().get(edit.get().index()).type();
+        edit.get().cellTypeArgs = edit.get().scopeTypeArgs().get(edit.get().index()).typeArgs().clone();
     }
 
     @Override
@@ -76,7 +74,7 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     @Override
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
-        Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
+        Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
@@ -87,13 +85,13 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     }
 
     @Override
-    public int WriteTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        checkState(value.getCount() == 3);
+    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
+        checkState(value.count() == 3);
         row.get().WriteSparseTypeCode(offset, this.LayoutCode);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
-        for (int i = 1; i < value.getCount(); i++) {
+        for (int i = 1; i < value.count(); i++) {
             TypeArgument arg = value.get(i).clone();
-            lenInBytes += arg.getType().WriteTypeArgument(row, offset + lenInBytes, arg.getTypeArgs().clone());
+            lenInBytes += arg.type().writeTypeArgument(row, offset + lenInBytes, arg.typeArgs().clone());
         }
 
         return lenInBytes;

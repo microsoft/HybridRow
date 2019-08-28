@@ -72,7 +72,7 @@ public final class SerializerUnitTest {
         Result r = RowWriter.WriteBuffer(tempReference_row, request, BatchRequestSerializer.Write);
         row = tempReference_row.get();
         assert Result.Success == r;
-        System.out.printf("Length of serialized row: %1$s" + "\r\n", row.getLength());
+        System.out.printf("Length of serialized row: %1$s" + "\r\n", row.length());
 
         // Read the row back again.
         Reference<RowBuffer> tempReference_row2 =

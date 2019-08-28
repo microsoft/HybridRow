@@ -28,7 +28,7 @@ public final class RecordIOFormatter {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
-        int estimatedSize = HybridRowHeader.Size + RecordIOFormatter.RecordLayout.getSize() + body.Length;
+        int estimatedSize = HybridRowHeader.SIZE + RecordIOFormatter.RecordLayout.getSize() + body.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: uint crc32 = Crc32.Update(0, body.Span);
         int crc32 = Crc32.Update(0, body.Span);
@@ -50,7 +50,7 @@ public final class RecordIOFormatter {
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
         int estimatedSize =
-            HybridRowHeader.Size + RecordIOFormatter.SegmentLayout.getSize() + segment.Comment == null ? null :
+            HybridRowHeader.SIZE + RecordIOFormatter.SegmentLayout.getSize() + segment.Comment == null ? null :
                 segment.Comment.length() != null ? segment.Comment.length() : 0 + segment.SDL == null ? null :
                     segment.SDL.length() != null ? segment.SDL.length() : 0 + 20;
 

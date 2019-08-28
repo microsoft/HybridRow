@@ -4,124 +4,114 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import Newtonsoft.Json.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import java.io.IOException;
+
+import static com.google.common.base.Strings.lenientFormat;
 
 /**
- * The unique identifier for a schema.
+ * The unique identifier for a schema
  * Identifiers must be unique within the scope of the database in which they are used.
  */
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [JsonConverter(typeof(SchemaIdConverter))][DebuggerDisplay("{" + nameof(SchemaId.Id) + "}")
-// ][StructLayout(LayoutKind.Sequential, Pack = 1)] public readonly struct SchemaId : IEquatable<SchemaId>
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: [JsonConverter(typeof(SchemaIdConverter))][DebuggerDisplay("{" + nameof(SchemaId.Id) + "}")
-// ][StructLayout(LayoutKind.Sequential, Pack = 1)] public readonly struct SchemaId : IEquatable<SchemaId>
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
-public final class SchemaId implements IEquatable<SchemaId> {
-    public static final SchemaId Invalid = null;
-    public static final int Size = (Integer.SIZE / Byte.SIZE);
-    /**
-     * The underlying identifier.
-     */
-    private int Id;
+@JsonDeserialize(using = SchemaId.JsonDeserializer.class)
+@JsonSerialize(using = SchemaId.JsonSerializer.class)
+public final class SchemaId {
+
+    public static final SchemaId INVALID = null;
+    public static final SchemaId NONE = new SchemaId();
+    public static final int SIZE = (Integer.SIZE / Byte.SIZE);
+    private static long MAX_VALUE = 0x00000000FFFFFFFFL;
+    private final int id;
 
     /**
      * Initializes a new instance of the {@link SchemaId} struct.
      *
      * @param id The underlying globally unique identifier of the schema.
      */
-    public SchemaId() {
-    }
-
     public SchemaId(int id) {
-        this.Id = id;
+        this.id = id;
     }
 
-    public int getId() {
-        return Id;
+    private SchemaId() {
+        this.id = -1;
     }
 
-    /**
-     * {@link object.Equals(object)} overload.
-     */
     @Override
-    public boolean equals(Object obj) {
-        if (null == obj) {
-            return false;
-        }
-
-        return obj instanceof SchemaId && this.equals((SchemaId)obj);
+    public boolean equals(Object other) {
+        return other instanceof SchemaId && this.equals((SchemaId) other);
     }
 
     /**
-     * Returns true if this is the same {@link SchemaId} as {@link other}.
+     * {@code true} if this is the same {@link SchemaId} as {@code other}
      *
      * @param other The value to compare against.
      * @return True if the two values are the same.
      */
     public boolean equals(SchemaId other) {
-        return this.getId() == other.getId();
+        if (null == other) {
+            return false;
+        }
+        return this.id() == other.id();
     }
 
-    /**
-     * {@link object.GetHashCode} overload.
-     */
     @Override
     public int hashCode() {
-        return (new Integer(this.getId())).hashCode();
+        return Integer.valueOf(this.id()).hashCode();
     }
 
     /**
-     * Operator == overload.
+     * The underlying integer value of this {@link SchemaId}
+     *
+     * @return The integer value of this {@link SchemaId}
      */
-    public static boolean opEquals(SchemaId left, SchemaId right) {
-        return left.equals(right.clone());
+    public int id() {
+        return id;
     }
 
-    /**
-     * Operator != overload.
-     */
-    public static boolean opNotEquals(SchemaId left, SchemaId right) {
-        return !left.equals(right.clone());
-    }
-
-    /**
-     * {@link object.ToString} overload.
-     */
     @Override
     public String toString() {
-        return String.valueOf(this.getId());
+        return String.valueOf(this.id());
     }
 
-    /**
-     * Helper class for parsing {@link SchemaId} from JSON.
-     */
-    public static class SchemaIdConverter extends JsonConverter {
-        @Override
-        public boolean getCanWrite() {
-            return true;
+    static final class JsonDeserializer extends StdDeserializer<SchemaId> {
+
+        private JsonDeserializer() {
+            super(SchemaId.class);
         }
 
         @Override
-        public boolean CanConvert(java.lang.Class objectType) {
-            return objectType.isAssignableFrom(SchemaId.class);
+        public SchemaId deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
+
+            final long value = parser.getLongValue();
+
+            if (value < 0 || value > MAX_VALUE) {
+                String message = lenientFormat("expected integer value in [0, 4294967295], not %s", value);
+                throw MismatchedInputException.from(parser, SchemaId.class, message);
+            }
+
+            return new SchemaId((int) value);
+        }
+    }
+
+    static final class JsonSerializer extends StdSerializer<SchemaId> {
+
+        private JsonSerializer() {
+            super(SchemaId.class);
         }
 
         @Override
-        public Object ReadJson(JsonReader reader, java.lang.Class objectType, Object existingValue,
-                               JsonSerializer serializer) {
-            checkArgument(reader.TokenType == JsonToken.Integer);
-            // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'checked' in this context:
-            //ORIGINAL LINE: return new SchemaId(checked((int)(long)reader.Value));
-            return new SchemaId((int)(long)reader.Value);
-        }
-
-        @Override
-        public void WriteJson(JsonWriter writer, Object value, JsonSerializer serializer) {
-            writer.WriteValue((long)((SchemaId)value).getId());
+        public void serialize(final SchemaId value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
+            generator.writeNumber((long) value.id() & MAX_VALUE);
         }
     }
 }

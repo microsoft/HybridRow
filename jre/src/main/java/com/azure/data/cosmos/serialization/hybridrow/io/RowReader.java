@@ -6,13 +6,14 @@ package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.ILayoutSpanReadable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.ILayoutUtf8SpanReadable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBinary;
@@ -76,53 +77,56 @@ public final class RowReader {
     private RowCursor cursor = new RowCursor();
     private RowBuffer row = new RowBuffer();
     private int schematizedCount;
+
     // State that can be checkpointed.
     private States state = States.values()[0];
 
-    /**
-     * Initializes a new instance of the {@link RowReader} struct.
-     *
-     * @param row   The row to be read.
-     * @param scope The scope whose fields should be enumerated.
-     *              <p>
-     *              A {@link RowReader} instance traverses all of the top-level fields of a given
-     *              scope.  If the root scope is provided then all top-level fields in the row are enumerated.  Nested
-     *              child {@link RowReader} instances can be access through the {@link ReadScope} method
-     *              to process nested content.
-     */
     public RowReader() {
     }
 
     /**
      * Initializes a new instance of the {@link RowReader} struct.
      *
-     * @param row   The row to be read.
-     * @param scope The scope whose fields should be enumerated.
-     *              <p>
-     *              A {@link RowReader} instance traverses all of the top-level fields of a given
-     *              scope.  If the root scope is provided then all top-level fields in the row are enumerated.  Nested
-     *              child {@link RowReader} instances can be access through the {@link ReadScope} method
-     *              to process nested content.
+     * @param row   The row to be read
      */
     public RowReader(Reference<RowBuffer> row) {
         this(row, RowCursor.Create(row));
     }
 
+    /**
+     * Initializes a new instance of the {@link RowReader} struct.
+     *
+     * @param row        The row to be read
+     * @param checkpoint Initial state of the reader
+     */
     public RowReader(Reference<RowBuffer> row, final Checkpoint checkpoint) {
+
         this.row = row.get().clone();
-        this.columns = checkpoint.Cursor.layout.columns();
-        this.schematizedCount = checkpoint.Cursor.layout.numFixed() + checkpoint.Cursor.layout.numVariable();
+        this.columns = checkpoint.Cursor.layout().columns();
+        this.schematizedCount = checkpoint.Cursor.layout().numFixed() + checkpoint.Cursor.layout().numVariable();
 
         this.state = checkpoint.State;
         this.cursor = checkpoint.Cursor.clone();
         this.columnIndex = checkpoint.ColumnIndex;
     }
 
+    /**
+     * Initializes a new instance of the {@link RowReader} struct.
+     *
+     * @param row   The row to be read
+     * @param scope The scope whose fields should be enumerated
+     *              <p>
+     *              A {@link RowReader} instance traverses all of the top-level fields of a given scope. If the
+     *              root scope is provided then all top-level fields in the row are enumerated. Nested child
+     *              {@link RowReader} instances can be access through the {@link RowReader#ReadScope} method to
+     *              process nested content.
+     */
     private RowReader(Reference<RowBuffer> row, final RowCursor scope) {
+
         this.cursor = scope.clone();
         this.row = row.get().clone();
-        this.columns = this.cursor.layout.columns();
-        this.schematizedCount = this.cursor.layout.numFixed() + this.cursor.layout.numVariable();
+        this.columns = this.cursor.layout().columns();
+        this.schematizedCount = this.cursor.layout().numFixed() + this.cursor.layout().numVariable();
 
         this.state = States.None;
         this.columnIndex = -1;
@@ -136,25 +140,26 @@ public final class RowReader {
      * is set (even though its values is set to null).
      */
     public boolean getHasValue() {
+
         switch (this.state) {
+
             case Schematized:
                 return true;
+
             case Sparse:
                 if (this.cursor.cellType instanceof LayoutNullable) {
-                    Reference<RowCursor> tempReference_cursor =
-                        new Reference<RowCursor>(this.cursor);
-                    RowCursor nullableScope = this.row.SparseIteratorReadScope(tempReference_cursor, true).clone();
-                    this.cursor = tempReference_cursor.get();
-                    Reference<RowBuffer> tempReference_row =
-                        new Reference<RowBuffer>(this.row);
-                    Reference<RowCursor> tempReference_nullableScope = new Reference<RowCursor>(nullableScope);
-                    boolean tempVar = LayoutNullable.HasValue(tempReference_row, tempReference_nullableScope) == Result.Success;
+                    Reference<RowCursor> cursor = new Reference<>(this.cursor);
+                    RowCursor nullableScope = this.row.SparseIteratorReadScope(cursor, true).clone();
+                    this.cursor = cursor.get();
+                    Reference<RowBuffer> row = new Reference<>(this.row);
+                    Reference<RowCursor> tempReference_nullableScope = new Reference<>(nullableScope);
+                    boolean tempVar = LayoutNullable.HasValue(row, tempReference_nullableScope) == Result.Success;
                     nullableScope = tempReference_nullableScope.get();
-                    this.row = tempReference_row.get();
+                    this.row = row.get();
                     return tempVar;
                 }
-
                 return true;
+
             default:
                 return false;
         }
@@ -171,7 +176,7 @@ public final class RowReader {
             case Schematized:
                 return 0;
             case Sparse:
-                return this.cursor.index;
+                return this.cursor.index();
             default:
                 return 0;
         }
@@ -181,7 +186,7 @@ public final class RowReader {
      * The length of row in bytes.
      */
     public int getLength() {
-        return this.row.getLength();
+        return this.row.length();
     }
 
     /**
@@ -210,8 +215,7 @@ public final class RowReader {
     }
 
     /**
-     * The path, relative to the scope, of the field (if positioned on a field, undefined
-     * otherwise).
+     * The path, relative to the scope, of the field (if positioned on a field, undefined otherwise)
      * <p>
      * When enumerating an indexed scope, this value is always null (see {@link Index}).
      */
@@ -268,7 +272,7 @@ public final class RowReader {
             case Sparse:
                 return this.cursor.cellTypeArgs.clone();
             default:
-                return TypeArgumentList.Empty;
+                return TypeArgumentList.EMPTY;
         }
     }
 
@@ -281,7 +285,7 @@ public final class RowReader {
 
         switch (this.state) {
             case None: {
-                if (this.cursor.scopeType instanceof LayoutUDT) {
+                if (this.cursor.scopeType() instanceof LayoutUDT) {
                     this.state = States.Schematized;
                     // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
                     //   goto case States.Schematized;
@@ -301,10 +305,10 @@ public final class RowReader {
                     //   goto case States.Sparse;
                 }
 
-                checkState(this.cursor.scopeType instanceof LayoutUDT);
+                checkState(this.cursor.scopeType() instanceof LayoutUDT);
                 LayoutColumn col = this.columns[this.columnIndex];
 
-                if (!this.row.ReadBit(this.cursor.start, col.getNullBit().clone())) {
+                if (!this.row.ReadBit(this.cursor.start(), col.getNullBit().clone())) {
                     // Skip schematized values if they aren't present.
                     // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
                     //   goto case States.Schematized;
@@ -1067,7 +1071,7 @@ public final class RowReader {
      * {@link ReaderFunc{TContext}} is not an option, such as when TContext is a ref struct.
      */
     public Result SkipScope(Reference<RowReader> nestedReader) {
-        if (nestedReader.get().cursor.start != this.cursor.valueOffset) {
+        if (nestedReader.get().cursor.start() != this.cursor.valueOffset()) {
             return Result.Failure;
         }
 
@@ -1116,14 +1120,14 @@ public final class RowReader {
                     new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<LayoutType<TValue>>TypeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
+                Result tempVar = t.<LayoutType<TValue>>typeAs().readFixed(tempReference_row, tempReference_cursor, col, value);
                 this.cursor = tempReference_cursor.get();
                 this.row = tempReference_row.get();
                 return tempVar;
             case Variable:
                 Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<LayoutType<TValue>>TypeAs().ReadVariable(tempReference_row2, tempReference_cursor2, col, value);
+                Result tempVar2 = t.<LayoutType<TValue>>typeAs().readVariable(tempReference_row2, tempReference_cursor2, col, value);
                 this.cursor = tempReference_cursor2.get();
                 this.row = tempReference_row2.get();
                 return tempVar2;
@@ -1152,14 +1156,14 @@ public final class RowReader {
             case Fixed:
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutUtf8SpanReadable>TypeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
+                Result tempVar = t.<ILayoutUtf8SpanReadable>typeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
                 this.cursor = tempReference_cursor.get();
                 this.row = tempReference_row.get();
                 return tempVar;
             case Variable:
                 Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutUtf8SpanReadable>TypeAs().ReadVariable(tempReference_row2,
+                Result tempVar2 = t.<ILayoutUtf8SpanReadable>typeAs().ReadVariable(tempReference_row2,
                     tempReference_cursor2, col, value);
                 this.cursor = tempReference_cursor2.get();
                 this.row = tempReference_row2.get();
@@ -1190,14 +1194,14 @@ public final class RowReader {
             case Fixed:
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutSpanReadable<TElement>>TypeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
+                Result tempVar = t.<ILayoutSpanReadable<TElement>>typeAs().ReadFixed(tempReference_row, tempReference_cursor, col, value);
                 this.cursor = tempReference_cursor.get();
                 this.row = tempReference_row.get();
                 return tempVar;
             case Variable:
                 Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutSpanReadable<TElement>>TypeAs().ReadVariable(tempReference_row2, tempReference_cursor2, col, value);
+                Result tempVar2 = t.<ILayoutSpanReadable<TElement>>typeAs().ReadVariable(tempReference_row2, tempReference_cursor2, col, value);
                 this.cursor = tempReference_cursor2.get();
                 this.row = tempReference_row2.get();
                 return tempVar2;

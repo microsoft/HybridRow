@@ -14,37 +14,35 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     public LayoutMongoDbObjectId() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.MongoDbObjectId, azure.data.cosmos.serialization.hybridrow.MongoDbObjectId.Size);
+        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.MONGODB_OBJECT_ID, azure.data.cosmos.serialization.hybridrow.MongoDbObjectId.Size);
     }
 
-    @Override
-    public boolean getIsFixed() {
+    public boolean isFixed() {
         return true;
     }
 
     // ReSharper disable once StringLiteralTypo
-    @Override
-    public String getName() {
+    public String name() {
         return "mongodbobjectid";
     }
 
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<MongoDbObjectId> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadMongoDbObjectId(scope.get().start + col.getOffset()).clone());
+        value.setAndGet(b.get().ReadMongoDbObjectId(scope.get().start() + col.getOffset()).clone());
         return Result.Success;
     }
 
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              Out<MongoDbObjectId> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
@@ -55,15 +53,15 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     }
 
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              MongoDbObjectId value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteMongoDbObjectId(scope.get().start + col.getOffset(), value.clone());
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
+        b.get().WriteMongoDbObjectId(scope.get().start() + col.getOffset(), value.clone());
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
@@ -71,9 +69,9 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, MongoDbObjectId value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               MongoDbObjectId value, UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }
@@ -83,8 +81,8 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               MongoDbObjectId value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+        return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }

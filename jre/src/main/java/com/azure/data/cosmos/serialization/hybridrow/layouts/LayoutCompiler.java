@@ -44,7 +44,7 @@ public final class LayoutCompiler {
         checkArgument(ns.getSchemas().contains(schema));
 
         LayoutBuilder builder = new LayoutBuilder(schema.getName(), schema.getSchemaId().clone());
-        LayoutCompiler.AddProperties(builder, ns, LayoutCode.Schema, schema.getProperties());
+        LayoutCompiler.AddProperties(builder, ns, LayoutCode.SCHEMA, schema.getProperties());
 
         return builder.Build();
     }
@@ -58,7 +58,7 @@ public final class LayoutCompiler {
             LayoutType type = LayoutCompiler.LogicalToPhysicalType(ns, p.getPropertyType(), tempOut_typeArgs);
             typeArgs = tempOut_typeArgs.get();
             switch (LayoutCodeTraits.ClearImmutableBit(type.LayoutCode)) {
-                case ObjectScope: {
+                case OBJECT_SCOPE: {
                     if (!p.getPropertyType().getNullable()) {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
                     }
@@ -70,17 +70,17 @@ public final class LayoutCompiler {
                     break;
                 }
 
-                case ArrayScope:
-                case TypedArrayScope:
-                case SetScope:
-                case TypedSetScope:
-                case MapScope:
-                case TypedMapScope:
-                case TupleScope:
-                case TypedTupleScope:
-                case TaggedScope:
-                case Tagged2Scope:
-                case Schema: {
+                case ARRAY_SCOPE:
+                case TYPED_ARRAY_SCOPE:
+                case SET_SCOPE:
+                case TYPED_SET_SCOPE:
+                case MAP_SCOPE:
+                case TYPED_MAP_SCOPE:
+                case TUPLE_SCOPE:
+                case TYPED_TUPLE_SCOPE:
+                case TAGGED_SCOPE:
+                case TAGGED2_SCOPE:
+                case SCHEMA: {
                     if (!p.getPropertyType().getNullable()) {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
                     }
@@ -89,7 +89,7 @@ public final class LayoutCompiler {
                     break;
                 }
 
-                case NullableScope: {
+                case NULLABLE_SCOPE: {
                     throw new LayoutCompilationException("Nullables cannot be explicitly declared as columns.");
                 }
 
@@ -100,7 +100,7 @@ public final class LayoutCompiler {
                     if (pp != null) {
                         switch (pp.getStorage()) {
                             case Fixed:
-                                if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.Schema) {
+                                if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException("Cannot have fixed storage within a sparse " +
                                         "scope.");
                                 }
@@ -113,7 +113,7 @@ public final class LayoutCompiler {
                                 builder.AddFixedColumn(p.getPath(), type, pp.getNullable(), pp.getLength());
                                 break;
                             case Variable:
-                                if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.Schema) {
+                                if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException("Cannot have variable storage within a " +
                                         "sparse scope.");
                                 }
@@ -150,7 +150,7 @@ public final class LayoutCompiler {
 
     private static LayoutType LogicalToPhysicalType(Namespace ns, PropertyType logicalType,
                                                     Out<TypeArgumentList> typeArgs) {
-        typeArgs.setAndGet(TypeArgumentList.Empty);
+        typeArgs.setAndGet(TypeArgumentList.EMPTY);
         boolean tempVar =
             (logicalType instanceof ScopePropertyType ? (ScopePropertyType)logicalType : null).getImmutable();
         boolean immutable =
@@ -313,7 +313,7 @@ public final class LayoutCompiler {
                 }
 
                 TypeArgument[] tgArgs = new TypeArgument[tg.getItems().size() + 1];
-                tgArgs[0] = new TypeArgument(LayoutType.UInt8, TypeArgumentList.Empty);
+                tgArgs[0] = new TypeArgument(LayoutType.UInt8, TypeArgumentList.EMPTY);
                 for (int i = 0; i < tg.getItems().size(); i++) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_itemTypeArgs4 = new Out<TypeArgumentList>();
@@ -342,7 +342,7 @@ public final class LayoutCompiler {
             case Schema:
                 UdtPropertyType up = (UdtPropertyType)logicalType;
                 Schema udtSchema;
-                if (SchemaId.opEquals(up.getSchemaId().clone(), SchemaId.Invalid)) {
+                if (SchemaId.opEquals(up.getSchemaId().clone(), SchemaId.INVALID)) {
                     udtSchema = tangible.ListHelper.find(ns.getSchemas(), s = up.getName().equals( > s.Name))
                 } else {
                     udtSchema = tangible.ListHelper.find(ns.getSchemas(), s =

@@ -12,7 +12,7 @@ public final class LayoutCodeTraits {
      * @param code The element type code.
      */
     public static boolean AlwaysRequiresTypeCode(LayoutCode code) {
-        return (code == LayoutCode.Boolean) || (code == LayoutCode.BooleanFalse) || (code == LayoutCode.Null);
+        return (code == LayoutCode.BOOLEAN) || (code == LayoutCode.BOOLEAN_FALSE) || (code == LayoutCode.NULL);
     }
 
     /**
@@ -25,7 +25,7 @@ public final class LayoutCodeTraits {
      * @param code The code to canonicalize.
      */
     public static LayoutCode Canonicalize(LayoutCode code) {
-        return (code == LayoutCode.BooleanFalse) ? LayoutCode.Boolean : code;
+        return (code == LayoutCode.BOOLEAN_FALSE) ? LayoutCode.BOOLEAN : code;
     }
 
     /**
@@ -37,6 +37,6 @@ public final class LayoutCodeTraits {
     //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] public static LayoutCode ClearImmutableBit
     // (LayoutCode code)
     public static LayoutCode ClearImmutableBit(LayoutCode code) {
-        return code.getValue() & LayoutCode.forValue((byte)0xFE).getValue();
+        return code.value() & LayoutCode.forValue((byte)0xFE).value();
     }
 }

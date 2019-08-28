@@ -5,10 +5,9 @@
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
-import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableTagged2Scope;
+import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_TAGGED2_SCOPE;
 
 public final class RowReaderExtensions {
     public static Result VisitReader(Reference<RowReader> reader) {
@@ -68,7 +67,7 @@ public final class RowReaderExtensions {
                 case TaggedScope:
                 case ImmutableTaggedScope:
                 case Tagged2Scope:
-                case ImmutableTagged2Scope: {
+                case IMMUTABLE_TAGGED2_SCOPE: {
                     // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
                     Result r = reader.get().ReadScope(null, (ref RowReader child, Object _) -> child.VisitReader());
                     if (r != Result.Success) {

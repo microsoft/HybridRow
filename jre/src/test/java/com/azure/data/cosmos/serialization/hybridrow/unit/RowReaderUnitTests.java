@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
@@ -182,7 +181,7 @@ public final class RowReaderUnitTests {
             Tuple.Create(3.0, new Point(5, 6)) })
 
         RowReader reader = d.GetReader().clone();
-        assert reader.getLength() == d.Row.getLength();
+        assert reader.getLength() == d.Row.length();
         Reference<RowReader> tempReference_reader =
             new Reference<RowReader>(reader);
         RowReaderUnitTests.PrintReader(tempReference_reader, 0);

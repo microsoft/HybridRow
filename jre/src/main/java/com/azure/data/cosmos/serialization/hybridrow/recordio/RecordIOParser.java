@@ -71,7 +71,7 @@ public final class RecordIOParser {
                 this.state = State.NeedSegmentLength;
                 // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
             case NeedSegmentLength: {
-                int minimalSegmentRowSize = HybridRowHeader.Size + RecordIOFormatter.SegmentLayout.getSize();
+                int minimalSegmentRowSize = HybridRowHeader.SIZE + RecordIOFormatter.SegmentLayout.getSize();
                 if (b.Length < minimalSegmentRowSize) {
                     need.setAndGet(minimalSegmentRowSize);
                     consumed.setAndGet(buffer.Length - b.Length);
@@ -138,8 +138,8 @@ public final class RecordIOParser {
             }
 
             case NeedHeader: {
-                if (b.Length < HybridRowHeader.Size) {
-                    need.setAndGet(HybridRowHeader.Size);
+                if (b.Length < HybridRowHeader.SIZE) {
+                    need.setAndGet(HybridRowHeader.SIZE);
                     consumed.setAndGet(buffer.Length - b.Length);
                     return Result.InsufficientBuffer;
                 }
@@ -171,7 +171,7 @@ public final class RecordIOParser {
             }
 
             case NeedRecord: {
-                int minimalRecordRowSize = HybridRowHeader.Size + RecordIOFormatter.RecordLayout.getSize();
+                int minimalRecordRowSize = HybridRowHeader.SIZE + RecordIOFormatter.RecordLayout.getSize();
                 if (b.Length < minimalRecordRowSize) {
                     need.setAndGet(minimalRecordRowSize);
                     consumed.setAndGet(buffer.Length - b.Length);

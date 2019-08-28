@@ -17,7 +17,7 @@ public final class HybridRowHeader {
     /**
      * Size (in bytes) of a serialized header.
      */
-    public static final int Size = (HybridRowVersion.SIZE / Byte.SIZE) + com.azure.data.cosmos.serialization.hybridrow.SchemaId.Size;
+    public static final int SIZE = (HybridRowVersion.SIZE / Byte.SIZE) + com.azure.data.cosmos.serialization.hybridrow.SchemaId.SIZE;
     /**
      * The unique identifier of the schema whose layout was used to write this row.
      */

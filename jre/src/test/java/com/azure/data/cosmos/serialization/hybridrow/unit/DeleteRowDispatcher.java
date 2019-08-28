@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutIndexedScope;
@@ -31,21 +30,21 @@ public final class DeleteRowDispatcher implements IDispatcher {
     public <TLayout extends LayoutType<TValue>, TValue> void Dispatch(Reference<RowOperationDispatcher> dispatcher, Reference<RowCursor> root, LayoutColumn col, LayoutType t, TValue value) {
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<TLayout>TypeAs().DeleteSparse(tempReference_Row, root));
+        ResultAssert.IsSuccess(t.<TLayout>typeAs().deleteSparse(tempReference_Row, root));
         dispatcher.get().argValue.Row = tempReference_Row.get();
     }
 
     public void DispatchArray(Reference<RowOperationDispatcher> dispatcher,
                               Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                               Object value) {
-        checkArgument(typeArgs.getCount() == 1);
+        checkArgument(typeArgs.count() == 1);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor arrayScope;
         Out<RowCursor> tempOut_arrayScope =
             new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutTypedArray>TypeAs().ReadScope(tempReference_Row, scope, tempOut_arrayScope));
+        ResultAssert.IsSuccess(t.<LayoutTypedArray>typeAs().ReadScope(tempReference_Row, scope, tempOut_arrayScope));
         arrayScope = tempOut_arrayScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
 
@@ -59,28 +58,28 @@ public final class DeleteRowDispatcher implements IDispatcher {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
-                dispatcher.get().LayoutCodeSwitch(ref arrayScope, null, typeArgs.get(0).getType(),
-                    typeArgs.get(0).getTypeArgs().clone(), item);
+                dispatcher.get().LayoutCodeSwitch(ref arrayScope, null, typeArgs.get(0).type(),
+                    typeArgs.get(0).typeArgs().clone(), item);
             }
         }
 
         Reference<RowBuffer> tempReference_Row3 =
             new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<LayoutTypedArray>TypeAs().DeleteScope(tempReference_Row3, scope));
+        ResultAssert.IsSuccess(t.<LayoutTypedArray>typeAs().DeleteScope(tempReference_Row3, scope));
         dispatcher.get().argValue.Row = tempReference_Row3.get();
     }
 
     public void DispatchMap(Reference<RowOperationDispatcher> dispatcher,
                             Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                             Object value) {
-        checkArgument(typeArgs.getCount() == 2);
+        checkArgument(typeArgs.count() == 2);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor mapScope;
         Out<RowCursor> tempOut_mapScope =
             new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutTypedMap>TypeAs().ReadScope(tempReference_Row, scope, tempOut_mapScope));
+        ResultAssert.IsSuccess(t.<LayoutTypedMap>typeAs().ReadScope(tempReference_Row, scope, tempOut_mapScope));
         mapScope = tempOut_mapScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
         if (!mapScope.Immutable) {
@@ -99,17 +98,17 @@ public final class DeleteRowDispatcher implements IDispatcher {
 
         Reference<RowBuffer> tempReference_Row3 =
             new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<LayoutTypedMap>TypeAs().DeleteScope(tempReference_Row3, scope));
+        ResultAssert.IsSuccess(t.<LayoutTypedMap>typeAs().DeleteScope(tempReference_Row3, scope));
         dispatcher.get().argValue.Row = tempReference_Row3.get();
     }
 
     public void DispatchNullable(Reference<RowOperationDispatcher> dispatcher,
                                  Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                                  Object value) {
-        checkArgument(typeArgs.getCount() == 1);
+        checkArgument(typeArgs.count() == 1);
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<LayoutNullable>TypeAs().DeleteScope(tempReference_Row, scope));
+        ResultAssert.IsSuccess(t.<LayoutNullable>typeAs().DeleteScope(tempReference_Row, scope));
         dispatcher.get().argValue.Row = tempReference_Row.get();
     }
 
@@ -120,14 +119,14 @@ public final class DeleteRowDispatcher implements IDispatcher {
     public void DispatchSet(Reference<RowOperationDispatcher> dispatcher,
                             Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                             Object value) {
-        checkArgument(typeArgs.getCount() == 1);
+        checkArgument(typeArgs.count() == 1);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor setScope;
         Out<RowCursor> tempOut_setScope =
             new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutTypedSet>TypeAs().ReadScope(tempReference_Row, scope, tempOut_setScope));
+        ResultAssert.IsSuccess(t.<LayoutTypedSet>typeAs().ReadScope(tempReference_Row, scope, tempOut_setScope));
         setScope = tempOut_setScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
         if (!setScope.Immutable) {
@@ -140,30 +139,30 @@ public final class DeleteRowDispatcher implements IDispatcher {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
-                dispatcher.get().LayoutCodeSwitch(ref setScope, null, typeArgs.get(0).getType(),
-                    typeArgs.get(0).getTypeArgs().clone(), item);
+                dispatcher.get().LayoutCodeSwitch(ref setScope, null, typeArgs.get(0).type(),
+                    typeArgs.get(0).typeArgs().clone(), item);
             }
         }
 
         Reference<RowBuffer> tempReference_Row3 =
             new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<LayoutTypedSet>TypeAs().DeleteScope(tempReference_Row3, scope));
+        ResultAssert.IsSuccess(t.<LayoutTypedSet>typeAs().DeleteScope(tempReference_Row3, scope));
         dispatcher.get().argValue.Row = tempReference_Row3.get();
     }
 
     public void DispatchTuple(Reference<RowOperationDispatcher> dispatcher,
                               Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                               Object value) {
-        checkArgument(typeArgs.getCount() >= 2);
+        checkArgument(typeArgs.count() >= 2);
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<LayoutIndexedScope>TypeAs().DeleteScope(tempReference_Row, scope));
+        ResultAssert.IsSuccess(t.<LayoutIndexedScope>typeAs().DeleteScope(tempReference_Row, scope));
         dispatcher.get().argValue.Row = tempReference_Row.get();
     }
 
     public void DispatchUDT(Reference<RowOperationDispatcher> dispatcher, Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs, Object value) {
         Reference<RowBuffer> tempReference_Row = new Reference<RowBuffer>(dispatcher.get().Row);
-        ResultAssert.IsSuccess(t.<LayoutUDT>TypeAs().DeleteScope(tempReference_Row, scope));
+        ResultAssert.IsSuccess(t.<LayoutUDT>typeAs().DeleteScope(tempReference_Row, scope));
         dispatcher.get().argValue.Row = tempReference_Row.get();
     }
 }

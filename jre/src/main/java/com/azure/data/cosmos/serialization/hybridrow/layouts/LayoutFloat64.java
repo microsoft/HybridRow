@@ -14,36 +14,34 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutFloat64 extends LayoutType<Double> {
     public LayoutFloat64() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.Float64, (Double.SIZE / Byte.SIZE));
+        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.FLOAT_64, (Double.SIZE / Byte.SIZE));
     }
 
-    @Override
-    public boolean getIsFixed() {
+    public boolean isFixed() {
         return true;
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return "float64";
     }
 
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<Double> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadFloat64(scope.get().start + col.getOffset()));
+        value.setAndGet(b.get().ReadFloat64(scope.get().start() + col.getOffset()));
         return Result.Success;
     }
 
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              Out<Double> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(0);
             return result;
@@ -56,13 +54,13 @@ public final class LayoutFloat64 extends LayoutType<Double> {
     @Override
     public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              double value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFloat64(scope.get().start + col.getOffset(), value);
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
+        b.get().WriteFloat64(scope.get().start() + col.getOffset(), value);
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
@@ -72,7 +70,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
     @Override
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, double value,
                               UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }

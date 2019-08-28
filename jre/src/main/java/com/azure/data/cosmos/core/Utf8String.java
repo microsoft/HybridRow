@@ -42,16 +42,23 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class Utf8String implements CharSequence, Comparable<Utf8String> {
 
     public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER, 0);
+    public static final Utf8String NULL = new Utf8String();
 
     private static final PooledByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private final ByteBuf buffer;
     private final int length;
 
-    private Utf8String(final ByteBuf buffer) {
+    private Utf8String() {
+        this.buffer = null;
+        this.length = -1;
+    }
+
+    private Utf8String(@Nonnull final ByteBuf buffer) {
         this(buffer, decodedLength(buffer));
     }
 
-    private Utf8String(final ByteBuf buffer, final int decodedLength) {
+    private Utf8String(@Nonnull final ByteBuf buffer, final int decodedLength) {
+        checkNotNull(buffer);
         this.buffer = buffer.asReadOnly();
         this.length = decodedLength;
     }
@@ -61,6 +68,13 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
      */
     public final boolean isEmpty() {
         return this.length == 0;
+    }
+
+    /**
+     * {@code true} if this instance is null
+     */
+    public final boolean isNull() {
+        return this.buffer == null;
     }
 
     @Override
@@ -87,13 +101,29 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
     }
 
     public final int compareTo(@Nonnull final Utf8String other) {
+
         checkNotNull(other);
+
+        if (other.buffer == this.buffer) {
+            return 0;
+        }
+
+        if (other.buffer == null) {
+            return 1;
+        }
+
+        if (this.buffer == null) {
+            return -1;
+        }
+
         return this.buffer.compareTo(other.buffer);
     }
 
-    public final int compareTo(@Nonnull final String other) {
+    public final int compareTo(final String other) {
 
-        checkNotNull(other);
+        if (this.buffer == null) {
+            return other == null ? 0 : -1;
+        }
 
         final int length = this.length();
         final int otherLength = other.length();
@@ -247,6 +277,10 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
 
     @Override
     public String toString() {
+        return this.buffer.getCharSequence(0, this.buffer.capacity(), UTF_8).toString();
+    }
+
+    public String toUtf16() {
         return this.buffer.getCharSequence(0, this.buffer.capacity(), UTF_8).toString();
     }
 

@@ -5,7 +5,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.perf;
 
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -49,7 +48,7 @@ public final class JsonModelRowGenerator {
     }
 
     public int getLength() {
-        return this.row.getLength();
+        return this.row.length();
     }
 
     public RowReader GetReader() {
@@ -63,12 +62,12 @@ public final class JsonModelRowGenerator {
     // TODO: C# TO JAVA CONVERTER: C# to Java Converter cannot determine whether this System.IO.Stream is input or
     // output:
     public boolean ReadFrom(InputStream stream, int length) {
-        return this.row.ReadFrom(stream, length, HybridRowVersion.V1, this.row.getResolver());
+        return this.row.ReadFrom(stream, length, HybridRowVersion.V1, this.row.resolver());
     }
 
     public void Reset() {
-        Layout layout = this.row.getResolver().Resolve(this.row.getHeader().getSchemaId().clone());
-        this.row.InitLayout(HybridRowVersion.V1, layout, this.row.getResolver());
+        Layout layout = this.row.resolver().Resolve(this.row.header().getSchemaId().clone());
+        this.row.InitLayout(HybridRowVersion.V1, layout, this.row.resolver());
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:

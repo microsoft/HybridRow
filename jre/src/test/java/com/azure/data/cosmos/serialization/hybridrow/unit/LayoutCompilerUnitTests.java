@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -1779,7 +1778,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         field = tempReference_field2.get();
         ResultAssert.IsSuccess(r, tag);
         Assert.AreEqual(scope.ScopeType, scope2.ScopeType, tag);
-        Assert.AreEqual(scope.start, scope2.start, tag);
+        Assert.AreEqual(scope.start(), scope2.start(), tag);
         Assert.AreEqual(scope.Immutable, scope2.Immutable, tag);
 
         // Read the nested fields
@@ -1860,7 +1859,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field3 =
             new Reference<RowCursor>(field);
-        r = LayoutType.Null.WriteSparse(row, tempReference_field3, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_field3, NullValue.Default);
         field = tempReference_field3.get();
         ResultAssert.IsSuccess(r, tag);
         Reference<RowCursor> tempReference_field4 =
@@ -2010,7 +2009,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         field = tempReference_field3.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         Assert.AreEqual(scope.ScopeType, scope2.ScopeType, "Json: {0}", expected.Json);
-        Assert.AreEqual(scope.start, scope2.start, "Json: {0}", expected.Json);
+        Assert.AreEqual(scope.start(), scope2.start(), "Json: {0}", expected.Json);
         Assert.AreEqual(scope.Immutable, scope2.Immutable, "Json: {0}", expected.Json);
 
         // Read the nested field
@@ -2051,7 +2050,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field4 =
             new Reference<RowCursor>(field);
-        r = LayoutType.Null.WriteSparse(row, tempReference_field4, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_field4, NullValue.Default);
         field = tempReference_field4.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         Reference<RowCursor> tempReference_field5 =
@@ -2189,7 +2188,7 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
         } else {
             Reference<RowCursor> tempReference_nestedField2 =
                 new Reference<RowCursor>(nestedField);
-            r = LayoutType.Null.WriteSparse(row, tempReference_nestedField2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_nestedField2, NullValue.Default);
             nestedField = tempReference_nestedField2.get();
             ResultAssert.IsSuccess(r, tag);
         }
@@ -2257,12 +2256,12 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Assert.AreEqual(scope2.AsReadOnly(out _).start, scope3.start, tag);
+        Assert.AreEqual(scope2.AsReadOnly(out _).start, scope3.start(), tag);
 
         // Overwrite the nested field.
         Reference<RowCursor> tempReference_nestedField4 =
             new Reference<RowCursor>(nestedField);
-        r = LayoutType.Null.WriteSparse(row, tempReference_nestedField4, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_nestedField4, NullValue.Default);
         nestedField = tempReference_nestedField4.get();
         ResultAssert.IsSuccess(r, tag);
 
@@ -2383,7 +2382,7 @@ private final static class RoundTripSparseObjectNested extends TestActionDispatc
         } else {
             Reference<RowCursor> tempReference_field2 =
                 new Reference<RowCursor>(field);
-            r = LayoutType.Null.WriteSparse(row, tempReference_field2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.Default);
             field = tempReference_field2.get();
             ResultAssert.IsSuccess(r, tag);
         }
@@ -2519,7 +2518,7 @@ private final static class RoundTripSparseOrdering extends TestActionDispatcher<
         } else {
             Reference<RowCursor> tempReference_field2 =
                 new Reference<RowCursor>(field);
-            r = LayoutType.Null.WriteSparse(row, tempReference_field2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.Default);
             field = tempReference_field2.get();
             ResultAssert.IsSuccess(r, "Json: {0}", json);
             Out<TValue> tempOut_value3 = new Out<TValue>();
@@ -2681,7 +2680,7 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
         field = tempReference_field2.get();
         ResultAssert.IsSuccess(r, tag);
         Assert.AreEqual(scope.ScopeType, scope2.ScopeType, tag);
-        Assert.AreEqual(scope.start, scope2.start, tag);
+        Assert.AreEqual(scope.start(), scope2.start(), tag);
         Assert.AreEqual(scope.Immutable, scope2.Immutable, tag);
 
         // Read the nested fields
@@ -2837,7 +2836,7 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
 
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field9 = new Reference<RowCursor>(field);
-        r = LayoutType.Null.WriteSparse(row, tempReference_field9, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_field9, NullValue.Default);
         field = tempReference_field9.get();
         ResultAssert.IsSuccess(r, tag);
         Reference<RowCursor> tempReference_field10 = new Reference<RowCursor>(field);
@@ -2984,7 +2983,7 @@ private final static class RoundTripSparseSimple extends TestActionDispatcher<Ro
         } else {
             Reference<RowCursor> tempReference_field2 =
                 new Reference<RowCursor>(field);
-            r = LayoutType.Null.WriteSparse(row, tempReference_field2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.Default);
             field = tempReference_field2.get();
             ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -3071,7 +3070,7 @@ private static class RoundTripVariable extends TestActionDispatcher<RoundTripVar
         TLayout t = (TLayout)col.getType();
         TValue value;
         Out<TValue> tempOut_value = new Out<TValue>();
-        Result r = t.ReadVariable(row, root, col, tempOut_value);
+        Result r = t.readVariable(row, root, col, tempOut_value);
         value = tempOut_value.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         boolean tempVar = exValue instanceof Array;
@@ -3086,7 +3085,7 @@ private static class RoundTripVariable extends TestActionDispatcher<RoundTripVar
     protected final <TLayout extends LayoutType<TValue>, TValue> void RoundTrip(Reference<RowBuffer> row,
                                                                                 Reference<RowCursor> root, LayoutColumn col, Object exValue, Expected expected) {
         TLayout t = (TLayout)col.getType();
-        Result r = t.WriteVariable(row, root, col, (TValue)exValue);
+        Result r = t.writeVariable(row, root, col, (TValue)exValue);
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         this.<TLayout, TValue>Compare(row, root, col, exValue, expected.clone());
 
@@ -3096,7 +3095,7 @@ private static class RoundTripVariable extends TestActionDispatcher<RoundTripVar
         root.get().AsReadOnly(out roRoot);
         Reference<RowCursor> tempReference_roRoot =
             new Reference<RowCursor>(roRoot);
-        ResultAssert.InsufficientPermissions(t.WriteVariable(row, tempReference_roRoot, col, (TValue)expected.Value));
+        ResultAssert.InsufficientPermissions(t.writeVariable(row, tempReference_roRoot, col, (TValue)expected.Value));
         roRoot = tempReference_roRoot.get();
     }
 
@@ -3169,16 +3168,16 @@ private final static class VariableInterleaving extends RoundTripVariable {
         this.<TLayout, TValue>RoundTrip(row, root, c, expected.Value, expected.clone());
 
         // Make the var column shorter.
-        int rowSizeBeforeShrink = row.get().getLength();
+        int rowSizeBeforeShrink = row.get().length();
         this.<TLayout, TValue>RoundTrip(row, root, a, expected.Short, expected.clone());
         this.<TLayout, TValue>Compare(row, root, c, expected.Value, expected.clone());
-        int rowSizeAfterShrink = row.get().getLength();
+        int rowSizeAfterShrink = row.get().length();
         Assert.IsTrue(rowSizeAfterShrink < rowSizeBeforeShrink, "Json: {0}", expected.Json);
 
         // Make the var column longer.
         this.<TLayout, TValue>RoundTrip(row, root, a, expected.Long, expected.clone());
         this.<TLayout, TValue>Compare(row, root, c, expected.Value, expected.clone());
-        int rowSizeAfterGrow = row.get().getLength();
+        int rowSizeAfterGrow = row.get().length();
         Assert.IsTrue(rowSizeAfterGrow > rowSizeAfterShrink, "Json: {0}", expected.Json);
         Assert.IsTrue(rowSizeAfterGrow > rowSizeBeforeShrink, "Json: {0}", expected.Json);
 
@@ -3202,13 +3201,13 @@ private final static class VariableInterleaving extends RoundTripVariable {
         root.get().AsReadOnly(out roRoot);
         Reference<RowCursor> tempReference_roRoot =
             new Reference<RowCursor>(roRoot);
-        ResultAssert.InsufficientPermissions(t.DeleteVariable(row, tempReference_roRoot, col));
+        ResultAssert.InsufficientPermissions(t.deleteVariable(row, tempReference_roRoot, col));
         roRoot = tempReference_roRoot.get();
-        Result r = t.DeleteVariable(row, root, col);
+        Result r = t.deleteVariable(row, root, col);
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         TValue _;
         Out<TValue> tempOut__ = new Out<TValue>();
-        r = t.ReadVariable(row, root, col, tempOut__);
+        r = t.readVariable(row, root, col, tempOut__);
         _ = tempOut__.get();
         ResultAssert.NotFound(r, "Json: {0}", expected.Json);
     }
@@ -3216,7 +3215,7 @@ private final static class VariableInterleaving extends RoundTripVariable {
     private <TLayout extends LayoutType<TValue>, TValue> void TooBig(Reference<RowBuffer> row,
                                                                      Reference<RowCursor> root, LayoutColumn col, Expected expected) {
         TLayout t = (TLayout)col.getType();
-        Result r = t.WriteVariable(row, root, col, (TValue)expected.TooBig);
+        Result r = t.writeVariable(row, root, col, (TValue)expected.TooBig);
         Assert.AreEqual(Result.TooBig, r, "Json: {0}", expected.Json);
     }
 
@@ -3231,7 +3230,7 @@ private final static class VariableInterleaving extends RoundTripVariable {
         TLayout t = (TLayout)col.Type;
         TValue _;
         Out<TValue> tempOut__ = new Out<TValue>();
-        Result r = t.ReadVariable(row, root, col, tempOut__);
+        Result r = t.readVariable(row, root, col, tempOut__);
         _ = tempOut__.get();
         ResultAssert.NotFound(r, "Json: {0}", expected.Json);
         return col;

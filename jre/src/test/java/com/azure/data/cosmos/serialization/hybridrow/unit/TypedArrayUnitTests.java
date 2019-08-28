@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -333,7 +332,7 @@ public final class TypedArrayUnitTests {
 
     private static void WriteSimilarMatch(Reference<RowBuffer> row, Reference<RowCursor> matchScope
         , TypeArgumentList typeArgs, SimilarMatch m) {
-        Layout matchLayout = row.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout matchLayout = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:

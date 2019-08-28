@@ -237,7 +237,7 @@ public class RecordIOUnitTests {
             return r;
         }
 
-        buffer.setAndGet(resizer.getMemory().Slice(0, row.getLength()));
+        buffer.setAndGet(resizer.getMemory().Slice(0, row.length()));
         return Result.Success;
     }
 }

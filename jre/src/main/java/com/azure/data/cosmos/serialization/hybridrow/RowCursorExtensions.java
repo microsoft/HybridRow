@@ -79,14 +79,14 @@ public final class RowCursorExtensions {
     //			return ref edit;
     //		}
     public static boolean MoveNext(Reference<RowCursor> edit, Reference<RowBuffer> row) {
-        edit.get().writePath = null;
-        edit.get().writePathToken = null;
+        edit.get().writePath(null);
+        edit.get().writePathToken(null);
         return row.get().SparseIteratorMoveNext(edit);
     }
 
     public static boolean MoveNext(Reference<RowCursor> edit, Reference<RowBuffer> row,
                                    Reference<RowCursor> childScope) {
-        if (childScope.get().scopeType != null) {
+        if (childScope.get().scopeType() != null) {
             RowCursorExtensions.Skip(edit.get().clone(), row, childScope);
         }
 
@@ -94,10 +94,10 @@ public final class RowCursorExtensions {
     }
 
     public static boolean MoveTo(Reference<RowCursor> edit, Reference<RowBuffer> row, int index) {
-        checkState(edit.get().index <= index);
-        edit.get().writePath = null;
-        edit.get().writePathToken = null;
-        while (edit.get().index < index) {
+        checkState(edit.get().index() <= index);
+        edit.get().writePath(null);
+        edit.get().writePathToken(null);
+        while (edit.get().index() < index) {
             if (!row.get().SparseIteratorMoveNext(edit)) {
                 return false;
             }
@@ -108,16 +108,16 @@ public final class RowCursorExtensions {
 
     public static void Skip(Reference<RowCursor> edit, Reference<RowBuffer> row,
                             Reference<RowCursor> childScope) {
-        checkArgument(childScope.get().start == edit.get().valueOffset);
+        checkArgument(childScope.get().start() == edit.get().valueOffset());
         if (!(childScope.get().cellType instanceof LayoutEndScope)) {
             while (row.get().SparseIteratorMoveNext(childScope)) {
             }
         }
 
-        if (childScope.get().scopeType.IsSizedScope) {
-            edit.get().endOffset = childScope.get().metaOffset;
+        if (childScope.get().scopeType().isSizedScope()) {
+            edit.get().endOffset = childScope.get().metaOffset();
         } else {
-            edit.get().endOffset = childScope.get().metaOffset + (LayoutCode.SIZE / Byte.SIZE); // Move past the end of scope marker.
+            edit.get().endOffset = childScope.get().metaOffset() + (LayoutCode.SIZE / Byte.SIZE); // Move past the end of scope marker.
         }
 
         // TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:

@@ -16,12 +16,11 @@ public final class LayoutEndScope extends LayoutScope {
         // following line:
         //ORIGINAL LINE: base(LayoutCode.EndScope, false, isSizedScope: false, isIndexedScope: false, isFixedArity:
         // false, isUniqueScope: false, isTypedScope: false);
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.EndScope, false, isSizedScope:false, isIndexedScope:false, isFixedArity:false, isUniqueScope:
-        false, isTypedScope:false)
+        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.END_SCOPE, false, isSizedScope():false, isIndexedScope():false, isFixedArity():false, isUniqueScope():
+        false, isTypedScope():false)
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return "end";
     }
 

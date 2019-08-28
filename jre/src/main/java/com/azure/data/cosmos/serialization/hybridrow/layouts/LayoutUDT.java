@@ -13,25 +13,23 @@ import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
 public final class LayoutUDT extends LayoutPropertyScope {
     public LayoutUDT(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableSchema :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.Schema, immutable);
+        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_SCHEMA :
+            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SCHEMA, immutable);
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return this.Immutable ? "im_udt" : "udt";
     }
 
-    @Override
-    public int CountTypeArgument(TypeArgumentList value) {
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.Size;
+    public int countTypeArgument(TypeArgumentList value) {
+        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.SIZE;
     }
 
     @Override
-    public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
+    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
         SchemaId schemaId = row.get().ReadSchemaId(offset).clone();
-        lenInBytes.setAndGet(SchemaId.Size);
+        lenInBytes.setAndGet(SchemaId.SIZE);
         return new TypeArgumentList(schemaId.clone());
     }
 
@@ -47,8 +45,8 @@ public final class LayoutUDT extends LayoutPropertyScope {
     @Override
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
-        Layout udt = b.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
-        Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
+        Layout udt = b.get().resolver().Resolve(typeArgs.schemaId().clone());
+        Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
@@ -59,9 +57,9 @@ public final class LayoutUDT extends LayoutPropertyScope {
     }
 
     @Override
-    public int WriteTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
+    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         row.get().WriteSparseTypeCode(offset, this.LayoutCode);
-        row.get().WriteSchemaId(offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), value.getSchemaId().clone());
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.Size;
+        row.get().WriteSchemaId(offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), value.schemaId().clone());
+        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.SIZE;
     }
 }

@@ -120,7 +120,7 @@ HashMap<SchemaId, Schema> ids
                 up:
                 ValidateAssert.Exists((up.Name, up.SchemaId), schemas, "Schema reference", "Namespace")
                 if (SchemaId.opNotEquals(up.SchemaId,
-                    SchemaId.Invalid)) {
+                    SchemaId.INVALID)) {
                     Schema s = ValidateAssert.Exists(up.SchemaId, ids, "Schema id", "Namespace");
                     ValidateAssert.AreEqual(up.Name, s.getName(), String.format("Schema name '%1$s' does not match " +
                         "the name of schema with id '%2$s': %3$s", up.Name, up.SchemaId, s.getName()));
@@ -154,7 +154,7 @@ HashMap<SchemaId, Schema> ids
         // Enable id-less Schema references for all types with a unique version in the namespace.
         for (Schema s : ns.getSchemas()) {
             if (nameVersioningCheck.get(s.getName()).equals(1)) {
-                ValidateAssert.DuplicateCheck((s.getName(), SchemaId.Invalid), s, nameDupCheck, "Schema reference",
+                ValidateAssert.DuplicateCheck((s.getName(), SchemaId.INVALID), s, nameDupCheck, "Schema reference",
                     "Namespace")
             }
         }
@@ -269,7 +269,7 @@ private static void Visit(PropertyType p, PropertyType parent, HashMap<(String, 
          * @param label Diagnostic label describing <paramref name="id" />.
          */
         public static void IsValidSchemaId(SchemaId id, String label) {
-            if (SchemaId.opEquals(id.clone(), SchemaId.Invalid)) {
+            if (SchemaId.opEquals(id.clone(), SchemaId.INVALID)) {
                 throw new SchemaException(String.format("%1$s cannot be 0", label));
             }
         }

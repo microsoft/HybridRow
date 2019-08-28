@@ -54,21 +54,21 @@ public final class RowWriter {
      * The active layout of the current writer scope.
      */
     public Layout getLayout() {
-        return this.cursor.layout;
+        return this.cursor.layout();
     }
 
     /**
      * The length of row in bytes.
      */
     public int getLength() {
-        return this.row.getLength();
+        return this.row.length();
     }
 
     /**
      * The resolver for UDTs.
      */
     public LayoutResolver getResolver() {
-        return this.row.getResolver();
+        return this.row.resolver();
     }
 
     /**
@@ -168,7 +168,7 @@ public final class RowWriter {
         RowWriter writer = new RowWriter(row, tempReference_scope);
         scope = tempReference_scope.get();
         TypeArgument typeArg = new TypeArgument(LayoutType.UDT,
-            new TypeArgumentList(scope.layout.schemaId().clone()));
+            new TypeArgumentList(scope.layout().schemaId().clone()));
         Reference<RowWriter> tempReference_writer =
             new Reference<RowWriter>(writer);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
@@ -371,7 +371,7 @@ public final class RowWriter {
 
     public <TContext> Result WriteScope(UtfAnyString path, TypeArgument typeArg, TContext context,
                                         WriterFunc<TContext> func) {
-        LayoutType type = typeArg.getType();
+        LayoutType type = typeArg.type();
         Result result = this.PrepareSparseWrite(path, typeArg.clone());
         if (result != Result.Success) {
             return result;
@@ -411,7 +411,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope3 =
                     new Out<RowCursor>();
-                this.row.WriteTypedArray(tempRef_cursor3, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteTypedArray(tempRef_cursor3, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope3);
                 nestedScope = tempOut_nestedScope3.get();
                 this.cursor = tempRef_cursor3.argValue;
@@ -425,7 +425,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope4 =
                     new Out<RowCursor>();
-                this.row.WriteSparseTuple(tempRef_cursor4, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteSparseTuple(tempRef_cursor4, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope4);
                 nestedScope = tempOut_nestedScope4.get();
                 this.cursor = tempRef_cursor4.argValue;
@@ -439,7 +439,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope5 =
                     new Out<RowCursor>();
-                this.row.WriteTypedTuple(tempRef_cursor5, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteTypedTuple(tempRef_cursor5, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope5);
                 nestedScope = tempOut_nestedScope5.get();
                 this.cursor = tempRef_cursor5.argValue;
@@ -453,7 +453,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope6 =
                     new Out<RowCursor>();
-                this.row.WriteTypedTuple(tempRef_cursor6, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteTypedTuple(tempRef_cursor6, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope6);
                 nestedScope = tempOut_nestedScope6.get();
                 this.cursor = tempRef_cursor6.argValue;
@@ -467,7 +467,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope7 =
                     new Out<RowCursor>();
-                this.row.WriteTypedTuple(tempRef_cursor7, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteTypedTuple(tempRef_cursor7, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope7);
                 nestedScope = tempOut_nestedScope7.get();
                 this.cursor = tempRef_cursor7.argValue;
@@ -481,7 +481,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope8 =
                     new Out<RowCursor>();
-                this.row.WriteNullable(tempRef_cursor8, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteNullable(tempRef_cursor8, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, func != null, tempOut_nestedScope8);
                 nestedScope = tempOut_nestedScope8.get();
                 this.cursor = tempRef_cursor8.argValue;
@@ -491,7 +491,7 @@ public final class RowWriter {
             //ORIGINAL LINE: case LayoutUDT scopeType:
             case LayoutUDT
                 scopeType:
-                Layout udt = this.row.getResolver().Resolve(typeArg.getTypeArgs().getSchemaId().clone());
+                Layout udt = this.row.resolver().Resolve(typeArg.typeArgs().schemaId().clone());
                 Reference<RowCursor> tempReference_cursor9 =
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope9 =
@@ -509,7 +509,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope10 =
                     new Out<RowCursor>();
-                this.row.WriteTypedSet(tempRef_cursor10, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteTypedSet(tempRef_cursor10, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope10);
                 nestedScope = tempOut_nestedScope10.get();
                 this.cursor = tempRef_cursor10.argValue;
@@ -523,7 +523,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope11 =
                     new Out<RowCursor>();
-                this.row.WriteTypedMap(tempRef_cursor11, scopeType, typeArg.getTypeArgs().clone(),
+                this.row.WriteTypedMap(tempRef_cursor11, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope11);
                 nestedScope = tempOut_nestedScope11.get();
                 this.cursor = tempRef_cursor11.argValue;
@@ -547,7 +547,7 @@ public final class RowWriter {
         result = func == null ? null : func.Invoke(ref nestedWriter, typeArg, context) ??Result.Success;
         nestedWriter = tempReference_nestedWriter.get();
         this.row = nestedWriter.row.clone();
-        nestedScope.count = nestedWriter.cursor.count;
+        nestedScope.count(nestedWriter.cursor.count());
 
         if (result != Result.Success) {
             // TODO: what about unique violations here?
@@ -764,24 +764,24 @@ public final class RowWriter {
      * @return Success if the write is permitted, the error code otherwise.
      */
     private Result PrepareSparseWrite(UtfAnyString path, TypeArgument typeArg) {
-        if (this.cursor.scopeType.IsFixedArity && !(this.cursor.scopeType instanceof LayoutNullable)) {
-            if ((this.cursor.index < this.cursor.scopeTypeArgs.getCount()) && !typeArg.equals(this.cursor.scopeTypeArgs.get(this.cursor.index).clone())) {
+        if (this.cursor.scopeType().isFixedArity() && !(this.cursor.scopeType() instanceof LayoutNullable)) {
+            if ((this.cursor.index() < this.cursor.scopeTypeArgs().count()) && !typeArg.equals(this.cursor.scopeTypeArgs().get(this.cursor.index()).clone())) {
                 return Result.TypeConstraint;
             }
-        } else if (this.cursor.scopeType instanceof LayoutTypedMap) {
+        } else if (this.cursor.scopeType() instanceof LayoutTypedMap) {
             Reference<RowCursor> tempReference_cursor =
                 new Reference<RowCursor>(this.cursor);
-            if (!typeArg.equals(this.cursor.scopeType.<LayoutUniqueScope>TypeAs().FieldType(tempReference_cursor).clone())) {
+            if (!typeArg.equals(this.cursor.scopeType().<LayoutUniqueScope>typeAs().FieldType(tempReference_cursor).clone())) {
                 this.cursor = tempReference_cursor.get();
                 return Result.TypeConstraint;
             } else {
                 this.cursor = tempReference_cursor.get();
             }
-        } else if (this.cursor.scopeType.IsTypedScope && !typeArg.equals(this.cursor.scopeTypeArgs.get(0).clone())) {
+        } else if (this.cursor.scopeType().isTypedScope() && !typeArg.equals(this.cursor.scopeTypeArgs().get(0).clone())) {
             return Result.TypeConstraint;
         }
 
-        this.cursor.writePath = path;
+        this.cursor.writePath(path);
         return Result.Success;
     }
 
@@ -797,7 +797,7 @@ public final class RowWriter {
      */
     private <TLayoutType extends LayoutType<String> & ILayoutUtf8SpanWritable> Result WritePrimitive(UtfAnyString path, Utf8Span value, TLayoutType type, AccessUtf8SpanMethod sparse) {
         Result result = Result.NotFound;
-        if (this.cursor.scopeType instanceof LayoutUDT) {
+        if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
@@ -836,7 +836,7 @@ public final class RowWriter {
      */
     private <TLayoutType extends LayoutType<TElement[]> & ILayoutSpanWritable<TElement>, TElement> Result WritePrimitive(UtfAnyString path, ReadOnlySpan<TElement> value, TLayoutType type, AccessReadOnlySpanMethod<TElement> sparse) {
         Result result = Result.NotFound;
-        if (this.cursor.scopeType instanceof LayoutUDT) {
+        if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
@@ -875,7 +875,7 @@ public final class RowWriter {
      */
     private <TLayoutType extends LayoutType<TElement[]> & ILayoutSequenceWritable<TElement>, TElement> Result WritePrimitive(UtfAnyString path, ReadOnlySequence<TElement> value, TLayoutType type, AccessMethod<ReadOnlySequence<TElement>> sparse) {
         Result result = Result.NotFound;
-        if (this.cursor.scopeType instanceof LayoutUDT) {
+        if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
@@ -914,7 +914,7 @@ public final class RowWriter {
     private <TValue> Result WritePrimitive(UtfAnyString path, TValue value, LayoutType<TValue> type,
                                            AccessMethod<TValue> sparse) {
         Result result = Result.NotFound;
-        if (this.cursor.scopeType instanceof LayoutUDT) {
+        if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
@@ -953,7 +953,7 @@ public final class RowWriter {
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout.TryFind(path, out col)) {
+        if (!this.cursor.layout().TryFind(path, out col)) {
             return Result.NotFound;
         }
 
@@ -967,14 +967,14 @@ public final class RowWriter {
             case StorageKind.Fixed:
                 Reference<RowBuffer> tempReference_row =
                     new Reference<RowBuffer>(this.row);
-                Result tempVar2 = t.WriteFixed(ref this.row, ref this.cursor, col, value)
+                Result tempVar2 = t.writeFixed(ref this.row, ref this.cursor, col, value)
                 this.row = tempReference_row.get();
                 return tempVar2;
 
             case StorageKind.Variable:
                 Reference<RowBuffer> tempReference_row2 =
                     new Reference<RowBuffer>(this.row);
-                Result tempVar3 = t.WriteVariable(ref this.row, ref this.cursor, col, value)
+                Result tempVar3 = t.writeVariable(ref this.row, ref this.cursor, col, value)
                 this.row = tempReference_row2.get();
                 return tempVar3;
 
@@ -996,7 +996,7 @@ public final class RowWriter {
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout.TryFind(path, out col)) {
+        if (!this.cursor.layout().TryFind(path, out col)) {
             return Result.NotFound;
         }
 
@@ -1011,7 +1011,7 @@ public final class RowWriter {
                     new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutUtf8SpanWritable>TypeAs().WriteFixed(tempReference_row, tempReference_cursor, col,
+                Result tempVar = t.<ILayoutUtf8SpanWritable>typeAs().WriteFixed(tempReference_row, tempReference_cursor, col,
                     value);
                 this.cursor = tempReference_cursor.get();
                 this.row = tempReference_row.get();
@@ -1021,7 +1021,7 @@ public final class RowWriter {
                     new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor2 =
                     new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutUtf8SpanWritable>TypeAs().WriteVariable(tempReference_row2,
+                Result tempVar2 = t.<ILayoutUtf8SpanWritable>typeAs().WriteVariable(tempReference_row2,
                     tempReference_cursor2,
                     col, value);
                 this.cursor = tempReference_cursor2.get();
@@ -1043,7 +1043,7 @@ public final class RowWriter {
     private <TElement> Result WriteSchematizedValue(UtfAnyString path, ReadOnlySpan<TElement> value) {
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout.TryFind(path, out col)) {
+        if (!this.cursor.layout().TryFind(path, out col)) {
             return Result.NotFound;
         }
 
@@ -1056,14 +1056,14 @@ public final class RowWriter {
             case StorageKind.Fixed:
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutSpanWritable<TElement>>TypeAs().WriteFixed(tempReference_row, tempReference_cursor, col, value);
+                Result tempVar = t.<ILayoutSpanWritable<TElement>>typeAs().WriteFixed(tempReference_row, tempReference_cursor, col, value);
                 this.cursor = tempReference_cursor.get();
                 this.row = tempReference_row.get();
                 return tempVar;
             case StorageKind.Variable:
                 Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutSpanWritable<TElement>>TypeAs().WriteVariable(tempReference_row2, tempReference_cursor2, col, value);
+                Result tempVar2 = t.<ILayoutSpanWritable<TElement>>typeAs().WriteVariable(tempReference_row2, tempReference_cursor2, col, value);
                 this.cursor = tempReference_cursor2.get();
                 this.row = tempReference_row2.get();
                 return tempVar2;
@@ -1083,7 +1083,7 @@ public final class RowWriter {
     private <TElement> Result WriteSchematizedValue(UtfAnyString path, ReadOnlySequence<TElement> value) {
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout.TryFind(path, out col)) {
+        if (!this.cursor.layout().TryFind(path, out col)) {
             return Result.NotFound;
         }
 
@@ -1096,14 +1096,14 @@ public final class RowWriter {
             case StorageKind.Fixed:
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutSequenceWritable<TElement>>TypeAs().WriteFixed(tempReference_row, tempReference_cursor, col, value);
+                Result tempVar = t.<ILayoutSequenceWritable<TElement>>typeAs().WriteFixed(tempReference_row, tempReference_cursor, col, value);
                 this.cursor = tempReference_cursor.get();
                 this.row = tempReference_row.get();
                 return tempVar;
             case StorageKind.Variable:
                 Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutSequenceWritable<TElement>>TypeAs().WriteVariable(tempReference_row2, tempReference_cursor2, col, value);
+                Result tempVar2 = t.<ILayoutSequenceWritable<TElement>>typeAs().WriteVariable(tempReference_row2, tempReference_cursor2, col, value);
                 this.cursor = tempReference_cursor2.get();
                 this.row = tempReference_row2.get();
                 return tempVar2;

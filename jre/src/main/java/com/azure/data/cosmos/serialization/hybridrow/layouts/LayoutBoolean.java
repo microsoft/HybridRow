@@ -17,38 +17,35 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
         super(, 0);
     }
 
-    @Override
-    public boolean getIsBool() {
+    public boolean isBoolean() {
         return true;
     }
 
-    @Override
-    public boolean getIsFixed() {
+    public boolean isFixed() {
         return true;
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return "bool";
     }
 
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<Boolean> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(false);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadBit(scope.get().start, col.getBoolBit().clone()));
+        value.setAndGet(b.get().ReadBit(scope.get().start(), col.getBoolBit().clone()));
         return Result.Success;
     }
 
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              Out<Boolean> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(false);
             return result;
@@ -61,18 +58,18 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
     @Override
     public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              boolean value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
         if (value) {
-            b.get().SetBit(scope.get().start, col.getBoolBit().clone());
+            b.get().SetBit(scope.get().start(), col.getBoolBit().clone());
         } else {
-            b.get().UnsetBit(scope.get().start, col.getBoolBit().clone());
+            b.get().UnsetBit(scope.get().start(), col.getBoolBit().clone());
         }
 
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
@@ -82,7 +79,7 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
     @Override
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, boolean value,
                               UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }

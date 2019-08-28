@@ -14,17 +14,16 @@ public final class LayoutObject extends LayoutPropertyScope {
     private TypeArgument TypeArg = new TypeArgument();
 
     public LayoutObject(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableObjectScope :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ObjectScope, immutable);
+        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_OBJECT_SCOPE :
+            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.OBJECT_SCOPE, immutable);
         this.TypeArg = new TypeArgument(this);
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return this.Immutable ? "im_object" : "object";
     }
 
-    public TypeArgument getTypeArg() {
+    public TypeArgument typeArg() {
         return TypeArg;
     }
 
@@ -41,7 +40,7 @@ public final class LayoutObject extends LayoutPropertyScope {
     @Override
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;

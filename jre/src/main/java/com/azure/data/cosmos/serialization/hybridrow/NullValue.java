@@ -10,11 +10,7 @@ package com.azure.data.cosmos.serialization.hybridrow;
  * May be stored hybrid row to indicate the literal null value. Typically this value should
  * not be used and the corresponding column should be absent from the row.
  */
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: public readonly struct NullValue : IEquatable<NullValue>
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
-public final class NullValue implements IEquatable<NullValue> {
+public final class NullValue {
     /**
      * The default null literal.
      * This is the same value as default({@link NullValue}).
@@ -22,7 +18,7 @@ public final class NullValue implements IEquatable<NullValue> {
     public static final NullValue Default = new NullValue();
 
     /**
-     * Returns true if this is the same value as {@link other}.
+     * Returns true if this is the same value as {@code other}.
      *
      * @param other The value to compare against.
      * @return True if the two values are the same.
@@ -31,37 +27,16 @@ public final class NullValue implements IEquatable<NullValue> {
         return true;
     }
 
-    /**
-     * {@link object.Equals(object)} overload.
-     */
     @Override
-    public boolean equals(Object obj) {
-        if (null == obj) {
+    public boolean equals(Object other) {
+        if (null == other) {
             return false;
         }
-
-        return obj instanceof NullValue && this.equals((NullValue)obj);
+        return other instanceof NullValue && this.equals((NullValue)other);
     }
 
-    /**
-     * {@link object.GetHashCode} overload.
-     */
     @Override
     public int hashCode() {
         return 42;
-    }
-
-    /**
-     * Operator == overload.
-     */
-    public static boolean opEquals(NullValue left, NullValue right) {
-        return left.equals(right.clone());
-    }
-
-    /**
-     * Operator != overload.
-     */
-    public static boolean opNotEquals(NullValue left, NullValue right) {
-        return !left.equals(right.clone());
     }
 }

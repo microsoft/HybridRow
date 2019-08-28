@@ -9,9 +9,8 @@ import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.core.UtfAnyString;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -29,13 +28,15 @@ public final class StringTokenizer {
      */
     public StringTokenizer() {
 
-        this.tokens = new HashMap<Utf8String, StringToken>(
-            Map.ofEntries(Map.entry(Utf8String.EMPTY, new StringToken(0, Utf8String.EMPTY))));
+        this.tokens = new HashMap<>();
+        this.tokens.put(Utf8String.EMPTY, new StringToken(0, Utf8String.EMPTY));
 
-        this.stringTokens = new HashMap<String, StringToken>(
-            Map.ofEntries(Map.entry("", new StringToken(0, Utf8String.EMPTY))));
+        this.stringTokens = new HashMap<>();
+        this.stringTokens.put("", new StringToken(0, Utf8String.EMPTY));
 
-        this.strings = new ArrayList<Utf8String>(Collections.singletonList(Utf8String.EMPTY));
+        this.strings = new ArrayList<>();
+        this.strings.add(Utf8String.EMPTY);
+
         this.count = 1;
     }
 
@@ -61,41 +62,33 @@ public final class StringTokenizer {
      * Looks up a string's corresponding token.
      *
      * @param path  The string to look up.
-     * @param token If successful, the string's assigned token.
-     * @return True if successful, false otherwise.
+     * @return {@code true} if successful, {@code false} otherwise.
      */
-    public boolean tryFindToken(UtfAnyString path, Out<StringToken> token) {
+    public Optional<StringToken> findToken(UtfAnyString path) {
 
         if (path.isNull()) {
-            token.setAndGet(null);
-            return false;
+            return Optional.empty();
         }
 
         if (path.isUtf8()) {
-            return (this.tokens.containsKey(path.toUtf8()) && (token.setAndGet(this.tokens.get(path.toUtf8()))) == token.get());
+            return Optional.ofNullable(this.tokens.get(path.toUtf8()));
         }
 
-        return (this.stringTokens.containsKey(path.toUtf16()) && (token.setAndGet(this.stringTokens.get(path.toUtf16()))) == token.get());
+        return Optional.ofNullable(this.stringTokens.get(path.toUtf16()));
     }
 
     /**
-     * Assign a token to the string.
+     * Assign a token to a string
+     * <p>
      * If the string already has a token, that token is returned instead.
      *
      * @param path The string to assign a new token.
      * @return The token assigned to the string.
      */
     public StringToken add(Utf8String path) {
-
         checkArgument(path != null);
-        StringToken token;
-
-        if (this.tokens.containsKey(path) && (token = this.tokens.get(path)) == token) {
-            return token;
-        }
-
-        token = this.allocateToken(path).clone();
-        return token;
+        final StringToken token = this.tokens.get(path);
+        return token == null ? this.allocateToken(path) : token;
     }
 
     /**
@@ -113,14 +106,13 @@ public final class StringTokenizer {
      */
     private StringToken allocateToken(Utf8String path) {
 
-        final long id = this.count++;
-        final StringToken token = new StringToken(id, path);
+        final StringToken token = new StringToken(this.count++, path);
 
-        this.tokens.put(path, token.clone());
-        this.stringTokens.put(path.toString(), token.clone());
+        this.stringTokens.put(path.toUtf16(), token);
+        this.tokens.put(path, token);
         this.strings.add(path);
 
-        checkState((long)this.strings.size() - 1 == id);
-        return token.clone();
+        checkState((long)this.strings.size() - 1 == token.id);
+        return token;
     }
 }

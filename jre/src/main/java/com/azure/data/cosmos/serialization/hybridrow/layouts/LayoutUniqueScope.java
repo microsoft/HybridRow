@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -38,14 +37,14 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
      */
     public final Result Find(Reference<RowBuffer> b, Reference<RowCursor> scope,
                              Reference<RowCursor> patternScope, Out<RowCursor> value) {
-        Result result = LayoutType.PrepareSparseMove(b, scope, this, this.FieldType(scope).clone(), patternScope, UpdateOptions.Update, value.clone());
+        Result result = LayoutType.prepareSparseMove(b, scope, this, this.FieldType(scope).clone(), patternScope, UpdateOptions.Update, value.clone());
 
         if (result != Result.Success) {
             return result;
         }
 
         // Check if the search found the result.
-        b.get().DeleteSparse(patternScope);
+        b.get().deleteSparse(patternScope);
 
         return Result.Success;
     }
@@ -58,7 +57,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         RowCursor dstEdit;
         Out<RowCursor> tempOut_dstEdit =
             new Out<RowCursor>();
-        Result result = LayoutType.PrepareSparseMove(b, destinationScope, this,
+        Result result = LayoutType.prepareSparseMove(b, destinationScope, this,
             this.FieldType(destinationScope).clone(), sourceEdit, options, tempOut_dstEdit);
         dstEdit = tempOut_dstEdit.get();
 
@@ -74,7 +73,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
 
         // TODO: it would be "better" if the destinationScope were updated to point to the
         // highest item seen.  Then we would avoid the maximum reparse.
-        destinationScope.get().count = dstEdit.count;
+        destinationScope.get().count(dstEdit.count());
         return Result.Success;
     }
 
@@ -129,7 +128,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
             return r;
         }
 
-        uniqueScope.count = childScope.count;
+        uniqueScope.count(childScope.count());
         Reference<RowCursor> tempReference_uniqueScope =
             new Reference<RowCursor>(uniqueScope);
         r = b.get().TypedCollectionUniqueIndexRebuild(tempReference_uniqueScope);

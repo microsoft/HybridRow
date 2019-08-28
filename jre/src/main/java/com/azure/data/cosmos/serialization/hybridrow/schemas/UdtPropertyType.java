@@ -38,7 +38,7 @@ public class UdtPropertyType extends ScopePropertyType {
     private com.azure.data.cosmos.serialization.hybridrow.SchemaId SchemaId = new SchemaId();
 
     public UdtPropertyType() {
-        this.setSchemaId(com.azure.data.cosmos.serialization.hybridrow.SchemaId.Invalid);
+        this.setSchemaId(com.azure.data.cosmos.serialization.hybridrow.SchemaId.INVALID);
     }
 
     public final String getName() {

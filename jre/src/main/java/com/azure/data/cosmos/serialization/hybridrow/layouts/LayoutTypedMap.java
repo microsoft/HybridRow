@@ -12,22 +12,20 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 public final class LayoutTypedMap extends LayoutUniqueScope {
     public LayoutTypedMap(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableTypedMapScope :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TypedMapScope, immutable, isSizedScope:
-        true, isTypedScope:true)
+        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_TYPED_MAP_SCOPE :
+            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TYPED_MAP_SCOPE, immutable, isSizedScope():
+        true, isTypedScope():true)
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return this.Immutable ? "im_map_t" : "map_t";
     }
 
-    @Override
-    public int CountTypeArgument(TypeArgumentList value) {
-        checkState(value.getCount() == 2);
+    public int countTypeArgument(TypeArgumentList value) {
+        checkState(value.count() == 2);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         for (TypeArgument arg : value) {
-            lenInBytes += arg.getType().CountTypeArgument(arg.getTypeArgs().clone());
+            lenInBytes += arg.type().CountTypeArgument(arg.typeArgs().clone());
         }
 
         return lenInBytes;
@@ -35,8 +33,8 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
 
     @Override
     public TypeArgument FieldType(Reference<RowCursor> scope) {
-        return new TypeArgument(scope.get().scopeType.Immutable ? ImmutableTypedTuple :
-            TypedTuple, scope.get().scopeTypeArgs.clone());
+        return new TypeArgument(scope.get().scopeType().Immutable ? ImmutableTypedTuple :
+            TypedTuple, scope.get().scopeTypeArgs().clone());
     }
 
     @Override
@@ -45,14 +43,14 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     }
 
     @Override
-    public TypeArgumentList ReadTypeArgumentList(Reference<RowBuffer> row, int offset,
+    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
         lenInBytes.setAndGet(0);
         TypeArgument[] retval = new TypeArgument[2];
         for (int i = 0; i < 2; i++) {
             int itemLenInBytes;
             Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
-            retval[i] = ReadTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
+            retval[i] = readTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
             itemLenInBytes = tempOut_itemLenInBytes.get();
             lenInBytes.setAndGet(lenInBytes.get() + itemLenInBytes);
         }
@@ -62,9 +60,9 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
 
     @Override
     public void SetImplicitTypeCode(Reference<RowCursor> edit) {
-        edit.get().cellType = edit.get().scopeType.Immutable ? ImmutableTypedTuple :
+        edit.get().cellType = edit.get().scopeType().Immutable ? ImmutableTypedTuple :
             TypedTuple;
-        edit.get().cellTypeArgs = edit.get().scopeTypeArgs.clone();
+        edit.get().cellTypeArgs = edit.get().scopeTypeArgs().clone();
     }
 
     @Override
@@ -79,7 +77,7 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     @Override
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
-        Result result = PrepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
+        Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
@@ -90,12 +88,12 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     }
 
     @Override
-    public int WriteTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        checkState(value.getCount() == 2);
+    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
+        checkState(value.count() == 2);
         row.get().WriteSparseTypeCode(offset, this.LayoutCode);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         for (TypeArgument arg : value) {
-            lenInBytes += arg.getType().WriteTypeArgument(row, offset + lenInBytes, arg.getTypeArgs().clone());
+            lenInBytes += arg.type().writeTypeArgument(row, offset + lenInBytes, arg.typeArgs().clone());
         }
 
         return lenInBytes;

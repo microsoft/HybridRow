@@ -18,16 +18,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpanWritable<Byte>,
     ILayoutSpanReadable<Byte>, ILayoutSequenceWritable<Byte> {
     public LayoutBinary() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.Binary, 0);
+        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.BINARY, 0);
     }
 
-    @Override
-    public boolean getIsFixed() {
+    public boolean isFixed() {
         return false;
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return "binary";
     }
 
@@ -35,7 +33,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // byte[] value)
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -53,21 +51,21 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // ReadOnlySpan<byte> value)
     public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<ReadOnlySpan<Byte>> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadFixedBinary(scope.get().start + col.getOffset(), col.getSize()));
+        value.setAndGet(b.get().ReadFixedBinary(scope.get().start() + col.getOffset(), col.getSize()));
         return Result.Success;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte[] value)
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
@@ -82,7 +80,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ReadOnlySpan<byte> value)
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<ReadOnlySpan<Byte>> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
@@ -96,7 +94,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // byte[] value)
     @Override
-    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
+    public Result readVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
         , Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -114,13 +112,13 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // ReadOnlySpan<byte> value)
     public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
         , Out<ReadOnlySpan<Byte>> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         value.setAndGet(b.get().ReadVariableBinary(varOffset));
         return Result.Success;
@@ -130,7 +128,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, byte[]
     // value)
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              byte[] value) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -143,15 +141,15 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // ReadOnlySpan<byte> value)
     public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              ReadOnlySpan<Byte> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
         checkArgument(value.Length == col.getSize());
-        if (scope.get().immutable) {
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFixedBinary(scope.get().start + col.getOffset(), value, col.getSize());
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
+        b.get().WriteFixedBinary(scope.get().start() + col.getOffset(), value, col.getSize());
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
@@ -160,21 +158,21 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // ReadOnlySequence<byte> value)
     public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              ReadOnlySequence<Byte> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
         checkArgument(value.Length == col.getSize());
-        if (scope.get().immutable) {
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFixedBinary(scope.get().start + col.getOffset(), value, col.getSize());
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
+        b.get().WriteFixedBinary(scope.get().start() + col.getOffset(), value, col.getSize());
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte[] value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte[] value) {
+        return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -182,7 +180,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte[] value,
+    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte[] value,
                               UpdateOptions options) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -201,7 +199,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               ReadOnlySpan<Byte> value, UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }
@@ -221,7 +219,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               ReadOnlySequence<Byte> value, UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }
@@ -234,7 +232,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // byte[] value)
     @Override
-    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
+    public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, byte[] value) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -247,8 +245,8 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // ReadOnlySpan<byte> value)
     public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, ReadOnlySpan<Byte> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
@@ -257,16 +255,16 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return Result.TooBig;
         }
 
-        boolean exists = b.get().ReadBit(scope.get().start, col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        boolean exists = b.get().ReadBit(scope.get().start(), col.getNullBit().clone());
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
-        scope.get().metaOffset += shift;
-        scope.get().valueOffset += shift;
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        scope.get().metaOffset(scope.get().metaOffset() + shift);
+        scope.get().valueOffset(scope.get().valueOffset() + shift);
         return Result.Success;
     }
 
@@ -275,8 +273,8 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // ReadOnlySequence<byte> value)
     public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, ReadOnlySequence<Byte> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
@@ -285,16 +283,16 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return Result.TooBig;
         }
 
-        boolean exists = b.get().ReadBit(scope.get().start, col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        boolean exists = b.get().ReadBit(scope.get().start(), col.getNullBit().clone());
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
-        scope.get().metaOffset += shift;
-        scope.get().valueOffset += shift;
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        scope.get().metaOffset(scope.get().metaOffset() + shift);
+        scope.get().valueOffset(scope.get().valueOffset() + shift);
         return Result.Success;
     }
 }

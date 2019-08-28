@@ -13,51 +13,70 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class LayoutScope extends LayoutType {
-    /**
-     * Returns true if this is a fixed arity scope.
-     */
-    public boolean IsFixedArity;
-    /**
-     * Returns true if this is an indexed scope.
-     */
-    public boolean IsIndexedScope;
-    /**
-     * Returns true if this is a sized scope.
-     */
-    public boolean IsSizedScope;
-    /**
-     * Returns true if this is a typed scope.
-     */
-    public boolean IsTypedScope;
-    /**
-     * Returns true if the scope's elements cannot be updated directly.
-     */
-    public boolean IsUniqueScope;
+
+    private boolean isFixedArity;
+    private boolean isIndexedScope;
+    private boolean isSizedScope;
+    private boolean isTypedScope;
+    private boolean isUniqueScope;
 
     protected LayoutScope(
         LayoutCode code, boolean immutable, boolean isSizedScope, boolean isIndexedScope, boolean isFixedArity,
         boolean isUniqueScope, boolean isTypedScope
     ) {
         super(code, immutable, 0);
-        this.IsSizedScope = isSizedScope;
-        this.IsIndexedScope = isIndexedScope;
-        this.IsFixedArity = isFixedArity;
-        this.IsUniqueScope = isUniqueScope;
-        this.IsTypedScope = isTypedScope;
+
+        this.isSizedScope = isSizedScope;
+        this.isIndexedScope = isIndexedScope;
+        this.isFixedArity = isFixedArity;
+        this.isUniqueScope = isUniqueScope;
+        this.isTypedScope = isTypedScope;
     }
 
-    @Override
-    public final boolean getIsFixed() {
-        return false;
+    /**
+     * Returns true if this is a fixed arity scope.
+     */
+    public boolean isFixedArity() {
+        return this.isFixedArity;
+    }
+
+    /**
+     * Returns true if this is an indexed scope.
+     */
+    public boolean isIndexedScope() {
+        return this.isIndexedScope;
+    }
+
+    /**
+     * Returns true if this is a sized scope.
+     */
+    public boolean isSizedScope() {
+        return this.isSizedScope;
+    }
+
+    /**
+     * Returns true if this is a typed scope.
+     */
+    public boolean isTypedScope() {
+        return this.isTypedScope;
+    }
+
+    /**
+     * Returns true if the scope's elements cannot be updated directly.
+     */
+    public boolean isUniqueScope() {
+        return this.isUniqueScope;
     }
 
     public final Result DeleteScope(Reference<RowBuffer> b, Reference<RowCursor> edit) {
-        Result result = LayoutType.PrepareSparseDelete(b, edit, this.LayoutCode);
+
+        Result result = LayoutType.prepareSparseDelete(b, edit, this.LayoutCode);
+
         if (result != Result.Success) {
             return result;
         }
 
-        b.get().DeleteSparse(edit);
+        b.get().deleteSparse(edit);
         return Result.Success;
     }
 
@@ -72,16 +91,18 @@ public abstract class LayoutScope extends LayoutType {
         return false;
     }
 
-    public final Result ReadScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                                  Out<RowCursor> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+    public final Result ReadScope(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<RowCursor> value) {
+
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
         }
 
         value.setAndGet(b.get().SparseIteratorReadScope(edit,
-            this.Immutable || edit.get().immutable || edit.get().scopeType.IsUniqueScope).clone());
+            this.Immutable || edit.get().immutable() || edit.get().scopeType().isUniqueScope()).clone());
+
         return Result.Success;
     }
 
@@ -89,10 +110,10 @@ public abstract class LayoutScope extends LayoutType {
         int pathLenInBytes;
         Out<Integer> tempOut_pathLenInBytes = new Out<Integer>();
         Out<Integer> tempOut_pathOffset = new Out<Integer>();
-        edit.get().pathToken = row.get().ReadSparsePathLen(edit.get().layout, edit.get().valueOffset, tempOut_pathLenInBytes, tempOut_pathOffset);
-        edit.get().argValue.pathOffset = tempOut_pathOffset.get();
+        edit.get().pathToken = row.get().ReadSparsePathLen(edit.get().layout(), edit.get().valueOffset(), tempOut_pathLenInBytes, tempOut_pathOffset);
+        edit.get().pathOffset = tempOut_pathOffset.get();
         pathLenInBytes = tempOut_pathLenInBytes.get();
-        edit.get().valueOffset += pathLenInBytes;
+        edit.get().valueOffset(edit.get().valueOffset() + pathLenInBytes);
     }
 
     public void SetImplicitTypeCode(Reference<RowCursor> edit) {

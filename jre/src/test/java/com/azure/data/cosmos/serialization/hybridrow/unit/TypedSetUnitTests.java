@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -1467,7 +1466,7 @@ public final class TypedSetUnitTests {
     }
 
     private static void WriteShoppingItem(Reference<RowBuffer> row, Reference<RowCursor> matchScope, TypeArgumentList typeArgs, ShoppingItem m) {
-        Layout matchLayout = row.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout matchLayout = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert matchLayout.TryFind("label", out c);
@@ -1507,7 +1506,7 @@ public final class TypedSetUnitTests {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
-                ResultAssert.IsSuccess(c.getTypeArgs().get(0).getType().<LayoutUtf8>TypeAs().WriteSparse(row,
+                ResultAssert.IsSuccess(c.getTypeArgs().get(0).type().<LayoutUtf8>typeAs().WriteSparse(row,
                     ref tempCursor, item));
                 Reference<RowCursor> tempReference_attendScope =
                     new Reference<RowCursor>(attendScope);
@@ -1546,7 +1545,7 @@ public final class TypedSetUnitTests {
                 root.get().Clone(out tempCursor).Find(row, Utf8String.Empty);
                 Reference<RowCursor> tempReference_tempCursor2 =
                     new Reference<RowCursor>(tempCursor);
-                ResultAssert.IsSuccess(c.getTypeArgs().get(0).getType().<LayoutGuid>TypeAs().WriteSparse(row,
+                ResultAssert.IsSuccess(c.getTypeArgs().get(0).type().<LayoutGuid>typeAs().WriteSparse(row,
                     tempReference_tempCursor2, item));
                 tempCursor = tempReference_tempCursor2.get();
                 Reference<RowCursor> tempReference_projScope =
@@ -1586,7 +1585,7 @@ public final class TypedSetUnitTests {
                 root.get().Clone(out tempCursor).Find(row, Utf8String.Empty);
                 Reference<RowCursor> tempReference_tempCursor4 =
                     new Reference<RowCursor>(tempCursor);
-                ResultAssert.IsSuccess(c.getTypeArgs().get(0).getType().<LayoutBoolean>TypeAs().WriteSparse(row,
+                ResultAssert.IsSuccess(c.getTypeArgs().get(0).type().<LayoutBoolean>typeAs().WriteSparse(row,
                     tempReference_tempCursor4, item));
                 tempCursor = tempReference_tempCursor4.get();
                 Reference<RowCursor> tempReference_checkboxScope =

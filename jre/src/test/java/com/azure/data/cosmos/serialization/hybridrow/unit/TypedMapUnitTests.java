@@ -1179,7 +1179,7 @@ public final class TypedMapUnitTests {
     }
 
     private static void WriteEarnings(Reference<RowBuffer> row, Reference<RowCursor> udtScope, TypeArgumentList typeArgs, Earnings m) {
-        Layout udt = row.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout udt = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert udt.TryFind("domestic", out c);
@@ -1338,7 +1338,7 @@ public final class TypedMapUnitTests {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
-                ResultAssert.IsSuccess(c.getTypeArgs().get(0).getType().<LayoutUtf8>TypeAs().WriteSparse(row,
+                ResultAssert.IsSuccess(c.getTypeArgs().get(0).type().<LayoutUtf8>typeAs().WriteSparse(row,
                     ref tupleScope, item.Key));
                 assert tupleScope.MoveNext(row);
                 TypeArgument valueType = c.getTypeArgs().get(1).clone();
@@ -1421,7 +1421,7 @@ public final class TypedMapUnitTests {
                     out tupleScope));
                 Reference<RowCursor> tempReference_tupleScope =
                     new Reference<RowCursor>(tupleScope);
-                ResultAssert.IsSuccess(c.getTypeArgs().get(0).getType().<LayoutDateTime>TypeAs().WriteSparse(row,
+                ResultAssert.IsSuccess(c.getTypeArgs().get(0).type().<LayoutDateTime>typeAs().WriteSparse(row,
                     tempReference_tupleScope, item.Key));
                 tupleScope = tempReference_tupleScope.get();
                 assert tupleScope.MoveNext(row);

@@ -14,21 +14,19 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8SpanWritable, ILayoutUtf8SpanReadable {
     public LayoutUtf8() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.Utf8, 0);
+        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.UTF_8, 0);
     }
 
-    @Override
-    public boolean getIsFixed() {
+    public boolean isFixed() {
         return false;
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return "utf8";
     }
 
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<String> value) {
         Utf8Span span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -41,19 +39,19 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
 
     public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<Utf8Span> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadFixedString(scope.get().start + col.getOffset(), col.getSize()));
+        value.setAndGet(b.get().ReadFixedString(scope.get().start() + col.getOffset(), col.getSize()));
         return Result.Success;
     }
 
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              Out<String> value) {
         Utf8Span span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -65,7 +63,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
     }
 
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Utf8Span> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;
@@ -76,7 +74,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
     }
 
     @Override
-    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
+    public Result readVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
         , Out<String> value) {
         Utf8Span span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -89,20 +87,20 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
 
     public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
         , Out<Utf8Span> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         value.setAndGet(b.get().ReadVariableString(varOffset));
         return Result.Success;
     }
 
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              String value) {
         checkArgument(value != null);
         return this.WriteFixed(b, scope, col, Utf8Span.TranscodeUtf16(value));
@@ -110,28 +108,28 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
 
     public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              Utf8Span value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         checkArgument(col.getSize() >= 0);
         checkArgument(value.Length == col.getSize());
-        if (scope.get().immutable) {
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFixedString(scope.get().start + col.getOffset(), value);
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
+        b.get().WriteFixedString(scope.get().start() + col.getOffset(), value);
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, String value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, String value) {
+        return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, string value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, String value,
+    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, String value,
                               UpdateOptions options) {
         checkArgument(value != null);
         return this.WriteSparse(b, edit, Utf8Span.TranscodeUtf16(value), options);
@@ -147,7 +145,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
     // options = UpdateOptions.Upsert)
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Utf8Span value,
                               UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }
@@ -157,7 +155,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
     }
 
     @Override
-    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
+    public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, String value) {
         checkArgument(value != null);
         return this.WriteVariable(b, scope, col, Utf8Span.TranscodeUtf16(value));
@@ -165,8 +163,8 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
 
     public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, Utf8Span value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
@@ -175,16 +173,16 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return Result.TooBig;
         }
 
-        boolean exists = b.get().ReadBit(scope.get().start, col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        boolean exists = b.get().ReadBit(scope.get().start(), col.getNullBit().clone());
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableString(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
-        scope.get().metaOffset += shift;
-        scope.get().valueOffset += shift;
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        scope.get().metaOffset(scope.get().metaOffset() + shift);
+        scope.get().valueOffset(scope.get().valueOffset() + shift);
         return Result.Success;
     }
 }

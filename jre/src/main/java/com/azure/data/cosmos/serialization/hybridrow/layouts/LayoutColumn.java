@@ -7,8 +7,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 
-import static com.google.common.base.Strings.lenientFormat;
-
 // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
 //ORIGINAL LINE: [DebuggerDisplay("{FullPath + \": \" + Type.Name + TypeArgs.ToString()}")] public sealed class
 // LayoutColumn
@@ -107,7 +105,7 @@ public final class LayoutColumn {
         this.offset = offset;
         this.nullBit = nullBit.clone();
         this.boolBit = boolBit.clone();
-        this.size = this.typeArg.getType().getIsFixed() ? type.Size : length;
+        this.size = this.typeArg.type().getIsFixed() ? type.Size : length;
     }
 
     /**
@@ -187,7 +185,7 @@ public final class LayoutColumn {
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [DebuggerHidden] public T TypeAs<T>() where T : ILayoutType
     public <T extends ILayoutType> T TypeAs() {
-        return this.type.TypeAs();
+        return this.type.typeAs();
     }
 
     /**
@@ -230,13 +228,13 @@ public final class LayoutColumn {
     private static String GetFullPath(LayoutColumn parent, String path) {
         if (parent != null) {
             switch (LayoutCodeTraits.ClearImmutableBit(parent.type.LayoutCode)) {
-                case ObjectScope:
-                case Schema:
+                case OBJECT_SCOPE:
+                case SCHEMA:
                     return parent.getFullPath().toString() + "." + path;
-                case ArrayScope:
-                case TypedArrayScope:
-                case TypedSetScope:
-                case TypedMapScope:
+                case ARRAY_SCOPE:
+                case TYPED_ARRAY_SCOPE:
+                case TYPED_SET_SCOPE:
+                case TYPED_MAP_SCOPE:
                     return parent.getFullPath().toString() + "[]" + path;
                 default:
                     throw new IllegalStateException(lenientFormat("Parent scope type not supported: %s", parent.type.LayoutCode));

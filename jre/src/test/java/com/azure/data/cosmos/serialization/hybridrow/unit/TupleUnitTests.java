@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -344,7 +343,7 @@ public final class TupleUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        assert valueScope.AsReadOnly(out _).start == valueScope2.start;
+        assert valueScope.AsReadOnly(out _).start == valueScope2.start();
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
@@ -878,7 +877,7 @@ public final class TupleUnitTests {
     }
 
     private static void WriteCoord(Reference<RowBuffer> row, Reference<RowCursor> coordScope, TypeArgumentList typeArgs, Coord cd) {
-        Layout coordLayout = row.get().getResolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout coordLayout = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert coordLayout.TryFind("lat", out c);

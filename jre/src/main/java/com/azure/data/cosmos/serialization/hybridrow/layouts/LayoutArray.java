@@ -10,23 +10,22 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
-import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ArrayScope;
-import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ImmutableArrayScope;
+import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.ARRAY_SCOPE;
+import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_ARRAY_SCOPE;
 
 public final class LayoutArray extends LayoutIndexedScope {
     private TypeArgument TypeArg = new TypeArgument();
 
     public LayoutArray(boolean immutable) {
-        super(immutable ? ImmutableArrayScope : ArrayScope, immutable, false, false, false, false);
+        super(immutable ? IMMUTABLE_ARRAY_SCOPE : ARRAY_SCOPE, immutable, false, false, false, false);
         this.TypeArg = new TypeArgument(this);
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return this.Immutable ? "im_array" : "array";
     }
 
-    public TypeArgument getTypeArg() {
+    public TypeArgument typeArg() {
         return TypeArg;
     }
 
@@ -46,7 +45,7 @@ public final class LayoutArray extends LayoutIndexedScope {
     @Override
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
-        Result result = PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             value.setAndGet(null);
             return result;

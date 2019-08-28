@@ -74,18 +74,18 @@ public final class BsonRowGenerator implements Closeable {
 
     private void DispatchArray(TypeArgument typeArg, Object value) {
 
-        checkArgument(typeArg.getTypeArgs().getCount() == 1);
+        checkArgument(typeArg.typeArgs().count() == 1);
         this.writer.writeStartArray();
 
         for (Object item : (ArrayList<Object>)value) {
-            this.LayoutCodeSwitch(null, typeArg.getTypeArgs().get(0).clone(), item);
+            this.LayoutCodeSwitch(null, typeArg.typeArgs().get(0).clone(), item);
         }
 
         this.writer.writeEndArray();
     }
 
     private void DispatchMap(TypeArgument typeArg, Object value) {
-        checkArgument(typeArg.getTypeArgs().getCount() == 2);
+        checkArgument(typeArg.typeArgs().count() == 2);
 
         this.writer.writeStartArray();
         for (Object item : (ArrayList<Object>)value) {
@@ -96,10 +96,10 @@ public final class BsonRowGenerator implements Closeable {
     }
 
     private void DispatchNullable(TypeArgument typeArg, Object value) {
-        checkArgument(typeArg.getTypeArgs().getCount() == 1);
+        checkArgument(typeArg.typeArgs().count() == 1);
 
         if (value != null) {
-            this.LayoutCodeSwitch(null, typeArg.getTypeArgs().get(0).clone(), value);
+            this.LayoutCodeSwitch(null, typeArg.typeArgs().get(0).clone(), value);
         } else {
             this.writer.writeNull();
         }
@@ -112,25 +112,25 @@ public final class BsonRowGenerator implements Closeable {
     }
 
     private void DispatchSet(TypeArgument typeArg, Object value) {
-        checkArgument(typeArg.getTypeArgs().getCount() == 1);
+        checkArgument(typeArg.typeArgs().count() == 1);
 
         this.writer.WriteStartArray();
         for (Object item : (ArrayList<Object>)value) {
-            this.LayoutCodeSwitch(null, typeArg.getTypeArgs().get(0).clone(), item);
+            this.LayoutCodeSwitch(null, typeArg.typeArgs().get(0).clone(), item);
         }
 
         this.writer.WriteEndArray();
     }
 
     private void DispatchTuple(TypeArgument typeArg, Object value) {
-        checkArgument(typeArg.getTypeArgs().getCount() >= 2);
+        checkArgument(typeArg.typeArgs().count() >= 2);
         ArrayList<Object> items = (ArrayList<Object>)value;
-        checkArgument(items.size() == typeArg.getTypeArgs().getCount());
+        checkArgument(items.size() == typeArg.typeArgs().count());
 
         this.writer.WriteStartArray();
         for (int i = 0; i < items.size(); i++) {
             Object item = items.get(i);
-            this.LayoutCodeSwitch(null, typeArg.getTypeArgs().get(i).clone(), item);
+            this.LayoutCodeSwitch(null, typeArg.typeArgs().get(i).clone(), item);
         }
 
         this.writer.WriteEndArray();
@@ -140,7 +140,7 @@ public final class BsonRowGenerator implements Closeable {
         this.writer.WriteStartDocument();
 
         HashMap<Utf8String, Object> dict = (HashMap<Utf8String, Object>)value;
-        Layout udt = this.resolver.Resolve(typeArg.getTypeArgs().getSchemaId().clone());
+        Layout udt = this.resolver.Resolve(typeArg.typeArgs().schemaId().clone());
         for (LayoutColumn c : udt.columns()) {
             this.LayoutCodeSwitch(c.getPath(), c.getTypeArg().clone(), dict.get(c.getPath()));
         }
@@ -153,7 +153,7 @@ public final class BsonRowGenerator implements Closeable {
             this.writer.WriteName(path);
         }
 
-        switch (typeArg.getType().LayoutCode) {
+        switch (typeArg.type().LayoutCode) {
             case Null:
                 this.writer.WriteNull();
                 return;

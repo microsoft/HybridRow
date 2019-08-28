@@ -6,38 +6,26 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
+import java.util.Arrays;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1034 // Nested types should not be visible
+public final class TypeArgumentList
+{
+    public static final TypeArgumentList EMPTY = new TypeArgumentList();
 
+    private final TypeArgument[] args;
+    private final SchemaId schemaId;
 
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [DebuggerDisplay("{this.args == null ? null : ToString()}")] public readonly struct TypeArgumentList
-// : IEquatable<TypeArgumentList>
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: [DebuggerDisplay("{this.args == null ? null : ToString()}")] public readonly struct TypeArgumentList
-// : IEquatable<TypeArgumentList>
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
-public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
-    public static final TypeArgumentList Empty = new TypeArgumentList(Array.<TypeArgument>Empty());
-
-    private TypeArgument[] args;
-
-    /**
-     * For UDT fields, the schema id of the nested layout.
-     */
-    private SchemaId schemaId = new SchemaId();
-
-    public TypeArgumentList() {
+    private TypeArgumentList() {
+        this.args = new TypeArgument[] {};
+        this.schemaId = SchemaId.NONE;
     }
 
     public TypeArgumentList(TypeArgument[] args) {
         checkArgument(args != null);
-
         this.args = args;
-        this.schemaId = getSchemaId().Invalid;
+        this.schemaId = SchemaId.INVALID;
     }
 
     /**
@@ -45,20 +33,20 @@ public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
      *
      * @param schemaId For UDT fields, the schema id of the nested layout.
      */
-    public TypeArgumentList(SchemaId schemaId) {
-        this.args = Array.<TypeArgument>Empty();
-        this.schemaId = schemaId.clone();
+    public TypeArgumentList(SchemaId schemaId, TypeArgument...args) {
+        this.args = args.length == 0 ? EMPTY.args : args;
+        this.schemaId = schemaId;
     }
 
-    public int getCount() {
+    public int count() {
         return this.args.length;
     }
 
     /**
      * For UDT fields, the schema id of the nested layout.
      */
-    public SchemaId getSchemaId() {
-        return this.schemaId.clone();
+    public SchemaId schemaId() {
+        return this.schemaId;
     }
 
     /**
@@ -68,35 +56,19 @@ public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
         return new Enumerator(this.args);
     }
 
-    public TypeArgumentList clone() {
-        TypeArgumentList varCopy = new TypeArgumentList();
-
-        varCopy.args = this.args.clone();
-        varCopy.schemaId = this.schemaId.clone();
-
-        return varCopy;
-    }
-
     public boolean equals(TypeArgumentList other) {
-        //C# TO JAVA CONVERTER WARNING: Java Arrays.equals is not always identical to LINQ 'SequenceEqual':
-        //ORIGINAL LINE: return (this.schemaId == other.schemaId) && this.args.SequenceEqual(other.args);
-        return (SchemaId.opEquals(this.schemaId.clone(),
-            other.schemaId.clone())) && Arrays.equals(this.args, other.args);
+        if (null == other) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        return this.schemaId().equals(other.schemaId()) && Arrays.equals(this.args, other.args);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (null == obj) {
-            return false;
-        }
-
-        boolean tempVar = obj instanceof TypeArgumentList;
-        TypeArgumentList ota = tempVar ? (TypeArgumentList)obj : null;
-        if (tempVar) {
-            return this.equals(ota);
-        }
-
-        return false;
+    public boolean equals(Object other) {
+        return other instanceof TypeArgumentList && this.equals((TypeArgumentList) other);
     }
 
     public TypeArgument get(int i) {
@@ -105,32 +77,30 @@ public final class TypeArgumentList implements IEquatable<TypeArgumentList> {
 
     @Override
     public int hashCode() {
-        // TODO: C# TO JAVA CONVERTER: There is no equivalent to an 'unchecked' block in Java:
-        unchecked
-        {
-            int hash = 19;
-            hash = (hash * 397) ^ this.schemaId.hashCode();
-            for (TypeArgument a : this.args) {
-                hash = (hash * 397) ^ a.hashCode();
-            }
 
-            return hash;
+        int hash = 19;
+        hash = (hash * 397) ^ this.schemaId().hashCode();
+
+        for (TypeArgument a : this.args) {
+            hash = (hash * 397) ^ a.hashCode();
         }
+
+        return hash;
     }
 
     public static boolean opEquals(TypeArgumentList left, TypeArgumentList right) {
-        return left.equals(right.clone());
+        return left.equals(right);
     }
 
     public static boolean opNotEquals(TypeArgumentList left, TypeArgumentList right) {
-        return !left.equals(right.clone());
+        return !left.equals(right);
     }
 
     @Override
     public String toString() {
-        if (SchemaId.opNotEquals(this.schemaId.clone(),
-            getSchemaId().Invalid)) {
-            return String.format("<%1$s>", this.schemaId.toString());
+
+        if (this.schemaId.equals(SchemaId.INVALID)) {
+            return String.format("<%1$s>", this.schemaId().toString());
         }
 
         if (this.args == null || this.args == null ? null : this.args.length == 0) {

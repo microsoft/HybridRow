@@ -73,13 +73,13 @@ public final class CodeGenRowGenerator {
     }
 
     public int getLength() {
-        return this.row.getLength();
+        return this.row.length();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadBuffer(byte[] buffer)
     public Result ReadBuffer(byte[] buffer) {
-        this.row = new RowBuffer(buffer.AsSpan(), HybridRowVersion.V1, this.row.getResolver());
+        this.row = new RowBuffer(buffer.AsSpan(), HybridRowVersion.V1, this.row.resolver());
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(this.row);
         RowCursor root = RowCursor.Create(tempReference_row);
@@ -95,8 +95,8 @@ public final class CodeGenRowGenerator {
     }
 
     public void Reset() {
-        Layout layout = this.row.getResolver().Resolve(this.row.getHeader().getSchemaId().clone());
-        this.row.InitLayout(HybridRowVersion.V1, layout, this.row.getResolver());
+        Layout layout = this.row.resolver().Resolve(this.row.header().getSchemaId().clone());
+        this.row.InitLayout(HybridRowVersion.V1, layout, this.row.resolver());
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -157,7 +157,7 @@ public final class CodeGenRowGenerator {
             Out<StringToken> tempOut_postalCodeToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.postalCode.getPath(), tempOut_postalCodeToken);
             this.postalCodeToken = tempOut_postalCodeToken.get();
-            this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.Resolve(this.postalCode.getTypeArgs().getSchemaId().clone()), resolver);
+            this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.Resolve(this.postalCode.getTypeArgs().schemaId().clone()), resolver);
         }
 
         @Override
@@ -353,7 +353,7 @@ public final class CodeGenRowGenerator {
                     this.addresses.getTypeArgs().clone()) });
 
             this.addressSerializer =
-                new AddressHybridRowSerializer(resolver.Resolve(this.addresses.getTypeArgs().get(1).getTypeArgs().getSchemaId().clone()), resolver);
+                new AddressHybridRowSerializer(resolver.Resolve(this.addresses.getTypeArgs().get(1).typeArgs().schemaId().clone()), resolver);
             this.addressSerializerWriter = (Reference<RowBuffer> b, Reference<RowCursor> scope,
                                             HashMap<Utf8String, Object> context) -> addressSerializer.WriteBuffer(b,
                 scope, context);
@@ -363,7 +363,7 @@ public final class CodeGenRowGenerator {
         public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             java.util.UUID _;
             Out<UUID> tempOut__ = new Out<UUID>();
-            Result r = LayoutType.Guid.ReadFixed(row, root, this.guestId, tempOut__);
+            Result r = LayoutType.Guid.readFixed(row, root, this.guestId, tempOut__);
             _ = tempOut__.get();
             if (r != Result.Success) {
                 return r;
@@ -550,7 +550,7 @@ public final class CodeGenRowGenerator {
                     //ORIGINAL LINE: case 0 when key.Equals(GuestsHybridRowSerializer.GuestIdName):
                     case 0
                         if (value != null) {
-                            r = LayoutType.Guid.WriteFixed(row, root, this.guestId, (UUID)value);
+                            r = LayoutType.Guid.writeFixed(row, root, this.guestId, (UUID)value);
                             if (r != Result.Success) {
                                 return r;
                             }
@@ -796,7 +796,7 @@ public final class CodeGenRowGenerator {
             layout.getTokenizer().TryFindToken(this.address.getPath(), tempOut_addressToken);
             this.addressToken = tempOut_addressToken.get();
             this.addressSerializer =
-                new AddressHybridRowSerializer(resolver.Resolve(this.address.getTypeArgs().getSchemaId().clone()),
+                new AddressHybridRowSerializer(resolver.Resolve(this.address.getTypeArgs().schemaId().clone()),
                     resolver);
         }
 
@@ -974,7 +974,7 @@ public final class CodeGenRowGenerator {
         public Result ReadBuffer(Reference<RowBuffer> row, Reference<RowCursor> root) {
             int _;
             Out<Integer> tempOut__ = new Out<Integer>();
-            Result r = LayoutType.Int32.ReadFixed(row, root, this.zip, tempOut__);
+            Result r = LayoutType.Int32.readFixed(row, root, this.zip, tempOut__);
             _ = tempOut__.get();
             if (r != Result.Success) {
                 return r;
@@ -983,7 +983,7 @@ public final class CodeGenRowGenerator {
             root.get().Find(row, this.plus4Token.clone());
             short _;
             Out<Short> tempOut__2 = new Out<Short>();
-            Result tempVar = LayoutType.Int16.ReadSparse(row, root, tempOut__2);
+            Result tempVar = LayoutType.Int16.readSparse(row, root, tempOut__2);
             _ = tempOut__2.get();
             return tempVar;
         }
@@ -1083,7 +1083,7 @@ public final class CodeGenRowGenerator {
             Out<Byte> tempOut__2 = new Out<Byte>();
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: r = LayoutType.UInt8.ReadFixed(ref row, ref root, this.roomNumber, out byte _);
-            r = LayoutType.UInt8.ReadFixed(row, root, this.roomNumber, tempOut__2);
+            r = LayoutType.UInt8.readFixed(row, root, this.roomNumber, tempOut__2);
             _ = tempOut__2.get();
             if (r != Result.Success) {
                 return r;
@@ -1091,7 +1091,7 @@ public final class CodeGenRowGenerator {
 
             boolean _;
             Out<Boolean> tempOut__3 = new Out<Boolean>();
-            Result tempVar = LayoutType.Boolean.ReadFixed(row, root, this.isAvailable, tempOut__3);
+            Result tempVar = LayoutType.Boolean.readFixed(row, root, this.isAvailable, tempOut__3);
             _ = tempOut__3.get();
             return tempVar;
         }

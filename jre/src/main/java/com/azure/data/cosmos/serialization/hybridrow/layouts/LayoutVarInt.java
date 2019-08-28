@@ -14,26 +14,23 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutVarInt extends LayoutType<Long> {
     public LayoutVarInt() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.VarInt, 0);
+        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.VAR_INT, 0);
     }
 
-    @Override
-    public boolean getIsFixed() {
+    public boolean isFixed() {
         return false;
     }
 
-    @Override
-    public boolean getIsVarint() {
+    public boolean isVarint() {
         return true;
     }
 
-    @Override
-    public String getName() {
+    public String name() {
         return "varint";
     }
 
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
         value.setAndGet(0);
@@ -41,8 +38,8 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Long> value) {
-        Result result = LayoutType.PrepareSparseRead(b, edit, this.LayoutCode);
+    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Long> value) {
+        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(0);
             return result;
@@ -53,14 +50,14 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Long> value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start, col.getNullBit().clone())) {
+    public Result readVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Long> value) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NotFound;
         }
 
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         value.setAndGet(b.get().ReadVariableInt(varOffset));
         return Result.Success;
@@ -79,7 +76,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     @Override
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value,
                               UpdateOptions options) {
-        Result result = LayoutType.PrepareSparseWrite(b, edit, this.getTypeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
             return result;
         }
@@ -96,21 +93,21 @@ public final class LayoutVarInt extends LayoutType<Long> {
     @Override
     public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
                                 LayoutColumn col, long value) {
-        checkArgument(scope.get().scopeType instanceof LayoutUDT);
-        if (scope.get().immutable) {
+        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        boolean exists = b.get().ReadBit(scope.get().start, col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout, scope.get().start,
+        boolean exists = b.get().ReadBit(scope.get().start(), col.getNullBit().clone());
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableInt(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().SetBit(scope.get().start, col.getNullBit().clone());
-        scope.get().metaOffset += shift;
-        scope.get().valueOffset += shift;
+        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        scope.get().metaOffset(scope.get().metaOffset() + shift);
+        scope.get().valueOffset(scope.get().valueOffset() + shift);
         return Result.Success;
     }
 }

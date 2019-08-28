@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
@@ -33,19 +32,19 @@ public final class WriteRowDispatcher implements IDispatcher {
             case Fixed:
                 Reference<RowBuffer> tempReference_Row =
                     new Reference<RowBuffer>(dispatcher.get().Row);
-                ResultAssert.IsSuccess(t.<TLayout>TypeAs().WriteFixed(tempReference_Row, field, col, value));
+                ResultAssert.IsSuccess(t.<TLayout>typeAs().writeFixed(tempReference_Row, field, col, value));
                 dispatcher.get().argValue.Row = tempReference_Row.get();
                 break;
             case Variable:
                 Reference<RowBuffer> tempReference_Row2 =
                     new Reference<RowBuffer>(dispatcher.get().Row);
-                ResultAssert.IsSuccess(t.<TLayout>TypeAs().WriteVariable(tempReference_Row2, field, col, value));
+                ResultAssert.IsSuccess(t.<TLayout>typeAs().writeVariable(tempReference_Row2, field, col, value));
                 dispatcher.get().argValue.Row = tempReference_Row2.get();
                 break;
             default:
                 Reference<RowBuffer> tempReference_Row3 =
                     new Reference<RowBuffer>(dispatcher.get().Row);
-                ResultAssert.IsSuccess(t.<TLayout>TypeAs().WriteSparse(tempReference_Row3, field, value));
+                ResultAssert.IsSuccess(t.<TLayout>typeAs().writeSparse(tempReference_Row3, field, value));
                 dispatcher.get().argValue.Row = tempReference_Row3.get();
                 break;
         }
@@ -54,14 +53,14 @@ public final class WriteRowDispatcher implements IDispatcher {
     public void DispatchArray(Reference<RowOperationDispatcher> dispatcher,
                               Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                               Object value) {
-        checkArgument(typeArgs.getCount() == 1);
+        checkArgument(typeArgs.count() == 1);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor arrayScope;
         Out<RowCursor> tempOut_arrayScope =
             new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutTypedArray>TypeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
+        ResultAssert.IsSuccess(t.<LayoutTypedArray>typeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
             tempOut_arrayScope));
         arrayScope = tempOut_arrayScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
@@ -71,8 +70,8 @@ public final class WriteRowDispatcher implements IDispatcher {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
-            dispatcher.get().LayoutCodeSwitch(ref arrayScope, null, typeArgs.get(0).getType(),
-                typeArgs.get(0).getTypeArgs().clone(), item);
+            dispatcher.get().LayoutCodeSwitch(ref arrayScope, null, typeArgs.get(0).type(),
+                typeArgs.get(0).typeArgs().clone(), item);
             Reference<RowBuffer> tempReference_Row2 =
                 new Reference<RowBuffer>(dispatcher.get().Row);
             arrayScope.MoveNext(tempReference_Row2);
@@ -83,20 +82,20 @@ public final class WriteRowDispatcher implements IDispatcher {
     public void DispatchMap(Reference<RowOperationDispatcher> dispatcher,
                             Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                             Object value) {
-        checkArgument(typeArgs.getCount() == 2);
+        checkArgument(typeArgs.count() == 2);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor mapScope;
         Out<RowCursor> tempOut_mapScope =
             new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutTypedMap>TypeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
+        ResultAssert.IsSuccess(t.<LayoutTypedMap>typeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
             tempOut_mapScope));
         mapScope = tempOut_mapScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
         Reference<RowCursor> tempReference_mapScope =
             new Reference<RowCursor>(mapScope);
-        TypeArgument fieldType = t.<LayoutUniqueScope>TypeAs().FieldType(tempReference_mapScope).clone();
+        TypeArgument fieldType = t.<LayoutUniqueScope>typeAs().FieldType(tempReference_mapScope).clone();
         mapScope = tempReference_mapScope.get();
         List pairs = (List)value;
         for (Object pair : pairs) {
@@ -122,7 +121,7 @@ public final class WriteRowDispatcher implements IDispatcher {
                 new Reference<RowCursor>(mapScope);
             Reference<RowCursor> tempReference_tempCursor =
                 new Reference<RowCursor>(tempCursor);
-            ResultAssert.IsSuccess(t.<LayoutTypedMap>TypeAs().MoveField(tempReference_Row3, tempReference_mapScope2,
+            ResultAssert.IsSuccess(t.<LayoutTypedMap>typeAs().MoveField(tempReference_Row3, tempReference_mapScope2,
                 tempReference_tempCursor));
             tempCursor = tempReference_tempCursor.get();
             mapScope = tempReference_mapScope2.get();
@@ -133,14 +132,14 @@ public final class WriteRowDispatcher implements IDispatcher {
     public void DispatchNullable(Reference<RowOperationDispatcher> dispatcher,
                                  Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                                  Object value) {
-        checkArgument(typeArgs.getCount() == 1);
+        checkArgument(typeArgs.count() == 1);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor nullableScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        ResultAssert.IsSuccess(t.<LayoutNullable>TypeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
+        ResultAssert.IsSuccess(t.<LayoutNullable>typeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
             value != null, out nullableScope));
         dispatcher.get().argValue.Row = tempReference_Row.get();
 
@@ -148,8 +147,8 @@ public final class WriteRowDispatcher implements IDispatcher {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
-            dispatcher.get().LayoutCodeSwitch(ref nullableScope, null, typeArgs.get(0).getType(),
-                typeArgs.get(0).getTypeArgs().clone(), value);
+            dispatcher.get().LayoutCodeSwitch(ref nullableScope, null, typeArgs.get(0).type(),
+                typeArgs.get(0).typeArgs().clone(), value);
         }
     }
 
@@ -160,14 +159,14 @@ public final class WriteRowDispatcher implements IDispatcher {
     public void DispatchSet(Reference<RowOperationDispatcher> dispatcher,
                             Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                             Object value) {
-        checkArgument(typeArgs.getCount() == 1);
+        checkArgument(typeArgs.count() == 1);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor setScope;
         Out<RowCursor> tempOut_setScope =
             new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutTypedSet>TypeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
+        ResultAssert.IsSuccess(t.<LayoutTypedSet>typeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
             tempOut_setScope));
         setScope = tempOut_setScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
@@ -185,8 +184,8 @@ public final class WriteRowDispatcher implements IDispatcher {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
-            dispatcher.get().LayoutCodeSwitch(ref tempCursor, elmPath, typeArgs.get(0).getType(),
-                typeArgs.get(0).getTypeArgs().clone(), item);
+            dispatcher.get().LayoutCodeSwitch(ref tempCursor, elmPath, typeArgs.get(0).type(),
+                typeArgs.get(0).typeArgs().clone(), item);
 
             // Move item into the set.
             Reference<RowBuffer> tempReference_Row3 =
@@ -195,7 +194,7 @@ public final class WriteRowDispatcher implements IDispatcher {
                 new Reference<RowCursor>(setScope);
             Reference<RowCursor> tempReference_tempCursor =
                 new Reference<RowCursor>(tempCursor);
-            ResultAssert.IsSuccess(t.<LayoutTypedSet>TypeAs().MoveField(tempReference_Row3, tempReference_setScope,
+            ResultAssert.IsSuccess(t.<LayoutTypedSet>typeAs().MoveField(tempReference_Row3, tempReference_setScope,
                 tempReference_tempCursor));
             tempCursor = tempReference_tempCursor.get();
             setScope = tempReference_setScope.get();
@@ -206,24 +205,24 @@ public final class WriteRowDispatcher implements IDispatcher {
     public void DispatchTuple(Reference<RowOperationDispatcher> dispatcher,
                               Reference<RowCursor> scope, LayoutType t, TypeArgumentList typeArgs,
                               Object value) {
-        checkArgument(typeArgs.getCount() >= 2);
+        checkArgument(typeArgs.count() >= 2);
 
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor tupleScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        ResultAssert.IsSuccess(t.<LayoutIndexedScope>TypeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
+        ResultAssert.IsSuccess(t.<LayoutIndexedScope>typeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(),
             out tupleScope));
         dispatcher.get().argValue.Row = tempReference_Row.get();
 
-        for (int i = 0; i < typeArgs.getCount(); i++) {
+        for (int i = 0; i < typeArgs.count(); i++) {
             PropertyInfo valueAccessor = value.getClass().GetProperty(String.format("Item%1$s", i + 1));
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
-            dispatcher.get().LayoutCodeSwitch(ref tupleScope, null, typeArgs.get(i).getType(),
-                typeArgs.get(i).getTypeArgs().clone(), valueAccessor.GetValue(value));
+            dispatcher.get().LayoutCodeSwitch(ref tupleScope, null, typeArgs.get(i).type(),
+                typeArgs.get(i).typeArgs().clone(), valueAccessor.GetValue(value));
             Reference<RowBuffer> tempReference_Row2 =
                 new Reference<RowBuffer>(dispatcher.get().Row);
             tupleScope.MoveNext(tempReference_Row2);
@@ -237,7 +236,7 @@ public final class WriteRowDispatcher implements IDispatcher {
         Reference<RowBuffer> tempReference_Row = new Reference<RowBuffer>(dispatcher.get().Row);
         RowCursor udtScope;
         Out<RowCursor> tempOut_udtScope = new Out<RowCursor>();
-        ResultAssert.IsSuccess(t.<LayoutUDT>TypeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(), tempOut_udtScope));
+        ResultAssert.IsSuccess(t.<LayoutUDT>typeAs().WriteScope(tempReference_Row, scope, typeArgs.clone(), tempOut_udtScope));
         udtScope = tempOut_udtScope.get();
         dispatcher.get().argValue.Row = tempReference_Row.get();
         IDispatchable valueDispatcher = value instanceof IDispatchable ? (IDispatchable)value : null;
