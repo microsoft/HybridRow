@@ -44,7 +44,7 @@ public final class JsonModelRowGenerator {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public JsonModelRowGenerator(int capacity, Layout layout, LayoutResolver resolver, ISpanResizer<Byte> resizer) {
         this.row = new RowBuffer(capacity, resizer);
-        this.row.InitLayout(HybridRowVersion.V1, layout, resolver);
+        this.row.initLayout(HybridRowVersion.V1, layout, resolver);
     }
 
     public int getLength() {
@@ -62,12 +62,12 @@ public final class JsonModelRowGenerator {
     // TODO: C# TO JAVA CONVERTER: C# to Java Converter cannot determine whether this System.IO.Stream is input or
     // output:
     public boolean ReadFrom(InputStream stream, int length) {
-        return this.row.ReadFrom(stream, length, HybridRowVersion.V1, this.row.resolver());
+        return this.row.readFrom(stream, length, HybridRowVersion.V1, this.row.resolver());
     }
 
     public void Reset() {
-        Layout layout = this.row.resolver().Resolve(this.row.header().getSchemaId().clone());
-        this.row.InitLayout(HybridRowVersion.V1, layout, this.row.resolver());
+        Layout layout = this.row.resolver().resolve(this.row.header().schemaId().clone());
+        this.row.initLayout(HybridRowVersion.V1, layout, this.row.resolver());
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:

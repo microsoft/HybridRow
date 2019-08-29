@@ -11,7 +11,7 @@ import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
@@ -50,7 +50,7 @@ public final class CodeGenRowGenerator {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public CodeGenRowGenerator(int capacity, Layout layout, LayoutResolver resolver, ISpanResizer<Byte> resizer) {
         this.row = new RowBuffer(capacity, resizer);
-        this.row.InitLayout(HybridRowVersion.V1, layout, resolver);
+        this.row.initLayout(HybridRowVersion.V1, layout, resolver);
 
         switch (layout.name()) {
             case "Hotels":
@@ -95,8 +95,8 @@ public final class CodeGenRowGenerator {
     }
 
     public void Reset() {
-        Layout layout = this.row.resolver().Resolve(this.row.header().getSchemaId().clone());
-        this.row.InitLayout(HybridRowVersion.V1, layout, this.row.resolver());
+        Layout layout = this.row.resolver().resolve(this.row.header().schemaId().clone());
+        this.row.initLayout(HybridRowVersion.V1, layout, this.row.resolver());
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -157,7 +157,7 @@ public final class CodeGenRowGenerator {
             Out<StringToken> tempOut_postalCodeToken = new Out<StringToken>();
             layout.getTokenizer().TryFindToken(this.postalCode.getPath(), tempOut_postalCodeToken);
             this.postalCodeToken = tempOut_postalCodeToken.get();
-            this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.Resolve(this.postalCode.getTypeArgs().schemaId().clone()), resolver);
+            this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.resolve(this.postalCode.getTypeArgs().schemaId().clone()), resolver);
         }
 
         @Override
@@ -200,7 +200,7 @@ public final class CodeGenRowGenerator {
             }
 
             Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
-            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope2);
+            RowCursors.skip(root.get().clone(), row, tempReference_childScope2);
             childScope = tempReference_childScope2.get();
             return Result.Success;
         }
@@ -269,7 +269,7 @@ public final class CodeGenRowGenerator {
                             }
 
                             Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
-                            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope2);
+                            RowCursors.skip(root.get().clone(), row, tempReference_childScope2);
                             childScope = tempReference_childScope2.get();
                         }
 
@@ -353,7 +353,7 @@ public final class CodeGenRowGenerator {
                     this.addresses.getTypeArgs().clone()) });
 
             this.addressSerializer =
-                new AddressHybridRowSerializer(resolver.Resolve(this.addresses.getTypeArgs().get(1).typeArgs().schemaId().clone()), resolver);
+                new AddressHybridRowSerializer(resolver.resolve(this.addresses.getTypeArgs().get(1).typeArgs().schemaId().clone()), resolver);
             this.addressSerializerWriter = (Reference<RowBuffer> b, Reference<RowCursor> scope,
                                             HashMap<Utf8String, Object> context) -> addressSerializer.WriteBuffer(b,
                 scope, context);
@@ -422,7 +422,7 @@ public final class CodeGenRowGenerator {
 
             Reference<RowCursor> tempReference_childScope =
                 new Reference<RowCursor>(childScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_childScope);
             childScope = tempReference_childScope.get();
             root.get().Find(row, this.phoneNumbersToken.clone());
@@ -450,7 +450,7 @@ public final class CodeGenRowGenerator {
 
             Reference<RowCursor> tempReference_childScope2 =
                 new Reference<RowCursor>(childScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_childScope2);
             childScope = tempReference_childScope2.get();
             root.get().Find(row, this.addressesToken.clone());
@@ -527,7 +527,7 @@ public final class CodeGenRowGenerator {
 
             Reference<RowCursor> tempReference_childScope4 =
                 new Reference<RowCursor>(childScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_childScope4);
             childScope = tempReference_childScope4.get();
 
@@ -665,7 +665,7 @@ public final class CodeGenRowGenerator {
                             }
 
                             Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
-                            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope);
+                            RowCursors.skip(root.get().clone(), row, tempReference_childScope);
                             childScope = tempReference_childScope.get();
                         }
 
@@ -796,7 +796,7 @@ public final class CodeGenRowGenerator {
             layout.getTokenizer().TryFindToken(this.address.getPath(), tempOut_addressToken);
             this.addressToken = tempOut_addressToken.get();
             this.addressSerializer =
-                new AddressHybridRowSerializer(resolver.Resolve(this.address.getTypeArgs().schemaId().clone()),
+                new AddressHybridRowSerializer(resolver.resolve(this.address.getTypeArgs().schemaId().clone()),
                     resolver);
         }
 
@@ -849,7 +849,7 @@ public final class CodeGenRowGenerator {
 
             Reference<RowCursor> tempReference_childScope2 =
                 new Reference<RowCursor>(childScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_childScope2);
             childScope = tempReference_childScope2.get();
             return Result.Success;
@@ -925,7 +925,7 @@ public final class CodeGenRowGenerator {
                             }
 
                             Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
-                            RowCursorExtensions.Skip(root.get().clone(), row, tempReference_childScope2);
+                            RowCursors.skip(root.get().clone(), row, tempReference_childScope2);
                             childScope = tempReference_childScope2.get();
                         }
 

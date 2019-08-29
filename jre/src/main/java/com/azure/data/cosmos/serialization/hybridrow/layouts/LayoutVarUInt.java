@@ -52,7 +52,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseVarUInt(edit));
+        value.setAndGet(b.get().readSparseVarUInt(edit));
         return Result.Success;
     }
 

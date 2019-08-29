@@ -12,7 +12,7 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
@@ -491,7 +491,7 @@ public final class RowWriter {
             //ORIGINAL LINE: case LayoutUDT scopeType:
             case LayoutUDT
                 scopeType:
-                Layout udt = this.row.resolver().Resolve(typeArg.typeArgs().schemaId().clone());
+                Layout udt = this.row.resolver().resolve(typeArg.typeArgs().schemaId().clone());
                 Reference<RowCursor> tempReference_cursor9 =
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope9 =
@@ -569,7 +569,7 @@ public final class RowWriter {
             new Reference<RowBuffer>(this.row);
         Reference<RowCursor> tempReference_cursor12 =
             new Reference<RowCursor>(nestedWriter.cursor);
-        RowCursorExtensions.MoveNext(this.cursor.clone(), tempReference_row2
+        RowCursors.moveNext(this.cursor.clone(), tempReference_row2
             , tempReference_cursor12);
         nestedWriter.cursor = tempReference_cursor12.get();
         this.row = tempReference_row2.get();
@@ -815,7 +815,7 @@ public final class RowWriter {
             this = tempReference_this.get();
             Reference<RowBuffer> tempReference_row =
                 new Reference<RowBuffer>(this.row);
-            RowCursorExtensions.MoveNext(this.cursor.clone(),
+            RowCursors.moveNext(this.cursor.clone(),
                 tempReference_row);
             this.row = tempReference_row.get();
         }
@@ -854,7 +854,7 @@ public final class RowWriter {
             this = tempReference_this.get();
             Reference<RowBuffer> tempReference_row =
                 new Reference<RowBuffer>(this.row);
-            RowCursorExtensions.MoveNext(this.cursor.clone(),
+            RowCursors.moveNext(this.cursor.clone(),
                 tempReference_row);
             this.row = tempReference_row.get();
         }
@@ -893,7 +893,7 @@ public final class RowWriter {
             this = tempReference_this.get();
             Reference<RowBuffer> tempReference_row =
                 new Reference<RowBuffer>(this.row);
-            RowCursorExtensions.MoveNext(this.cursor.clone(),
+            RowCursors.moveNext(this.cursor.clone(),
                 tempReference_row);
             this.row = tempReference_row.get();
         }
@@ -933,7 +933,7 @@ public final class RowWriter {
             this = tempReference_this.get();
             Reference<RowBuffer> tempReference_row =
                 new Reference<RowBuffer>(this.row);
-            RowCursorExtensions.MoveNext(this.cursor.clone(),
+            RowCursors.moveNext(this.cursor.clone(),
                 tempReference_row);
             this.row = tempReference_row.get();
         }

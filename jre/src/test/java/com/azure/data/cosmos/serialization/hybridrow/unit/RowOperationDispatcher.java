@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
@@ -72,7 +71,7 @@ public final class RowOperationDispatcher {
         this.dispatcher = dispatcher;
         this.Row = new RowBuffer(RowOperationDispatcher.InitialRowSize);
         this.Resolver = resolver;
-        this.Row.InitLayout(HybridRowVersion.V1, layout, this.Resolver);
+        this.Row.initLayout(HybridRowVersion.V1, layout, this.Resolver);
     }
 
     private RowOperationDispatcher(IDispatcher dispatcher, LayoutResolver resolver, String expected) {
@@ -82,7 +81,7 @@ public final class RowOperationDispatcher {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: byte[] bytes = ByteConverter.ToBytes(expected);
         byte[] bytes = ByteConverter.ToBytes(expected);
-        this.Row.ReadFrom(bytes, HybridRowVersion.V1, this.Resolver);
+        this.Row.readFrom(bytes, HybridRowVersion.V1, this.Resolver);
     }
 
     // TODO: C# TO JAVA CONVERTER: The C# 'struct' constraint has no equivalent in Java:

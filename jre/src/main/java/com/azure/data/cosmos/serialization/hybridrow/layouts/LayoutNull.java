@@ -51,7 +51,7 @@ public final class LayoutNull extends LayoutType<NullValue> {
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseNull(edit).clone());
+        value.setAndGet(b.get().readSparseNull(edit).clone());
         return Result.Success;
     }
 

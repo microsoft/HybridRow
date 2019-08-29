@@ -6,12 +6,11 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public final class CustomerExampleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateGuest()
     public void CreateGuest() {
         RowBuffer row = new RowBuffer(1024 * 1024);
-        row.InitLayout(HybridRowVersion.V1, this.guestLayout, this.customerResolver);
+        row.initLayout(HybridRowVersion.V1, this.guestLayout, this.customerResolver);
 
         Guest g1 = new Guest();
         g1.Id = UUID.fromString("64d9d6d3-fd6b-4556-8c6e-d960a7ece7b9");
@@ -184,7 +183,7 @@ public final class CustomerExampleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateHotel()
     public void CreateHotel() {
         RowBuffer row = new RowBuffer(0);
-        row.InitLayout(HybridRowVersion.V1, this.hotelLayout, this.customerResolver);
+        row.initLayout(HybridRowVersion.V1, this.hotelLayout, this.customerResolver);
 
         Hotel h1 = this.hotelExample;
         Reference<RowBuffer> tempReference_row =
@@ -218,7 +217,7 @@ public final class CustomerExampleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void FrozenHotel()
     public void FrozenHotel() {
         RowBuffer row = new RowBuffer(0);
-        row.InitLayout(HybridRowVersion.V1, this.hotelLayout, this.customerResolver);
+        row.initLayout(HybridRowVersion.V1, this.hotelLayout, this.customerResolver);
 
         Hotel h1 = this.hotelExample;
         Reference<RowBuffer> tempReference_row =
@@ -435,7 +434,7 @@ public final class CustomerExampleUnitTests {
         postalCodeScope = tempReference_postalCodeScope.get();
         Reference<RowCursor> tempReference_postalCodeScope2 =
             new Reference<RowCursor>(postalCodeScope);
-        RowCursorExtensions.Skip(addressScope.get().clone(), row,
+        RowCursors.skip(addressScope.get().clone(), row,
             tempReference_postalCodeScope2);
         postalCodeScope = tempReference_postalCodeScope2.get();
         return a;
@@ -556,13 +555,13 @@ public final class CustomerExampleUnitTests {
                     tempReference_addressesScope2, tempOut_pairScope));
                 pairScope = tempOut_pairScope.get();
                 addressesScope = tempReference_addressesScope2.get();
-                assert RowCursorExtensions.MoveNext(pairScope.clone(), row);
+                assert RowCursors.moveNext(pairScope.clone(), row);
                 Reference<RowCursor> tempReference_pairScope2 = new Reference<RowCursor>(pairScope);
                 String key;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
                 ResultAssert.IsSuccess(t0.<LayoutUtf8>TypeAs().ReadSparse(row, tempReference_pairScope2, out key));
                 pairScope = tempReference_pairScope2.get();
-                assert RowCursorExtensions.MoveNext(pairScope.clone(), row);
+                assert RowCursors.moveNext(pairScope.clone(), row);
                 Reference<RowCursor> tempReference_pairScope3 = new Reference<RowCursor>(pairScope);
                 RowCursor addressScope;
                 Out<RowCursor> tempOut_addressScope = new Out<RowCursor>();
@@ -574,7 +573,7 @@ public final class CustomerExampleUnitTests {
                 addressScope = tempReference_addressScope.get();
                 g.Addresses.put(key, value);
                 Reference<RowCursor> tempReference_addressScope2 = new Reference<RowCursor>(addressScope);
-                assert !RowCursorExtensions.MoveNext(pairScope.clone(), row, tempReference_addressScope2);
+                assert !RowCursors.moveNext(pairScope.clone(), row, tempReference_addressScope2);
                 addressScope = tempReference_addressScope2.get();
             }
             pairScope = tempReference_pairScope.get();
@@ -621,7 +620,7 @@ public final class CustomerExampleUnitTests {
         addressScope = tempReference_addressScope.get();
         Reference<RowCursor> tempReference_addressScope2 =
             new Reference<RowCursor>(addressScope);
-        RowCursorExtensions.Skip(root.get().clone(), row,
+        RowCursors.skip(root.get().clone(), row,
             tempReference_addressScope2);
         addressScope = tempReference_addressScope2.get();
         return h;
@@ -684,7 +683,7 @@ public final class CustomerExampleUnitTests {
         postalCodeScope = tempReference_postalCodeScope.get();
         Reference<RowCursor> tempReference_postalCodeScope2 =
             new Reference<RowCursor>(postalCodeScope);
-        RowCursorExtensions.Skip(addressScope.get().clone(), row,
+        RowCursors.skip(addressScope.get().clone(), row,
             tempReference_postalCodeScope2);
         postalCodeScope = tempReference_postalCodeScope2.get();
     }
@@ -733,7 +732,7 @@ public final class CustomerExampleUnitTests {
 
             Reference<RowCursor> tempReference_emailScope =
                 new Reference<RowCursor>(emailScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_emailScope);
             emailScope = tempReference_emailScope.get();
         }
@@ -761,7 +760,7 @@ public final class CustomerExampleUnitTests {
 
             Reference<RowCursor> tempReference_phoneNumbersScope =
                 new Reference<RowCursor>(phoneNumbersScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_phoneNumbersScope);
             phoneNumbersScope = tempReference_phoneNumbersScope.get();
         }
@@ -830,7 +829,7 @@ public final class CustomerExampleUnitTests {
 
             Reference<RowCursor> tempReference_addressesScope =
                 new Reference<RowCursor>(addressesScope);
-            RowCursorExtensions.Skip(root.get().clone(), row,
+            RowCursors.skip(root.get().clone(), row,
                 tempReference_addressesScope);
             addressesScope = tempReference_addressesScope.get();
         }
@@ -865,7 +864,7 @@ public final class CustomerExampleUnitTests {
         addressScope = tempReference_addressScope.get();
         Reference<RowCursor> tempReference_addressScope2 =
             new Reference<RowCursor>(addressScope);
-        RowCursorExtensions.Skip(root.get().clone(), row,
+        RowCursors.skip(root.get().clone(), row,
             tempReference_addressScope2);
         addressScope = tempReference_addressScope2.get();
     }

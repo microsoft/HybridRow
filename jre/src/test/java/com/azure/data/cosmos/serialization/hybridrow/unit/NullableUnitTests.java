@@ -10,7 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
 
 import java.nio.file.Files;
@@ -37,7 +37,7 @@ public final class NullableUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateNullables()
     public void CreateNullables() {
         RowBuffer row = new RowBuffer(NullableUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         Nullables t1 = new Nullables();
         t1.NullBool = new ArrayList<Boolean>(Arrays.asList(true, false, null));
@@ -125,7 +125,7 @@ public final class NullableUnitTests {
             return r;
         }
 
-        if (RowCursorExtensions.MoveNext(nullableScope.get().clone(), row)) {
+        if (RowCursors.moveNext(nullableScope.get().clone(), row)) {
             ResultAssert.IsSuccess(LayoutNullable.HasValue(row, nullableScope.clone()));
             return itemType.getTypeArgs().get(0).getType().<LayoutType<TValue>>TypeAs().ReadSparse(row,
                 nullableScope.clone(), item);
@@ -267,7 +267,7 @@ public final class NullableUnitTests {
                 tupleScope = tempOut_tupleScope.get();
                 scope = tempReference_scope4.get();
 
-                assert RowCursorExtensions.MoveNext(tupleScope.clone()
+                assert RowCursors.moveNext(tupleScope.clone()
                     , row);
                 Reference<RowCursor> tempReference_tupleScope2 =
                     new Reference<RowCursor>(tupleScope);
@@ -283,7 +283,7 @@ public final class NullableUnitTests {
                 tupleScope = tempReference_tupleScope2.get();
                 Reference<RowCursor> tempReference_nullableScope4 =
                     new Reference<RowCursor>(nullableScope);
-                assert RowCursorExtensions.MoveNext(tupleScope.clone()
+                assert RowCursors.moveNext(tupleScope.clone()
                     , row, tempReference_nullableScope4);
                 nullableScope = tempReference_nullableScope4.get();
                 Reference<RowCursor> tempReference_tupleScope3 =
@@ -300,7 +300,7 @@ public final class NullableUnitTests {
 
                 Reference<RowCursor> tempReference_nullableScope5 =
                     new Reference<RowCursor>(nullableScope);
-                assert !RowCursorExtensions.MoveNext(tupleScope.clone(), row, tempReference_nullableScope5);
+                assert !RowCursors.moveNext(tupleScope.clone(), row, tempReference_nullableScope5);
                 nullableScope = tempReference_nullableScope5.get();
                 value.NullTuple.add((item1, item2))
             }
@@ -339,7 +339,7 @@ public final class NullableUnitTests {
                 tupleScope = tempOut_tupleScope2.get();
                 scope = tempReference_scope5.get();
 
-                assert RowCursorExtensions.MoveNext(tupleScope.clone()
+                assert RowCursors.moveNext(tupleScope.clone()
                     , row);
                 Reference<RowCursor> tempReference_tupleScope5 =
                     new Reference<RowCursor>(tupleScope);
@@ -356,7 +356,7 @@ public final class NullableUnitTests {
 
                 Reference<RowCursor> tempReference_nullableScope6 =
                     new Reference<RowCursor>(nullableScope);
-                assert RowCursorExtensions.MoveNext(tupleScope.clone()
+                assert RowCursors.moveNext(tupleScope.clone()
                     , row, tempReference_nullableScope6);
                 nullableScope = tempReference_nullableScope6.get();
                 Reference<RowCursor> tempReference_tupleScope6 =
@@ -373,7 +373,7 @@ public final class NullableUnitTests {
 
                 Reference<RowCursor> tempReference_nullableScope7 =
                     new Reference<RowCursor>(nullableScope);
-                assert !RowCursorExtensions.MoveNext(tupleScope.clone(), row, tempReference_nullableScope7);
+                assert !RowCursors.moveNext(tupleScope.clone(), row, tempReference_nullableScope7);
                 nullableScope = tempReference_nullableScope7.get();
                 value.NullMap.put(itemKey != null ? itemKey : UUID.Empty, itemValue);
             }

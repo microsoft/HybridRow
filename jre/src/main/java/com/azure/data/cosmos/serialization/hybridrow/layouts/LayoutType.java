@@ -147,7 +147,7 @@ public abstract class LayoutType<T> implements ILayoutType {
         if (exists) {
             int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
                 col.getOffset());
-            b.get().DeleteVariable(varOffset, this.isVarint());
+            b.get().deleteVariable(varOffset, this.isVarint());
             b.get().UnsetBit(scope.get().start(), col.getNullBit().clone());
         }
 
@@ -196,7 +196,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.InsufficientPermissions;
         }
 
-        if (edit.get().exists && LayoutCodeTraits.Canonicalize(edit.get().cellType.layoutCode()) != code) {
+        if (edit.get().exists() && LayoutCodeTraits.Canonicalize(edit.get().cellType().layoutCode()) != code) {
             return Result.TypeMismatch;
         }
 
@@ -236,7 +236,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return result;
         }
 
-        if (!srcEdit.get().exists) {
+        if (!srcEdit.get().exists()) {
             dstEdit.setAndGet(null);
             return Result.NotFound;
         }
@@ -247,7 +247,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.InsufficientPermissions;
         }
 
-        if (!srcEdit.get().cellTypeArgs.equals(elementType.typeArgs())) {
+        if (!srcEdit.get().cellTypeArgs().equals(elementType.typeArgs())) {
             b.get().deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TypeConstraint;
@@ -261,13 +261,13 @@ public abstract class LayoutType<T> implements ILayoutType {
 
         // Prepare the insertion at the destination.
         dstEdit.setAndGet(b.get().PrepareSparseMove(destinationScope, srcEdit));
-        if ((options == UpdateOptions.Update) && (!dstEdit.get().exists)) {
+        if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
             b.get().deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.NotFound;
         }
 
-        if ((options == UpdateOptions.Insert) && dstEdit.get().exists) {
+        if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
             b.get().deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.Exists;
@@ -286,11 +286,11 @@ public abstract class LayoutType<T> implements ILayoutType {
      */
     public static Result prepareSparseRead(Reference<RowBuffer> b, Reference<RowCursor> edit, LayoutCode code) {
 
-        if (!edit.get().exists) {
+        if (!edit.get().exists()) {
             return Result.NotFound;
         }
 
-        if (LayoutCodeTraits.Canonicalize(edit.get().cellType.layoutCode()) != code) {
+        if (LayoutCodeTraits.Canonicalize(edit.get().cellType().layoutCode()) != code) {
             return Result.TypeMismatch;
         }
 
@@ -308,7 +308,7 @@ public abstract class LayoutType<T> implements ILayoutType {
      */
     public static Result prepareSparseWrite(Reference<RowBuffer> b, Reference<RowCursor> edit,
                                             TypeArgument typeArg, UpdateOptions options) {
-        if (edit.get().immutable() || (edit.get().scopeType().isUniqueScope() && !edit.get().deferUniqueIndex)) {
+        if (edit.get().immutable() || (edit.get().scopeType().isUniqueScope() && !edit.get().deferUniqueIndex())) {
             return Result.InsufficientPermissions;
         }
 
@@ -332,11 +332,11 @@ public abstract class LayoutType<T> implements ILayoutType {
             edit.get().exists = false; // InsertAt never overwrites an existing item.
         }
 
-        if ((options == UpdateOptions.Update) && (!edit.get().exists)) {
+        if ((options == UpdateOptions.Update) && (!edit.get().exists())) {
             return Result.NotFound;
         }
 
-        if ((options == UpdateOptions.Insert) && edit.get().exists) {
+        if ((options == UpdateOptions.Insert) && edit.get().exists()) {
             return Result.Exists;
         }
 

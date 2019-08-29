@@ -4,16 +4,15 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1028 // Enum Storage should be Int32
+import java.util.HashMap;
 
 /**
- * Versions of HybridRow.
+ * Versions of HybridRow
+ * <p>
  * A version from this list MUST be inserted in the version BOM at the beginning of all rows.
  */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public enum HybridRowVersion : byte
 public enum HybridRowVersion {
+
     Invalid((byte)0),
 
     /**
@@ -23,18 +22,18 @@ public enum HybridRowVersion {
 
     public static final int SIZE = java.lang.Byte.SIZE;
     private static java.util.HashMap<Byte, HybridRowVersion> mappings;
-    private byte byteValue;
+    private byte value;
 
     HybridRowVersion(byte value) {
-        byteValue = value;
+        this.value = value;
         getMappings().put(value, this);
     }
 
-    public byte getValue() {
-        return byteValue;
+    public byte value() {
+        return this.value;
     }
 
-    public static HybridRowVersion forValue(byte value) {
+    public static HybridRowVersion from(byte value) {
         return getMappings().get(value);
     }
 
@@ -42,7 +41,7 @@ public enum HybridRowVersion {
         if (mappings == null) {
             synchronized (HybridRowVersion.class) {
                 if (mappings == null) {
-                    mappings = new java.util.HashMap<Byte, HybridRowVersion>();
+                    mappings = new HashMap<>();
                 }
             }
         }

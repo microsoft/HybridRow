@@ -7,7 +7,6 @@ package com.azure.data.cosmos.core;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.base.Utf8;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
 import javax.annotation.Nonnull;
@@ -44,7 +42,6 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
     public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER, 0);
     public static final Utf8String NULL = new Utf8String();
 
-    private static final PooledByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private final ByteBuf buffer;
     private final int length;
 
@@ -303,7 +300,7 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
         }
 
         final int length = Utf8.encodedLength(string);
-        final ByteBuf buffer = allocator.buffer(length, length);
+        final ByteBuf buffer = Unpooled.wrappedBuffer(new byte[length]);
         final int count = buffer.writeCharSequence(string, UTF_8);
 
         checkState(count == length, "count: %s, length: %s", count, length);
@@ -400,24 +397,24 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
                 // 110xxxxx 10xxxxxx => 0x00000080 - 0x000007FF
 
                 codePoint = ((leadingByte & 0b0001_1111) << 6) |
-                    (buffer.getByte(this.index++) & 0b0011_1111);
+                    (this.buffer.getByte(this.index++) & 0b0011_1111);
 
             } else if ((leadingByte & 0b1111_0000) == 0b1110_0000) {
 
                 // 1110xxxx 10xxxxxx 10xxxxxx => 0x00000800 - 0x0000FFFF
 
                 codePoint = ((leadingByte & 0b0000_1111) << 12) |
-                    ((buffer.getByte(this.index++) & 0b0011_1111) << 6) |
-                    ((buffer.getByte(this.index++) & 0b0011_1111));
+                    ((this.buffer.getByte(this.index++) & 0b0011_1111) << 6) |
+                    ((this.buffer.getByte(this.index++) & 0b0011_1111));
 
             } else if ((leadingByte & 0b1111_1000) == 0b1111_0000) {
 
                 // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx => 0x00010000 - 0x001FFFFF
 
                 codePoint = ((leadingByte & 0b0000_0111) << 18) |
-                    ((buffer.getByte(this.index++) & 0b0011_1111) << 12) |
-                    ((buffer.getByte(this.index++) & 0b0011_1111) << 6) |
-                    ((buffer.getByte(this.index++) & 0b0011_1111));
+                    ((this.buffer.getByte(this.index++) & 0b0011_1111) << 12) |
+                    ((this.buffer.getByte(this.index++) & 0b0011_1111) << 6) |
+                    ((this.buffer.getByte(this.index++) & 0b0011_1111));
 
             } else {
                 // leading byte is improperly encoded and we'll detect that before returning
@@ -460,8 +457,7 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
         }
 
         @Override
-        public Utf8String deserialize(JsonParser parser, DeserializationContext context) throws IOException,
-            JsonProcessingException {
+        public Utf8String deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 
             final JsonNode node = parser.getCodec().readTree(parser);
             final JsonNodeType type = node.getNodeType();

@@ -13,7 +13,7 @@ import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.ILayoutSpanReadable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.ILayoutUtf8SpanReadable;
@@ -67,14 +67,12 @@ public final class RowReader {
 
     private int columnIndex;
     private ReadOnlySpan<LayoutColumn> columns;
-    private RowCursor cursor = new RowCursor();
-    private RowBuffer row = new RowBuffer();
+    private RowCursor cursor;
+    private RowBuffer row;
     private int schematizedCount;
+    private States state;  // checkpoint state
 
-    // State that can be checkpointed.
-    private States state = States.values()[0];
-
-    public RowReader() {
+    private RowReader() {
     }
 
     /**
@@ -140,7 +138,7 @@ public final class RowReader {
                 return true;
 
             case Sparse:
-                if (this.cursor.cellType instanceof LayoutNullable) {
+                if (this.cursor.cellType() instanceof LayoutNullable) {
                     Reference<RowCursor> cursor = new Reference<>(this.cursor);
                     RowCursor nullableScope = this.row.SparseIteratorReadScope(cursor, true).clone();
                     this.cursor = cursor.get();
@@ -193,13 +191,13 @@ public final class RowReader {
             case Schematized:
                 return this.columns[this.columnIndex].Path;
             case Sparse:
-                if (this.cursor.pathOffset == 0) {
+                if (this.cursor.pathOffset() == 0) {
                     return null;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Utf8Span span = this.row.ReadSparsePath(tempReference_cursor);
+                Utf8Span span = this.row.readSparsePath(tempReference_cursor);
                 this.cursor = tempReference_cursor.get();
                 return Utf8String.CopyFrom(span);
             default:
@@ -219,7 +217,7 @@ public final class RowReader {
             case Sparse:
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Utf8Span tempVar = this.row.ReadSparsePath(tempReference_cursor);
+                Utf8Span tempVar = this.row.readSparsePath(tempReference_cursor);
                 this.cursor = tempReference_cursor.get();
                 return tempVar;
             default:
@@ -249,7 +247,7 @@ public final class RowReader {
             case Schematized:
                 return this.columns[this.columnIndex].Type;
             case Sparse:
-                return this.cursor.cellType;
+                return this.cursor.cellType();
             default:
                 return null;
         }
@@ -263,7 +261,7 @@ public final class RowReader {
             case Schematized:
                 return this.columns[this.columnIndex].TypeArgs;
             case Sparse:
-                return this.cursor.cellTypeArgs.clone();
+                return this.cursor.cellTypeArgs().clone();
             default:
                 return TypeArgumentList.EMPTY;
         }
@@ -314,7 +312,7 @@ public final class RowReader {
 
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
 
-                if (!RowCursorExtensions.MoveNext(this.cursor.clone(),
+                if (!RowCursors.moveNext(this.cursor.clone(),
                     tempReference_row)) {
                     this.row = tempReference_row.get();
                     this.state = States.Done;
@@ -368,7 +366,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutBinary)) {
+                if (!(this.cursor.cellType() instanceof LayoutBinary)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
@@ -395,7 +393,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutBoolean)) {
+                if (!(this.cursor.cellType() instanceof LayoutBoolean)) {
                     value.setAndGet(false);
                     return Result.TypeMismatch;
                 }
@@ -422,7 +420,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutDateTime)) {
+                if (!(this.cursor.cellType() instanceof LayoutDateTime)) {
                     value.setAndGet(LocalDateTime.MIN);
                     return Result.TypeMismatch;
                 }
@@ -449,7 +447,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutDecimal)) {
+                if (!(this.cursor.cellType() instanceof LayoutDecimal)) {
                     value.setAndGet(new BigDecimal(0));
                     return Result.TypeMismatch;
                 }
@@ -476,7 +474,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutFloat128)) {
+                if (!(this.cursor.cellType() instanceof LayoutFloat128)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
@@ -503,7 +501,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutFloat32)) {
+                if (!(this.cursor.cellType() instanceof LayoutFloat32)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -530,7 +528,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutFloat64)) {
+                if (!(this.cursor.cellType() instanceof LayoutFloat64)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -557,7 +555,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutGuid)) {
+                if (!(this.cursor.cellType() instanceof LayoutGuid)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
@@ -584,7 +582,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutInt16)) {
+                if (!(this.cursor.cellType() instanceof LayoutInt16)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -611,7 +609,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutInt32)) {
+                if (!(this.cursor.cellType() instanceof LayoutInt32)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -638,7 +636,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutInt64)) {
+                if (!(this.cursor.cellType() instanceof LayoutInt64)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -665,7 +663,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutInt8)) {
+                if (!(this.cursor.cellType() instanceof LayoutInt8)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -692,7 +690,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutMongoDbObjectId)) {
+                if (!(this.cursor.cellType() instanceof LayoutMongoDbObjectId)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
@@ -719,14 +717,14 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutNull)) {
+                if (!(this.cursor.cellType() instanceof LayoutNull)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseNull(tempReference_cursor).clone());
+                value.setAndGet(this.row.readSparseNull(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -785,7 +783,7 @@ public final class RowReader {
             new Reference<RowBuffer>(this.row);
         Reference<RowCursor> tempReference_cursor2 =
             new Reference<RowCursor>(nestedReader.cursor);
-        RowCursorExtensions.Skip(this.cursor.clone(), tempReference_row2,
+        RowCursors.skip(this.cursor.clone(), tempReference_row2,
             tempReference_cursor2);
         nestedReader.cursor = tempReference_cursor2.get();
         this.row = tempReference_row2.get();
@@ -835,7 +833,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutUtf8)) {
+                if (!(this.cursor.cellType() instanceof LayoutUtf8)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
@@ -864,7 +862,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutUInt16)) {
+                if (!(this.cursor.cellType() instanceof LayoutUInt16)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -893,7 +891,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutUInt32)) {
+                if (!(this.cursor.cellType() instanceof LayoutUInt32)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -922,7 +920,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutUInt64)) {
+                if (!(this.cursor.cellType() instanceof LayoutUInt64)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -951,7 +949,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutUInt8)) {
+                if (!(this.cursor.cellType() instanceof LayoutUInt8)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -978,7 +976,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value.clone());
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutUnixDateTime)) {
+                if (!(this.cursor.cellType() instanceof LayoutUnixDateTime)) {
                     value.setAndGet(null);
                     return Result.TypeMismatch;
                 }
@@ -1005,7 +1003,7 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutVarInt)) {
+                if (!(this.cursor.cellType() instanceof LayoutVarInt)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
@@ -1034,14 +1032,14 @@ public final class RowReader {
             case Schematized:
                 return this.ReadPrimitiveValue(value);
             case Sparse:
-                if (!(this.cursor.cellType instanceof LayoutVarUInt)) {
+                if (!(this.cursor.cellType() instanceof LayoutVarUInt)) {
                     value.setAndGet(0);
                     return Result.TypeMismatch;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseVarUInt(tempReference_cursor));
+                value.setAndGet(this.row.readSparseVarUInt(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -1072,7 +1070,7 @@ public final class RowReader {
             new Reference<RowBuffer>(this.row);
         Reference<RowCursor> tempReference_cursor =
             new Reference<RowCursor>(nestedReader.get().cursor);
-        RowCursorExtensions.Skip(this.cursor.clone(), tempReference_row,
+        RowCursors.skip(this.cursor.clone(), tempReference_row,
             tempReference_cursor);
         nestedReader.get().argValue.cursor = tempReference_cursor.get();
         this.row = tempReference_row.get();

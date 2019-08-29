@@ -197,7 +197,7 @@ public final class RowReaderUnitTests {
         RowBuffer row = new RowBuffer(0, resizer);
         Layout layout = this.resolver.Resolve(tangible.ListHelper.find(this.schema.getSchemas(), x -> x.Name.equals(
             "Mixed")).SchemaId);
-        row.InitLayout(HybridRowVersion.V1, layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, layout, this.resolver);
 
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);

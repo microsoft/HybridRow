@@ -31,7 +31,7 @@ public final class TypedSetUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateTodos()
     public void CreateTodos() {
         RowBuffer row = new RowBuffer(TypedSetUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         Todo t1 = new Todo();
         t1.Attendees = new ArrayList<String>(Arrays.asList("jason", "janice", "joshua"));
@@ -86,7 +86,7 @@ public final class TypedSetUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void FindAndDelete()
     public void FindAndDelete() {
         RowBuffer row = new RowBuffer(TypedSetUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         ArrayList<UUID> expected = new ArrayList<UUID>(Arrays.asList(UUID.fromString("{4674962B-CE11-4916-81C5" +
             "-0421EE36F168}"), UUID.fromString("{7499C40E-7077-45C1-AE5F-3E384966B3B9}"), UUID.fromString("{B7BC39C2" +
@@ -182,7 +182,7 @@ public final class TypedSetUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void FindInSet()
     public void FindInSet() {
         RowBuffer row = new RowBuffer(TypedSetUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         Todo t1 = new Todo();
         t1.Attendees = new ArrayList<String>(Arrays.asList("jason", "janice", "joshua"));
@@ -357,7 +357,7 @@ public final class TypedSetUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void PreventUniquenessViolations()
     public void PreventUniquenessViolations() {
         RowBuffer row = new RowBuffer(TypedSetUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         Todo t1 = new Todo();
         t1.Attendees = new ArrayList<String>(Arrays.asList("jason"));
@@ -697,7 +697,7 @@ public final class TypedSetUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void PreventUpdatesInNonUpdatableScope()
     public void PreventUpdatesInNonUpdatableScope() {
         RowBuffer row = new RowBuffer(TypedSetUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         // Write a set and then try to write directly into it.
         LayoutColumn c;
@@ -892,7 +892,7 @@ public final class TypedSetUnitTests {
             Todo t1 = new Todo();
             t1.Projects = new ArrayList<UUID>(permutation);
 
-            row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+            row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
             Reference<RowBuffer> tempReference_row =
                 new Reference<RowBuffer>(row);
             ResultAssert.IsSuccess(RowWriter.WriteBuffer(tempReference_row, t1, TypedSetUnitTests.SerializeTodo));
@@ -977,7 +977,7 @@ public final class TypedSetUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void UpdateInSet()
     public void UpdateInSet() {
         RowBuffer row = new RowBuffer(TypedSetUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         ArrayList<UUID> expected = new ArrayList<UUID>(Arrays.asList(UUID.fromString("{4674962B-CE11-4916-81C5" +
             "-0421EE36F168}"), UUID.fromString("{7499C40E-7077-45C1-AE5F-3E384966B3B9}"), UUID.fromString("{B7BC39C2" +
@@ -1466,7 +1466,7 @@ public final class TypedSetUnitTests {
     }
 
     private static void WriteShoppingItem(Reference<RowBuffer> row, Reference<RowCursor> matchScope, TypeArgumentList typeArgs, ShoppingItem m) {
-        Layout matchLayout = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout matchLayout = row.get().resolver().resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert matchLayout.TryFind("label", out c);

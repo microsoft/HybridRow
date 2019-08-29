@@ -10,7 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public final class TypedArrayUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateTags()
     public void CreateTags() {
         RowBuffer row = new RowBuffer(TypedArrayUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         Tagged t1 = new Tagged();
         t1.Title = "Thriller";
@@ -221,7 +221,7 @@ public final class TypedArrayUnitTests {
                 ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempReference_ratingsScope, tempOut_innerScope));
                 innerScope = tempOut_innerScope.get();
                 ratingsScope = tempReference_ratingsScope.get();
-                while (RowCursorExtensions.MoveNext(innerScope.clone()
+                while (RowCursors.moveNext(innerScope.clone()
                     , row)) {
                     LayoutFloat64 itemLayout = innerType.getTypeArgs().get(0).getType().<LayoutFloat64>TypeAs();
                     Reference<RowCursor> tempReference_innerScope2
@@ -299,7 +299,7 @@ public final class TypedArrayUnitTests {
                 ResultAssert.IsSuccess(innerLayout.ReadScope(row, tempReference_priorityScope, tempOut_tupleScope));
                 tupleScope = tempOut_tupleScope.get();
                 priorityScope = tempReference_priorityScope.get();
-                assert RowCursorExtensions.MoveNext(tupleScope.clone()
+                assert RowCursors.moveNext(tupleScope.clone()
                     , row);
                 Reference<RowCursor> tempReference_tupleScope2 =
                     new Reference<RowCursor>(tupleScope);
@@ -311,7 +311,7 @@ public final class TypedArrayUnitTests {
                     tempReference_tupleScope2, out item1));
                 tupleScope = tempReference_tupleScope2.get();
 
-                assert RowCursorExtensions.MoveNext(tupleScope.clone()
+                assert RowCursors.moveNext(tupleScope.clone()
                     , row);
                 Reference<RowCursor> tempReference_tupleScope3 =
                     new Reference<RowCursor>(tupleScope);
@@ -332,7 +332,7 @@ public final class TypedArrayUnitTests {
 
     private static void WriteSimilarMatch(Reference<RowBuffer> row, Reference<RowCursor> matchScope
         , TypeArgumentList typeArgs, SimilarMatch m) {
-        Layout matchLayout = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout matchLayout = row.get().resolver().resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:

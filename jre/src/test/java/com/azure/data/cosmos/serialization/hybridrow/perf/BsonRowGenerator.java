@@ -140,7 +140,7 @@ public final class BsonRowGenerator implements Closeable {
         this.writer.WriteStartDocument();
 
         HashMap<Utf8String, Object> dict = (HashMap<Utf8String, Object>)value;
-        Layout udt = this.resolver.Resolve(typeArg.typeArgs().schemaId().clone());
+        Layout udt = this.resolver.resolve(typeArg.typeArgs().schemaId().clone());
         for (LayoutColumn c : udt.columns()) {
             this.LayoutCodeSwitch(c.getPath(), c.getTypeArg().clone(), dict.get(c.getPath()));
         }

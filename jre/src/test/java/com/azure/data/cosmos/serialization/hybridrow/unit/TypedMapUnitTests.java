@@ -35,7 +35,7 @@ public final class TypedMapUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateMovies()
     public void CreateMovies() {
         RowBuffer row = new RowBuffer(TypedMapUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         // ReSharper disable StringLiteralTypo
         Movie t1 = new Movie();
@@ -88,7 +88,7 @@ public final class TypedMapUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void FindAndDelete()
     public void FindAndDelete() {
         RowBuffer row = new RowBuffer(TypedMapUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         RowCursor root = RowCursor.Create(tempReference_row);
@@ -184,7 +184,7 @@ public final class TypedMapUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void FindInMap()
     public void FindInMap() {
         RowBuffer row = new RowBuffer(TypedMapUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         RowCursor root = RowCursor.Create(tempReference_row);
@@ -284,7 +284,7 @@ public final class TypedMapUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void PreventUniquenessViolations()
     public void PreventUniquenessViolations() {
         RowBuffer row = new RowBuffer(TypedMapUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         RowCursor root = RowCursor.Create(tempReference_row);
@@ -475,7 +475,7 @@ public final class TypedMapUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void PreventUpdatesInNonUpdatableScope()
     public void PreventUpdatesInNonUpdatableScope() {
         RowBuffer row = new RowBuffer(TypedMapUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         RowCursor root = RowCursor.Create(tempReference_row);
@@ -677,7 +677,7 @@ public final class TypedMapUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void UpdateInMap()
     public void UpdateInMap() {
         RowBuffer row = new RowBuffer(TypedMapUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         RowCursor root = RowCursor.Create(tempReference_row);
@@ -1179,7 +1179,7 @@ public final class TypedMapUnitTests {
     }
 
     private static void WriteEarnings(Reference<RowBuffer> row, Reference<RowCursor> udtScope, TypeArgumentList typeArgs, Earnings m) {
-        Layout udt = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout udt = row.get().resolver().resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert udt.TryFind("domestic", out c);

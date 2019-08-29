@@ -14,7 +14,7 @@ public final class LayoutResolverSimple extends LayoutResolver {
     }
 
     @Override
-    public Layout Resolve(SchemaId schemaId) {
+    public Layout resolve(SchemaId schemaId) {
         return this.resolver.invoke(schemaId.clone());
     }
 }

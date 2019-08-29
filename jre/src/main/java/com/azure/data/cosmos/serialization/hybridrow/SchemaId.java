@@ -27,9 +27,12 @@ import static com.google.common.base.Strings.lenientFormat;
 @JsonSerialize(using = SchemaId.JsonSerializer.class)
 public final class SchemaId {
 
+    // TODO: DANOBLE: Consider caching SchemaId instances to reduce memory footprint
+
     public static final SchemaId INVALID = null;
-    public static final SchemaId NONE = new SchemaId();
+    public static final SchemaId NONE = new SchemaId(-1);
     public static final int SIZE = (Integer.SIZE / Byte.SIZE);
+
     private static long MAX_VALUE = 0x00000000FFFFFFFFL;
     private final int id;
 
@@ -38,12 +41,8 @@ public final class SchemaId {
      *
      * @param id The underlying globally unique identifier of the schema.
      */
-    public SchemaId(int id) {
+    private SchemaId(int id) {
         this.id = id;
-    }
-
-    private SchemaId() {
-        this.id = -1;
     }
 
     @Override
@@ -75,7 +74,16 @@ public final class SchemaId {
      * @return The integer value of this {@link SchemaId}
      */
     public int id() {
-        return id;
+        return this.id;
+    }
+
+    /**
+     * Returns a {@link SchemaId} from a specified underlying integer value
+     *
+     * @return The integer value of this {@link SchemaId}
+     */
+    public static SchemaId from(int id) {
+        return new SchemaId(id);
     }
 
     @Override

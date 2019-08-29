@@ -9,8 +9,12 @@ import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class LayoutScope extends LayoutType {
 
@@ -81,13 +85,14 @@ public abstract class LayoutScope extends LayoutType {
     }
 
     /**
-     * Returns true if writing an item in the specified typed scope would elide the type code
-     * because it is implied by the type arguments.
+     * {@code true} if writing an item in the specified typed scope would elide the type code because it is implied by the
+     * type arguments
      *
-     * @param edit
-     * @return True if the type code is implied (not written), false otherwise.
+     * @param edit a non-null {@link RowCursor} specifying a typed scope
+     * @return {@code true} if the type code is implied (not written); {@code false} otherwise.
      */
-    public boolean HasImplicitTypeCode(Reference<RowCursor> edit) {
+    public boolean hasImplicitTypeCode(@Nonnull final RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         return false;
     }
 
@@ -163,7 +168,7 @@ public abstract class LayoutScope extends LayoutType {
 
         Reference<RowCursor> tempReference_childScope2 =
             new Reference<RowCursor>(childScope);
-        RowCursorExtensions.Skip(scope.get().clone(), b,
+        RowCursors.skip(scope.get().clone(), b,
             tempReference_childScope2);
         childScope = tempReference_childScope2.get();
         return Result.Success;

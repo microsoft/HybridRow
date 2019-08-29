@@ -66,7 +66,7 @@ public final class SerializerUnitTest {
 
         // Write the request by serializing it to a row.
         RowBuffer row = new RowBuffer(SerializerUnitTest.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         Result r = RowWriter.WriteBuffer(tempReference_row, request, BatchRequestSerializer.Write);

@@ -4,7 +4,6 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
@@ -18,53 +17,42 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 
 import static com.google.common.base.Strings.lenientFormat;
 
-public final class RowCursor {
+public final class RowCursor implements Cloneable {
 
-    /**
-     * If existing, the layout code of the existing field, otherwise undefined.
-     */
-    public LayoutType cellType;
-    /**
-     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
-     */
-    public TypeArgumentList cellTypeArgs;
-    /**
-     * If true, this scope is an unique index scope whose index will be built after its items are written.
-     */
-    public boolean deferUniqueIndex;
-    /**
-     * If existing, the offset to the end of the existing field. Used as a hint when skipping
-     * forward.
-     */
-    public int endOffset;
-    /**
-     * True if an existing field matching the search criteria was found.
-     */
-    public boolean exists;
-    /**
-     * If existing, the offset scope relative path for reading.
-     */
-    public int pathOffset;
-    /**
-     * If existing, the layout string token of scope relative path for reading.
-     */
-    public int pathToken;
+    private LayoutType cellType;
+    private TypeArgumentList cellTypeArgs;
     private int count;
+    private boolean deferUniqueIndex;
+    private int endOffset;
+    private boolean exists;
     private boolean immutable;
     private int index;
     private Layout layout;
     private int metaOffset;
+    private int pathOffset;
+    private int pathToken;
     private LayoutScope scopeType;
     private TypeArgumentList scopeTypeArgs;
     private int start;
     private int valueOffset;
     private UtfAnyString writePath;
-    private StringToken writePathToken = new StringToken();
+    private StringToken writePathToken;
+
+    private RowCursor() {
+    }
+
+    protected RowCursor clone() {
+        try {
+            return (RowCursor) super.clone();
+        } catch (CloneNotSupportedException error) {
+            throw new IllegalStateException(error);
+        }
+    }
 
     public static RowCursor Create(RowBuffer row) {
 
         final SchemaId schemaId = row.ReadSchemaId(1);
-        final Layout layout = row.resolver().Resolve(schemaId);
+        final Layout layout = row.resolver().resolve(schemaId);
         final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.SIZE, layout.numVariable());
 
         return new RowCursor()
@@ -79,7 +67,7 @@ public final class RowCursor {
     public static RowCursor CreateForAppend(RowBuffer row) {
 
         final SchemaId schemaId = row.ReadSchemaId(1);
-        final Layout layout = row.resolver().Resolve(schemaId);
+        final Layout layout = row.resolver().resolve(schemaId);
 
         return new RowCursor()
             .layout(layout)
@@ -91,14 +79,65 @@ public final class RowCursor {
     }
 
     /**
+     * If existing, the layout code of the existing field, otherwise undefined.
+     */
+    public LayoutType cellType() {
+        return this.cellType;
+    }
+
+    public RowCursor cellType(LayoutType cellType) {
+        this.cellType = cellType;
+        return this;
+    }
+
+    /**
+     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
+     */
+    public TypeArgumentList cellTypeArgs() {
+        return this.cellTypeArgs;
+    }
+
+    /**
      * For sized scopes (e.g. Typed Array), the number of elements.
      */
     public int count() {
-        return count;
+        return this.count;
     }
 
     public RowCursor count(int count) {
         this.count = count;
+        return this;
+    }
+
+    /**
+     * If true, this scope is an unique index scope whose index will be built after its items are written.
+     */
+    public boolean deferUniqueIndex() {
+        return this.deferUniqueIndex;
+    }
+
+    /**
+     * If existing, the offset to the end of the existing field. Used as a hint when skipping
+     * forward.
+     */
+    public int endOffset() {
+        return this.endOffset;
+    }
+
+    public RowCursor endOffset(int endOffset) {
+        this.endOffset = endOffset;
+        return this;
+    }
+
+    /**
+     * True if an existing field matching the search criteria was found.
+     */
+    public boolean exists() {
+        return this.exists;
+    }
+
+    public RowCursor exists(boolean exists) {
+        this.exists = exists;
         return this;
     }
 
@@ -108,7 +147,7 @@ public final class RowCursor {
      * The entire scope can still be replaced.
      */
     public boolean immutable() {
-        return immutable;
+        return this.immutable;
     }
 
     public RowCursor immutable(boolean immutable) {
@@ -120,7 +159,7 @@ public final class RowCursor {
      * For indexed scopes (e.g. an Array scope), the zero-based index into the scope of the sparse field
      */
     public int index() {
-        return index;
+        return this.index;
     }
 
     public RowCursor index(int index) {
@@ -132,7 +171,7 @@ public final class RowCursor {
      * The layout describing the contents of the scope, or {@code null} if the scope is unschematized.
      */
     public Layout layout() {
-        return layout;
+        return this.layout;
     }
 
     public RowCursor layout(Layout layout) {
@@ -145,7 +184,7 @@ public final class RowCursor {
      * insert a new field.
      */
     public int metaOffset() {
-        return metaOffset;
+        return this.metaOffset;
     }
 
     public RowCursor metaOffset(int metaOffset) {
@@ -154,10 +193,24 @@ public final class RowCursor {
     }
 
     /**
+     * If existing, the offset scope relative path for reading.
+     */
+    public int pathOffset() {
+        return this.pathOffset;
+    }
+
+    /**
+     * If existing, the layout string token of scope relative path for reading.
+     */
+    public int pathToken() {
+        return this.pathToken;
+    }
+
+    /**
      * The kind of scope within which this edit was prepared
      */
     public LayoutScope scopeType() {
-        return scopeType;
+        return this.scopeType;
     }
 
     public RowCursor scopeType(LayoutScope scopeType) {
@@ -169,7 +222,7 @@ public final class RowCursor {
      * The type parameters of the scope within which this edit was prepared
      */
     public TypeArgumentList scopeTypeArgs() {
-        return scopeTypeArgs;
+        return this.scopeTypeArgs;
     }
 
     public RowCursor scopeTypeArgs(TypeArgumentList scopeTypeArgs) {
@@ -182,7 +235,7 @@ public final class RowCursor {
      * the scope begins.
      */
     public int start() {
-        return start;
+        return this.start;
     }
 
     public RowCursor start(int start) {
@@ -203,9 +256,9 @@ public final class RowCursor {
                 ? TypeArgument.NONE
                 : new TypeArgument(this.scopeType(), this.scopeTypeArgs());
 
-            TypeArgument typeArg = (this.cellType == null) || (this.cellType instanceof LayoutEndScope)
+            TypeArgument typeArg = (this.cellType() == null) || (this.cellType() instanceof LayoutEndScope)
                 ? TypeArgument.NONE
-                : new TypeArgument(this.cellType, this.cellTypeArgs);
+                : new TypeArgument(this.cellType(), this.cellTypeArgs());
 
             String pathOrIndex = this.writePath().isNull() ? String.valueOf(this.index()) : this.writePath().toString();
 
@@ -226,7 +279,7 @@ public final class RowCursor {
      * If existing, the offset to the value of the existing field, otherwise undefined.
      */
     public int valueOffset() {
-        return valueOffset;
+        return this.valueOffset;
     }
 
     public RowCursor valueOffset(int valueOffset) {
@@ -238,7 +291,7 @@ public final class RowCursor {
      * If existing, the scope relative path for writing.
      */
     public UtfAnyString writePath() {
-        return writePath;
+        return this.writePath;
     }
 
     public void writePath(UtfAnyString writePath) {
@@ -249,7 +302,7 @@ public final class RowCursor {
      * If WritePath is tokenized, then its token.
      */
     public StringToken writePathToken() {
-        return writePathToken;
+        return this.writePathToken;
     }
 
     public void writePathToken(StringToken writePathToken) {

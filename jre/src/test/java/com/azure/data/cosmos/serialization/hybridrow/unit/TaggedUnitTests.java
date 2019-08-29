@@ -5,7 +5,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -26,7 +25,7 @@ public final class TaggedUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateTaggedApi()
     public void CreateTaggedApi() {
         RowBuffer row = new RowBuffer(TaggedUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
 
         TaggedApi c1 = new TaggedApi();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:

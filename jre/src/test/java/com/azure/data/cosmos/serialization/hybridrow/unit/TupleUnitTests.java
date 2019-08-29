@@ -34,7 +34,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateCoordCounter()
     public void CreateCoordCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = new PerfCounter();
         c1.Name = "CoordInserts";
@@ -70,7 +70,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateCounter()
     public void CreateCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = this.counterExample;
         Reference<RowBuffer> tempReference_row =
@@ -100,7 +100,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void CreateMinMeanMaxCounter()
     public void CreateMinMeanMaxCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = new PerfCounter();
         c1.Name = "RowInserts";
@@ -135,7 +135,7 @@ public final class TupleUnitTests {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
         Layout layout = this.countersResolver.Resolve(tangible.ListHelper.find(this.counterSchema.getSchemas(),
             x -> x.Name.equals("CounterSet")).SchemaId);
-        row.InitLayout(HybridRowVersion.V1, layout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, layout, this.countersResolver);
 
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -280,7 +280,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void PreventInsertsAndDeletesInFixedArityCounter()
     public void PreventInsertsAndDeletesInFixedArityCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = this.counterExample;
         Reference<RowBuffer> tempReference_row =
@@ -373,7 +373,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void VerifyTypeConstraintsCoordCounter()
     public void VerifyTypeConstraintsCoordCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = new PerfCounter();
         c1.Name = "RowInserts";
@@ -464,7 +464,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void VerifyTypeConstraintsCounter()
     public void VerifyTypeConstraintsCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = this.counterExample;
         Reference<RowBuffer> tempReference_row =
@@ -540,7 +540,7 @@ public final class TupleUnitTests {
     //ORIGINAL LINE: [TestMethod][Owner("jthunter")] public void VerifyTypeConstraintsMinMeanMaxCounter()
     public void VerifyTypeConstraintsMinMeanMaxCounter() {
         RowBuffer row = new RowBuffer(TupleUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
+        row.initLayout(HybridRowVersion.V1, this.countersLayout, this.countersResolver);
 
         PerfCounter c1 = new PerfCounter();
         c1.Name = "RowInserts";
@@ -877,7 +877,7 @@ public final class TupleUnitTests {
     }
 
     private static void WriteCoord(Reference<RowBuffer> row, Reference<RowCursor> coordScope, TypeArgumentList typeArgs, Coord cd) {
-        Layout coordLayout = row.get().resolver().Resolve(typeArgs.getSchemaId().clone());
+        Layout coordLayout = row.get().resolver().resolve(typeArgs.getSchemaId().clone());
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         assert coordLayout.TryFind("lat", out c);

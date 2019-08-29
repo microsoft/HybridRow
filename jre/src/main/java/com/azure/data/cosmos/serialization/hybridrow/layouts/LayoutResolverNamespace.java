@@ -44,7 +44,7 @@ public final class LayoutResolverNamespace extends LayoutResolver {
     }
 
     @Override
-    public Layout Resolve(SchemaId schemaId) {
+    public Layout resolve(SchemaId schemaId) {
         Layout layout;
         // TODO: C# TO JAVA CONVERTER: There is no Java ConcurrentHashMap equivalent to this .NET
         // ConcurrentDictionary method:
@@ -63,7 +63,7 @@ public final class LayoutResolverNamespace extends LayoutResolver {
             }
         }
 
-        layout = this.parent == null ? null : this.parent.Resolve(schemaId.clone());
+        layout = this.parent == null ? null : this.parent.resolve(schemaId.clone());
         if (layout != null) {
             // TODO: C# TO JAVA CONVERTER: There is no Java ConcurrentHashMap equivalent to this .NET
             // ConcurrentDictionary method:

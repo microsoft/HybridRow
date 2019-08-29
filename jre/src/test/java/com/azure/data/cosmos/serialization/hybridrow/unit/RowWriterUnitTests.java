@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
@@ -52,7 +51,7 @@ public final class RowWriterUnitTests {
         assert layout != null;
 
         RowBuffer row = new RowBuffer(RowWriterUnitTests.InitialRowSize);
-        row.InitLayout(HybridRowVersion.V1, layout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, layout, this.resolver);
 
         int writerLength = 0;
         Reference<RowBuffer> tempReference_row =

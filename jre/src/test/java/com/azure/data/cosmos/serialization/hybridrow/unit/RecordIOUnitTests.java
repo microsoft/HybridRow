@@ -227,7 +227,7 @@ public class RecordIOUnitTests {
     private Result WriteAddress(MemorySpanResizer<Byte> resizer, Address obj,
                                 Out<ReadOnlyMemory<Byte>> buffer) {
         RowBuffer row = new RowBuffer(RecordIOUnitTests.InitialRowSize, resizer);
-        row.InitLayout(HybridRowVersion.V1, this.addressLayout, this.resolver);
+        row.initLayout(HybridRowVersion.V1, this.addressLayout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
         Result r = RowWriter.WriteBuffer(tempReference_row, obj, AddressSerializer.Write);

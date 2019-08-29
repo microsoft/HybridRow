@@ -4,7 +4,6 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.core.UtfAnyString;
 
@@ -44,18 +43,10 @@ public final class StringTokenizer {
      * Looks up a token's corresponding string.
      *
      * @param token The token to look up.
-     * @param path  If successful, the token's assigned string.
      * @return True if successful, false otherwise.
      */
-    public boolean tryFindString(long token, Out<Utf8String> path) {
-
-        if (token >= (long)this.strings.size()) {
-            path.setAndGet(null);
-            return false;
-        }
-
-        path.setAndGet(this.strings.get((int) token));
-        return true;
+    public Optional<Utf8String> tryFindString(long token) {
+        return token >= (long)this.strings.size() ? Optional.empty() : Optional.of(this.strings.get((int) token));
     }
 
     /**
@@ -112,7 +103,7 @@ public final class StringTokenizer {
         this.tokens.put(path, token);
         this.strings.add(path);
 
-        checkState((long)this.strings.size() - 1 == token.id);
+        checkState((long)this.strings.size() - 1 == token.id());
         return token;
     }
 }

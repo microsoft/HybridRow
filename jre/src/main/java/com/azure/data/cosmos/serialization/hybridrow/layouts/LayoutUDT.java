@@ -45,7 +45,7 @@ public final class LayoutUDT extends LayoutPropertyScope {
     @Override
     public Result WriteScope(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value, UpdateOptions options) {
-        Layout udt = b.get().resolver().Resolve(typeArgs.schemaId().clone());
+        Layout udt = b.get().resolver().resolve(typeArgs.schemaId().clone());
         Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.Success) {
             value.setAndGet(null);

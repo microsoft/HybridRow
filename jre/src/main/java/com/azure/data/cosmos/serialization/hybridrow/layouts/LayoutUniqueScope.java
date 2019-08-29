@@ -10,7 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.RowOptions;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursorExtensions;
+import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 
 public abstract class LayoutUniqueScope extends LayoutIndexedScope {
     protected LayoutUniqueScope(LayoutCode code, boolean immutable, boolean isSizedScope, boolean isTypedScope) {
@@ -140,7 +140,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
 
         Reference<RowCursor> tempReference_childScope2 =
             new Reference<RowCursor>(childScope);
-        RowCursorExtensions.Skip(scope.get().clone(), b,
+        RowCursors.skip(scope.get().clone(), b,
             tempReference_childScope2);
         childScope = tempReference_childScope2.get();
         return Result.Success;

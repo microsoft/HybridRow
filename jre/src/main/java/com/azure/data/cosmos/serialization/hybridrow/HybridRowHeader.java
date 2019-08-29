@@ -5,47 +5,39 @@
 package com.azure.data.cosmos.serialization.hybridrow;
 
 /**
- * Describes the header the precedes all valid Hybrid Rows.
+ * Describes the header that precedes all valid Hybrid Rows.
  */
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [StructLayout(LayoutKind.Sequential, Pack = 1)] public readonly struct HybridRowHeader
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: [StructLayout(LayoutKind.Sequential, Pack = 1)] public readonly struct HybridRowHeader
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
 public final class HybridRowHeader {
     /**
      * Size (in bytes) of a serialized header.
      */
-    public static final int SIZE = (HybridRowVersion.SIZE / Byte.SIZE) + com.azure.data.cosmos.serialization.hybridrow.SchemaId.SIZE;
-    /**
-     * The unique identifier of the schema whose layout was used to write this row.
-     */
-    private SchemaId SchemaId = new SchemaId();
-    /**
-     * The version of the HybridRow library used to write this row.
-     */
-    private HybridRowVersion Version = HybridRowVersion.values()[0];
+    public static final int SIZE = (HybridRowVersion.SIZE / Byte.SIZE) + SchemaId.SIZE;
+
+    private SchemaId schemaId;
+    private HybridRowVersion version = HybridRowVersion.values()[0];
 
     /**
-     * Initializes a new instance of the {@link HybridRowHeader} struct.
+     * Initializes a new instance of a {@link HybridRowHeader}
      *
      * @param version  The version of the HybridRow library used to write this row.
      * @param schemaId The unique identifier of the schema whose layout was used to write this row.
      */
-    public HybridRowHeader() {
-    }
-
     public HybridRowHeader(HybridRowVersion version, SchemaId schemaId) {
-        this.Version = version;
-        this.SchemaId = schemaId.clone();
+        this.version = version;
+        this.schemaId = new SchemaId(schemaId.id());
     }
 
-    public SchemaId getSchemaId() {
-        return SchemaId;
+    /**
+     * The unique identifier of the schema whose layout was used to write this row.
+     */
+    public SchemaId schemaId() {
+        return this.schemaId;
     }
 
-    public HybridRowVersion getVersion() {
-        return Version;
+    /**
+     * The version of the HybridRow library used to write this row.
+     */
+    public HybridRowVersion version() {
+        return this.version;
     }
 }

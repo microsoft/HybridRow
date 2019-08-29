@@ -29,7 +29,7 @@ import java.util.HashMap;
  */
 public final class Layout {
 
-    public static final Layout EMPTY = SystemSchema.LayoutResolver.Resolve(SystemSchema.EmptySchemaId);
+    public static final Layout EMPTY = SystemSchema.LayoutResolver.resolve(SystemSchema.EmptySchemaId);
 
     private final String name;
     private final int numBitmaskBytes;

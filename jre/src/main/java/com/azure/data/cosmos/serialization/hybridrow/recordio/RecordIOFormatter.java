@@ -64,7 +64,7 @@ public final class RecordIOFormatter {
     private static <T> Result FormatObject(ISpanResizer<Byte> resizer, int initialCapacity, Layout layout, T obj,
                                            RowWriter.WriterFunc<T> writer, Out<RowBuffer> row) {
         row.setAndGet(new RowBuffer(initialCapacity, resizer));
-        row.get().InitLayout(HybridRowVersion.V1, layout, SystemSchema.LayoutResolver);
+        row.get().initLayout(HybridRowVersion.V1, layout, SystemSchema.LayoutResolver);
         Result r = RowWriter.WriteBuffer(row.clone(), obj, writer);
         if (r != Result.Success) {
             row.setAndGet(null);
