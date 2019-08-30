@@ -4,56 +4,79 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
+import com.azure.data.cosmos.core.Json;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.common.base.Strings;
 
+import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
-public final class TypeArgumentList
-{
+@JsonSerialize(using = TypeArgumentList.JsonSerializer.class)
+public final class TypeArgumentList {
+
     public static final TypeArgumentList EMPTY = new TypeArgumentList();
 
     private final TypeArgument[] args;
     private final SchemaId schemaId;
 
-    private TypeArgumentList() {
-        this.args = new TypeArgument[] {};
-        this.schemaId = SchemaId.NONE;
-    }
-
-    public TypeArgumentList(TypeArgument[] args) {
-        checkArgument(args != null);
+    /**
+     * Initializes a new instance of the {@link TypeArgumentList} class
+     *
+     * @param args arguments in the list
+     */
+    public TypeArgumentList(@Nonnull final TypeArgument... args) {
+        checkNotNull(args);
         this.args = args;
         this.schemaId = SchemaId.INVALID;
     }
 
     /**
-     * Initializes a new instance of the {@link TypeArgumentList} struct.
+     * Initializes a new instance of the {@link TypeArgumentList} class
      *
-     * @param schemaId For UDT fields, the schema id of the nested layout.
+     * @param schemaId for UDT fields, the schema id of the nested layout
      */
-    public TypeArgumentList(SchemaId schemaId, TypeArgument...args) {
-        this.args = args.length == 0 ? EMPTY.args : args;
+    public TypeArgumentList(@Nonnull final SchemaId schemaId) {
+        checkNotNull(schemaId);
+        this.args = EMPTY.args;
         this.schemaId = schemaId;
     }
 
+    private TypeArgumentList() {
+        this.args = new TypeArgument[] {};
+        this.schemaId = SchemaId.INVALID;
+    }
+
+    /**
+     * Number of elements in this {@link TypeArgumentList}
+     * <p>
+     * @return number of arguments in the list
+     */
     public int count() {
         return this.args.length;
     }
 
     /**
-     * For UDT fields, the schema id of the nested layout.
+     * Stream for iterating over elements in this {@link TypeArgumentList}
+     * <p>
+     * @return a stream for iterating over elements in this {@link TypeArgumentList}
      */
-    public SchemaId schemaId() {
-        return this.schemaId;
-    }
-
-    /**
-     * Gets an enumerator for this span.
-     */
-    public Enumerator GetEnumerator() {
-        return new Enumerator(this.args);
+    public Stream<TypeArgument> elements() {
+        if (this.args.length == 0) {
+            return Stream.empty();
+        }
+        return StreamSupport.stream(Arrays.spliterator(this.args), false);
     }
 
     public boolean equals(TypeArgumentList other) {
@@ -71,8 +94,14 @@ public final class TypeArgumentList
         return other instanceof TypeArgumentList && this.equals((TypeArgumentList) other);
     }
 
-    public TypeArgument get(int i) {
-        return this.args[i].clone();
+    /**
+     * Element at the specified position in this {@link TypeArgumentList}
+     * <p>
+     * @param index index of the element to return
+     * @return element at the specified position in this {@link TypeArgumentList}
+     */
+    public TypeArgument get(int index) {
+        return this.args[index];
     }
 
     @Override
@@ -88,89 +117,36 @@ public final class TypeArgumentList
         return hash;
     }
 
-    public static boolean opEquals(TypeArgumentList left, TypeArgumentList right) {
-        return left.equals(right);
-    }
-
-    public static boolean opNotEquals(TypeArgumentList left, TypeArgumentList right) {
-        return !left.equals(right);
+    /**
+     * For UDT fields, the schema id of the nested layout.
+     */
+    public SchemaId schemaId() {
+        return this.schemaId;
     }
 
     @Override
     public String toString() {
-
-        if (this.schemaId.equals(SchemaId.INVALID)) {
-            return String.format("<%1$s>", this.schemaId().toString());
-        }
-
-        if (this.args == null || this.args == null ? null : this.args.length == 0) {
-            return "";
-        }
-
-        return String.format("<%1$s>", tangible.StringHelper.join(", ", this.args));
+        return Json.toString(this);
     }
 
-    /**
-     * Enumerates the elements of a {@link TypeArgumentList}.
-     */
-    //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may
-    // differ from the original:
-    //ORIGINAL LINE: public struct Enumerator
-    public final static class Enumerator {
-        /**
-         * The next index to yield.
-         */
-        private int index;
-        /**
-         * The list being enumerated.
-         */
-        private TypeArgument[] list;
+    static class JsonSerializer extends StdSerializer<TypeArgumentList> {
 
-        /**
-         * Initializes a new instance of the {@link Enumerator} struct.
-         *
-         * @param list The list to enumerate.
-         */
-        // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-        //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal Enumerator(TypeArgument[] list)
-        public Enumerator() {
+        private JsonSerializer() {
+            super(TypeArgumentList.class);
         }
 
-        public Enumerator(TypeArgument[] list) {
-            this.list = list;
-            this.index = -1;
-        }
+        @Override
+        public void serialize(TypeArgumentList value, JsonGenerator generator, SerializerProvider provider) throws IOException {
 
-        /**
-         * Advances the enumerator to the next element of the span.
-         */
-        // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-        //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool MoveNext()
-        public boolean MoveNext() {
-            int i = this.index + 1;
-            if (i < this.list.length) {
-                this.index = i;
-                return true;
+            generator.writeStartObject();
+            generator.writeObjectField("schemaId", value.schemaId);
+            generator.writeArrayFieldStart("args");
+
+            for (TypeArgument element : value.args) {
+                generator.writeString(element.toString());
             }
 
-            return false;
-        }
-
-        /**
-         * Gets the element at the current position of the enumerator.
-         */
-        // TODO: C# TO JAVA CONVERTER: 'ref return' methods are not converted by C# to Java Converter:
-        //		public ref readonly TypeArgument Current
-        //			{
-        //				[MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref this.list[this.index];
-        //			}
-        public Enumerator clone() {
-            Enumerator varCopy = new Enumerator();
-
-            varCopy.list = this.list.clone();
-            varCopy.index = this.index;
-
-            return varCopy;
+            generator.writeEndArray();
         }
     }
 }

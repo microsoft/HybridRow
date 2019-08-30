@@ -34,15 +34,15 @@ public final class SchemaId {
     public static final int SIZE = (Integer.SIZE / Byte.SIZE);
 
     private static long MAX_VALUE = 0x00000000FFFFFFFFL;
-    private final int id;
+    private final int value;
 
     /**
      * Initializes a new instance of the {@link SchemaId} struct.
      *
-     * @param id The underlying globally unique identifier of the schema.
+     * @param value The underlying globally unique identifier of the schema.
      */
-    private SchemaId(int id) {
-        this.id = id;
+    private SchemaId(int value) {
+        this.value = value;
     }
 
     @Override
@@ -60,12 +60,12 @@ public final class SchemaId {
         if (null == other) {
             return false;
         }
-        return this.id() == other.id();
+        return this.value() == other.value();
     }
 
     @Override
     public int hashCode() {
-        return Integer.valueOf(this.id()).hashCode();
+        return Integer.valueOf(this.value()).hashCode();
     }
 
     /**
@@ -73,8 +73,8 @@ public final class SchemaId {
      *
      * @return The integer value of this {@link SchemaId}
      */
-    public int id() {
-        return this.id;
+    public int value() {
+        return this.value;
     }
 
     /**
@@ -82,13 +82,13 @@ public final class SchemaId {
      *
      * @return The integer value of this {@link SchemaId}
      */
-    public static SchemaId from(int id) {
-        return new SchemaId(id);
+    public static SchemaId from(int value) {
+        return new SchemaId(value);
     }
 
     @Override
     public String toString() {
-        return String.valueOf(this.id());
+        return String.valueOf(this.value());
     }
 
     static final class JsonDeserializer extends StdDeserializer<SchemaId> {
@@ -119,7 +119,7 @@ public final class SchemaId {
 
         @Override
         public void serialize(final SchemaId value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
-            generator.writeNumber((long) value.id() & MAX_VALUE);
+            generator.writeNumber((long) value.value() & MAX_VALUE);
         }
     }
 }

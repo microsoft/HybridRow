@@ -26,7 +26,7 @@ public final class LayoutTuple extends LayoutIndexedScope {
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: lenInBytes += RowBuffer.Count7BitEncodedUInt((ulong)value.Count);
-        lenInBytes += RowBuffer.Count7BitEncodedUInt(value.count());
+        lenInBytes += RowBuffer.count7BitEncodedUInt(value.count());
         for (TypeArgument arg : value) {
             lenInBytes += arg.type().CountTypeArgument(arg.typeArgs().clone());
         }
@@ -78,7 +78,7 @@ public final class LayoutTuple extends LayoutIndexedScope {
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: lenInBytes += row.Write7BitEncodedUInt(offset + lenInBytes, (ulong)value.Count);
-        lenInBytes += row.get().Write7BitEncodedUInt(offset + lenInBytes, value.count());
+        lenInBytes += row.get().write7BitEncodedUInt(offset + lenInBytes, value.count());
         for (TypeArgument arg : value) {
             lenInBytes += arg.type().writeTypeArgument(row, offset + lenInBytes, arg.typeArgs().clone());
         }

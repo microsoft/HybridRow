@@ -75,7 +75,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
             return result;
         }
 
-        b.get().WriteSparseFloat32(edit, value, options);
+        b.get().writeSparseFloat32(edit, value, options);
         return Result.Success;
     }
 

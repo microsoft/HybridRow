@@ -4,6 +4,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
+import java.util.HashMap;
+
 /**
  * Describes the desired behavior when mutating a hybrid row.
  */
@@ -53,27 +55,27 @@ public enum RowOptions {
     Delete(5);
 
     public static final int SIZE = java.lang.Integer.SIZE;
-    private static java.util.HashMap<Integer, RowOptions> mappings;
-    private int intValue;
+    private static HashMap<Integer, RowOptions> mappings;
+    private int value;
 
     RowOptions(int value) {
-        intValue = value;
-        getMappings().put(value, this);
+        this.value = value;
+        mappings().put(value, this);
     }
 
     public int getValue() {
-        return intValue;
+        return this.value;
     }
 
-    public static RowOptions forValue(int value) {
-        return getMappings().get(value);
+    public static RowOptions from(int value) {
+        return mappings().get(value);
     }
 
-    private static java.util.HashMap<Integer, RowOptions> getMappings() {
+    private static HashMap<Integer, RowOptions> mappings() {
         if (mappings == null) {
             synchronized (RowOptions.class) {
                 if (mappings == null) {
-                    mappings = new java.util.HashMap<Integer, RowOptions>();
+                    mappings = new HashMap<>();
                 }
             }
         }

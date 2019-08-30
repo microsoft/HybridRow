@@ -65,7 +65,7 @@ public abstract class LayoutType<T> implements ILayoutType {
      * The entire edit can still be replaced.
      */
     public boolean isImmutable() {
-        return immutable;
+        return this.immutable;
     }
 
     /**
@@ -306,37 +306,38 @@ public abstract class LayoutType<T> implements ILayoutType {
      * @param options The write options.
      * @return Success if the write is permitted, the error code otherwise.
      */
-    public static Result prepareSparseWrite(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                                            TypeArgument typeArg, UpdateOptions options) {
-        if (edit.get().immutable() || (edit.get().scopeType().isUniqueScope() && !edit.get().deferUniqueIndex())) {
+    public static Result prepareSparseWrite(
+        RowBuffer b, RowCursor edit, TypeArgument typeArg, UpdateOptions options
+    ) {
+        if (edit.immutable() || (edit.scopeType().isUniqueScope() && !edit.deferUniqueIndex())) {
             return Result.InsufficientPermissions;
         }
 
-        if (edit.get().scopeType().isFixedArity() && !(edit.get().scopeType() instanceof LayoutNullable)) {
-            if ((edit.get().index() < edit.get().scopeTypeArgs().count()) && !typeArg.equals(edit.get().scopeTypeArgs().get(edit.get().index()))) {
+        if (edit.scopeType().isFixedArity() && !(edit.scopeType() instanceof LayoutNullable)) {
+            if ((edit.index() < edit.scopeTypeArgs().count()) && !typeArg.equals(edit.scopeTypeArgs().get(edit.index()))) {
                 return Result.TypeConstraint;
             }
-        } else if (edit.get().scopeType() instanceof LayoutTypedMap) {
-            if (!((typeArg.type() instanceof LayoutTypedTuple) && typeArg.typeArgs().equals(edit.get().scopeTypeArgs()))) {
+        } else if (edit.scopeType() instanceof LayoutTypedMap) {
+            if (!((typeArg.type() instanceof LayoutTypedTuple) && typeArg.typeArgs().equals(edit.scopeTypeArgs()))) {
                 return Result.TypeConstraint;
             }
-        } else if (edit.get().scopeType().isTypedScope() && !typeArg.equals(edit.get().scopeTypeArgs().get(0))) {
+        } else if (edit.scopeType().isTypedScope() && !typeArg.equals(edit.scopeTypeArgs().get(0))) {
             return Result.TypeConstraint;
         }
 
-        if ((options == UpdateOptions.InsertAt) && edit.get().scopeType().isFixedArity()) {
+        if ((options == UpdateOptions.InsertAt) && edit.scopeType().isFixedArity()) {
             return Result.TypeConstraint;
         }
 
-        if ((options == UpdateOptions.InsertAt) && !edit.get().scopeType().isFixedArity()) {
-            edit.get().exists = false; // InsertAt never overwrites an existing item.
+        if ((options == UpdateOptions.InsertAt) && !edit.scopeType().isFixedArity()) {
+            edit.exists(false); // InsertAt never overwrites an existing item.
         }
 
-        if ((options == UpdateOptions.Update) && (!edit.get().exists())) {
+        if ((options == UpdateOptions.Update) && (!edit.exists())) {
             return Result.NotFound;
         }
 
-        if ((options == UpdateOptions.Insert) && edit.get().exists()) {
+        if ((options == UpdateOptions.Insert) && edit.exists()) {
             return Result.Exists;
         }
 
@@ -371,7 +372,7 @@ public abstract class LayoutType<T> implements ILayoutType {
      * If fixed, the fixed size of the type's serialization in bytes, otherwise undefined.
      */
     public int size() {
-        return size;
+        return this.size;
     }
 
     /**

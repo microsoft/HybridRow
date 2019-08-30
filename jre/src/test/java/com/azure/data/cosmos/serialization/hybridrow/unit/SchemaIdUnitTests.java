@@ -17,10 +17,10 @@ public class SchemaIdUnitTests {
         SchemaId b = new SchemaId(2);
         SchemaId c = new SchemaId();
 
-        assert 1 == a.id();
-        assert 2 == b.id();
+        assert 1 == a.value();
+        assert 2 == b.value();
         assert SchemaId.INVALID == c.clone();
-        assert 2 != a.id();
+        assert 2 != a.value();
         assert a.clone() != b.clone();
         assert SchemaId.opEquals(a.clone(), a.clone());
         assert SchemaId.opNotEquals(a.clone(), b.clone());

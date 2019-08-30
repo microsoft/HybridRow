@@ -140,7 +140,7 @@ public final class RowReader {
             case Sparse:
                 if (this.cursor.cellType() instanceof LayoutNullable) {
                     Reference<RowCursor> cursor = new Reference<>(this.cursor);
-                    RowCursor nullableScope = this.row.SparseIteratorReadScope(cursor, true).clone();
+                    RowCursor nullableScope = this.row.sparseIteratorReadScope(cursor, true).clone();
                     this.cursor = cursor.get();
                     Reference<RowBuffer> row = new Reference<>(this.row);
                     Reference<RowCursor> tempReference_nullableScope = new Reference<>(nullableScope);
@@ -744,7 +744,7 @@ public final class RowReader {
     public RowReader ReadScope() {
         Reference<RowCursor> tempReference_cursor =
             new Reference<RowCursor>(this.cursor);
-        RowCursor newScope = this.row.SparseIteratorReadScope(tempReference_cursor, true).clone();
+        RowCursor newScope = this.row.sparseIteratorReadScope(tempReference_cursor, true).clone();
         this.cursor = tempReference_cursor.get();
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(this.row);
@@ -763,7 +763,7 @@ public final class RowReader {
     public <TContext> Result ReadScope(TContext context, ReaderFunc<TContext> func) {
         Reference<RowCursor> tempReference_cursor =
             new Reference<RowCursor>(this.cursor);
-        RowCursor childScope = this.row.SparseIteratorReadScope(tempReference_cursor, true).clone();
+        RowCursor childScope = this.row.sparseIteratorReadScope(tempReference_cursor, true).clone();
         this.cursor = tempReference_cursor.get();
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(this.row);

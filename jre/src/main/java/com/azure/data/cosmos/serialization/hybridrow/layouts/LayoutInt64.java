@@ -59,7 +59,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteInt64(scope.get().start() + col.getOffset(), value);
+        b.get().writeInt64(scope.get().start() + col.getOffset(), value);
         b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }

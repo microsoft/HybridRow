@@ -105,7 +105,7 @@ public abstract class LayoutScope extends LayoutType {
             return result;
         }
 
-        value.setAndGet(b.get().SparseIteratorReadScope(edit,
+        value.setAndGet(b.get().sparseIteratorReadScope(edit,
             this.Immutable || edit.get().immutable() || edit.get().scopeType().isUniqueScope()).clone());
 
         return Result.Success;

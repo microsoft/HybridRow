@@ -24,7 +24,7 @@ public final class HybridRowHeader {
      */
     public HybridRowHeader(HybridRowVersion version, SchemaId schemaId) {
         this.version = version;
-        this.schemaId = new SchemaId(schemaId.id());
+        this.schemaId = SchemaId.from(schemaId.value());
     }
 
     /**

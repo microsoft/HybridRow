@@ -4,10 +4,13 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
+import java.util.HashMap;
+
 /**
  * Describes the desired behavior when writing a {@link LayoutType}.
  */
 public enum UpdateOptions {
+
     None(0),
 
     /**
@@ -46,26 +49,26 @@ public enum UpdateOptions {
 
     public static final int SIZE = java.lang.Integer.SIZE;
     private static java.util.HashMap<Integer, UpdateOptions> mappings;
-    private int intValue;
+    private int value;
 
     UpdateOptions(int value) {
-        intValue = value;
-        getMappings().put(value, this);
+        this.value = value;
+        mappings().put(value, this);
     }
 
-    public int getValue() {
-        return intValue;
+    public int value() {
+        return this.value;
     }
 
-    public static UpdateOptions forValue(int value) {
-        return getMappings().get(value);
+    public static UpdateOptions from(int value) {
+        return mappings().get(value);
     }
 
-    private static java.util.HashMap<Integer, UpdateOptions> getMappings() {
+    private static java.util.HashMap<Integer, UpdateOptions> mappings() {
         if (mappings == null) {
             synchronized (UpdateOptions.class) {
                 if (mappings == null) {
-                    mappings = new java.util.HashMap<Integer, UpdateOptions>();
+                    mappings = new HashMap<>();
                 }
             }
         }

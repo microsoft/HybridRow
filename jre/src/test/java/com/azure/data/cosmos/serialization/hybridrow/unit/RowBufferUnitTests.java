@@ -42,8 +42,8 @@ public class RowBufferUnitTests {
     private void RoundTripVarInt(short s) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ulong encoded = RowBuffer.RotateSignToLsb(s);
-        long encoded = RowBuffer.RotateSignToLsb(s);
-        long decoded = RowBuffer.RotateSignToMsb(encoded);
+        long encoded = RowBuffer.rotateSignToLsb(s);
+        long decoded = RowBuffer.rotateSignToMsb(encoded);
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
         //ORIGINAL LINE: short t = unchecked((short)decoded);
         short t = (short)decoded;
@@ -53,8 +53,8 @@ public class RowBufferUnitTests {
     private void RoundTripVarInt(int s) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ulong encoded = RowBuffer.RotateSignToLsb(s);
-        long encoded = RowBuffer.RotateSignToLsb(s);
-        long decoded = RowBuffer.RotateSignToMsb(encoded);
+        long encoded = RowBuffer.rotateSignToLsb(s);
+        long decoded = RowBuffer.rotateSignToMsb(encoded);
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
         //ORIGINAL LINE: int t = unchecked((int)decoded);
         int t = (int)decoded;
@@ -64,8 +64,8 @@ public class RowBufferUnitTests {
     private void RoundTripVarInt(long s) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: ulong encoded = RowBuffer.RotateSignToLsb(s);
-        long encoded = RowBuffer.RotateSignToLsb(s);
-        long decoded = RowBuffer.RotateSignToMsb(encoded);
+        long encoded = RowBuffer.rotateSignToLsb(s);
+        long decoded = RowBuffer.rotateSignToMsb(encoded);
         Assert.AreEqual(s, decoded, "Value: {0}", s);
     }
 }

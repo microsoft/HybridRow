@@ -230,7 +230,7 @@ public final class BsonRowGenerator implements Closeable {
                     // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
                     //ORIGINAL LINE: d128 = unchecked(Decimal128.FromIEEEBits((ulong)f128.High, (ulong)f128.Low));
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-                    d128 = Decimal128.FromIEEEBits((long)f128.High, (long)f128.Low);
+                    d128 = Decimal128.FromIEEEBits((long) f128.high(), (long) f128.low());
                 }
 
                 this.writer.WriteDecimal128(d128);

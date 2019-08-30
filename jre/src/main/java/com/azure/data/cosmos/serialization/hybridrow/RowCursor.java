@@ -38,7 +38,7 @@ public final class RowCursor implements Cloneable {
     private UtfAnyString writePath;
     private StringToken writePathToken;
 
-    private RowCursor() {
+    RowCursor() {
     }
 
     protected RowCursor clone() {
@@ -95,6 +95,11 @@ public final class RowCursor implements Cloneable {
      */
     public TypeArgumentList cellTypeArgs() {
         return this.cellTypeArgs;
+    }
+
+    public RowCursor cellTypeArgs(TypeArgumentList value) {
+        this.cellTypeArgs = value;
+        return this;
     }
 
     /**

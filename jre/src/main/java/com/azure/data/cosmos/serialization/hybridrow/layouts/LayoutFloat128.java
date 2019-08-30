@@ -60,7 +60,7 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFloat128(scope.get().start() + col.getOffset(), value.clone());
+        b.get().writeFloat128(scope.get().start() + col.getOffset(), value);
         b.get().SetBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }

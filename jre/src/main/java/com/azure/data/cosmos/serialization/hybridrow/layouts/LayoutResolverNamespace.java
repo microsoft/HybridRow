@@ -50,7 +50,7 @@ public final class LayoutResolverNamespace extends LayoutResolver {
         // ConcurrentDictionary method:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (this.layoutCache.TryGetValue(schemaId.id(), out layout)) {
+        if (this.layoutCache.TryGetValue(schemaId.value(), out layout)) {
             return layout;
         }
 
@@ -58,7 +58,7 @@ public final class LayoutResolverNamespace extends LayoutResolver {
             if (SchemaId.opEquals(s.getSchemaId().clone(),
                 schemaId.clone())) {
                 layout = s.Compile(this.schemaNamespace);
-                layout = this.layoutCache.putIfAbsent(schemaId.id(), layout);
+                layout = this.layoutCache.putIfAbsent(schemaId.value(), layout);
                 return layout;
             }
         }
@@ -67,7 +67,7 @@ public final class LayoutResolverNamespace extends LayoutResolver {
         if (layout != null) {
             // TODO: C# TO JAVA CONVERTER: There is no Java ConcurrentHashMap equivalent to this .NET
             // ConcurrentDictionary method:
-            boolean succeeded = this.layoutCache.TryAdd(schemaId.id(), layout);
+            boolean succeeded = this.layoutCache.TryAdd(schemaId.value(), layout);
             checkState(succeeded);
             return layout;
         }

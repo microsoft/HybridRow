@@ -39,16 +39,9 @@ public final class Float128 {
      * The size (in bytes) of a {@link Float128}.
      */
     public static final int Size = (Long.SIZE / Byte.SIZE) + (Long.SIZE / Byte.SIZE);
-    /**
-     * The high-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID
-     * encoding scheme.
-     */
-    public long High;
-    /**
-     * The low-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID
-     * encoding scheme.
-     */
-    public long Low;
+
+    private final long high;
+    private final long low;
 
     /**
      * Initializes a new instance of the {@link Float128} struct.
@@ -56,20 +49,24 @@ public final class Float128 {
      * @param high the high-order 64 bits.
      * @param low  the low-order 64 bits.
      */
-    public Float128() {
-    }
-
     public Float128(long high, long low) {
-        this.High = high;
-        this.Low = low;
+        this.high = high;
+        this.low = low;
     }
 
-    public Float128 clone() {
-        Float128 varCopy = new Float128();
+    /**
+     * The high-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID
+     * encoding scheme.
+     */
+    public long high() {
+        return this.high;
+    }
 
-        varCopy.Low = this.Low;
-        varCopy.High = this.High;
-
-        return varCopy;
+    /**
+     * The low-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID
+     * encoding scheme.
+     */
+    public long low() {
+        return this.low;
     }
 }
