@@ -1,15 +1,7 @@
-//------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 package tangible;
-
-//----------------------------------------------------------------------------------------
-//	Copyright © 2007 - 2019 Tangible Software Solutions, Inc.
-//	This class can be used by anyone provided that the copyright notice remains intact.
-//
-//	This class is used to convert some of the .NET List methods to Java.
-//----------------------------------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.function.Predicate;

@@ -1,17 +1,10 @@
-//------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 package tangible;
 
 import com.azure.data.cosmos.core.Out;
 
-//----------------------------------------------------------------------------------------
-//	Copyright © 2007 - 2019 Tangible Software Solutions, Inc.
-//	This class can be used by anyone provided that the copyright notice remains intact.
-//
-//	This class is used to convert some of the C# TryParse methods to Java.
-//----------------------------------------------------------------------------------------
 public final class TryParseHelper {
     public static boolean tryParseBoolean(String s, Out<Boolean> result) {
         try {

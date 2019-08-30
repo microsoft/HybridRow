@@ -1,15 +1,8 @@
-//------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 package tangible;
 
-//----------------------------------------------------------------------------------------
-//	Copyright © 2007 - 2019 Tangible Software Solutions, Inc.
-//	This class can be used by anyone provided that the copyright notice remains intact.
-//
-//	This class is used to replicate some .NET string methods in Java.
-//----------------------------------------------------------------------------------------
 public final class StringHelper {
     //------------------------------------------------------------------------------------
     //	This method replaces the .NET string method 'IndexOfAny' (1 parameter version).
