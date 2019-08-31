@@ -150,7 +150,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
             value.NullBool = new ArrayList<Boolean>();
             RowCursor nullableScope = null;
             Reference<RowCursor> tempReference_nullableScope =
@@ -183,7 +183,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
             value.NullArray = new ArrayList<Float>();
             RowCursor nullableScope = null;
             Reference<RowCursor> tempReference_nullableScope2 =
@@ -216,7 +216,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedSet>TypeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedSet>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
             value.NullSet = new ArrayList<String>();
             RowCursor nullableScope = null;
             Reference<RowCursor> tempReference_nullableScope3 =
@@ -249,7 +249,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
             value.NullTuple = new ArrayList<(Integer, Long) > ();
             RowCursor tupleScope = null;
             TypeArgument tupleType = c.TypeArgs[0];
@@ -316,7 +316,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>TypeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: value.NullMap = new Dictionary<Guid, Nullable<byte>>();
             value.NullMap = new HashMap<UUID, Byte>();
@@ -324,7 +324,7 @@ public final class NullableUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
-            TypeArgument tupleType = c.<LayoutUniqueScope>TypeAs().FieldType(ref scope);
+            TypeArgument tupleType = c.<LayoutUniqueScope>typeAs().FieldType(ref scope);
             Reference<RowCursor> tempReference_tupleScope4 =
                 new Reference<RowCursor>(tupleScope);
             while (scope.MoveNext(row, tempReference_tupleScope4)) {
@@ -432,13 +432,13 @@ public final class NullableUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            root.get().Clone(out outerScope).Find(row, c.getPath());
+            root.get().Clone(out outerScope).Find(row, c.path());
             Reference<RowCursor> tempReference_outerScope =
                 new Reference<RowCursor>(outerScope);
             Out<RowCursor> tempOut_outerScope =
                 new Out<RowCursor>();
-            ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, tempReference_outerScope,
-                c.getTypeArgs().clone(), tempOut_outerScope));
+            ResultAssert.IsSuccess(c.<LayoutTypedArray>typeAs().WriteScope(row, tempReference_outerScope,
+                c.typeArgs().clone(), tempOut_outerScope));
             outerScope = tempOut_outerScope.get();
             outerScope = tempReference_outerScope.get();
             for (Boolean item : value.NullBool) {
@@ -448,7 +448,7 @@ public final class NullableUnitTests {
                 Out<RowCursor> tempOut_innerScope =
                     new Out<RowCursor>();
                 ResultAssert.IsSuccess(NullableUnitTests.WriteNullable(row, tempReference_outerScope2,
-                    c.getTypeArgs().get(0).clone(), item, tempOut_innerScope));
+                    c.typeArgs().get(0).clone(), item, tempOut_innerScope));
                 innerScope = tempOut_innerScope.get();
                 outerScope = tempReference_outerScope2.get();
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
@@ -467,13 +467,13 @@ public final class NullableUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            root.get().Clone(out outerScope).Find(row, c.getPath());
+            root.get().Clone(out outerScope).Find(row, c.path());
             Reference<RowCursor> tempReference_outerScope3 =
                 new Reference<RowCursor>(outerScope);
             Out<RowCursor> tempOut_outerScope2 =
                 new Out<RowCursor>();
-            ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, tempReference_outerScope3,
-                c.getTypeArgs().clone(), tempOut_outerScope2));
+            ResultAssert.IsSuccess(c.<LayoutTypedArray>typeAs().WriteScope(row, tempReference_outerScope3,
+                c.typeArgs().clone(), tempOut_outerScope2));
             outerScope = tempOut_outerScope2.get();
             outerScope = tempReference_outerScope3.get();
             for (Float item : value.NullArray) {
@@ -483,7 +483,7 @@ public final class NullableUnitTests {
                 Out<RowCursor> tempOut_innerScope2 =
                     new Out<RowCursor>();
                 ResultAssert.IsSuccess(NullableUnitTests.WriteNullable(row, tempReference_outerScope4,
-                    c.getTypeArgs().get(0).clone(), item, tempOut_innerScope2));
+                    c.typeArgs().get(0).clone(), item, tempOut_innerScope2));
                 innerScope = tempOut_innerScope2.get();
                 outerScope = tempReference_outerScope4.get();
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword -
@@ -502,13 +502,13 @@ public final class NullableUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            root.get().Clone(out outerScope).Find(row, c.getPath());
+            root.get().Clone(out outerScope).Find(row, c.path());
             Reference<RowCursor> tempReference_outerScope5 =
                 new Reference<RowCursor>(outerScope);
             Out<RowCursor> tempOut_outerScope3 =
                 new Out<RowCursor>();
-            ResultAssert.IsSuccess(c.<LayoutTypedSet>TypeAs().WriteScope(row, tempReference_outerScope5,
-                c.getTypeArgs().clone(), tempOut_outerScope3));
+            ResultAssert.IsSuccess(c.<LayoutTypedSet>typeAs().WriteScope(row, tempReference_outerScope5,
+                c.typeArgs().clone(), tempOut_outerScope3));
             outerScope = tempOut_outerScope3.get();
             outerScope = tempReference_outerScope5.get();
             for (String item : value.NullSet) {
@@ -523,14 +523,14 @@ public final class NullableUnitTests {
                 Out<RowCursor> tempOut__ =
                     new Out<RowCursor>();
                 ResultAssert.IsSuccess(NullableUnitTests.WriteNullable(row, tempReference_temp,
-                    c.getTypeArgs().get(0).clone(), item, tempOut__));
+                    c.typeArgs().get(0).clone(), item, tempOut__));
                 _ = tempOut__.get();
                 temp = tempReference_temp.get();
                 Reference<RowCursor> tempReference_outerScope6 =
                     new Reference<RowCursor>(outerScope);
                 Reference<RowCursor> tempReference_temp2 =
                     new Reference<RowCursor>(temp);
-                ResultAssert.IsSuccess(c.<LayoutTypedSet>TypeAs().MoveField(row, tempReference_outerScope6,
+                ResultAssert.IsSuccess(c.<LayoutTypedSet>typeAs().MoveField(row, tempReference_outerScope6,
                     tempReference_temp2));
                 temp = tempReference_temp2.get();
                 outerScope = tempReference_outerScope6.get();
@@ -546,18 +546,18 @@ public final class NullableUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            root.get().Clone(out outerScope).Find(row, c.getPath());
+            root.get().Clone(out outerScope).Find(row, c.path());
             Reference<RowCursor> tempReference_outerScope7 =
                 new Reference<RowCursor>(outerScope);
             Out<RowCursor> tempOut_outerScope4 =
                 new Out<RowCursor>();
-            ResultAssert.IsSuccess(c.<LayoutTypedArray>TypeAs().WriteScope(row, tempReference_outerScope7,
-                c.getTypeArgs().clone(), tempOut_outerScope4));
+            ResultAssert.IsSuccess(c.<LayoutTypedArray>typeAs().WriteScope(row, tempReference_outerScope7,
+                c.typeArgs().clone(), tempOut_outerScope4));
             outerScope = tempOut_outerScope4.get();
             outerScope = tempReference_outerScope7.get();
             for ((Integer item1,Long item2) :value.NullTuple)
             {
-                TypeArgument tupleType = c.getTypeArgs().get(0).clone();
+                TypeArgument tupleType = c.typeArgs().get(0).clone();
                 RowCursor tupleScope;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
                 // these cannot be converted using the 'Out' helper class unless the method is within the code
@@ -611,22 +611,22 @@ public final class NullableUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            root.get().Clone(out outerScope).Find(row, c.getPath());
+            root.get().Clone(out outerScope).Find(row, c.path());
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
-            ResultAssert.IsSuccess(c.<LayoutUniqueScope>TypeAs().WriteScope(row, ref outerScope,
-                c.getTypeArgs().clone(), out outerScope));
+            ResultAssert.IsSuccess(c.<LayoutUniqueScope>typeAs().WriteScope(row, ref outerScope,
+                c.typeArgs().clone(), out outerScope));
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: foreach ((Guid key, Nullable<byte> itemValue) in value.NullMap)
             for ((UUID key,Byte itemValue) :value.NullMap)
             {
                 Reference<RowCursor> tempReference_outerScope8 =
                     new Reference<RowCursor>(outerScope);
-                TypeArgument tupleType = c.<LayoutUniqueScope>TypeAs().FieldType(tempReference_outerScope8).clone();
+                TypeArgument tupleType = c.<LayoutUniqueScope>typeAs().FieldType(tempReference_outerScope8).clone();
                 outerScope = tempReference_outerScope8.get();
                 RowCursor temp;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
@@ -676,7 +676,7 @@ public final class NullableUnitTests {
                     new Reference<RowCursor>(outerScope);
                 Reference<RowCursor> tempReference_temp3 =
                     new Reference<RowCursor>(temp);
-                ResultAssert.IsSuccess(c.<LayoutUniqueScope>TypeAs().MoveField(row, tempReference_outerScope9,
+                ResultAssert.IsSuccess(c.<LayoutUniqueScope>typeAs().MoveField(row, tempReference_outerScope9,
                     tempReference_temp3));
                 temp = tempReference_temp3.get();
                 outerScope = tempReference_outerScope9.get();

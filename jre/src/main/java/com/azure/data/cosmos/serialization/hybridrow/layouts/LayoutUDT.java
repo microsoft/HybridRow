@@ -57,7 +57,7 @@ public final class LayoutUDT extends LayoutPropertyScope {
 
     @Override
     public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        row.get().WriteSparseTypeCode(offset, this.LayoutCode);
+        row.get().writeSparseTypeCode(offset, this.LayoutCode);
         row.get().WriteSchemaId(offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), value.schemaId().clone());
         return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.SIZE;
     }

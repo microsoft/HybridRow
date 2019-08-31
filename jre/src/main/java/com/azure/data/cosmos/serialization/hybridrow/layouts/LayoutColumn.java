@@ -6,235 +6,205 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.lenientFormat;
+
 public final class LayoutColumn {
-    /**
-     * For bool fields, 0-based index into the bit mask for the bool value.
-     */
-    private LayoutBit boolBit = new LayoutBit();
-    /**
-     * The full logical path of the field within the row.
-     */
-    private Utf8String fullPath;
-    /**
-     * 0-based index of the column within the structure.  Also indicates which presence bit
-     * controls this column.
-     */
+
+    private final LayoutBit booleanBit;
+    private final Utf8String fullPath;
+    private final LayoutBit nullBit;
+    private final LayoutColumn parent;
+    private final Utf8String path;
+    private final int size;
+    private final StorageKind storage;
+    private final LayoutType type;
+    private final TypeArgument typeArg;
+    private final TypeArgumentList typeArgs;
+
     private int index;
-    /**
-     * For nullable fields, the 0-based index into the bit mask for the null bit.
-     */
-    private LayoutBit nullBit = new LayoutBit();
-    /**
-     * If {@link storage} equals {@link StorageKind.Fixed} then the byte offset to
-     * the field location.
-     * <para />
-     * If {@link storage} equals {@link StorageKind.Variable} then the 0-based index of the
-     * field from the beginning of the variable length segment.
-     * <para />
-     * For all other values of {@link storage}, {@link Offset} is ignored.
-     */
     private int offset;
-    /**
-     * The layout of the parent scope, if a nested column, otherwise null.
-     */
-    private LayoutColumn parent;
-    /**
-     * The relative path of the field within its parent scope.
-     */
-    private Utf8String path;
-    /**
-     * If {@link LayoutType.IsBool} then the 0-based extra index within the bool byte
-     * holding the value of this type, otherwise must be 0.
-     */
-    private int size;
-    /**
-     * The storage kind of the field.
-     */
-    private StorageKind storage = StorageKind.values()[0];
-    /**
-     * The physical layout type of the field.
-     */
-    private LayoutType type;
-    /**
-     * The physical layout type of the field.
-     */
-    private TypeArgument typeArg = new TypeArgument();
-    /**
-     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
-     */
-    private TypeArgumentList typeArgs = new TypeArgumentList();
 
     /**
-     * Initializes a new instance of the {@link LayoutColumn} class.
+     * Initializes a new instance of the {@link LayoutColumn} class
      *
-     * @param path     The path to the field relative to parent scope.
-     * @param type     Type of the field.
-     * @param storage  Storage encoding of the field.
-     * @param parent   The layout of the parent scope, if a nested column.
-     * @param index    0-based column index.
-     * @param offset   0-based Offset from beginning of serialization.
-     * @param nullBit  0-based index into the bit mask for the null bit.
-     * @param boolBit  For bool fields, 0-based index into the bit mask for the bool value.
-     * @param length   For variable length types the length, otherwise 0.
-     * @param typeArgs For types with generic parameters (e.g. {@link LayoutTuple}, the type
-     *                 parameters.
+     * @param path       The path to the field relative to parent scope.
+     * @param type       Type of the field.
+     * @param typeArgs   For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
+     * @param storage    Storage encoding of the field.
+     * @param parent     The layout of the parent scope, if a nested column.
+     * @param index      zero-based column index.
+     * @param offset     zero-based Offset from beginning of serialization.
+     * @param nullBit    zero-based index into the bit mask for the null bit.
+     * @param booleanBit For bool fields, zero-based index into the bit mask for the boolean value.
+     * @param length     For variable length types the length, otherwise {@code 0}.
      */
+    public LayoutColumn(
+        @Nonnull final String path, @Nonnull final LayoutType type, @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final StorageKind storage, final LayoutColumn parent, int index, int offset,
+        @Nonnull final LayoutBit nullBit, @Nonnull final LayoutBit booleanBit, int length) {
 
-    public LayoutColumn(String path, LayoutType type, TypeArgumentList typeArgs, StorageKind storage,
-                        LayoutColumn parent, int index, int offset, LayoutBit nullBit, LayoutBit boolBit) {
-        this(path, type, typeArgs, storage, parent, index, offset, nullBit, boolBit, 0);
-    }
+        checkNotNull(path);
+        checkNotNull(type);
+        checkNotNull(typeArgs);
+        checkNotNull(storage);
+        checkNotNull(nullBit);
+        checkNotNull(booleanBit);
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: internal LayoutColumn(string path, LayoutType type, TypeArgumentList typeArgs, StorageKind
-    // storage, LayoutColumn parent, int index, int offset, LayoutBit nullBit, LayoutBit boolBit, int length = 0)
-    public LayoutColumn(String path, LayoutType type, TypeArgumentList typeArgs, StorageKind storage,
-                        LayoutColumn parent, int index, int offset, LayoutBit nullBit, LayoutBit boolBit, int length) {
-        this.path = Utf8String.TranscodeUtf16(path);
-        this.fullPath = Utf8String.TranscodeUtf16(LayoutColumn.GetFullPath(parent, path));
+        this.path = Utf8String.transcodeUtf16(path);
+        this.fullPath = Utf8String.transcodeUtf16(fullPath(parent, path));
         this.type = type;
-        this.typeArgs = typeArgs.clone();
-        this.typeArg = new TypeArgument(type, typeArgs.clone());
+        this.typeArgs = typeArgs;
+        this.typeArg = new TypeArgument(type, typeArgs);
         this.storage = storage;
         this.parent = parent;
         this.index = index;
         this.offset = offset;
-        this.nullBit = nullBit.clone();
-        this.boolBit = boolBit.clone();
-        this.size = this.typeArg.type().getIsFixed() ? type.Size : length;
+        this.nullBit = nullBit;
+        this.booleanBit = booleanBit;
+        this.size = this.typeArg().type().isFixed() ? type.size() : length;
     }
 
     /**
-     * The full logical path of the field within the row.
-     * <p>
-     * Paths are expressed in dotted notation: e.g. a relative {@link Path} of 'b.c'
-     * within the scope 'a' yields a {@link FullPath} of 'a.b.c'.
+     * For bool fields, zero-based index into the bit mask for the bool value.
      */
-    public Utf8String getFullPath() {
+    public @Nonnull LayoutBit booleanBit() {
+        return this.booleanBit;
+    }
+
+    /**
+     * Full logical path of the field within the row
+     * <p>
+     * Paths are expressed in dotted notation: e.g. a relative {@link #path} of 'b.c' within the scope 'a' yields a
+     * {@link #fullPath} of 'a.b.c'.
+     */
+    public @Nonnull Utf8String fullPath() {
         return this.fullPath;
     }
 
     /**
-     * 0-based index of the column within the structure.  Also indicates which presence bit
-     * controls this column.
+     * Zero-based index of the column within the structure
+     * <p>
+     * This value also indicates which presence bit controls this column.
      */
-    public int getIndex() {
+    public int index() {
         return this.index;
     }
 
     /**
-     * The layout of the parent scope, if a nested column, otherwise null.
+     * For nullable fields, the zero-based index into the bit mask for the null bit
      */
-    public LayoutColumn getParent() {
+    public @Nonnull LayoutBit nullBit() {
+        return this.nullBit;
+    }
+
+    /**
+     * If {@link #storage} equals {@link StorageKind#Fixed} then the byte offset to the field location.
+     * <p>
+     * If {@link #storage} equals {@link StorageKind#Variable} then the zero-based index of the field from the
+     * beginning of the variable length segment.
+     * <p>
+     * For all other values of {@link #storage}, {@link #offset} is ignored.
+     */
+    public int offset() {
+        return this.offset;
+    }
+
+    /**
+     * Layout of the parent scope, if a nested column, otherwise null.
+     */
+    public LayoutColumn parent() {
         return this.parent;
     }
 
     /**
      * The relative path of the field within its parent scope.
      * <p>
-     * Paths are expressed in dotted notation: e.g. a relative {@link Path} of 'b.c'
-     * within the scope 'a' yields a {@link FullPath} of 'a.b.c'.
+     * Paths are expressed in dotted notation: e.g. a relative {@link #path} of 'b.c' within the scope 'a' yields a
+     * {@link #fullPath} of 'a.b.c'.
      */
-    public Utf8String getPath() {
+    public @Nonnull Utf8String path() {
         return this.path;
+    }
+
+    /**
+     * If {@link LayoutType#isBoolean} then the zero-based extra index within the bool byte
+     * holding the value of this type, otherwise must be 0.
+     */
+    public int size() {
+        return this.size;
     }
 
     /**
      * The storage kind of the field.
      */
-    public StorageKind getStorage() {
+    public @Nonnull StorageKind storage() {
         return this.storage;
     }
 
     /**
      * The physical layout type of the field.
      */
-    public LayoutType getType() {
+    public @Nonnull LayoutType type() {
         return this.type;
     }
 
     /**
-     * The full logical type.
+     * The full logical type
      */
-    public TypeArgument getTypeArg() {
-        return this.typeArg.clone();
+    public @Nonnull TypeArgument typeArg() {
+        return this.typeArg;
     }
 
     /**
      * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
-    public TypeArgumentList getTypeArgs() {
-        return this.typeArgs.clone();
-    }
-
-    public void SetIndex(int index) {
-        this.index = index;
-    }
-
-    public void SetOffset(int offset) {
-        this.offset = offset;
+    public @Nonnull TypeArgumentList typeArgs() {
+        return this.typeArgs;
     }
 
     /**
      * The physical layout type of the field cast to the specified type.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [DebuggerHidden] public T TypeAs<T>() where T : ILayoutType
-    public <T extends ILayoutType> T TypeAs() {
-        return this.type.typeAs();
+    @SuppressWarnings("unchecked")
+    public @Nonnull <T extends ILayoutType> T typeAs() {
+        return (T) this.type().typeAs();
+    }
+
+    LayoutColumn index(int value) {
+        this.index = value;
+        return this;
+    }
+
+    LayoutColumn offset(int value) {
+        this.offset = value;
+        return this;
     }
 
     /**
-     * For bool fields, 0-based index into the bit mask for the bool value.
-     */
-    LayoutBit getBoolBit()
-
-    /**
-     * For nullable fields, the the bit in the layout bitmask for the null bit.
-     */
-    LayoutBit getNullBit()
-
-    /**
-     * If {@link storage} equals {@link StorageKind.Fixed} then the byte offset to
-     * the field location.
-     * <para />
-     * If {@link storage} equals {@link StorageKind.Variable} then the 0-based index of the
-     * field from the beginning of the variable length segment.
-     * <para />
-     * For all other values of {@link storage}, {@link Offset} is ignored.
-     */
-    int getOffset()
-
-    /**
-     * If {@link storage} equals {@link StorageKind.Fixed} then the fixed number of
-     * bytes reserved for the value.
-     * <para />
-     * If {@link storage} equals {@link StorageKind.Variable} then the maximum number of
-     * bytes allowed for the value.
-     */
-    int getSize()
-
-    /**
-     * Computes the full logical path to the column.
+     * Computes the full logical path to the column
      *
-     * @param parent The layout of the parent scope, if a nested column, otherwise null.
-     * @param path   The path to the field relative to parent scope.
-     * @return The full logical path.
+     * @param parent The layout of the parent scope, if a nested column, otherwise null
+     * @param path   The path to the field relative to parent scope
+     * @return The full logical path
      */
-    private static String GetFullPath(LayoutColumn parent, String path) {
+    private static @Nonnull String fullPath(final LayoutColumn parent, @Nonnull final String path) {
+
         if (parent != null) {
-            switch (LayoutCodeTraits.ClearImmutableBit(parent.type.LayoutCode)) {
+            switch (LayoutCodeTraits.ClearImmutableBit(parent.type().layoutCode())) {
                 case OBJECT_SCOPE:
                 case SCHEMA:
-                    return parent.getFullPath().toString() + "." + path;
+                    return parent.fullPath().toString() + "." + path;
                 case ARRAY_SCOPE:
                 case TYPED_ARRAY_SCOPE:
                 case TYPED_SET_SCOPE:
                 case TYPED_MAP_SCOPE:
-                    return parent.getFullPath().toString() + "[]" + path;
+                    return parent.fullPath().toString() + "[]" + path;
                 default:
-                    throw new IllegalStateException(lenientFormat("Parent scope type not supported: %s", parent.type.LayoutCode));
-                    return null;
+                    final String message = lenientFormat("Parent scope type not supported: %s", parent.type().layoutCode());
+                    throw new IllegalStateException(message);
             }
         }
 

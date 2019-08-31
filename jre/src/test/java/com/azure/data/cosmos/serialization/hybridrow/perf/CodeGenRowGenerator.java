@@ -154,9 +154,9 @@ public final class CodeGenRowGenerator {
             layout.TryFind(AddressHybridRowSerializer.PostalCodeName, tempOut_postalCode);
             this.postalCode = tempOut_postalCode.get();
             Out<StringToken> tempOut_postalCodeToken = new Out<StringToken>();
-            layout.getTokenizer().TryFindToken(this.postalCode.getPath(), tempOut_postalCodeToken);
+            layout.getTokenizer().TryFindToken(this.postalCode.path(), tempOut_postalCodeToken);
             this.postalCodeToken = tempOut_postalCodeToken.get();
-            this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.resolve(this.postalCode.getTypeArgs().schemaId().clone()), resolver);
+            this.postalCodeSerializer = new PostalCodeHybridRowSerializer(resolver.resolve(this.postalCode.typeArgs().schemaId().clone()), resolver);
         }
 
         @Override
@@ -253,7 +253,7 @@ public final class CodeGenRowGenerator {
                             root.get().Find(row, this.postalCodeToken.clone());
                             RowCursor childScope;
                             Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
-                            r = LayoutType.UDT.WriteScope(row, root, this.postalCode.getTypeArgs().clone(), tempOut_childScope);
+                            r = LayoutType.UDT.WriteScope(row, root, this.postalCode.typeArgs().clone(), tempOut_childScope);
                             childScope = tempOut_childScope.get();
 
                             if (r != Result.Success) {
@@ -338,21 +338,21 @@ public final class CodeGenRowGenerator {
             layout.TryFind(GuestsHybridRowSerializer.ConfirmNumberName, tempOut_confirmNumber);
             this.confirmNumber = tempOut_confirmNumber.get();
             Out<StringToken> tempOut_emailsToken = new Out<StringToken>();
-            layout.getTokenizer().TryFindToken(this.emails.getPath(), tempOut_emailsToken);
+            layout.getTokenizer().TryFindToken(this.emails.path(), tempOut_emailsToken);
             this.emailsToken = tempOut_emailsToken.get();
             Out<StringToken> tempOut_phoneNumbersToken = new Out<StringToken>();
-            layout.getTokenizer().TryFindToken(this.phoneNumbers.getPath(), tempOut_phoneNumbersToken);
+            layout.getTokenizer().TryFindToken(this.phoneNumbers.path(), tempOut_phoneNumbersToken);
             this.phoneNumbersToken = tempOut_phoneNumbersToken.get();
             Out<StringToken> tempOut_addressesToken = new Out<StringToken>();
-            layout.getTokenizer().TryFindToken(this.addresses.getPath(), tempOut_addressesToken);
+            layout.getTokenizer().TryFindToken(this.addresses.path(), tempOut_addressesToken);
             this.addressesToken = tempOut_addressesToken.get();
 
             this.addressesFieldType =
                 new TypeArgumentList(new TypeArgument[] { new TypeArgument(LayoutType.TypedTuple,
-                    this.addresses.getTypeArgs().clone()) });
+                    this.addresses.typeArgs().clone()) });
 
             this.addressSerializer =
-                new AddressHybridRowSerializer(resolver.resolve(this.addresses.getTypeArgs().get(1).typeArgs().schemaId().clone()), resolver);
+                new AddressHybridRowSerializer(resolver.resolve(this.addresses.typeArgs().get(1).typeArgs().schemaId().clone()), resolver);
             this.addressSerializerWriter = (Reference<RowBuffer> b, Reference<RowCursor> scope,
                                             HashMap<Utf8String, Object> context) -> addressSerializer.WriteBuffer(b,
                 scope, context);
@@ -604,7 +604,7 @@ public final class CodeGenRowGenerator {
                             root.get().Find(row, this.emailsToken.clone());
                             // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref'
                             // keyword - these are not converted by C# to Java Converter:
-                            r = LayoutType.TypedArray.WriteScope(row, root, this.emails.getTypeArgs().clone(),
+                            r = LayoutType.TypedArray.WriteScope(row, root, this.emails.typeArgs().clone(),
                                 (ArrayList<Object>)value, (ref RowBuffer row2, ref RowCursor childScope,
                                                            ArrayList<Object> context) ->
                             {
@@ -644,7 +644,7 @@ public final class CodeGenRowGenerator {
                             root.get().Find(row, this.phoneNumbersToken.clone());
                             RowCursor childScope;
                             Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
-                            r = LayoutType.TypedArray.WriteScope(row, root, this.phoneNumbers.getTypeArgs().clone(),
+                            r = LayoutType.TypedArray.WriteScope(row, root, this.phoneNumbers.typeArgs().clone(),
                                 tempOut_childScope);
                             childScope = tempOut_childScope.get();
                             if (r != Result.Success) {
@@ -678,7 +678,7 @@ public final class CodeGenRowGenerator {
                             root.get().Find(row, this.addressesToken.clone());
                             // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref'
                             // keyword - these are not converted by C# to Java Converter:
-                            r = LayoutType.TypedMap.WriteScope(row, root, this.addresses.getTypeArgs().clone(), (this
+                            r = LayoutType.TypedMap.WriteScope(row, root, this.addresses.typeArgs().clone(), (this
                                 , (ArrayList<Object>)value), (ref
                             RowBuffer row2, ref RowCursor childScope, (GuestsHybridRowSerializer
                             _this, ArrayList < Object > value)ctx) ->
@@ -792,10 +792,10 @@ public final class CodeGenRowGenerator {
             layout.TryFind(HotelsHybridRowSerializer.AddressName, tempOut_address);
             this.address = tempOut_address.get();
             Out<StringToken> tempOut_addressToken = new Out<StringToken>();
-            layout.getTokenizer().TryFindToken(this.address.getPath(), tempOut_addressToken);
+            layout.getTokenizer().TryFindToken(this.address.path(), tempOut_addressToken);
             this.addressToken = tempOut_addressToken.get();
             this.addressSerializer =
-                new AddressHybridRowSerializer(resolver.resolve(this.address.getTypeArgs().schemaId().clone()),
+                new AddressHybridRowSerializer(resolver.resolve(this.address.typeArgs().schemaId().clone()),
                     resolver);
         }
 
@@ -908,7 +908,7 @@ public final class CodeGenRowGenerator {
                             root.get().Find(row, this.addressToken.clone());
                             RowCursor childScope;
                             Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
-                            r = LayoutType.UDT.WriteScope(row, root, this.address.getTypeArgs().clone(),
+                            r = LayoutType.UDT.WriteScope(row, root, this.address.typeArgs().clone(),
                                 tempOut_childScope);
                             childScope = tempOut_childScope.get();
                             if (r != Result.Success) {
@@ -965,7 +965,7 @@ public final class CodeGenRowGenerator {
             layout.TryFind(PostalCodeHybridRowSerializer.Plus4Name, tempOut_plus4);
             this.plus4 = tempOut_plus4.get();
             Out<StringToken> tempOut_plus4Token = new Out<StringToken>();
-            layout.getTokenizer().TryFindToken(this.plus4.getPath(), tempOut_plus4Token);
+            layout.getTokenizer().TryFindToken(this.plus4.path(), tempOut_plus4Token);
             this.plus4Token = tempOut_plus4Token.get();
         }
 

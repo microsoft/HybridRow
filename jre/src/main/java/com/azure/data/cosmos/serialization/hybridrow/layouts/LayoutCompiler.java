@@ -45,7 +45,7 @@ public final class LayoutCompiler {
         LayoutBuilder builder = new LayoutBuilder(schema.getName(), schema.getSchemaId().clone());
         LayoutCompiler.AddProperties(builder, ns, LayoutCode.SCHEMA, schema.getProperties());
 
-        return builder.Build();
+        return builder.build();
     }
 
     private static void AddProperties(LayoutBuilder builder, Namespace ns, LayoutCode scope,
@@ -63,7 +63,7 @@ public final class LayoutCompiler {
                     }
 
                     ObjectPropertyType op = (ObjectPropertyType)p.getPropertyType();
-                    builder.AddObjectScope(p.getPath(), type);
+                    builder.addObjectScope(p.getPath(), type);
                     LayoutCompiler.AddProperties(builder, ns, type.LayoutCode, op.getProperties());
                     builder.EndObjectScope();
                     break;
@@ -84,7 +84,7 @@ public final class LayoutCompiler {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
                     }
 
-                    builder.AddTypedScope(p.getPath(), type, typeArgs.clone());
+                    builder.addTypedScope(p.getPath(), type, typeArgs.clone());
                     break;
                 }
 
@@ -109,7 +109,7 @@ public final class LayoutCompiler {
                                         ".");
                                 }
 
-                                builder.AddFixedColumn(p.getPath(), type, pp.getNullable(), pp.getLength());
+                                builder.addFixedColumn(p.getPath(), type, pp.getNullable(), pp.getLength());
                                 break;
                             case Variable:
                                 if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
@@ -122,7 +122,7 @@ public final class LayoutCompiler {
                                         "supported.");
                                 }
 
-                                builder.AddVariableColumn(p.getPath(), type, pp.getLength());
+                                builder.addVariableColumn(p.getPath(), type, pp.getLength());
                                 break;
                             case Sparse:
                                 if (!pp.getNullable()) {
@@ -130,7 +130,7 @@ public final class LayoutCompiler {
                                         "supported.");
                                 }
 
-                                builder.AddSparseColumn(p.getPath(), type);
+                                builder.addSparseColumn(p.getPath(), type);
                                 break;
                             default:
                                 throw new LayoutCompilationException(String.format("Unknown storage specification: " +

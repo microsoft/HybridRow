@@ -89,7 +89,7 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     @Override
     public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         checkState(value.count() == 2);
-        row.get().WriteSparseTypeCode(offset, this.LayoutCode);
+        row.get().writeSparseTypeCode(offset, this.LayoutCode);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         for (TypeArgument arg : value) {
             lenInBytes += arg.type().writeTypeArgument(row, offset + lenInBytes, arg.typeArgs().clone());

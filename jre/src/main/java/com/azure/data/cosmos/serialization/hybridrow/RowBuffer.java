@@ -216,18 +216,18 @@ public final class RowBuffer {
      * @param srcEdit The field to move into the set/map.
      * @return The prepared edit context.
      */
-    public RowCursor PrepareSparseMove(Reference<RowCursor> scope, Reference<RowCursor> srcEdit) {
-        checkArgument(scope.get().scopeType().isUniqueScope());
+    public RowCursor prepareSparseMove(RowCursor scope, RowCursor srcEdit) {
+        checkArgument(scope.scopeType().isUniqueScope());
 
-        checkArgument(scope.get().index() == 0);
+        checkArgument(scope.index() == 0);
         RowCursor dstEdit;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        scope.get().Clone(out dstEdit);
+        scope.Clone(out dstEdit);
 
-        dstEdit.metaOffset(scope.get().valueOffset());
+        dstEdit.metaOffset(scope.valueOffset());
         int srcSize = this.sparseComputeSize(srcEdit);
-        int srcBytes = srcSize - (srcEdit.get().valueOffset() - srcEdit.get().metaOffset());
+        int srcBytes = srcSize - (srcEdit.valueOffset() - srcEdit.metaOffset());
         while (dstEdit.index() < dstEdit.count()) {
             Reference<RowCursor> tempReference_dstEdit =
                 new Reference<RowCursor>(dstEdit);
@@ -368,7 +368,7 @@ public final class RowBuffer {
         return result;
     }
 
-    public boolean ReadBit(int offset, LayoutBit bit) {
+    public boolean readBit(int offset, LayoutBit bit) {
 
         if (bit.getIsInvalid()) {
             return true;
@@ -377,7 +377,7 @@ public final class RowBuffer {
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
         //ORIGINAL LINE: return (this.buffer[bit.GetOffset(offset)] & unchecked((byte)(1 << bit.GetBit()))) != 0;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        return (this.buffer[bit.GetOffset(offset)] & (byte)(1 << bit.GetBit())) != 0;
+        return (this.buffer[bit.offset(offset)] & (byte)(1 << bit.bit())) != 0;
     }
 
     public LocalDateTime ReadDateTime(int offset) {
@@ -557,7 +557,7 @@ public final class RowBuffer {
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal LayoutType ReadSparseTypeCode(int
     // offset)
-    public LayoutType ReadSparseTypeCode(int offset) {
+    public LayoutType readSparseTypeCode(int offset) {
         return LayoutType.FromCode(LayoutCode.forValue(this.ReadUInt8(offset)));
     }
 
@@ -1002,7 +1002,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.WriteSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
-        this.WriteSparseTypeCode(edit.get().valueOffset(), LayoutCode.END_SCOPE);
+        this.writeSparseTypeCode(edit.get().valueOffset(), LayoutCode.END_SCOPE);
         checkState(spaceNeeded == metaBytes + numBytes);
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1023,7 +1023,7 @@ public final class RowBuffer {
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
         //ORIGINAL LINE: this.buffer[bit.GetOffset(offset)] |= unchecked((byte)(1 << bit.GetBit()));
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        this.buffer[bit.GetOffset(offset)] |= (byte)(1 << bit.GetBit());
+        this.buffer[bit.offset(offset)] |= (byte)(1 << bit.bit());
     }
 
     public void WriteSparseString(Reference<RowCursor> edit, Utf8Span value, UpdateOptions options) {
@@ -1123,11 +1123,11 @@ public final class RowBuffer {
     }
 
     public void UnsetBit(int offset, LayoutBit bit) {
-        checkState(LayoutBit.opNotEquals(bit.clone(), LayoutBit.Invalid));
+        checkState(LayoutBit.opNotEquals(bit.clone(), LayoutBit.INVALID));
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
         //ORIGINAL LINE: this.buffer[bit.GetOffset(offset)] &= unchecked((byte)~(1 << bit.GetBit()));
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        this.buffer[bit.GetOffset(offset)] &= (byte)~(1 << bit.GetBit());
+        this.buffer[bit.offset(offset)] &= (byte)~(1 << bit.bit());
     }
 
     public void WriteVariableInt(int offset, long value, boolean exists, Out<Integer> shift) {
@@ -1567,7 +1567,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.WriteSparseMetadata(edit, scopeType, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteSparseTypeCode(edit.get().valueOffset(), LayoutCode.END_SCOPE);
+        this.writeSparseTypeCode(edit.get().valueOffset(), LayoutCode.END_SCOPE);
         checkState(spaceNeeded == metaBytes + numBytes);
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1601,11 +1601,11 @@ public final class RowBuffer {
         this.WriteSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
         int valueOffset = edit.get().valueOffset();
         for (int i = 0; i < typeArgs.count(); i++) {
-            this.WriteSparseTypeCode(valueOffset, LayoutCode.NULL);
+            this.writeSparseTypeCode(valueOffset, LayoutCode.NULL);
             valueOffset += (LayoutCode.SIZE / Byte.SIZE);
         }
 
-        this.WriteSparseTypeCode(valueOffset, LayoutCode.END_SCOPE);
+        this.writeSparseTypeCode(valueOffset, LayoutCode.END_SCOPE);
         checkState(spaceNeeded == metaBytes + numBytes);
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1641,7 +1641,7 @@ public final class RowBuffer {
 
         // Write scope terminator.
         int valueOffset = edit.get().valueOffset() + udt.size();
-        this.WriteSparseTypeCode(valueOffset, LayoutCode.END_SCOPE);
+        this.writeSparseTypeCode(valueOffset, LayoutCode.END_SCOPE);
         checkState(spaceNeeded == metaBytes + numBytes);
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1766,7 +1766,7 @@ public final class RowBuffer {
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal void WriteSparseTypeCode(int offset,
     // LayoutCode code)
-    public void WriteSparseTypeCode(int offset, LayoutCode code) {
+    public void writeSparseTypeCode(int offset, LayoutCode code) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: this.WriteUInt8(offset, (byte)code);
         this.WriteUInt8(offset, (byte) code.value());
@@ -1955,9 +1955,9 @@ public final class RowBuffer {
      *
      * @param edit The field to delete.
      */
-    public void deleteSparse(Reference<RowCursor> edit) {
+    public void deleteSparse(RowCursor edit) {
         // If the field doesn't exist, then nothing to do.
-        if (!edit.get().exists()) {
+        if (!edit.exists()) {
             return;
         }
 
@@ -2010,14 +2010,14 @@ public final class RowBuffer {
         int offset = scopeOffset + layout.size();
         for (int i = layout.numFixed(); i < index; i++) {
             LayoutColumn col = columns[i];
-            if (this.ReadBit(scopeOffset, col.getNullBit().clone())) {
+            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
                 int lengthSizeInBytes;
                 Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
                 long valueSizeInBytes = this.read7BitEncodedUInt(offset, tempOut_lengthSizeInBytes);
                 lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
-                if (col.getType().getIsVarint()) {
+                if (col.type().getIsVarint()) {
                     offset += lengthSizeInBytes;
                 } else {
                     offset += (int) valueSizeInBytes + lengthSizeInBytes;
@@ -2510,14 +2510,14 @@ public final class RowBuffer {
             //ORIGINAL LINE: case LayoutNull _:
             case LayoutNull
                 _:
-                this.WriteSparseTypeCode(offset, code.LayoutCode);
+                this.writeSparseTypeCode(offset, code.LayoutCode);
                 return 1;
 
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case LayoutBoolean _:
             case LayoutBoolean
                 _:
-                this.WriteSparseTypeCode(offset, LayoutCode.BOOLEAN_FALSE);
+                this.writeSparseTypeCode(offset, LayoutCode.BOOLEAN_FALSE);
                 return 1;
 
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
@@ -2658,7 +2658,7 @@ public final class RowBuffer {
                 case LayoutArray _:
 
             // Variable length sparse collection scopes take 1 byte for the end-of-scope terminator.
-            this.WriteSparseTypeCode(offset, LayoutCode.END_SCOPE);
+            this.writeSparseTypeCode(offset, LayoutCode.END_SCOPE);
                 return (LayoutCode.SIZE / Byte.SIZE);
 
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
@@ -2683,10 +2683,10 @@ public final class RowBuffer {
 
                 // Fixed arity sparse collections take 1 byte for end-of-scope plus a null for each element.
                 for (int i = 0; i < typeArgs.count(); i++) {
-                    this.WriteSparseTypeCode(offset, LayoutCode.NULL);
+                    this.writeSparseTypeCode(offset, LayoutCode.NULL);
                 }
 
-                this.WriteSparseTypeCode(offset, LayoutCode.END_SCOPE);
+                this.writeSparseTypeCode(offset, LayoutCode.END_SCOPE);
                 return (LayoutCode.SIZE / Byte.SIZE) + ((LayoutCode.SIZE / Byte.SIZE) * typeArgs.count());
 
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
@@ -2727,7 +2727,7 @@ public final class RowBuffer {
                 this.buffer.Slice(offset, udt.getSize()).Fill(0);
 
                 // Write scope terminator.
-                this.WriteSparseTypeCode(offset + udt.getSize(), LayoutCode.END_SCOPE);
+                this.writeSparseTypeCode(offset + udt.getSize(), LayoutCode.END_SCOPE);
                 return udt.getSize() + (LayoutCode.SIZE / Byte.SIZE);
 
             default:
@@ -3117,7 +3117,7 @@ public final class RowBuffer {
             edit.get().scopeType().SetImplicitTypeCode(edit);
             edit.get().valueOffset(edit.get().metaOffset());
         } else {
-            edit.get().cellType = this.ReadSparseTypeCode(edit.get().metaOffset());
+            edit.get().cellType = this.readSparseTypeCode(edit.get().metaOffset());
             edit.get().valueOffset(edit.get().metaOffset() + (LayoutCode.SIZE / Byte.SIZE));
             edit.get().cellTypeArgs = TypeArgumentList.EMPTY;
             if (edit.get().cellType() instanceof LayoutEndScope) {
@@ -3202,10 +3202,10 @@ public final class RowBuffer {
             }
         } else {
             if (code == LayoutTypes.Boolean) {
-                code = this.ReadSparseTypeCode(edit.metaOffset());
+                code = this.readSparseTypeCode(edit.metaOffset());
                 checkState(code == LayoutTypes.Boolean || code == LayoutTypes.BooleanFalse);
             } else {
-                checkState(this.ReadSparseTypeCode(edit.metaOffset()) == code);
+                checkState(this.readSparseTypeCode(edit.metaOffset()) == code);
             }
         }
 

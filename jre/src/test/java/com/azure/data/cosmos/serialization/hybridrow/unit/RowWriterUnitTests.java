@@ -130,7 +130,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("array_t<int8>", tempOut_col);
             col = tempOut_col.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new byte[] { -86, -87,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new byte[] { -86, -87,
                 -88 }, (ref RowWriter writer2, TypeArgument typeArg, byte[] values) ->
             {
                 for (byte value : values) {
@@ -144,7 +144,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("array_t<array_t<float32>>", tempOut_col2);
             col = tempOut_col2.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new float[][]
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new float[][]
                 {
                     new float[] { 1, 2, 3 },
                     new float[] { 1, 2, 3 }
@@ -169,7 +169,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("array_t<utf8>", tempOut_col3);
             col = tempOut_col3.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new String[] { "abc",
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new String[] { "abc",
                 "def", "hij" }, (ref RowWriter writer2, TypeArgument typeArg, String[] values) ->
             {
                 for (String value : values) {
@@ -183,7 +183,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("tuple<varint,int64>", tempOut_col4);
             col = tempOut_col4.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(),
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(),
                 Tuple.Create(-6148914691236517206L, -6148914691236517206L), (ref RowWriter writer2,
                                                                              TypeArgument typeArg,
                                                                              Tuple<Long, Long> values) ->
@@ -197,7 +197,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("tuple<null,tuple<int8,int8>>", tempOut_col5);
             col = tempOut_col5.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(),
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(),
                 Tuple.Create(NullValue.Default, Tuple.Create((byte)-86, (byte)-86)), (ref RowWriter writer2,
                                                                                       TypeArgument typeArg,
                                                                                       Tuple<NullValue, Tuple<Byte,
@@ -219,7 +219,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("tuple<bool,udt>", tempOut_col6);
             col = tempOut_col6.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create(false,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), Tuple.Create(false,
                 new RowReaderUnitTests.Point(1, 2)), (ref RowWriter writer2, TypeArgument typeArg, Tuple<Boolean,
                 RowReaderUnitTests.Point> values) ->
             {
@@ -237,7 +237,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("nullable<int32,int64>", tempOut_col7);
             col = tempOut_col7.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create(null,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), Tuple.Create(null,
                 (Long)123L), (ref RowWriter writer2, TypeArgument typeArg, Tuple<Integer, Long> values) ->
             {
                 RowWriter.WriterFunc<Integer> f0 = (Reference<RowWriter> writer, TypeArgument typeArg,
@@ -266,7 +266,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("tagged<utf8>", tempOut_col8);
             col = tempOut_col8.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create((byte)3,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), Tuple.Create((byte)3,
                 "hello"), (ref RowWriter writer2, TypeArgument typeArg, Tuple<Byte, String> values) ->
             {
                 ResultAssert.IsSuccess(writer2.WriteUInt8(null, values.Item1));
@@ -278,7 +278,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("tagged<bool,utf8>", tempOut_col9);
             col = tempOut_col9.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), Tuple.Create((byte)5,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), Tuple.Create((byte)5,
                 true, "bye"), (ref RowWriter writer2, TypeArgument typeArg, Tuple<Byte, Boolean, String> values) ->
             {
                 ResultAssert.IsSuccess(writer2.WriteUInt8(null, values.Item1));
@@ -291,7 +291,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("set_t<utf8>", tempOut_col10);
             col = tempOut_col10.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new String[] { "abc",
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new String[] { "abc",
                 "xzy", "efg" }, (ref RowWriter writer2, TypeArgument typeArg, String[] values) ->
             {
                 for (String value : values) {
@@ -305,7 +305,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("set_t<array_t<int8>>", tempOut_col11);
             col = tempOut_col11.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new byte[][]
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new byte[][]
                 {
                     new byte[] { 7, 8, 9 },
                     new byte[] { 4, 5, 6 },
@@ -331,7 +331,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("set_t<set_t<int32>>", tempOut_col12);
             col = tempOut_col12.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new int[][]
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new int[][]
                 {
                     new int[] { 4, 5, 6 },
                     new int[] { 7, 8, 9 },
@@ -357,7 +357,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("set_t<udt>", tempOut_col13);
             col = tempOut_col13.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(),
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(),
                 new RowReaderUnitTests.Point[]
                 {
                     new RowReaderUnitTests.Point(1, 2),
@@ -380,7 +380,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("map_t<utf8,utf8>", tempOut_col14);
             col = tempOut_col14.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new System.Tuple<T1,
                 T2>[] { Tuple.Create("Harrison", "Han"), Tuple.Create("Mark", "Luke") }, (ref RowWriter writer2,
                                                                                           TypeArgument typeArg,
                                                                                           Tuple<String, String>[] values) ->
@@ -403,7 +403,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("map_t<int8,array_t<int8>>", tempOut_col15);
             col = tempOut_col15.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new System.Tuple<T1,
                 T2>[] { Tuple.Create((byte)2, new byte[] { 4, 5, 6 }),
                 Tuple.Create((byte)1, new byte[] { 1, 2, 3 }) }, (ref RowWriter writer2, TypeArgument typeArg,
                                                                   Tuple<Byte, byte[]>[] values) ->
@@ -435,7 +435,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("map_t<int16,map_t<int32,int32>>", tempOut_col16);
             col = tempOut_col16.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1,
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new System.Tuple<T1,
                 T2>[] { Tuple.Create((short)2, new System.Tuple<T1, T2>[] { Tuple.Create(7, 8), Tuple.Create(5, 6) })
                 , Tuple.Create((short)1, new System.Tuple<T1, T2>[] { Tuple.Create(3, 4), Tuple.Create(1, 2) }) },
                 (ref RowWriter writer2, TypeArgument typeArg, Tuple<Short, Tuple<Integer, Integer>[]>[] values) ->
@@ -475,7 +475,7 @@ public final class RowWriterUnitTests {
                 new Out<LayoutColumn>();
             assert layout.TryFind("map_t<float64,udt>", tempOut_col17);
             col = tempOut_col17.get();
-            ResultAssert.IsSuccess(writer.WriteScope(col.getPath(), col.getTypeArg().clone(), new System.Tuple<T1, T2>[] { Tuple.Create(1.0, new RowReaderUnitTests.Point(1, 2)), Tuple.Create(2.0, new RowReaderUnitTests.Point(3, 4)), Tuple.Create(3.0, new RowReaderUnitTests.Point(5, 6)) }, (ref RowWriter writer2, TypeArgument typeArg, Tuple<Double, RowReaderUnitTests.Point>[] values) ->
+            ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), new System.Tuple<T1, T2>[] { Tuple.Create(1.0, new RowReaderUnitTests.Point(1, 2)), Tuple.Create(2.0, new RowReaderUnitTests.Point(3, 4)), Tuple.Create(3.0, new RowReaderUnitTests.Point(5, 6)) }, (ref RowWriter writer2, TypeArgument typeArg, Tuple<Double, RowReaderUnitTests.Point>[] values) ->
             {
                 for (Tuple<Double, RowReaderUnitTests.Point> value : values) {
                     ResultAssert.IsSuccess(writer2.WriteScope(null, new TypeArgument(LayoutType.TypedTuple, typeArg.getTypeArgs().clone()), value, (ref RowWriter writer3, TypeArgument typeArg2, Tuple<Double, RowReaderUnitTests.Point> values2) ->

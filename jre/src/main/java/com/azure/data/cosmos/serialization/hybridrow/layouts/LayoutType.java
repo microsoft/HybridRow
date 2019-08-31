@@ -9,6 +9,8 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.lenientFormat;
 
@@ -92,20 +94,20 @@ public abstract class LayoutType<T> implements ILayoutType {
         return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
     }
 
-    public final Result deleteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col) {
+    public final Result deleteFixed(RowBuffer b, RowCursor scope, LayoutColumn column) {
 
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
 
-        if (scope.get().immutable()) {
+        if (scope.immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        if (col.getNullBit().getIsInvalid()) {
+        if (column.nullBit().isInvalid()) {
             // Cannot delete a non-nullable fixed column.
             return Result.TypeMismatch;
         }
 
-        b.get().UnsetBit(scope.get().start(), col.getNullBit().clone());
+        b.UnsetBit(scope.start(), column.nullBit());
         return Result.Success;
     }
 
@@ -114,8 +116,10 @@ public abstract class LayoutType<T> implements ILayoutType {
      * <p>
      * If a value exists, then it is removed.  The remainder of the row is resized to accomodate
      * a decrease in required space.  If no value exists this operation is a no-op.
+     * @param b
+     * @param edit
      */
-    public final Result deleteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit) {
+    public final Result deleteSparse(RowBuffer b, RowCursor edit) {
 
         Result result = LayoutType.prepareSparseDelete(b, edit, this.layoutCode());
 
@@ -123,7 +127,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return result;
         }
 
-        b.get().deleteSparse(edit);
+        b.deleteSparse(edit);
         return Result.Success;
     }
 
@@ -133,21 +137,20 @@ public abstract class LayoutType<T> implements ILayoutType {
      * If a value exists, then it is removed.  The remainder of the row is resized to accommodate a decrease in
      * required space.  If no value exists this operation is a no-op.
      */
-    public final Result deleteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col) {
+    public final Result deleteVariable(RowBuffer b, RowCursor scope, LayoutColumn column) {
 
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
 
-        if (scope.get().immutable()) {
+        if (scope.immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        boolean exists = b.get().ReadBit(scope.get().start(), col.getNullBit());
+        boolean exists = b.readBit(scope.start(), column.nullBit());
 
         if (exists) {
-            int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-                col.getOffset());
-            b.get().deleteVariable(varOffset, this.isVarint());
-            b.get().UnsetBit(scope.get().start(), col.getNullBit().clone());
+            int varOffset = b.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+            b.deleteVariable(varOffset, this.isVarint());
+            b.UnsetBit(scope.start(), column.nullBit());
         }
 
         return Result.Success;
@@ -159,8 +162,8 @@ public abstract class LayoutType<T> implements ILayoutType {
         return type;
     }
 
-    public final Result hasValue(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col) {
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+    public final Result hasValue(RowBuffer b, RowCursor scope, LayoutColumn column) {
+        if (!b.readBit(scope.start(), column.nullBit())) {
             return Result.NotFound;
         }
         return Result.Success;
@@ -186,16 +189,17 @@ public abstract class LayoutType<T> implements ILayoutType {
      * @param code The expected type of the field.
      * @return Success if the delete is permitted, the error code otherwise.
      */
-    public static Result prepareSparseDelete(Reference<RowBuffer> b, Reference<RowCursor> edit, LayoutCode code) {
-        if (edit.get().scopeType().isFixedArity()) {
+    public static Result prepareSparseDelete(RowBuffer b, RowCursor edit, LayoutCode code) {
+
+        if (edit.scopeType().isFixedArity()) {
             return Result.TypeConstraint;
         }
 
-        if (edit.get().immutable()) {
+        if (edit.immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        if (edit.get().exists() && LayoutCodeTraits.Canonicalize(edit.get().cellType().layoutCode()) != code) {
+        if (edit.exists() && LayoutCodeTraits.Canonicalize(edit.cellType().layoutCode()) != code) {
             return Result.TypeMismatch;
         }
 
@@ -216,16 +220,16 @@ public abstract class LayoutType<T> implements ILayoutType {
      * The source field is delete if the move prepare fails with a destination error.
      */
     public static Result prepareSparseMove(
-        Reference<RowBuffer> b,
-        Reference<RowCursor> destinationScope,
+        RowBuffer b,
+        RowCursor destinationScope,
         LayoutScope destinationCode,
         TypeArgument elementType,
-        Reference<RowCursor> srcEdit,
+        RowCursor srcEdit,
         UpdateOptions options,
         Out<RowCursor> dstEdit
     ) {
-        checkArgument(destinationScope.get().scopeType() == destinationCode);
-        checkArgument(destinationScope.get().index() == 0, "Can only insert into a edit at the root");
+        checkArgument(destinationScope.scopeType() == destinationCode);
+        checkArgument(destinationScope.index() == 0, "Can only insert into a edit at the root");
 
         // Prepare the delete of the source
         Result result = LayoutType.prepareSparseDelete(b, srcEdit, elementType.type().layoutCode());
@@ -235,39 +239,39 @@ public abstract class LayoutType<T> implements ILayoutType {
             return result;
         }
 
-        if (!srcEdit.get().exists()) {
+        if (!srcEdit.exists()) {
             dstEdit.setAndGet(null);
             return Result.NotFound;
         }
 
-        if (destinationScope.get().immutable()) {
-            b.get().deleteSparse(srcEdit);
+        if (destinationScope.immutable()) {
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.InsufficientPermissions;
         }
 
-        if (!srcEdit.get().cellTypeArgs().equals(elementType.typeArgs())) {
-            b.get().deleteSparse(srcEdit);
+        if (!srcEdit.cellTypeArgs().equals(elementType.typeArgs())) {
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TypeConstraint;
         }
 
         if (options == UpdateOptions.InsertAt) {
-            b.get().deleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TypeConstraint;
         }
 
         // Prepare the insertion at the destination.
-        dstEdit.setAndGet(b.get().PrepareSparseMove(destinationScope, srcEdit));
+        dstEdit.setAndGet(b.prepareSparseMove(destinationScope, srcEdit));
         if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
-            b.get().deleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.NotFound;
         }
 
         if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
-            b.get().deleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.Exists;
         }
@@ -306,8 +310,9 @@ public abstract class LayoutType<T> implements ILayoutType {
      * @return Success if the write is permitted, the error code otherwise.
      */
     public static Result prepareSparseWrite(
-        RowBuffer b, RowCursor edit, TypeArgument typeArg, UpdateOptions options
-    ) {
+        @Nonnull final RowBuffer b, @Nonnull final RowCursor edit, @Nonnull final TypeArgument typeArg,
+        @Nonnull final UpdateOptions options) {
+
         if (edit.immutable() || (edit.scopeType().isUniqueScope() && !edit.deferUniqueIndex())) {
             return Result.InsufficientPermissions;
         }
@@ -343,12 +348,12 @@ public abstract class LayoutType<T> implements ILayoutType {
         return Result.Success;
     }
 
-    public abstract Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<T> value);
+    public abstract Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column, Out<T> value);
 
-    public abstract Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<T> value);
+    public abstract Result readSparse(RowBuffer b, RowCursor edit, Out<T> value);
 
-    public static TypeArgument readTypeArgument(Reference<RowBuffer> row, int offset, Out<Integer> lenInBytes) {
-        LayoutType itemCode = row.get().ReadSparseTypeCode(offset);
+    public static TypeArgument readTypeArgument(RowBuffer row, int offset, Out<Integer> lenInBytes) {
+        LayoutType itemCode = row.readSparseTypeCode(offset);
         int argsLenInBytes;
         Out<Integer> tempOut_argsLenInBytes = new Out<Integer>();
         TypeArgumentList itemTypeArgs = itemCode.readTypeArgumentList(row, offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), tempOut_argsLenInBytes);
@@ -357,12 +362,12 @@ public abstract class LayoutType<T> implements ILayoutType {
         return new TypeArgument(itemCode, itemTypeArgs);
     }
 
-    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset, Out<Integer> lenInBytes) {
+    public TypeArgumentList readTypeArgumentList(RowBuffer row, int offset, Out<Integer> lenInBytes) {
         lenInBytes.setAndGet(0);
         return TypeArgumentList.EMPTY;
     }
 
-    public Result readVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<T> value) {
+    public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column, Out<T> value) {
         value.setAndGet(null);
         return Result.Failure;
     }
@@ -382,15 +387,15 @@ public abstract class LayoutType<T> implements ILayoutType {
         return (Value)this;
     }
 
-    public abstract Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, T value);
+    public abstract Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column, T value);
 
-    public abstract Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, T value);
+    public abstract Result writeSparse(RowBuffer b, RowCursor edit, T value);
 
-    public abstract Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, T value, UpdateOptions options);
+    public abstract Result writeSparse(RowBuffer b, RowCursor edit, T value, UpdateOptions options);
 
-    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        row.get().WriteSparseTypeCode(offset, this.layoutCode());
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
+    public int writeTypeArgument(RowBuffer row, int offset, TypeArgumentList value) {
+        row.writeSparseTypeCode(offset, this.layoutCode());
+        return com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE;
     }
 
     public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, T value) {

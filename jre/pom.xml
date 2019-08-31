@@ -36,6 +36,7 @@ Licensed under the MIT License.
     <site.url/>
     <test.groups>unit</test.groups>
     <javadoc.opts/>
+    <fastutil.version>8.3.0</fastutil.version>
     <guava.version>28.0-jre</guava.version>
     <jackson.version>2.9.9</jackson.version>
     <mockito.version>1.10.19</mockito.version>
@@ -77,6 +78,12 @@ Licensed under the MIT License.
       <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
       <version>${netty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>${fastutil.version}</version>
     </dependency>
 
     <dependency>

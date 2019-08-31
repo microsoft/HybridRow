@@ -29,20 +29,20 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
     }
 
     @Override
-    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                             Out<Boolean> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(false);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadBit(scope.get().start(), col.getBoolBit().clone()));
+        value.setAndGet(b.get().readBit(scope.get().start(), column.getBooleanBit().clone()));
         return Result.Success;
     }
 
     @Override
-    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<Boolean> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
@@ -63,9 +63,9 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
         }
 
         if (value) {
-            b.get().SetBit(scope.get().start(), col.getBoolBit().clone());
+            b.get().SetBit(scope.get().start(), col.getBooleanBit().clone());
         } else {
-            b.get().UnsetBit(scope.get().start(), col.getBoolBit().clone());
+            b.get().UnsetBit(scope.get().start(), col.getBooleanBit().clone());
         }
 
         b.get().SetBit(scope.get().start(), col.getNullBit().clone());

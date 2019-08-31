@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
 import java.io.IOException;
 
@@ -26,13 +28,13 @@ import static com.google.common.base.Strings.lenientFormat;
 @JsonSerialize(using = SchemaId.JsonSerializer.class)
 public final class SchemaId {
 
-    // TODO: DANOBLE: Consider caching SchemaId instances to reduce memory footprint
-
     public static final SchemaId INVALID = null;
     public static final SchemaId NONE = new SchemaId(-1);
-    public static final int SIZE = (Integer.SIZE / Byte.SIZE);
+    public static final int SIZE = Integer.SIZE / Byte.SIZE;
 
-    private static long MAX_VALUE = 0x00000000FFFFFFFFL;
+    private static final long MAX_VALUE = 0x00000000FFFFFFFFL;
+    private static final Int2ReferenceMap<SchemaId> cache = new Int2ReferenceOpenHashMap<>();
+
     private final int value;
 
     /**
@@ -62,9 +64,23 @@ public final class SchemaId {
         return this.value() == other.value();
     }
 
+    /**
+     * Returns a {@link SchemaId} from a specified underlying integer value
+     *
+     * @return The integer value of this {@link SchemaId}
+     */
+    public static SchemaId from(int value) {
+        return cache.computeIfAbsent(value, SchemaId::new);
+    }
+
     @Override
     public int hashCode() {
         return Integer.valueOf(this.value()).hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(this.value());
     }
 
     /**
@@ -74,20 +90,6 @@ public final class SchemaId {
      */
     public int value() {
         return this.value;
-    }
-
-    /**
-     * Returns a {@link SchemaId} from a specified underlying integer value
-     *
-     * @return The integer value of this {@link SchemaId}
-     */
-    public static SchemaId from(int value) {
-        return new SchemaId(value);
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(this.value());
     }
 
     static final class JsonDeserializer extends StdDeserializer<SchemaId> {

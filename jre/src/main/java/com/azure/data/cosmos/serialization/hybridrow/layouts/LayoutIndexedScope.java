@@ -14,10 +14,6 @@ public abstract class LayoutIndexedScope extends LayoutScope {
         LayoutCode code, boolean immutable, boolean isSizedScope, boolean isFixedArity, boolean isUniqueScope,
         boolean isTypedScope
     ) {
-        // TODO: C# TO JAVA CONVERTER: C# to Java Converter could not resolve the named parameters in the
-        // following line:
-        //ORIGINAL LINE: base(code, immutable, isSizedScope, isIndexedScope: true, isFixedArity: isFixedArity,
-        // isUniqueScope: isUniqueScope, isTypedScope: isTypedScope);
         super(code, immutable, isSizedScope, true, isFixedArity, isUniqueScope, isTypedScope);
     }
 

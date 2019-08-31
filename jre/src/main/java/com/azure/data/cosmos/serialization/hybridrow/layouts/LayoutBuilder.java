@@ -12,12 +12,12 @@ import java.util.Stack;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutBuilder {
-    private LayoutBit.Allocator bitallocator;
+    private LayoutBit.Allocator bitAllocator;
     private ArrayList<LayoutColumn> fixedColumns;
     private int fixedCount;
     private int fixedSize;
     private String name;
-    private SchemaId schemaId = new SchemaId();
+    private SchemaId schemaId;
     private Stack<LayoutColumn> scope;
     private ArrayList<LayoutColumn> sparseColumns;
     private int sparseCount;
@@ -32,112 +32,103 @@ public final class LayoutBuilder {
     // ]
     public LayoutBuilder(String name, SchemaId schemaId) {
         this.name = name;
-        this.schemaId = schemaId.clone();
-        this.Reset();
+        this.schemaId = schemaId;
+        this.reset();
     }
 
-    public void AddFixedColumn(String path, LayoutType type, boolean nullable) {
-        AddFixedColumn(path, type, nullable, 0);
-    }
+    public void addFixedColumn(String path, LayoutType type, boolean nullable, int length) {
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public void AddFixedColumn(string path, LayoutType type, bool nullable, int length = 0)
-    public void AddFixedColumn(String path, LayoutType type, boolean nullable, int length) {
         checkArgument(length >= 0);
-        checkArgument(!type.getIsVarint());
+        checkArgument(!type.isVarint());
 
-        LayoutColumn col;
-        if (type.getIsNull()) {
+        LayoutColumn column;
+        if (type.isNull()) {
             checkArgument(nullable);
-            LayoutBit nullbit = this.bitallocator.Allocate().clone();
-            col = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.getParent(),
-                this.fixedCount, 0, nullbit.clone(), LayoutBit.Invalid, 0);
-        } else if (type.getIsBool()) {
-            LayoutBit nullbit = nullable ? this.bitallocator.Allocate() : LayoutBit.Invalid;
-            LayoutBit boolbit = this.bitallocator.Allocate().clone();
-            col = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.getParent(),
-                this.fixedCount, 0, nullbit.clone(), boolbit.clone(), 0);
+            LayoutBit nullBit = this.bitAllocator.Allocate();
+            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.parent(),
+                this.fixedCount, 0, nullBit, LayoutBit.INVALID, 0);
+        } else if (type.isBoolean()) {
+            LayoutBit nullBit = nullable ? this.bitAllocator.Allocate() : LayoutBit.INVALID;
+            LayoutBit boolbit = this.bitAllocator.Allocate();
+            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.parent(),
+                this.fixedCount, 0, nullBit, boolbit, 0);
         } else {
-            LayoutBit nullBit = nullable ? this.bitallocator.Allocate() : LayoutBit.Invalid;
-            col = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.getParent(),
-                this.fixedCount, this.fixedSize, nullBit.clone(), LayoutBit.Invalid, length);
+            LayoutBit nullBit = nullable ? this.bitAllocator.Allocate() : LayoutBit.INVALID;
+            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.parent(),
+                this.fixedCount, this.fixedSize, nullBit, LayoutBit.INVALID, length);
 
-            this.fixedSize += type.getIsFixed() ? type.Size : length;
+            this.fixedSize += type.isFixed() ? type.size() : length;
         }
 
         this.fixedCount++;
-        this.fixedColumns.add(col);
+        this.fixedColumns.add(column);
     }
 
-    public void AddObjectScope(String path, LayoutType type) {
-        LayoutColumn col = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Sparse, this.getParent(),
-            this.sparseCount, -1, LayoutBit.Invalid, LayoutBit.Invalid, 0);
+    public void addObjectScope(String path, LayoutType type) {
+
+        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Sparse, this.parent(),
+            this.sparseCount, -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
+
+        this.sparseCount++;
+        this.sparseColumns.add(column);
+        this.scope.push(column);
+    }
+
+    public void addSparseColumn(String path, LayoutType type) {
+
+        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Sparse, this.parent(),
+            this.sparseCount, -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
+
+        this.sparseCount++;
+        this.sparseColumns.add(column);
+    }
+
+    public void addTypedScope(String path, LayoutType type, TypeArgumentList typeArgs) {
+
+        LayoutColumn col = new LayoutColumn(path, type, typeArgs, StorageKind.Sparse, this.parent(), this.sparseCount,
+            -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
 
         this.sparseCount++;
         this.sparseColumns.add(col);
-        this.scope.push(col);
     }
 
-    public void AddSparseColumn(String path, LayoutType type) {
-        LayoutColumn col = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Sparse, this.getParent(),
-            this.sparseCount, -1, LayoutBit.Invalid, LayoutBit.Invalid, 0);
-
-        this.sparseCount++;
-        this.sparseColumns.add(col);
-    }
-
-    public void AddTypedScope(String path, LayoutType type, TypeArgumentList typeArgs) {
-        LayoutColumn col = new LayoutColumn(path, type, typeArgs.clone(), StorageKind.Sparse, this.getParent(),
-            this.sparseCount, -1, LayoutBit.Invalid, LayoutBit.Invalid, 0);
-
-        this.sparseCount++;
-        this.sparseColumns.add(col);
-    }
-
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public void AddVariableColumn(string path, LayoutType type, int length = 0)
-    public void AddVariableColumn(String path, LayoutType type, int length) {
+    public void addVariableColumn(String path, LayoutType type, int length) {
 
         checkArgument(length >= 0);
-        checkArgument(type.getAllowVariable());
+        checkArgument(type.allowVariable());
 
-        LayoutColumn col = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Variable,
-            this.getParent(), this.varCount, this.varCount, this.bitallocator.Allocate().clone(), LayoutBit.Invalid,
-            length);
+        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Variable, this.parent(),
+            this.varCount, this.varCount, this.bitAllocator.Allocate(), LayoutBit.INVALID, length);
 
         this.varCount++;
-        this.varColumns.add(col);
+        this.varColumns.add(column);
     }
 
-    public void AddVariableColumn(String path, LayoutType type) {
-        AddVariableColumn(path, type, 0);
-    }
-
-    public Layout Build() {
+    public Layout build() {
         // Compute offset deltas.  Offset bools by the present byte count, and fixed fields by the sum of the present
         // and bool count.
-        int fixedDelta = this.bitallocator.getNumBytes();
+        int fixedDelta = this.bitAllocator.getNumBytes();
         int varIndexDelta = this.fixedCount;
 
         // Update the fixedColumns with the delta before freezing them.
         ArrayList<LayoutColumn> updatedColumns =
             new ArrayList<LayoutColumn>(this.fixedColumns.size() + this.varColumns.size());
 
-        for (LayoutColumn c : this.fixedColumns) {
-            c.SetOffset(c.getOffset() + fixedDelta);
-            updatedColumns.add(c);
+        for (LayoutColumn column : this.fixedColumns) {
+            column.offset(column.offset() + fixedDelta);
+            updatedColumns.add(column);
         }
 
-        for (LayoutColumn c : this.varColumns) {
+        for (LayoutColumn column : this.varColumns) {
             // Adjust variable column indexes such that they begin immediately following the last fixed column.
-            c.SetIndex(c.getIndex() + varIndexDelta);
-            updatedColumns.add(c);
+            column.index(column.index() + varIndexDelta);
+            updatedColumns.add(column);
         }
 
         updatedColumns.addAll(this.sparseColumns);
 
-        Layout layout = new Layout(this.name, this.schemaId.clone(), this.bitallocator.getNumBytes(), this.fixedSize + fixedDelta, updatedColumns);
-        this.Reset();
+        Layout layout = new Layout(this.name, this.schemaId, this.bitAllocator.getNumBytes(), this.fixedSize + fixedDelta, updatedColumns);
+        this.reset();
         return layout;
     }
 
@@ -146,7 +137,7 @@ public final class LayoutBuilder {
         this.scope.pop();
     }
 
-    private LayoutColumn getParent() {
+    private LayoutColumn parent() {
         if (this.scope.empty()) {
             return null;
         }
@@ -154,8 +145,8 @@ public final class LayoutBuilder {
         return this.scope.peek();
     }
 
-    private void Reset() {
-        this.bitallocator = new LayoutBit.Allocator();
+    private void reset() {
+        this.bitAllocator = new LayoutBit.Allocator();
         this.fixedSize = 0;
         this.fixedCount = 0;
         this.fixedColumns = new ArrayList<LayoutColumn>();

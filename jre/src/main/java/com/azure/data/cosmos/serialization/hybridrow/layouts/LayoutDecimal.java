@@ -4,7 +4,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -28,20 +27,20 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
     }
 
     @Override
-    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                             Out<BigDecimal> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(new BigDecimal(0));
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadDecimal(scope.get().start() + col.getOffset()));
+        value.setAndGet(b.get().ReadDecimal(scope.get().start() + column.getOffset()));
         return Result.Success;
     }
 
     @Override
-    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<BigDecimal> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
@@ -54,15 +53,15 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
     }
 
     @Override
-    public Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                              BigDecimal value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteDecimal(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().WriteDecimal(scope.get().start() + column.getOffset(), value);
+        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
         return Result.Success;
     }
 
@@ -70,7 +69,7 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, decimal value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, BigDecimal value,
+    public Result writeSparse(RowBuffer b, RowCursor edit, BigDecimal value,
                               UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
@@ -82,8 +81,8 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
     }
 
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              java.math.BigDecimal value) {
+    public Result writeSparse(RowBuffer b, RowCursor edit,
+                              BigDecimal value) {
         return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }

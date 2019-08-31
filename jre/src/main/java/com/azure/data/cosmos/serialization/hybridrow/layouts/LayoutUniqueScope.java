@@ -123,7 +123,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         r = func == null ? null : func.Invoke(ref b, ref childScope, context) ??Result.Success;
         childScope = tempReference_childScope.get();
         if (r != Result.Success) {
-            this.DeleteScope(b, scope);
+            this.deleteScope(b, scope);
             return r;
         }
 
@@ -133,7 +133,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         r = b.get().TypedCollectionUniqueIndexRebuild(tempReference_uniqueScope);
         uniqueScope = tempReference_uniqueScope.get();
         if (r != Result.Success) {
-            this.DeleteScope(b, scope);
+            this.deleteScope(b, scope);
             return r;
         }
 

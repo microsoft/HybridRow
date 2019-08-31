@@ -29,7 +29,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
         value.setAndGet(0);
@@ -37,7 +37,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Long> value) {
+    public Result readSparse(RowBuffer b, RowCursor edit, Out<Long> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
             value.setAndGet(0);
@@ -49,15 +49,15 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result readVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Long> value) {
+    public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column, Out<Long> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NotFound;
         }
 
         int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
+            column.getOffset());
         value.setAndGet(b.get().ReadVariableInt(varOffset));
         return Result.Success;
     }
@@ -97,7 +97,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
             return Result.InsufficientPermissions;
         }
 
-        boolean exists = b.get().ReadBit(scope.get().start(), col.getNullBit().clone());
+        boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
         int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;

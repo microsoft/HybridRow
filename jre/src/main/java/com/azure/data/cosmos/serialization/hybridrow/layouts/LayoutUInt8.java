@@ -30,22 +30,22 @@ public final class LayoutUInt8 extends LayoutType<Byte> {
     //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // byte value)
     @Override
-    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                             Out<Byte> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadUInt8(scope.get().start() + col.getOffset()));
+        value.setAndGet(b.get().ReadUInt8(scope.get().start() + column.getOffset()));
         return Result.Success;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte value)
     @Override
-    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<Byte> value) {
         Result result = prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {

@@ -4,7 +4,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -26,20 +25,20 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     }
 
     @Override
-    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                             Out<MongoDbObjectId> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadMongoDbObjectId(scope.get().start() + col.getOffset()).clone());
+        value.setAndGet(b.get().ReadMongoDbObjectId(scope.get().start() + column.getOffset()).clone());
         return Result.Success;
     }
 
     @Override
-    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<MongoDbObjectId> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
@@ -52,15 +51,15 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     }
 
     @Override
-    public Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                              MongoDbObjectId value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteMongoDbObjectId(scope.get().start() + col.getOffset(), value.clone());
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().WriteMongoDbObjectId(scope.get().start() + column.getOffset(), value.clone());
+        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
         return Result.Success;
     }
 
@@ -68,7 +67,7 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, MongoDbObjectId value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result writeSparse(RowBuffer b, RowCursor edit,
                               MongoDbObjectId value, UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
@@ -80,7 +79,7 @@ public final class LayoutMongoDbObjectId extends LayoutType<MongoDbObjectId> {
     }
 
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result writeSparse(RowBuffer b, RowCursor edit,
                               MongoDbObjectId value) {
         return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }

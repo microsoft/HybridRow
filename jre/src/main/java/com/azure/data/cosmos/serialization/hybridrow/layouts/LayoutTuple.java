@@ -73,7 +73,7 @@ public final class LayoutTuple extends LayoutIndexedScope {
 
     @Override
     public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        row.get().WriteSparseTypeCode(offset, this.LayoutCode);
+        row.get().writeSparseTypeCode(offset, this.LayoutCode);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: lenInBytes += row.Write7BitEncodedUInt(offset + lenInBytes, (ulong)value.Count);

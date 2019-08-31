@@ -86,7 +86,7 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     @Override
     public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         checkState(value.count() == 3);
-        row.get().WriteSparseTypeCode(offset, this.LayoutCode);
+        row.get().writeSparseTypeCode(offset, this.LayoutCode);
         int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
         for (int i = 1; i < value.count(); i++) {
             TypeArgument arg = value.get(i).clone();

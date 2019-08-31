@@ -4,7 +4,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -27,20 +26,20 @@ public final class LayoutGuid extends LayoutType<UUID> {
     }
 
     @Override
-    public Result readFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                             Out<UUID> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadGuid(scope.get().start() + col.getOffset()));
+        value.setAndGet(b.get().ReadGuid(scope.get().start() + column.getOffset()));
         return Result.Success;
     }
 
     @Override
-    public Result readSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
+    public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<UUID> value) {
         Result result = prepareSparseRead(b, edit, this.LayoutCode);
         if (result != Result.Success) {
@@ -53,15 +52,15 @@ public final class LayoutGuid extends LayoutType<UUID> {
     }
 
     @Override
-    public Result writeFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
+    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
                              UUID value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteGuid(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().WriteGuid(scope.get().start() + column.getOffset(), value);
+        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
         return Result.Success;
     }
 
@@ -69,7 +68,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, Guid value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, UUID value,
+    public Result writeSparse(RowBuffer b, RowCursor edit, UUID value,
                               UpdateOptions options) {
         Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
         if (result != Result.Success) {
@@ -81,8 +80,8 @@ public final class LayoutGuid extends LayoutType<UUID> {
     }
 
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              java.util.UUID value) {
+    public Result writeSparse(RowBuffer b, RowCursor edit,
+                              UUID value) {
         return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }

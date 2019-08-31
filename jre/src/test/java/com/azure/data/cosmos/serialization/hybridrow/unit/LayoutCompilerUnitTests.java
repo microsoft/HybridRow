@@ -59,7 +59,7 @@ public class LayoutCompilerUnitTests {
             Namespace tempVar3 = new Namespace();
             tempVar3.setSchemas(new ArrayList<Schema>(Arrays.asList(s)));
             Layout layout = s.Compile(tempVar3);
-            Assert.IsTrue(layout.getSize() == LayoutBit.DivCeiling((i + 1) * 2, LayoutType.BitsPerByte), "Size: {0}, " +
+            Assert.IsTrue(layout.getSize() == LayoutBit.divCeiling((i + 1) * 2, LayoutType.BitsPerByte), "Size: {0}, " +
                 "i: {1}", layout.getSize(), i);
         }
     }
@@ -1606,9 +1606,9 @@ private final static class RoundTripFixed extends TestActionDispatcher<RoundTrip
         TValue value;
 
         System.out.printf("%1$s" + "\r\n", expected.Json);
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
         if (LayoutBit.opNotEquals(col.getNullBit().clone(),
-            LayoutBit.Invalid)) {
+            LayoutBit.INVALID)) {
             Out<TValue> tempOut_value = new Out<TValue>();
             r = t.ReadFixed(row, root, col, tempOut_value);
             value = tempOut_value.get();
@@ -1653,7 +1653,7 @@ private final static class RoundTripFixed extends TestActionDispatcher<RoundTrip
         ResultAssert.InsufficientPermissions(t.DeleteFixed(row, ref roRoot, col));
 
         if (LayoutBit.opNotEquals(col.getNullBit().clone(),
-            LayoutBit.Invalid)) {
+            LayoutBit.INVALID)) {
             ResultAssert.IsSuccess(t.DeleteFixed(row, root, col));
         } else {
             ResultAssert.TypeMismatch(t.DeleteFixed(row, root, col));
@@ -1706,10 +1706,10 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
     public <TLayout, TValue> void Dispatch(Reference<RowBuffer> row, Reference<RowCursor> root,
                                            Closure closure) {
         LayoutColumn arrCol = closure.ArrCol;
-        LayoutType tempVar = arrCol.getType();
+        LayoutType tempVar = arrCol.type();
         LayoutIndexedScope arrT = tempVar instanceof LayoutIndexedScope ? (LayoutIndexedScope)tempVar : null;
         Expected expected = closure.Expected.clone();
-        String tag = String.format("Json: %1$s, Array: %2$s", expected.Json, arrCol.getType().getName());
+        String tag = String.format("Json: %1$s, Array: %2$s", expected.Json, arrCol.type().getName());
 
         System.out.println(tag);
         Assert.IsNotNull(arrT, tag);
@@ -1720,7 +1720,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         RowCursor field;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().Clone(out field).Find(row, arrCol.getPath());
+        root.get().Clone(out field).Find(row, arrCol.path());
         Reference<RowCursor> tempReference_field =
             new Reference<RowCursor>(field);
         RowCursor scope;
@@ -1736,7 +1736,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        r = arrT.WriteScope(row, ref field, arrCol.getTypeArgs().clone(), out scope);
+        r = arrT.WriteScope(row, ref field, arrCol.typeArgs().clone(), out scope);
         ResultAssert.IsSuccess(r, tag);
 
         // Verify the nested field doesn't yet appear within the new scope.
@@ -1843,7 +1843,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         RowCursor roRoot;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().AsReadOnly(out roRoot).Find(row, arrCol.getPath());
+        root.get().AsReadOnly(out roRoot).Find(row, arrCol.path());
         Reference<RowCursor> tempReference_roRoot =
             new Reference<RowCursor>(roRoot);
         ResultAssert.InsufficientPermissions(arrT.DeleteScope(row, tempReference_roRoot));
@@ -1852,7 +1852,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        ResultAssert.InsufficientPermissions(arrT.WriteScope(row, ref roRoot, arrCol.getTypeArgs().clone(),
+        ResultAssert.InsufficientPermissions(arrT.WriteScope(row, ref roRoot, arrCol.typeArgs().clone(),
             out scope2));
 
         // Overwrite the whole scope.
@@ -1882,7 +1882,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        r = arrT.WriteScope(row, ref field, arrCol.getTypeArgs().clone(), out _, UpdateOptions.Update);
+        r = arrT.WriteScope(row, ref field, arrCol.typeArgs().clone(), out _, UpdateOptions.Update);
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         Reference<RowCursor> tempReference_field6 =
             new Reference<RowCursor>(field);
@@ -1942,22 +1942,22 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
     public <TLayout, TValue> void Dispatch(Reference<RowBuffer> row, Reference<RowCursor> root,
                                            Closure closure) {
         LayoutColumn objCol = closure.ObjCol;
-        LayoutType tempVar = objCol.getType();
+        LayoutType tempVar = objCol.type();
         LayoutObject objT = tempVar instanceof LayoutObject ? (LayoutObject)tempVar : null;
         LayoutColumn col = closure.Col;
         Expected expected = closure.Expected.clone();
 
-        System.out.printf("%1$s" + "\r\n", col.getType().getName());
+        System.out.printf("%1$s" + "\r\n", col.type().getName());
         Assert.IsNotNull(objT, "Json: {0}", expected.Json);
-        Assert.AreEqual(objCol, col.getParent(), "Json: {0}", expected.Json);
+        Assert.AreEqual(objCol, col.parent(), "Json: {0}", expected.Json);
 
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
 
         // Attempt to read the object and the nested column.
         RowCursor field;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().Clone(out field).Find(row, objCol.getPath());
+        root.get().Clone(out field).Find(row, objCol.path());
         Reference<RowCursor> tempReference_field =
             new Reference<RowCursor>(field);
         RowCursor scope;
@@ -1973,7 +1973,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
             new Reference<RowCursor>(field);
         Out<RowCursor> tempOut_scope2 =
             new Out<RowCursor>();
-        r = objT.WriteScope(row, tempReference_field2, objCol.getTypeArgs().clone(), tempOut_scope2);
+        r = objT.WriteScope(row, tempReference_field2, objCol.typeArgs().clone(), tempOut_scope2);
         scope = tempOut_scope2.get();
         field = tempReference_field2.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
@@ -1982,7 +1982,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         RowCursor nestedField;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        scope.Clone(out nestedField).Find(row, col.getPath());
+        scope.Clone(out nestedField).Find(row, col.path());
         TValue value;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
@@ -2014,7 +2014,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         // Read the nested field
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        scope2.Clone(out nestedField).Find(row, col.getPath());
+        scope2.Clone(out nestedField).Find(row, col.path());
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
@@ -2032,7 +2032,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         RowCursor roRoot;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().AsReadOnly(out roRoot).Find(row, objCol.getPath());
+        root.get().AsReadOnly(out roRoot).Find(row, objCol.path());
         Reference<RowCursor> tempReference_roRoot =
             new Reference<RowCursor>(roRoot);
         ResultAssert.InsufficientPermissions(objT.DeleteScope(row, tempReference_roRoot));
@@ -2041,7 +2041,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
             new Reference<RowCursor>(roRoot);
         Out<RowCursor> tempOut_scope22 =
             new Out<RowCursor>();
-        ResultAssert.InsufficientPermissions(objT.WriteScope(row, tempReference_roRoot2, objCol.getTypeArgs().clone(),
+        ResultAssert.InsufficientPermissions(objT.WriteScope(row, tempReference_roRoot2, objCol.typeArgs().clone(),
             tempOut_scope22));
         scope2 = tempOut_scope22.get();
         roRoot = tempReference_roRoot2.get();
@@ -2073,7 +2073,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         RowCursor _;
         Out<RowCursor> tempOut__2 =
             new Out<RowCursor>();
-        r = objT.WriteScope(row, tempReference_field7, objCol.getTypeArgs().clone(), tempOut__2, UpdateOptions.Update);
+        r = objT.WriteScope(row, tempReference_field7, objCol.typeArgs().clone(), tempOut__2, UpdateOptions.Update);
         _ = tempOut__2.get();
         field = tempReference_field7.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
@@ -2141,13 +2141,13 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
 
         System.out.println(tag);
 
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
 
         // Verify the nested field doesn't yet appear within the new scope.
         RowCursor nestedField;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        scope.get().Clone(out nestedField).Find(row, col.getPath());
+        scope.get().Clone(out nestedField).Find(row, col.path());
         TValue value;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
@@ -2211,13 +2211,13 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
 
         System.out.println(tag);
 
-        LayoutObject t = (LayoutObject)col.getType();
+        LayoutObject t = (LayoutObject)col.type();
 
         // Verify the nested field doesn't yet appear within the new scope.
         RowCursor nestedField;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        scope.get().Clone(out nestedField).Find(row, col.getPath());
+        scope.get().Clone(out nestedField).Find(row, col.path());
         Reference<RowCursor> tempReference_nestedField =
             new Reference<RowCursor>(nestedField);
         RowCursor scope2;
@@ -2233,7 +2233,7 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
             new Reference<RowCursor>(nestedField);
         Out<RowCursor> tempOut_scope22 =
             new Out<RowCursor>();
-        r = t.WriteScope(row, tempReference_nestedField2, col.getTypeArgs().clone(), tempOut_scope22);
+        r = t.WriteScope(row, tempReference_nestedField2, col.typeArgs().clone(), tempOut_scope22);
         scope2 = tempOut_scope22.get();
         nestedField = tempReference_nestedField2.get();
         ResultAssert.IsSuccess(r, tag);
@@ -2340,16 +2340,16 @@ private final static class RoundTripSparseObjectNested extends TestActionDispatc
 
         System.out.println(tag);
 
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
 
         // Ensure scope exists.
-        RowCursor scope = LayoutCompilerUnitTests.EnsureScope(row, root, col.getParent(), tag);
+        RowCursor scope = LayoutCompilerUnitTests.EnsureScope(row, root, col.parent(), tag);
 
         // Write the nested field.
         RowCursor field;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        scope.Clone(out field).Find(row, col.getPath());
+        scope.Clone(out field).Find(row, col.path());
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         Result r = t.WriteSparse(row, ref field, (TValue)prop.Value);
@@ -2575,10 +2575,10 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
     public <TLayout, TValue> void Dispatch(Reference<RowBuffer> row, Reference<RowCursor> root,
                                            Closure closure) {
         LayoutColumn setCol = closure.SetCol;
-        LayoutType tempVar = setCol.getType();
+        LayoutType tempVar = setCol.type();
         LayoutUniqueScope setT = tempVar instanceof LayoutUniqueScope ? (LayoutUniqueScope)tempVar : null;
         Expected expected = closure.Expected.clone();
-        String tag = String.format("Json: %1$s, Set: %2$s", expected.Json, setCol.getType().getName());
+        String tag = String.format("Json: %1$s, Set: %2$s", expected.Json, setCol.type().getName());
 
         System.out.println(tag);
         Assert.IsNotNull(setT, tag);
@@ -2589,7 +2589,7 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
         RowCursor field;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().Clone(out field).Find(row, setCol.getPath());
+        root.get().Clone(out field).Find(row, setCol.path());
         Reference<RowCursor> tempReference_field =
             new Reference<RowCursor>(field);
         RowCursor scope;
@@ -2605,7 +2605,7 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        r = setT.WriteScope(row, ref field, setCol.getTypeArgs().clone(), out scope);
+        r = setT.WriteScope(row, ref field, setCol.typeArgs().clone(), out scope);
         ResultAssert.IsSuccess(r, tag);
 
         // Verify the nested field doesn't yet appear within the new scope.
@@ -2825,13 +2825,13 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
 
         RowCursor roRoot;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().AsReadOnly(out roRoot).Find(row, setCol.getPath());
+        root.get().AsReadOnly(out roRoot).Find(row, setCol.path());
         Reference<RowCursor> tempReference_roRoot = new Reference<RowCursor>(roRoot);
         ResultAssert.InsufficientPermissions(setT.DeleteScope(row, tempReference_roRoot));
         roRoot = tempReference_roRoot.get();
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        ResultAssert.InsufficientPermissions(setT.WriteScope(row, ref roRoot, setCol.getTypeArgs().clone(), out _));
+        ResultAssert.InsufficientPermissions(setT.WriteScope(row, ref roRoot, setCol.typeArgs().clone(), out _));
 
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field9 = new Reference<RowCursor>(field);
@@ -2854,7 +2854,7 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
         Reference<RowCursor> tempReference_field12 = new Reference<RowCursor>(field);
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        r = setT.WriteScope(row, tempReference_field12, setCol.getTypeArgs().clone(), out _, UpdateOptions.Update);
+        r = setT.WriteScope(row, tempReference_field12, setCol.typeArgs().clone(), out _, UpdateOptions.Update);
         field = tempReference_field12.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         Reference<RowCursor> tempReference_field13 = new Reference<RowCursor>(field);
@@ -2914,12 +2914,12 @@ private final static class RoundTripSparseSimple extends TestActionDispatcher<Ro
         LayoutColumn col = closure.Col;
         Expected expected = closure.Expected.clone();
 
-        System.out.printf("%1$s" + "\r\n", col.getType().getName());
-        TLayout t = (TLayout)col.getType();
+        System.out.printf("%1$s" + "\r\n", col.type().getName());
+        TLayout t = (TLayout)col.type();
         RowCursor field;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().Clone(out field).Find(row, col.getPath());
+        root.get().Clone(out field).Find(row, col.path());
         TValue value;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
@@ -2956,7 +2956,7 @@ private final static class RoundTripSparseSimple extends TestActionDispatcher<Ro
         RowCursor roRoot;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        root.get().AsReadOnly(out roRoot).Find(row, col.getPath());
+        root.get().AsReadOnly(out roRoot).Find(row, col.path());
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         ResultAssert.InsufficientPermissions(t.DeleteSparse(row, ref roRoot));
@@ -3066,7 +3066,7 @@ private static class RoundTripVariable extends TestActionDispatcher<RoundTripVar
 
     protected final <TLayout extends LayoutType<TValue>, TValue> void Compare(Reference<RowBuffer> row,
                                                                               Reference<RowCursor> root, LayoutColumn col, Object exValue, Expected expected) {
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
         TValue value;
         Out<TValue> tempOut_value = new Out<TValue>();
         Result r = t.readVariable(row, root, col, tempOut_value);
@@ -3083,7 +3083,7 @@ private static class RoundTripVariable extends TestActionDispatcher<RoundTripVar
 
     protected final <TLayout extends LayoutType<TValue>, TValue> void RoundTrip(Reference<RowBuffer> row,
                                                                                 Reference<RowCursor> root, LayoutColumn col, Object exValue, Expected expected) {
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
         Result r = t.writeVariable(row, root, col, (TValue)exValue);
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         this.<TLayout, TValue>Compare(row, root, col, exValue, expected.clone());
@@ -3193,7 +3193,7 @@ private final static class VariableInterleaving extends RoundTripVariable {
 
     private <TLayout extends LayoutType<TValue>, TValue> void Delete(Reference<RowBuffer> row,
                                                                      Reference<RowCursor> root, LayoutColumn col, Expected expected) {
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
         RowCursor roRoot;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
@@ -3213,7 +3213,7 @@ private final static class VariableInterleaving extends RoundTripVariable {
 
     private <TLayout extends LayoutType<TValue>, TValue> void TooBig(Reference<RowBuffer> row,
                                                                      Reference<RowCursor> root, LayoutColumn col, Expected expected) {
-        TLayout t = (TLayout)col.getType();
+        TLayout t = (TLayout)col.type();
         Result r = t.writeVariable(row, root, col, (TValue)expected.TooBig);
         Assert.AreEqual(Result.TooBig, r, "Json: {0}", expected.Json);
     }

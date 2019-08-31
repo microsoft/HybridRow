@@ -298,7 +298,7 @@ public final class RowReader {
                 checkState(this.cursor.scopeType() instanceof LayoutUDT);
                 LayoutColumn col = this.columns[this.columnIndex];
 
-                if (!this.row.ReadBit(this.cursor.start(), col.getNullBit().clone())) {
+                if (!this.row.readBit(this.cursor.start(), col.getNullBit().clone())) {
                     // Skip schematized values if they aren't present.
                     // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
                     //   goto case States.Schematized;
@@ -1104,7 +1104,7 @@ public final class RowReader {
             return Result.TypeMismatch;
         }
 
-        switch (col == null ? null : col.getStorage()) {
+        switch (col == null ? null : col.storage()) {
             case Fixed:
                 Reference<RowBuffer> tempReference_row =
                     new Reference<RowBuffer>(this.row);
@@ -1142,7 +1142,7 @@ public final class RowReader {
             return Result.TypeMismatch;
         }
 
-        switch (col == null ? null : col.getStorage()) {
+        switch (col == null ? null : col.storage()) {
             case Fixed:
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
@@ -1180,7 +1180,7 @@ public final class RowReader {
             return Result.TypeMismatch;
         }
 
-        switch (col == null ? null : col.getStorage()) {
+        switch (col == null ? null : col.storage()) {
             case Fixed:
                 Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
                 Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);

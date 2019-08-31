@@ -160,11 +160,11 @@ public final class RowOperationDispatcher {
             assert scope.get().getLayout().TryFind(path, tempOut_col);
             col = tempOut_col.get();
             assert col != null;
-            type = col.getType();
-            typeArgs = col.getTypeArgs().clone();
+            type = col.type();
+            typeArgs = col.typeArgs().clone();
         }
 
-        if ((path != null) && (col == null || col.getStorage() == StorageKind.Sparse)) {
+        if ((path != null) && (col == null || col.storage() == StorageKind.Sparse)) {
             Reference<RowBuffer> tempReference_Row =
                 new Reference<RowBuffer>(this.Row);
             scope.get().Find(tempReference_Row, path);

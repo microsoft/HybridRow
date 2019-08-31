@@ -71,15 +71,15 @@ public abstract class LayoutScope extends LayoutType {
         return this.isUniqueScope;
     }
 
-    public final Result DeleteScope(Reference<RowBuffer> b, Reference<RowCursor> edit) {
+    public final Result deleteScope(@Nonnull final RowBuffer b, @Nonnull final RowCursor edit) {
 
-        Result result = LayoutType.prepareSparseDelete(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseDelete(b, edit, this.layoutCode());
 
         if (result != Result.Success) {
             return result;
         }
 
-        b.get().deleteSparse(edit);
+        b.deleteSparse(edit);
         return Result.Success;
     }
 
@@ -161,7 +161,7 @@ public abstract class LayoutScope extends LayoutType {
         r = func == null ? null : func.Invoke(ref b, ref childScope, context) ??Result.Success;
         childScope = tempReference_childScope.get();
         if (r != Result.Success) {
-            this.DeleteScope(b, scope);
+            this.deleteScope(b, scope);
             return r;
         }
 

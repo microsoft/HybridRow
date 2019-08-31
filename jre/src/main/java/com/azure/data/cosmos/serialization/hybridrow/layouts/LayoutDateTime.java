@@ -30,7 +30,7 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
     public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                             Out<LocalDateTime> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().ReadBit(scope.get().start(), col.getNullBit().clone())) {
+        if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(LocalDateTime.MIN);
             return Result.NotFound;
         }
@@ -80,7 +80,7 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
     }
 
     @Override
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, DateTime value) {
+    public Result writeSparse(RowBuffer b, RowCursor edit, DateTime value) {
         return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 }
