@@ -50,7 +50,7 @@ public final class RowCursor implements Cloneable {
 
     public static RowCursor Create(RowBuffer row) {
 
-        final SchemaId schemaId = row.ReadSchemaId(1);
+        final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
         final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.SIZE, layout.numVariable());
 
@@ -65,7 +65,7 @@ public final class RowCursor implements Cloneable {
 
     public static RowCursor CreateForAppend(RowBuffer row) {
 
-        final SchemaId schemaId = row.ReadSchemaId(1);
+        final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
 
         return new RowCursor()

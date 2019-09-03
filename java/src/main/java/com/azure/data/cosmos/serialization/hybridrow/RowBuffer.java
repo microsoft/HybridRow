@@ -6,10 +6,11 @@ package com.azure.data.cosmos.serialization.hybridrow;
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
-import com.azure.data.cosmos.core.codecs.DateTimeCodec;
-import com.azure.data.cosmos.core.codecs.DecimalCodec;
-import com.azure.data.cosmos.core.codecs.Float128Codec;
-import com.azure.data.cosmos.core.codecs.GuidCodec;
+import com.azure.data.cosmos.serialization.hybridrow.RowBuffer.UniqueIndexItem;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.DateTimeCodec;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.DecimalCodec;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.Float128Codec;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.GuidCodec;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowWriter;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutArray;
@@ -175,55 +176,63 @@ public final class RowBuffer {
         return item.value();
     }
 
-    public Float128 ReadFloat128(int offset) {
+    public int ReadInt32(int offset) {
+        Item<Integer> item = this.read(this.buffer::readIntLE, offset);
+        return item.value();
+    }
+
+    public Float128 readFloat128(int offset) {
         Item<Float128> item = this.read(() -> Float128Codec.decode(this.buffer), offset);
         return item.value();
     }
 
-    public float ReadFloat32(int offset) {
-        return MemoryMarshal.<Float>Read(this.buffer.Slice(offset));
+    public float readFloat32(int offset) {
+        Item<Float> item = this.read(this.buffer::readFloatLE, offset);
+        return item.value();
     }
 
-    public double ReadFloat64(int offset) {
-        return MemoryMarshal.<Double>Read(this.buffer.Slice(offset));
+    public double readFloat64(int offset) {
+        Item<Double> item = this.read(this.buffer::readDoubleLE, offset);
+        return item.value();
     }
 
-    public int ReadInt32(int offset) {
-        return MemoryMarshal.<Integer>Read(this.buffer.Slice(offset));
+    // TODO: DANOBLE: resurrect MongoDbObjectId
+    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
+    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
+    //    }
+
+    public SchemaId readSchemaId(int offset) {
+        Item<SchemaId> item = this.read(() -> SchemaId.from(this.buffer.readIntLE()), offset);
+        return item.value();
     }
 
-    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
-        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
+    public BigDecimal readSparseDecimal(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DECIMAL);
+        BigDecimal value = this.readDecimal(edit.valueOffset());
+        edit.endOffset(this.buffer.readerIndex());
+        return value;
     }
 
-    public SchemaId ReadSchemaId(int offset) {
-        return new SchemaId(this.ReadInt32(offset));
+    public Float128 readSparseFloat128(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_128);
+        Float128 value = this.readFloat128(edit.valueOffset());
+        edit.endOffset(this.buffer.readerIndex());
+        return value;
     }
 
-    public BigDecimal ReadSparseDecimal(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Decimal);
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
-        edit.get().endOffset = edit.get().valueOffset() + sizeof(BigDecimal);
-        return this.readDecimal(edit.get().valueOffset());
+    public float readSparseFloat32(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_32);
+        float value = this.readFloat32(edit.valueOffset());
+        edit.endOffset(this.buffer.readerIndex());
+        return value;
     }
 
-    public Float128 ReadSparseFloat128(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Float128);
-        edit.get().endOffset = edit.get().valueOffset() + Float128.SIZE;
-        return this.ReadFloat128(edit.get().valueOffset()).clone();
-    }
-
-    public float ReadSparseFloat32(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Float32);
-        edit.get().endOffset = edit.get().valueOffset() + (Float.SIZE / Byte.SIZE);
-        return this.ReadFloat32(edit.get().valueOffset());
-    }
-
-    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
-        edit.get().endOffset = edit.get().valueOffset() + MongoDbObjectId.Size;
-        return this.ReadMongoDbObjectId(edit.get().valueOffset()).clone();
-    }
+    // TODO: DANOBLE: resurrect MongoDbObjectId
+    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
+    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
+    //        edit.get().endOffset = edit.get().valueOffset() + MongoDbObjectId.Size;
+    //        return this.ReadMongoDbObjectId(edit.get().valueOffset()).clone();
+    //    }
 
     public Utf8Span ReadSparseString(Reference<RowCursor> edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutType.Utf8);
@@ -1769,7 +1778,7 @@ public final class RowBuffer {
     public double readSparseFloat64(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_64);
         edit.endOffset(edit.valueOffset() + (Double.SIZE / Byte.SIZE));
-        return this.ReadFloat64(edit.valueOffset());
+        return this.readFloat64(edit.valueOffset());
     }
 
     public UUID readSparseGuid(RowCursor edit) {

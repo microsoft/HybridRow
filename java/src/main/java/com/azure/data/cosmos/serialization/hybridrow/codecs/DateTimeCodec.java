@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.data.cosmos.core.codecs;
+package com.azure.data.cosmos.serialization.hybridrow.codecs;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class DateTimeCodec {
 
-    private static final int BYTES = Long.BYTES;
+    public static final int BYTES = Long.BYTES;
 
     private static final long FLAGS_MASK = 0xC000000000000000L;
     private static final long KIND_AMBIGUOUS = 0xC000000000000000L;

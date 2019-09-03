@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.data.cosmos.core.codecs;
+package com.azure.data.cosmos.serialization.hybridrow.codecs;
 
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import io.netty.buffer.ByteBuf;

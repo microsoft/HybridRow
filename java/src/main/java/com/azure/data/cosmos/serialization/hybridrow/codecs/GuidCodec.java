@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.data.cosmos.core.codecs;
+package com.azure.data.cosmos.serialization.hybridrow.codecs;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

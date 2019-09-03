@@ -453,7 +453,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseDecimal(tempReference_cursor));
+                value.setAndGet(this.row.readSparseDecimal(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -480,7 +480,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseFloat128(tempReference_cursor).clone());
+                value.setAndGet(this.row.readSparseFloat128(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -507,7 +507,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseFloat32(tempReference_cursor));
+                value.setAndGet(this.row.readSparseFloat32(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
