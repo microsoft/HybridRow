@@ -6,6 +6,10 @@ package com.azure.data.cosmos.serialization.hybridrow;
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
+import com.azure.data.cosmos.core.codecs.DateTimeCodec;
+import com.azure.data.cosmos.core.codecs.DecimalCodec;
+import com.azure.data.cosmos.core.codecs.Float128Codec;
+import com.azure.data.cosmos.core.codecs.GuidCodec;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowWriter;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutArray;
@@ -62,6 +66,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
@@ -136,35 +141,43 @@ public final class RowBuffer {
         checkState(HybridRowHeader.SIZE + layout.size() <= this.length());
     }
 
-    public UUID readGuid(int offset) {
-
-        return MemoryMarshal.<UUID>Read(this.buffer.Slice(offset));
+    public ByteBuf readSparseBinary(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BINARY);
+        ByteBuf value = this.readBinary(edit.valueOffset());
+        edit.endOffset(this.buffer.readerIndex());
+        return value;
     }
 
-    public short ReadInt16(int offset) {
-        return MemoryMarshal.<Short>Read(this.buffer.Slice(offset));
+    public boolean readSparseBoolean(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BOOLEAN);
+        edit.endOffset(edit.valueOffset());
+        return edit.cellType() == LayoutTypes.BOOLEAN;
     }
 
-    public LocalDateTime ReadDateTime(int offset) {
-        return MemoryMarshal.<LocalDateTime>Read(this.buffer.Slice(offset));
+    public OffsetDateTime readSparseDateTime(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DATE_TIME);
+        edit.endOffset(edit.valueOffset() + Long.SIZE);
+        return this.readDateTime(edit.valueOffset());
     }
 
-    public BigDecimal ReadDecimal(int offset) {
-        return MemoryMarshal.<BigDecimal>Read(this.buffer.Slice(offset));
+    public BigDecimal readDecimal(int offset) {
+        Item<BigDecimal> item = this.read(() -> DecimalCodec.decode(this.buffer), offset);
+        return item.value();
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ReadOnlySpan<byte> ReadFixedBinary(int offset, int len)
-    public ReadOnlySpan<Byte> ReadFixedBinary(int offset, int len) {
-        return this.buffer.Slice(offset, len);
+    public ByteBuf readFixedBinary(int offset, int length) {
+        Item<ByteBuf> item = this.read(() -> this.buffer.readSlice(length), offset);
+        return item.value();
     }
 
-    public Utf8Span ReadFixedString(int offset, int len) {
-        return Utf8Span.UnsafeFromUtf8BytesNoValidation(this.buffer.Slice(offset, len));
+    public Utf8String readFixedString(int offset, int length) {
+        Item<Utf8String> item = this.read(() -> Utf8String.fromUnsafe(this.buffer.readSlice(length)), offset);
+        return item.value();
     }
 
     public Float128 ReadFloat128(int offset) {
-        return MemoryMarshal.<Float128>Read(this.buffer.Slice(offset));
+        Item<Float128> item = this.read(() -> Float128Codec.decode(this.buffer), offset);
+        return item.value();
     }
 
     public float ReadFloat32(int offset) {
@@ -187,30 +200,23 @@ public final class RowBuffer {
         return new SchemaId(this.ReadInt32(offset));
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ReadOnlySpan<byte> ReadSparseBinary(ref RowCursor edit)
-    public ReadOnlySpan<Byte> ReadSparseBinary(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Binary);
-        int sizeLenInBytes;
-        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: ReadOnlySpan<byte> span = this.ReadBinary(edit.valueOffset, out int sizeLenInBytes);
-        ReadOnlySpan<Byte> span = this.ReadBinary(edit.get().valueOffset(), tempOut_sizeLenInBytes);
-        sizeLenInBytes = tempOut_sizeLenInBytes.get();
-        edit.get().endOffset = edit.get().valueOffset() + sizeLenInBytes + span.Length;
-        return span;
+    public BigDecimal ReadSparseDecimal(Reference<RowCursor> edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutType.Decimal);
+        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
+        edit.get().endOffset = edit.get().valueOffset() + sizeof(BigDecimal);
+        return this.readDecimal(edit.get().valueOffset());
     }
 
-    public boolean ReadSparseBool(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Boolean);
-        edit.get().endOffset = edit.get().valueOffset();
-        return edit.get().cellType() == LayoutType.Boolean;
+    public Float128 ReadSparseFloat128(Reference<RowCursor> edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutType.Float128);
+        edit.get().endOffset = edit.get().valueOffset() + Float128.SIZE;
+        return this.ReadFloat128(edit.get().valueOffset()).clone();
     }
 
-    public LocalDateTime ReadSparseDateTime(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.DateTime);
-        edit.get().endOffset = edit.get().valueOffset() + 8;
-        return this.ReadDateTime(edit.get().valueOffset());
+    public float ReadSparseFloat32(Reference<RowCursor> edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutType.Float32);
+        edit.get().endOffset = edit.get().valueOffset() + (Float.SIZE / Byte.SIZE);
+        return this.ReadFloat32(edit.get().valueOffset());
     }
 
     public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
@@ -229,23 +235,30 @@ public final class RowBuffer {
         return span;
     }
 
-    public BigDecimal ReadSparseDecimal(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Decimal);
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
-        edit.get().endOffset = edit.get().valueOffset() + sizeof(BigDecimal);
-        return this.ReadDecimal(edit.get().valueOffset());
+    public long ReadSparseVarInt(Reference<RowCursor> edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutType.VarInt);
+        int sizeLenInBytes;
+        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
+        long value = this.read7BitEncodedInt(edit.get().valueOffset(), tempOut_sizeLenInBytes);
+        sizeLenInBytes = tempOut_sizeLenInBytes.get();
+        edit.get().endOffset = edit.get().valueOffset() + sizeLenInBytes;
+        return value;
     }
 
-    public Float128 ReadSparseFloat128(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Float128);
-        edit.get().endOffset = edit.get().valueOffset() + Float128.Size;
-        return this.ReadFloat128(edit.get().valueOffset()).clone();
+    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    //ORIGINAL LINE: internal ushort ReadUInt16(int offset)
+    public short ReadUInt16(int offset) {
+        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+        //ORIGINAL LINE: return MemoryMarshal.Read<ushort>(this.buffer.Slice(offset));
+        return MemoryMarshal.<Short>Read(this.buffer.Slice(offset));
     }
 
-    public float ReadSparseFloat32(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Float32);
-        edit.get().endOffset = edit.get().valueOffset() + (Float.SIZE / Byte.SIZE);
-        return this.ReadFloat32(edit.get().valueOffset());
+    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    //ORIGINAL LINE: internal uint ReadUInt32(int offset)
+    public int ReadUInt32(int offset) {
+        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+        //ORIGINAL LINE: return MemoryMarshal.Read<uint>(this.buffer.Slice(offset));
+        return MemoryMarshal.<Integer>Read(this.buffer.Slice(offset));
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -286,32 +299,6 @@ public final class RowBuffer {
         return this.ReadUnixDateTime(edit.get().valueOffset()).clone();
     }
 
-    public long ReadSparseVarInt(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.VarInt);
-        int sizeLenInBytes;
-        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
-        long value = this.read7BitEncodedInt(edit.get().valueOffset(), tempOut_sizeLenInBytes);
-        sizeLenInBytes = tempOut_sizeLenInBytes.get();
-        edit.get().endOffset = edit.get().valueOffset() + sizeLenInBytes;
-        return value;
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ushort ReadUInt16(int offset)
-    public short ReadUInt16(int offset) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return MemoryMarshal.Read<ushort>(this.buffer.Slice(offset));
-        return MemoryMarshal.<Short>Read(this.buffer.Slice(offset));
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal uint ReadUInt32(int offset)
-    public int ReadUInt32(int offset) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return MemoryMarshal.Read<uint>(this.buffer.Slice(offset));
-        return MemoryMarshal.<Integer>Read(this.buffer.Slice(offset));
-    }
-
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal ulong ReadUInt64(int offset)
     public long ReadUInt64(int offset) {
@@ -339,7 +326,7 @@ public final class RowBuffer {
         Out<Integer> tempOut__ = new Out<Integer>();
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.ReadBinary(offset, out int _);
-        ReadOnlySpan<Byte> tempVar = this.ReadBinary(offset, tempOut__);
+        ReadOnlySpan<Byte> tempVar = this.readBinary(offset);
         _ = tempOut__.get();
         return tempVar;
     }
@@ -432,6 +419,26 @@ public final class RowBuffer {
 
         checkState(shiftDelete < 0);
         this.length(this.length() + shiftDelete);
+    }
+
+    public void UnsetBit(int offset, LayoutBit bit) {
+        checkState(LayoutBit.opNotEquals(bit.clone(), LayoutBit.INVALID));
+        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
+        //ORIGINAL LINE: this.buffer[bit.GetOffset(offset)] &= unchecked((byte)~(1 << bit.GetBit()));
+        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+        this.buffer[bit.offset(offset)] &= (byte) ~(1 << bit.bit());
+    }
+
+    public void WriteDateTime(int offset, LocalDateTime value) {
+        Reference<LocalDateTime> tempReference_value = new Reference<LocalDateTime>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
+    }
+
+    public void WriteDecimal(int offset, BigDecimal value) {
+        Reference<BigDecimal> tempReference_value = new Reference<BigDecimal>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
     }
 
     /**
@@ -545,26 +552,6 @@ public final class RowBuffer {
         //#endif
 
         return Result.Success;
-    }
-
-    public void UnsetBit(int offset, LayoutBit bit) {
-        checkState(LayoutBit.opNotEquals(bit.clone(), LayoutBit.INVALID));
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
-        //ORIGINAL LINE: this.buffer[bit.GetOffset(offset)] &= unchecked((byte)~(1 << bit.GetBit()));
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        this.buffer[bit.offset(offset)] &= (byte) ~(1 << bit.bit());
-    }
-
-    public void WriteDateTime(int offset, LocalDateTime value) {
-        Reference<LocalDateTime> tempReference_value = new Reference<LocalDateTime>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    public void WriteDecimal(int offset, BigDecimal value) {
-        Reference<BigDecimal> tempReference_value = new Reference<BigDecimal>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -767,7 +754,7 @@ public final class RowBuffer {
     }
 
     public void WriteSparseFloat128(Reference<RowCursor> edit, Float128 value, UpdateOptions options) {
-        int numBytes = Float128.Size;
+        int numBytes = Float128.SIZE;
         int metaBytes;
         Out<Integer> tempOut_metaBytes = new Out<Integer>();
         int spaceNeeded;
@@ -781,7 +768,7 @@ public final class RowBuffer {
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.Float128, TypeArgumentList.EMPTY, metaBytes);
         this.writeFloat128(edit.get().valueOffset(), value);
-        checkState(spaceNeeded == metaBytes + Float128.Size);
+        checkState(spaceNeeded == metaBytes + Float128.SIZE);
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
     }
@@ -805,14 +792,6 @@ public final class RowBuffer {
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
     }
-
-    // TODO: DANOBLE: Support MongoDbObjectId values
-    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
-    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
-    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
-    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-    //        value = tempReference_value.get();
-    //    }
 
     public void WriteSparseGuid(Reference<RowCursor> edit, UUID value, UpdateOptions options) {
         int numBytes = 16;
@@ -873,6 +852,14 @@ public final class RowBuffer {
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
     }
+
+    // TODO: DANOBLE: Support MongoDbObjectId values
+    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
+    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
+    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
+    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+    //        value = tempReference_value.get();
+    //    }
 
     public void WriteSparseInt64(Reference<RowCursor> edit, long value, UpdateOptions options) {
         int numBytes = (Long.SIZE / Byte.SIZE);
@@ -1422,44 +1409,6 @@ public final class RowBuffer {
         this.length(this.length() + shift.get());
     }
 
-    public void WriteUnixDateTime(int offset, UnixDateTime value) {
-        Reference<UnixDateTime> tempReference_value =
-            new Reference<UnixDateTime>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySpan<byte> value, bool exists, out int shift)
-    public void WriteVariableBinary(int offset, ReadOnlySpan<Byte> value, boolean exists,
-                                    Out<Integer> shift) {
-        int numBytes = value.Length;
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
-        spaceNeeded = tempOut_spaceNeeded.get();
-
-        int sizeLenInBytes = this.WriteBinary(offset, value);
-        checkState(spaceNeeded == numBytes + sizeLenInBytes);
-        this.length(this.length() + shift.get());
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySequence<byte> value, bool exists, out int
-    // shift)
-    public void WriteVariableBinary(int offset, ReadOnlySequence<Byte> value, boolean exists,
-                                    Out<Integer> shift) {
-        int numBytes = (int)value.Length;
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
-        spaceNeeded = tempOut_spaceNeeded.get();
-
-        int sizeLenInBytes = this.WriteBinary(offset, value);
-        checkState(spaceNeeded == numBytes + sizeLenInBytes);
-        this.length(this.length() + shift.get());
-    }
-
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: internal void WriteVariableUInt(int offset, ulong value, bool exists, out int shift)
     public void WriteVariableUInt(int offset, long value, boolean exists, Out<Integer> shift) {
@@ -1497,42 +1446,42 @@ public final class RowBuffer {
         this.buffer.setIntLE(offset, (int) (value - decrement));
     }
 
-    /**
-     * Compute the byte offset from the beginning of the row for a given variable column's value.
-     *
-     * @param layout      The (optional) layout of the current scope.
-     * @param scopeOffset The 0-based offset to the beginning of the scope's value.
-     * @param varIndex    The 0-based index of the variable column within the variable segment.
-     * @return The byte offset from the beginning of the row where the variable column's value should be
-     * located.
-     */
-    public int computeVariableValueOffset(Layout layout, int scopeOffset, int varIndex) {
-        if (layout == null) {
-            return scopeOffset;
-        }
+    public void WriteUnixDateTime(int offset, UnixDateTime value) {
+        Reference<UnixDateTime> tempReference_value =
+            new Reference<UnixDateTime>(value);
+        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+        value = tempReference_value.get();
+    }
 
-        int index = layout.numFixed() + varIndex;
-        ReadOnlySpan<LayoutColumn> columns = layout.columns();
-        checkState(index <= columns.Length);
-        int offset = scopeOffset + layout.size();
-        for (int i = layout.numFixed(); i < index; i++) {
-            LayoutColumn col = columns[i];
-            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
-                int lengthSizeInBytes;
-                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
-                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-                //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
-                long valueSizeInBytes = this.read7BitEncodedUInt(offset, tempOut_lengthSizeInBytes);
-                lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
-                if (col.type().getIsVarint()) {
-                    offset += lengthSizeInBytes;
-                } else {
-                    offset += (int) valueSizeInBytes + lengthSizeInBytes;
-                }
-            }
-        }
+    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySpan<byte> value, bool exists, out int shift)
+    public void WriteVariableBinary(int offset, ReadOnlySpan<Byte> value, boolean exists,
+                                    Out<Integer> shift) {
+        int numBytes = value.Length;
+        int spaceNeeded;
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
+        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
+        spaceNeeded = tempOut_spaceNeeded.get();
 
-        return offset;
+        int sizeLenInBytes = this.WriteBinary(offset, value);
+        checkState(spaceNeeded == numBytes + sizeLenInBytes);
+        this.length(this.length() + shift.get());
+    }
+
+    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySequence<byte> value, bool exists, out int
+    // shift)
+    public void WriteVariableBinary(int offset, ReadOnlySequence<Byte> value, boolean exists,
+                                    Out<Integer> shift) {
+        int numBytes = (int)value.Length;
+        int spaceNeeded;
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
+        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
+        spaceNeeded = tempOut_spaceNeeded.get();
+
+        int sizeLenInBytes = this.WriteBinary(offset, value);
+        checkState(spaceNeeded == numBytes + sizeLenInBytes);
+        this.length(this.length() + shift.get());
     }
 
     /**
@@ -1577,6 +1526,44 @@ public final class RowBuffer {
      */
     public HybridRowHeader header() {
         return this.readHeader();
+    }
+
+    /**
+     * Compute the byte offset from the beginning of the row for a given variable column's value.
+     *
+     * @param layout      The (optional) layout of the current scope.
+     * @param scopeOffset The 0-based offset to the beginning of the scope's value.
+     * @param varIndex    The 0-based index of the variable column within the variable segment.
+     * @return The byte offset from the beginning of the row where the variable column's value should be
+     * located.
+     */
+    public int computeVariableValueOffset(Layout layout, int scopeOffset, int varIndex) {
+        if (layout == null) {
+            return scopeOffset;
+        }
+
+        int index = layout.numFixed() + varIndex;
+        ReadOnlySpan<LayoutColumn> columns = layout.columns();
+        checkState(index <= columns.Length);
+        int offset = scopeOffset + layout.size();
+        for (int i = layout.numFixed(); i < index; i++) {
+            LayoutColumn col = columns[i];
+            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
+                int lengthSizeInBytes;
+                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
+                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+                //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
+                long valueSizeInBytes = this.read7BitEncodedUInt(offset, tempOut_lengthSizeInBytes);
+                lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
+                if (col.type().getIsVarint()) {
+                    offset += lengthSizeInBytes;
+                } else {
+                    offset += (int) valueSizeInBytes + lengthSizeInBytes;
+                }
+            }
+        }
+
+        return offset;
     }
 
     public void incrementUInt32(final int offset, final long increment) {
@@ -1671,19 +1658,26 @@ public final class RowBuffer {
     }
 
     public long read7BitEncodedUInt(int offset, Out<Integer> lengthInBytes) {
-        return this.read(this::read7BitEncodedUInt, offset, lengthInBytes);
+        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        lengthInBytes.set(item.length());
+        return item.value();
     }
 
-    public boolean readBit(int offset, LayoutBit bit) {
+    public boolean readBit(final int offset, @Nonnull final LayoutBit bit) {
+
+        checkNotNull(bit, "expected non-null bit");
 
         if (bit.isInvalid()) {
             return true;
         }
 
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
-        //ORIGINAL LINE: return (this.buffer[bit.GetOffset(offset)] & unchecked((byte)(1 << bit.GetBit()))) != 0;
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        return (this.buffer[bit.offset(offset)] & (byte) (1 << bit.bit())) != 0;
+        Item<Boolean> item = this.read(() -> (this.buffer.readByte() & (byte) (1 << bit.bit())) != 0, bit.offset(offset));
+        return item.value();
+    }
+
+    public OffsetDateTime readDateTime(int offset) {
+        Item<OffsetDateTime> item = this.read(() -> DateTimeCodec.decode(this.buffer), offset);
+        return item.value();
     }
 
     /**
@@ -1752,17 +1746,23 @@ public final class RowBuffer {
         return this.validateHeader(version);
     }
 
-    public HybridRowHeader readHeader() {
-        HybridRowVersion version = HybridRowVersion.from(this.buffer.readByte());
-        SchemaId schemaId = SchemaId.from(this.buffer.readIntLE());
-        return new HybridRowHeader(version, schemaId);
+    public UUID readGuid(int offset) {
+        return this.read(() -> GuidCodec.decode(this.buffer), offset).value();
+    }
+
+    public HybridRowHeader readHeader(int offset) {
+        return this.read(this::readHeader, offset).value();
+    }
+
+    public short readInt16(int offset) {
+        return this.read(this.buffer::readShortLE, offset).value();
     }
 
     public long readInt64(int offset) {
-        return MemoryMarshal.<Long>Read(this.buffer.Slice(offset));
+        return this.read(this.buffer::readLongLE, offset).value();
     }
 
-    public byte readInt8(int offset, Out<Integer> lengthInBytes) {
+    public byte readInt8(int offset, @Nonnull Out<Integer> lengthInBytes) {
         return this.read(this.buffer::readByte, offset, lengthInBytes);
     }
 
@@ -1781,7 +1781,7 @@ public final class RowBuffer {
     public short readSparseInt16(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_16);
         edit.endOffset(edit.valueOffset() + (Short.SIZE / Byte.SIZE));
-        return this.ReadInt16(edit.valueOffset());
+        return this.readInt16(edit.valueOffset());
     }
 
     public int readSparseInt32(RowCursor edit) {
@@ -1813,6 +1813,29 @@ public final class RowBuffer {
         return NullValue.Default;
     }
 
+    public int readSparsePathLen(
+        @Nonnull final Layout layout, final int offset, @Nonnull final Out<Integer> pathLenInBytes,
+        @Nonnull final Out<Integer> pathOffset) {
+
+        checkNotNull(layout);
+        checkNotNull(pathOffset);
+        checkNotNull(pathLenInBytes);
+
+        final Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        final int token = item.value().intValue();
+
+        if (token < layout.tokenizer().count()) {
+            pathLenInBytes.set(item.length());
+            pathOffset.set(offset);
+            return token;
+        }
+
+        final int numBytes = token - layout.tokenizer().count();
+        pathLenInBytes.set(numBytes + item.length());
+        pathOffset.set(offset + item.length());
+        return token;
+    }
+
     public Utf8String readSparsePath(RowCursor edit) {
 
         final Optional<Utf8String> path = edit.layout().tokenizer().tryFindString(edit.longValue().pathToken);
@@ -1823,26 +1846,6 @@ public final class RowBuffer {
 
         int numBytes = edit.pathToken() - edit.layout().tokenizer().count();
         return Utf8String.unsafeFromUtf8BytesNoValidation(this.buffer.Slice(edit.pathOffset(), numBytes));
-    }
-
-    public int readSparsePathLen(
-        @Nonnull final Layout layout, final int offset, @Nonnull final Out<Integer> pathLenInBytes,
-        @Nonnull final Out<Integer> pathOffset) {
-
-        final int start = this.buffer.readerIndex();
-        final int token = (int) this.read7BitEncodedUInt();
-        final int end = this.buffer.readerIndex();
-
-        if (token < layout.tokenizer().count()) {
-            pathLenInBytes.set(end - start);
-            pathOffset.set(start);
-            return token;
-        }
-
-        final int numBytes = token - layout.tokenizer().count();
-        pathLenInBytes.set(numBytes + (end - start));
-        pathOffset.set(end);
-        return token;
     }
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
@@ -2181,7 +2184,7 @@ public final class RowBuffer {
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         this.ensureSparse(edit, LayoutTypes.FLOAT_32, TypeArgumentList.EMPTY, numBytes, options, tempOut_metaBytes,
-         tempOut_spaceNeeded, tempOut_shift);
+            tempOut_spaceNeeded, tempOut_shift);
         shift = tempOut_shift.get();
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
@@ -2198,7 +2201,7 @@ public final class RowBuffer {
     public void writeSparseTypeCode(int offset, LayoutCode code) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: this.WriteUInt8(offset, (byte)code);
-        this.WriteUInt8(offset, (byte) code.value());
+        this.WriteUInt8(offset, code.value());
     }
 
     /**
@@ -2238,6 +2241,16 @@ public final class RowBuffer {
         }
 
         return 1;
+    }
+
+    /**
+     * Compute the number of bytes necessary to store the signed integer using the varint encoding.
+     *
+     * @param value The value to be encoded
+     * @return The number of bytes needed to store the varint encoding of {@code value}
+     */
+    private static int Count7BitEncodedInt(long value) {
+        return RowBuffer.count7BitEncodedUInt(RowBuffer.rotateSignToLsb(value));
     }
 
     /**
@@ -2306,14 +2319,14 @@ public final class RowBuffer {
         return this.CompareFieldValue(leftKey.clone(), leftKeyLen, rightKey.clone(), rightKeyLen);
     }
 
-    /**
-     * Compute the number of bytes necessary to store the signed integer using the varint encoding.
-     *
-     * @param value The value to be encoded
-     * @return The number of bytes needed to store the varint encoding of {@code value}
-     */
-    private static int Count7BitEncodedInt(long value) {
-        return RowBuffer.count7BitEncodedUInt(RowBuffer.rotateSignToLsb(value));
+    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    //ORIGINAL LINE: private int WriteBinary(int offset, ReadOnlySpan<byte> value)
+    private int WriteBinary(int offset, ReadOnlySpan<Byte> value) {
+        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+        //ORIGINAL LINE: int sizeLenInBytes = this.Write7BitEncodedUInt(offset, (ulong)value.Length);
+        int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
+        value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
+        return sizeLenInBytes;
     }
 
     private void EnsureVariable(int offset, boolean isVarint, int numBytes, boolean exists,
@@ -2420,26 +2433,14 @@ public final class RowBuffer {
         return true;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: private ReadOnlySpan<byte> ReadBinary(int offset, out int sizeLenInBytes)
-    private ReadOnlySpan<Byte> ReadBinary(int offset, Out<Integer> sizeLenInBytes) {
-        int numBytes = (int) this.read7BitEncodedUInt(offset, sizeLenInBytes);
-        return this.buffer.Slice(offset + sizeLenInBytes.get(), numBytes);
+    private ByteBuf readBinary(int offset) {
+        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        return this.buffer.readSlice(item.length);
     }
 
     private Utf8Span ReadString(int offset, Out<Integer> sizeLenInBytes) {
         int numBytes = (int) this.read7BitEncodedUInt(offset, sizeLenInBytes);
         return Utf8Span.UnsafeFromUtf8BytesNoValidation(this.buffer.Slice(offset + sizeLenInBytes.get(), numBytes));
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: private int WriteBinary(int offset, ReadOnlySpan<byte> value)
-    private int WriteBinary(int offset, ReadOnlySpan<Byte> value) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: int sizeLenInBytes = this.Write7BitEncodedUInt(offset, (ulong)value.Length);
-        int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
-        value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
-        return sizeLenInBytes;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -2450,6 +2451,32 @@ public final class RowBuffer {
         int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
         value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
         return sizeLenInBytes;
+    }
+
+    private static int countSparsePath(@Nonnull final RowCursor edit) {
+
+        if (!edit.writePathToken().isNull()) {
+            StringToken token = edit.writePathToken();
+            ByteBuf varint = token.varint();
+            return varint.readerIndex() + varint.readableBytes();
+        }
+
+        Optional<StringToken> optional = edit.layout().tokenizer().findToken(edit.writePath());
+
+        if (optional.isPresent()) {
+            StringToken token = optional.get();
+            edit.writePathToken(token);
+            ByteBuf varint = token.varint();
+            return varint.readerIndex() + varint.readableBytes();
+        }
+
+        Utf8String path = edit.writePath().toUtf8();
+        assert path != null;
+
+        int numBytes = path.length();
+        int sizeLenInBytes = RowBuffer.count7BitEncodedUInt(edit.layout().tokenizer().count() + numBytes);
+
+        return sizeLenInBytes + numBytes;
     }
 
     /**
@@ -2548,32 +2575,6 @@ public final class RowBuffer {
             return udt.size() + (LayoutCode.SIZE / Byte.SIZE);
         }
         throw new IllegalStateException(lenientFormat("Not Implemented: %s", code));
-    }
-
-    private static int countSparsePath(@Nonnull final RowCursor edit) {
-
-        if (!edit.writePathToken().isNull()) {
-            StringToken token = edit.writePathToken();
-            ByteBuf varint = token.varint();
-            return varint.readerIndex() + varint.readableBytes();
-        }
-
-        Optional<StringToken> optional = edit.layout().tokenizer().findToken(edit.writePath());
-
-        if (optional.isPresent()) {
-            StringToken token = optional.get();
-            edit.writePathToken(token);
-            ByteBuf varint = token.varint();
-            return varint.readerIndex() + varint.readableBytes();
-        }
-
-        Utf8String path = edit.writePath().toUtf8();
-        assert path != null;
-
-        int numBytes = path.length();
-        int sizeLenInBytes = RowBuffer.count7BitEncodedUInt((long) (edit.layout().tokenizer().count() + numBytes));
-
-        return sizeLenInBytes + numBytes;
     }
 
     private void ensure(int size) {
@@ -2685,11 +2686,25 @@ public final class RowBuffer {
         this.ensureSparse(edit, cellType, typeArgs, numBytes, rowOptions, metaBytes, spaceNeeded, shift);
     }
 
-    private <T> T read(Supplier<T> supplier, int offset, Out<Integer> lengthInBytes) {
+    private <T> Item<T> read(@Nonnull final Supplier<T> supplier, int offset) {
+
+        checkNotNull(supplier);
+
         this.buffer.readerIndex(offset);
         T value = supplier.get();
-        lengthInBytes.set(this.buffer.readerIndex() - offset);
-        return value;
+
+        return Item.of(value, offset, this.buffer.readerIndex() - offset);
+    }
+
+    private <T> T read(@Nonnull final Supplier<T> supplier, int offset, @Nonnull Out<Integer> lengthInBytes) {
+
+        checkNotNull(supplier);
+        checkNotNull(lengthInBytes);
+
+        Item<T> item = this.read(supplier, offset);
+        lengthInBytes.set(item.length());
+
+        return item.value();
     }
 
     private long read7BitEncodedUInt() {
@@ -2711,6 +2726,12 @@ public final class RowBuffer {
         } while (b >= 0x80L);
 
         return result;
+    }
+
+    private HybridRowHeader readHeader() {
+        HybridRowVersion version = HybridRowVersion.from(this.buffer.readByte());
+        SchemaId schemaId = SchemaId.from(this.buffer.readIntLE());
+        return new HybridRowHeader(version, schemaId);
     }
 
     /**
@@ -2766,10 +2787,11 @@ public final class RowBuffer {
         edit.scopeType().readSparsePath(this, edit);
     }
 
-    private void readSparsePrimitiveTypeCode(@Nonnull RowCursor edit, LayoutType code) {
+    private void readSparsePrimitiveTypeCode(@Nonnull final RowCursor edit, @Nonnull final LayoutType code) {
 
-        checkNotNull(edit);
-        checkArgument(edit.exists());
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(code, "expected non-null code");
+        checkArgument(edit.exists(), "expected edit.exists value of true, not false");
 
         if (edit.scopeType().hasImplicitTypeCode(edit)) {
             if (edit.scopeType() instanceof LayoutNullable) {
@@ -2788,8 +2810,8 @@ public final class RowBuffer {
             }
         } else {
             if (code == LayoutTypes.BOOLEAN) {
-                code = this.readSparseTypeCode(edit.metaOffset());
-                checkState(code == LayoutTypes.BOOLEAN || code == LayoutTypes.BooleanFalse);
+                final LayoutType layoutType = this.readSparseTypeCode(edit.metaOffset());
+                checkState(layoutType == LayoutTypes.BOOLEAN || layoutType == LayoutTypes.BooleanFalse);
             } else {
                 checkState(this.readSparseTypeCode(edit.metaOffset()) == code);
             }
@@ -2799,10 +2821,10 @@ public final class RowBuffer {
             checkState(edit.pathOffset() == 0);
             checkState(edit.pathToken() == 0);
         } else {
+            int offset = edit.metaOffset() + LayoutCode.SIZE;
             Out<Integer> pathLenInBytes = new Out<>();
             Out<Integer> pathOffset = new Out<>();
-            int token = this.readSparsePathLen(edit.layout(), edit.metaOffset() + (LayoutCode.SIZE / Byte.SIZE),
-                pathLenInBytes, pathOffset);
+            int token = this.readSparsePathLen(edit.layout(), offset, pathLenInBytes, pathOffset);
             checkState(edit.pathOffset() == pathOffset.get());
             checkState(edit.pathToken() == token);
         }
@@ -3165,6 +3187,35 @@ public final class RowBuffer {
         return sizeLenInBytes;
     }
 
+    private static class Item<T> {
+
+        private int length;
+        private int offset;
+        private T value;
+
+        private Item(T value, int offset, int length) {
+            this.value = value;
+            this.offset = offset;
+            this.length = length;
+        }
+
+        public int length() {
+            return this.length;
+        }
+
+        public static <T> Item<T> of(T value, int offset, int length) {
+            return new Item<>(value, offset, length);
+        }
+
+        public int offset() {
+            return this.offset;
+        }
+
+        public T value() {
+            return this.value;
+        }
+    }
+
     /**
      * Represents a single item within a set/map scope that needs to be indexed
      * <p>
@@ -3182,11 +3233,11 @@ public final class RowBuffer {
          * The layout code of the value.
          */
         public LayoutCode code() {
-            return Code;
+            return this.Code;
         }
 
         public UniqueIndexItem code(LayoutCode code) {
-            Code = code;
+            this.Code = code;
             return this;
         }
 
@@ -3194,11 +3245,11 @@ public final class RowBuffer {
          * If existing, the offset to the metadata of the existing field, otherwise the location to insert a new field
          */
         public int metaOffset() {
-            return MetaOffset;
+            return this.MetaOffset;
         }
 
         public UniqueIndexItem metaOffset(int metaOffset) {
-            MetaOffset = metaOffset;
+            this.MetaOffset = metaOffset;
             return this;
         }
 
@@ -3206,11 +3257,11 @@ public final class RowBuffer {
          * Size of the target element
          */
         public int size() {
-            return Size;
+            return this.Size;
         }
 
         public UniqueIndexItem size(int size) {
-            Size = size;
+            this.Size = size;
             return this;
         }
 
@@ -3218,11 +3269,11 @@ public final class RowBuffer {
          * If existing, the offset to the value of the existing field, otherwise undefined
          */
         public int valueOffset() {
-            return ValueOffset;
+            return this.ValueOffset;
         }
 
         public UniqueIndexItem valueOffset(int valueOffset) {
-            ValueOffset = valueOffset;
+            this.ValueOffset = valueOffset;
             return this;
         }
     }

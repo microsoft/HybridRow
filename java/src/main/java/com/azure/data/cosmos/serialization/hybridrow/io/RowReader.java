@@ -372,7 +372,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseBinary(tempReference_cursor));
+                value.setAndGet(this.row.readSparseBinary(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -399,7 +399,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseBool(tempReference_cursor));
+                value.setAndGet(this.row.readSparseBoolean(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -426,7 +426,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseDateTime(tempReference_cursor));
+                value.setAndGet(this.row.readSparseDateTime(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:

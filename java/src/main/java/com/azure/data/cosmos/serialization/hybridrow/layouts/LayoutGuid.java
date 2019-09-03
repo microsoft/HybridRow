@@ -65,7 +65,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, Guid value,
+    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, GuidCodec value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
     public Result writeSparse(RowBuffer b, RowCursor edit, UUID value,

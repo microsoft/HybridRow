@@ -18,6 +18,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -202,68 +203,6 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
         return this.length;
     }
 
-    public static boolean opEquals(Utf8String left, Utf8String right) {
-        if (null == left) {
-            return null == right;
-        }
-        return left.equals(right);
-    }
-
-    public static boolean opGreaterThan(Utf8String left, Utf8String right) {
-        return left != null && left.compareTo(right) > 0;
-    }
-
-    public static boolean opGreaterThan(Utf8String left, String right) {
-        return left != null && left.compareTo(right) > 0;
-    }
-
-    public static boolean opGreaterThan(String left, Utf8String right) {
-        return right == null || right.compareTo(left) <= 0;
-    }
-
-    public static boolean opGreaterThanOrEquals(Utf8String left, Utf8String right) {
-        return left == null ? right == null : left.compareTo(right) >= 0;
-    }
-
-    public static boolean opGreaterThanOrEquals(Utf8String left, String right) {
-        return left == null ? right == null : left.compareTo(right) >= 0;
-    }
-
-    public static boolean opGreaterThanOrEquals(String left, Utf8String right) {
-        return right == null ? left != null : right.compareTo(left) < 0;
-    }
-
-    public static boolean opLessThan(Utf8String left, Utf8String right) {
-        return left == null ? right != null : left.compareTo(right) < 0;
-    }
-
-    public static boolean opLessThan(Utf8String left, String right) {
-        return left == null ? right != null : left.compareTo(right) < 0;
-    }
-
-    public static boolean opLessThan(String left, Utf8String right) {
-        return right == null ? left == null : right.compareTo(left) >= 0;
-    }
-
-    public static boolean opLessThanOrEquals(Utf8String left, Utf8String right) {
-        return left == null || left.compareTo(right) <= 0;
-    }
-
-    public static boolean opLessThanOrEquals(Utf8String left, String right) {
-        return left == null || left.compareTo(right) <= 0;
-    }
-
-    public static boolean opLessThanOrEquals(String left, Utf8String right) {
-        return right != null && right.compareTo(left) > 0;
-    }
-
-    public static boolean opNotEquals(Utf8String left, Utf8String right) {
-        if (null == left) {
-            return null != right;
-        }
-        return !left.equals(right);
-    }
-
     @Override
     public CharSequence subSequence(int start, int end) {
         checkArgument(start < 0 || end < 0 || start > end || end > this.length, "start: %s, end: %s", start, end);
@@ -281,14 +220,15 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
     }
 
     /**
-     * Creates a {@link Utf8String} from a UTF16 encoding string.
-     *
-     * @param string The UTF16 encoding string.
-     * @return A new {@link Utf8String}.
+     * Creates a {@link Utf8String} from a UTF16 encoding string
      * <p>
      * This method must transcode the UTF-16 into UTF-8 which both requires allocation and is a size of data operation.
+     *
+     * @param string A UTF-16 encoding string or {@code null}
+     * @return A new {@link Utf8String} or {@code null}, if {@code string} is {@code null}
      */
-    public static Utf8String transcodeUtf16(final String string) {
+    @Nullable
+    public static Utf8String transcodeUtf16(@Nullable final String string) {
 
         if (string == null) {
             return null;
@@ -308,15 +248,32 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
     }
 
     /**
-     * Parses the contents of a byte buffer to prove it contains a valid UTF-8 character sequence
+     * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation
+     * <p>
+     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
      *
-     * @param buffer The byte buffer to validate
+     * @param buffer The {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
      * @return A {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
      * otherwise.
      */
-    public static Optional<Utf8String> tryParseUtf8Bytes(@Nonnull final ByteBuf buffer) {
+    @Nonnull
+    public static Optional<Utf8String> from(@Nonnull final ByteBuf buffer) {
         checkNotNull(buffer);
         return Utf8.isWellFormed(buffer.array()) ? Optional.of(new Utf8String(buffer)) : Optional.empty();
+    }
+
+    /**
+     * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation
+     * <p>
+     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
+     *
+     * @param buffer The {@link ByteBuf} to assign to the {@link Utf8String} created.
+     * @return a new {@link Utf8String}
+     */
+    @Nonnull
+    public static Utf8String fromUnsafe(@Nonnull ByteBuf buffer) {
+        checkNotNull(buffer);
+        return new Utf8String(buffer);
     }
 
     private static int decodedLength(final ByteBuf buffer) {

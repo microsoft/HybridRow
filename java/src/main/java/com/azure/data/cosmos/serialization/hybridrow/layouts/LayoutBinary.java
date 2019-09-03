@@ -57,7 +57,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadFixedBinary(scope.get().start() + col.getOffset(), col.getSize()));
+        value.setAndGet(b.get().readFixedBinary(scope.get().start() + col.getOffset(), col.getSize()));
         return Result.Success;
     }
 
@@ -85,7 +85,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseBinary(edit));
+        value.setAndGet(b.get().readSparseBinary(edit));
         return Result.Success;
     }
 

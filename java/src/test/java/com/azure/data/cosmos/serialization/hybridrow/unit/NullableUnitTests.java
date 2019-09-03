@@ -44,9 +44,9 @@ public final class NullableUnitTests {
         t1.NullSet = new ArrayList<String>(Arrays.asList(null, "abc", "def"));
         t1.NullTuple = new ArrayList<(Integer, Long) > (Arrays.asList((1, 2), (null, 3),(4, null),(null, null)))
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: t1.NullMap = new Dictionary<System.Guid, Nullable<byte>> { { System.Guid.Parse
-        // ("{00000000-0000-0000-0000-000000000000}"), 1 }, { System.Guid.Parse
-        // ("{4674962B-CE11-4916-81C5-0421EE36F168}"), 20 }, { System.Guid.Parse
+        //ORIGINAL LINE: t1.NullMap = new Dictionary<System.GuidCodec, Nullable<byte>> { { System.GuidCodec.Parse
+        // ("{00000000-0000-0000-0000-000000000000}"), 1 }, { System.GuidCodec.Parse
+        // ("{4674962B-CE11-4916-81C5-0421EE36F168}"), 20 }, { System.GuidCodec.Parse
         // ("{7499C40E-7077-45C1-AE5F-3E384966B3B9}"), null }};
         t1.NullMap = new HashMap<UUID, Byte>(Map.ofEntries(Map.entry(UUID.fromString("{00000000-0000-0000-0000" +
             "-000000000000}"), 1), Map.entry(UUID.fromString("{4674962B-CE11-4916-81C5-0421EE36F168}"), 20),
@@ -318,7 +318,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-            //ORIGINAL LINE: value.NullMap = new Dictionary<Guid, Nullable<byte>>();
+            //ORIGINAL LINE: value.NullMap = new Dictionary<GuidCodec, Nullable<byte>>();
             value.NullMap = new HashMap<UUID, Byte>();
             RowCursor tupleScope = null;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
@@ -621,7 +621,7 @@ public final class NullableUnitTests {
             ResultAssert.IsSuccess(c.<LayoutUniqueScope>typeAs().WriteScope(row, ref outerScope,
                 c.typeArgs().clone(), out outerScope));
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-            //ORIGINAL LINE: foreach ((Guid key, Nullable<byte> itemValue) in value.NullMap)
+            //ORIGINAL LINE: foreach ((GuidCodec key, Nullable<byte> itemValue) in value.NullMap)
             for ((UUID key,Byte itemValue) :value.NullMap)
             {
                 Reference<RowCursor> tempReference_outerScope8 =
@@ -690,7 +690,7 @@ public final class NullableUnitTests {
         public ArrayList<Float> NullArray;
         public ArrayList<Boolean> NullBool;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: public Dictionary<Guid, Nullable<byte>> NullMap;
+        //ORIGINAL LINE: public Dictionary<GuidCodec, Nullable<byte>> NullMap;
         public HashMap<UUID, Byte> NullMap;
 		public ArrayList<(Integer,Long)>NullTuple
         public ArrayList<String> NullSet;

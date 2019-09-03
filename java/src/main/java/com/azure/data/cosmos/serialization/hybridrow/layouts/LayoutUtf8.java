@@ -45,7 +45,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadFixedString(scope.get().start() + col.getOffset(), col.getSize()));
+        value.setAndGet(b.get().readFixedString(scope.get().start() + col.getOffset(), col.getSize()));
         return Result.Success;
     }
 

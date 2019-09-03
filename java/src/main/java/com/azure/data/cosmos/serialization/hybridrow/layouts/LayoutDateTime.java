@@ -35,7 +35,7 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
             return Result.NotFound;
         }
 
-        value.setAndGet(b.get().ReadDateTime(scope.get().start() + col.getOffset()));
+        value.setAndGet(b.get().readDateTime(scope.get().start() + col.getOffset()));
         return Result.Success;
     }
 
@@ -48,7 +48,7 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseDateTime(edit));
+        value.setAndGet(b.get().readSparseDateTime(edit));
         return Result.Success;
     }
 
