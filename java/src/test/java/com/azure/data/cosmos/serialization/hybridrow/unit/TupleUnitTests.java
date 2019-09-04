@@ -238,18 +238,18 @@ public final class TupleUnitTests {
                                     row5 = tempReference_row55.get();
                                 }
 
-                                return Result.Success;
+                                return Result.SUCCESS;
                             }));
                             tupCur = tempReference_tupCur2.get();
                             row4 = tempReference_row43.get();
                         }
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                     row3 = tempRef_row32.argValue;
                     row3 = tempReference_row3.get();
 
-                    return Result.Success;
+                    return Result.SUCCESS;
                 }));
                 arrCur = tempReference_arrCur.get();
                 row2 = tempReference_row2.get();
@@ -259,7 +259,7 @@ public final class TupleUnitTests {
                 row2 = tempRef_row22.argValue;
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         }));
         history = tempReference_history.get();
         row = tempReference_row3.get();
@@ -742,7 +742,7 @@ public final class TupleUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref valueScope, out valueScope) == Result.Success) {
+        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref valueScope, out valueScope) == Result.SUCCESS) {
             assert valueScope.Immutable;
             assert valueScope.MoveNext(row);
             String units;
@@ -778,7 +778,7 @@ public final class TupleUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref valueScope, out valueScope) == Result.Success) {
+        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref valueScope, out valueScope) == Result.SUCCESS) {
             assert valueScope.Immutable;
             assert valueScope.MoveNext(row);
             String units;
@@ -845,7 +845,7 @@ public final class TupleUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref valueScope, out valueScope) == Result.Success) {
+        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref valueScope, out valueScope) == Result.SUCCESS) {
             assert valueScope.Immutable;
             assert valueScope.MoveNext(row);
             String units;

@@ -7,43 +7,44 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public enum Result {
-    Success(0),
-    Failure(1),
-    NotFound(2),
-    Exists(3),
-    TooBig(4),
+
+    SUCCESS(0),
+    FAILURE(1),
+    NOT_FOUND(2),
+    EXISTS(3),
+    TOO_BIG(4),
 
     /**
      * The type of an existing field does not match the expected type for this operation.
      */
-    TypeMismatch(5),
+    TYPE_MISMATCH(5),
 
     /**
      * An attempt to write in a read-only scope.
      */
-    InsufficientPermissions(6),
+    INSUFFICIENT_PERMISSIONS(6),
 
     /**
      * An attempt to write a field that did not match its (optional) type constraints.
      */
-    TypeConstraint(7),
+    TYPE_CONSTRAINT(7),
 
     /**
      * The byte sequence could not be parsed as a valid row.
      */
-    InvalidRow(8),
+    INVALID_ROW(8),
 
     /**
      * The byte sequence was too short for the requested action.
      */
-    InsufficientBuffer(9),
+    INSUFFICIENT_BUFFER(9),
 
     /**
      * The operation was cancelled.
      */
-    Canceled(10);
+    CANCELED(10);
 
-    public static final int SIZE = Integer.SIZE;
+    public static final int BYTES = Integer.BYTES;
 
     private static Int2ObjectMap<Result> mappings;
     private final int value;

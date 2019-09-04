@@ -34,23 +34,23 @@ public final class LayoutNull extends LayoutType<NullValue> {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         value.setAndGet(NullValue.Default);
         if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
     public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<NullValue> value) {
         Result result = prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         value.setAndGet(b.get().readSparseNull(edit).clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -58,11 +58,11 @@ public final class LayoutNull extends LayoutType<NullValue> {
                              NullValue value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         b.get().SetBit(scope.get().start(), column.getNullBit().clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -72,12 +72,12 @@ public final class LayoutNull extends LayoutType<NullValue> {
     public Result writeSparse(RowBuffer b, RowCursor edit, NullValue value,
                               UpdateOptions options) {
         Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseNull(edit, value.clone(), options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

@@ -99,16 +99,16 @@ public abstract class LayoutType<T> implements ILayoutType {
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
         if (scope.immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (column.nullBit().isInvalid()) {
             // Cannot delete a non-nullable fixed column.
-            return Result.TypeMismatch;
+            return Result.TYPE_MISMATCH;
         }
 
         b.unsetBit(scope.start(), column.nullBit());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -123,12 +123,12 @@ public abstract class LayoutType<T> implements ILayoutType {
 
         Result result = LayoutType.prepareSparseDelete(b, edit, this.layoutCode());
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.DeleteSparse(edit);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -142,7 +142,7 @@ public abstract class LayoutType<T> implements ILayoutType {
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
         if (scope.immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         boolean exists = b.readBit(scope.start(), column.nullBit());
@@ -153,7 +153,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             b.unsetBit(scope.start(), column.nullBit());
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public static LayoutType fromCode(LayoutCode code) {
@@ -164,9 +164,9 @@ public abstract class LayoutType<T> implements ILayoutType {
 
     public final Result hasValue(RowBuffer b, RowCursor scope, LayoutColumn column) {
         if (!b.readBit(scope.start(), column.nullBit())) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -192,18 +192,18 @@ public abstract class LayoutType<T> implements ILayoutType {
     public static Result prepareSparseDelete(RowBuffer b, RowCursor edit, LayoutCode code) {
 
         if (edit.scopeType().isFixedArity()) {
-            return Result.TypeConstraint;
+            return Result.TYPE_CONSTRAINT;
         }
 
         if (edit.immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (edit.exists() && LayoutCodeTraits.Canonicalize(edit.cellType().layoutCode()) != code) {
-            return Result.TypeMismatch;
+            return Result.TYPE_MISMATCH;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -234,32 +234,32 @@ public abstract class LayoutType<T> implements ILayoutType {
         // Prepare the delete of the source
         Result result = LayoutType.prepareSparseDelete(b, srcEdit, elementType.type().layoutCode());
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             dstEdit.setAndGet(null);
             return result;
         }
 
         if (!srcEdit.exists()) {
             dstEdit.setAndGet(null);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         if (destinationScope.immutable()) {
             b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (!srcEdit.cellTypeArgs().equals(elementType.typeArgs())) {
             b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
-            return Result.TypeConstraint;
+            return Result.TYPE_CONSTRAINT;
         }
 
         if (options == UpdateOptions.InsertAt) {
             b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
-            return Result.TypeConstraint;
+            return Result.TYPE_CONSTRAINT;
         }
 
         // Prepare the insertion at the destination.
@@ -267,16 +267,16 @@ public abstract class LayoutType<T> implements ILayoutType {
         if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
             b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
             b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
-            return Result.Exists;
+            return Result.EXISTS;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -291,14 +291,14 @@ public abstract class LayoutType<T> implements ILayoutType {
         @Nonnull final RowBuffer b, @Nonnull final RowCursor edit, @Nonnull LayoutCode code) {
 
         if (!edit.exists()) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         if (LayoutCodeTraits.Canonicalize(edit.cellType().layoutCode()) != code) {
-            return Result.TypeMismatch;
+            return Result.TYPE_MISMATCH;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -315,23 +315,23 @@ public abstract class LayoutType<T> implements ILayoutType {
         @Nonnull final UpdateOptions options) {
 
         if (edit.immutable() || (edit.scopeType().isUniqueScope() && !edit.deferUniqueIndex())) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (edit.scopeType().isFixedArity() && !(edit.scopeType() instanceof LayoutNullable)) {
             if ((edit.index() < edit.scopeTypeArgs().count()) && !typeArg.equals(edit.scopeTypeArgs().get(edit.index()))) {
-                return Result.TypeConstraint;
+                return Result.TYPE_CONSTRAINT;
             }
         } else if (edit.scopeType() instanceof LayoutTypedMap) {
             if (!((typeArg.type() instanceof LayoutTypedTuple) && typeArg.typeArgs().equals(edit.scopeTypeArgs()))) {
-                return Result.TypeConstraint;
+                return Result.TYPE_CONSTRAINT;
             }
         } else if (edit.scopeType().isTypedScope() && !typeArg.equals(edit.scopeTypeArgs().get(0))) {
-            return Result.TypeConstraint;
+            return Result.TYPE_CONSTRAINT;
         }
 
         if ((options == UpdateOptions.InsertAt) && edit.scopeType().isFixedArity()) {
-            return Result.TypeConstraint;
+            return Result.TYPE_CONSTRAINT;
         }
 
         if ((options == UpdateOptions.InsertAt) && !edit.scopeType().isFixedArity()) {
@@ -339,14 +339,14 @@ public abstract class LayoutType<T> implements ILayoutType {
         }
 
         if ((options == UpdateOptions.Update) && (!edit.exists())) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         if ((options == UpdateOptions.Insert) && edit.exists()) {
-            return Result.Exists;
+            return Result.EXISTS;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public abstract Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column, Out<T> value);
@@ -370,7 +370,7 @@ public abstract class LayoutType<T> implements ILayoutType {
 
     public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column, Out<T> value) {
         value.setAndGet(null);
-        return Result.Failure;
+        return Result.FAILURE;
     }
 
     /**
@@ -400,7 +400,7 @@ public abstract class LayoutType<T> implements ILayoutType {
     }
 
     public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, T value) {
-        return Result.Failure;
+        return Result.FAILURE;
     }
 
     TypeArgument typeArg() {

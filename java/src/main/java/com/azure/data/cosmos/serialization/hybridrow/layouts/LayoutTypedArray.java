@@ -56,13 +56,13 @@ public final class LayoutTypedArray extends LayoutIndexedScope {
     public Result writeScope(RowBuffer b, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
         Result result = LayoutType.prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         b.get().WriteTypedArray(edit, this, typeArgs.clone(), options, value.clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

@@ -71,6 +71,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -129,7 +130,7 @@ public final class RowBuffer {
         checkNotNull(buffer, "buffer");
         checkNotNull(version, "version");
         checkNotNull(resolver, "resolver");
-        checkArgument(buffer.isReadable(HybridRowHeader.SIZE));
+        checkArgument(buffer.isReadable(HybridRowHeader.BYTES));
 
         this.buffer = buffer;
         this.resolver = resolver;
@@ -139,29 +140,71 @@ public final class RowBuffer {
 
         Layout layout = resolver.resolve(header.schemaId());
         checkState(header.schemaId().equals(layout.schemaId()));
-        checkState(HybridRowHeader.SIZE + layout.size() <= this.length());
-    }
-
-    public Utf8String ReadSparsePath(RowCursor edit) {
-
-        StringTokenizer tokenizer = edit.layout().tokenizer();
-        final Optional<Utf8String> path = tokenizer.tryFindString(edit.longValue().pathToken);
-
-        if (path.isPresent()) {
-            return path.get();
-        }
-
-        int numBytes = edit.pathToken() - edit.layout().tokenizer().count();
-        return Utf8String.fromUnsafe(this.buffer.readSlice(edit.pathOffset(), numBytes));
+        checkState(HybridRowHeader.BYTES + layout.size() <= this.length());
     }
 
     /**
-     * The length of row in bytes.
+     * Compute the byte offset from the beginning of the row for a given variable column's value.
+     *
+     * @param layout      The (optional) layout of the current scope.
+     * @param scopeOffset The 0-based offset to the beginning of the scope's value.
+     * @param varIndex    The 0-based index of the variable column within the variable segment.
+     * @return The byte offset from the beginning of the row where the variable column's value should be
+     * located.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public byte[] ToArray()
-    public byte[] ToArray() {
-        return this.buffer.Slice(0, this.length()).ToArray();
+    public int ComputeVariableValueOffset(Layout layout, int scopeOffset, int varIndex) {
+        if (layout == null) {
+            return scopeOffset;
+        }
+
+        int index = layout.numFixed() + varIndex;
+        ReadOnlySpan<LayoutColumn> columns = layout.columns();
+        checkState(index <= columns.Length);
+        int offset = scopeOffset + layout.size();
+        for (int i = layout.numFixed(); i < index; i++) {
+            LayoutColumn col = columns[i];
+            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
+                int lengthSizeInBytes;
+                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
+                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+                //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
+                long valueSizeInBytes = this.read7BitEncodedUInt(offset);
+                lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
+                if (col.type().getIsVarint()) {
+                    offset += lengthSizeInBytes;
+                } else {
+                    offset += (int) valueSizeInBytes + lengthSizeInBytes;
+                }
+            }
+        }
+
+        return offset;
+    }
+
+    /**
+     * Delete the sparse field at the indicated path.
+     *
+     * @param edit The field to delete.
+     */
+    public void DeleteSparse(RowCursor edit) {
+        // If the field doesn't exist, then nothing to do.
+        if (!edit.exists()) {
+            return;
+        }
+
+        int numBytes = 0;
+        int _;
+        Out<Integer> tempOut__ = new Out<Integer>();
+        int _;
+        Out<Integer> tempOut__2 = new Out<Integer>();
+        int shift;
+        Out<Integer> tempOut_shift = new Out<Integer>();
+        this.EnsureSparse(edit, edit.get().cellType(), edit.get().cellTypeArgs().clone(), numBytes,
+            RowOptions.DELETE, tempOut__, tempOut__2, tempOut_shift);
+        shift = tempOut_shift.get();
+        _ = tempOut__2.get();
+        _ = tempOut__.get();
+        this.length(this.length() + shift);
     }
 
     public void TypedCollectionMoveField(Reference<RowCursor> dstEdit, Reference<RowCursor> srcEdit
@@ -199,7 +242,7 @@ public final class RowBuffer {
         int shiftDelete;
         Out<Integer> tempOut_shiftDelete = new Out<Integer>();
         this.EnsureSparse(srcEdit, srcEdit.get().cellType(), srcEdit.get().cellTypeArgs().clone(), numBytes,
-            RowOptions.Delete, tempOut_metaBytes2, tempOut_spaceNeeded2, tempOut_shiftDelete);
+            RowOptions.DELETE, tempOut_metaBytes2, tempOut_spaceNeeded2, tempOut_shiftDelete);
         shiftDelete = tempOut_shiftDelete.get();
         spaceNeeded = tempOut_spaceNeeded2.get();
         metaBytes = tempOut_metaBytes2.get();
@@ -246,7 +289,7 @@ public final class RowBuffer {
         // converted using the 'Out' helper class unless the method is within the code being modified:
         scope.get().Clone(out dstEdit);
         if (dstEdit.count() <= 1) {
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         // Compute Index Elements.
@@ -318,7 +361,7 @@ public final class RowBuffer {
         this.buffer.Slice(this.length(), shift).Fill(0xFF);
         //#endif
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public void WriteNullable(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
@@ -361,40 +404,33 @@ public final class RowBuffer {
         this = tempReference_this.get();
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteSparseBinary(ref RowCursor edit, ReadOnlySpan<byte> value, UpdateOptions
-    // options)
-    public void WriteSparseBinary(Reference<RowCursor> edit, ReadOnlySpan<Byte> value, UpdateOptions options) {
-        int len = value.Length;
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: int numBytes = len + RowBuffer.Count7BitEncodedUInt((ulong)len);
-        int numBytes = len + RowBuffer.count7BitEncodedUInt(len);
-        int metaBytes;
-        Out<Integer> tempOut_metaBytes = new Out<Integer>();
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        int shift;
-        Out<Integer> tempOut_shift = new Out<Integer>();
-        this.EnsureSparse(edit, LayoutType.Binary, TypeArgumentList.EMPTY, numBytes, options, tempOut_metaBytes,
-            tempOut_spaceNeeded, tempOut_shift);
-        shift = tempOut_shift.get();
-        spaceNeeded = tempOut_spaceNeeded.get();
-        metaBytes = tempOut_metaBytes.get();
-        this.writeSparseMetadata(edit, LayoutType.Binary, TypeArgumentList.EMPTY, metaBytes);
-        int sizeLenInBytes = this.WriteBinary(edit.get().valueOffset(), value);
-        checkState(spaceNeeded == metaBytes + len + sizeLenInBytes);
-        edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
-        this.length(this.length() + shift);
+    public void WriteSparseBinary(
+        @Nonnull final RowCursor edit, @Nonnull final ByteBuf value, @Nonnull final UpdateOptions options) {
+
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(value, "expected non-null value");
+        checkNotNull(options, "expected non-null options");
+
+        final LayoutType layoutType = LayoutTypes.BINARY;
+        final int readableBytes = value.readableBytes();
+        final int length = RowBuffer.count7BitEncodedUInt(readableBytes) + readableBytes;
+
+        Out<Integer> metaBytes = new Out<>();
+        Out<Integer> shift = new Out<>();
+        Out<Integer> spaceNeeded = new Out<>();
+
+        this.EnsureSparse(edit, layoutType, TypeArgumentList.EMPTY, length, options, metaBytes, spaceNeeded, shift);
+        this.writeSparseMetadata(edit, layoutType, TypeArgumentList.EMPTY, metaBytes.get());
+        this.WriteBinary(edit.valueOffset(), value);
+
+        checkState(spaceNeeded.get() == metaBytes.get() + length);
+
+        edit.endOffset(edit.metaOffset() + spaceNeeded.get());
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteSparseBinary(ref RowCursor edit, ReadOnlySequence<byte> value, UpdateOptions
-    // options)
     public void WriteSparseBinary(Reference<RowCursor> edit, ReadOnlySequence<Byte> value,
                                   UpdateOptions options) {
         int len = (int) value.Length;
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: int numBytes = len + RowBuffer.Count7BitEncodedUInt((ulong)len);
         int numBytes = len + RowBuffer.count7BitEncodedUInt(len);
         int metaBytes;
         Out<Integer> tempOut_metaBytes = new Out<Integer>();
@@ -496,6 +532,28 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
+    public void WriteSparseFloat32(@Nonnull RowCursor edit, float value, @Nonnull UpdateOptions options) {
+
+        int numBytes = (Float.SIZE / Byte.SIZE);
+        int metaBytes;
+
+        Out<Integer> tempOut_metaBytes = new Out<Integer>();
+        int spaceNeeded;
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
+        int shift;
+        Out<Integer> tempOut_shift = new Out<Integer>();
+        this.EnsureSparse(edit, LayoutTypes.FLOAT_32, TypeArgumentList.EMPTY, numBytes, options, tempOut_metaBytes,
+            tempOut_spaceNeeded, tempOut_shift);
+        shift = tempOut_shift.get();
+        spaceNeeded = tempOut_spaceNeeded.get();
+        metaBytes = tempOut_metaBytes.get();
+        this.writeSparseMetadata(edit, LayoutType.Float32, TypeArgumentList.EMPTY, metaBytes);
+        this.writeFloat32(edit.get().valueOffset(), value);
+        checkState(spaceNeeded == metaBytes + (Float.SIZE / Byte.SIZE));
+        edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
+        this.length(this.length() + shift);
+    }
+
     public void WriteSparseFloat64(Reference<RowCursor> edit, double value, UpdateOptions options) {
         int numBytes = (Double.SIZE / Byte.SIZE);
         int metaBytes;
@@ -556,6 +614,11 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
+    // TODO: DANOBLE: resurrect MongoDbObjectId
+    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
+    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
+    //    }
+
     public void WriteSparseInt32(Reference<RowCursor> edit, int value, UpdateOptions options) {
         int numBytes = (Integer.SIZE / Byte.SIZE);
         int metaBytes;
@@ -575,11 +638,6 @@ public final class RowBuffer {
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
     }
-
-    // TODO: DANOBLE: resurrect MongoDbObjectId
-    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
-    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
-    //    }
 
     public void WriteSparseInt64(Reference<RowCursor> edit, long value, UpdateOptions options) {
         int numBytes = (Long.SIZE / Byte.SIZE);
@@ -692,6 +750,13 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
+    // TODO: DANOBLE: resurrect MongoDbObjectId
+    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
+    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
+    //        edit.get().endOffset = edit.get().valueOffset() + MongoDbObjectId.Size;
+    //        return this.ReadMongoDbObjectId(edit.get().valueOffset()).clone();
+    //    }
+
     public void WriteSparseString(Reference<RowCursor> edit, Utf8Span value, UpdateOptions options) {
         int len = value.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -714,13 +779,6 @@ public final class RowBuffer {
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
     }
-
-    // TODO: DANOBLE: resurrect MongoDbObjectId
-    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
-    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
-    //        edit.get().endOffset = edit.get().valueOffset() + MongoDbObjectId.Size;
-    //        return this.ReadMongoDbObjectId(edit.get().valueOffset()).clone();
-    //    }
 
     public void WriteSparseTuple(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs
         , UpdateOptions options, Out<RowCursor> newScope) {
@@ -1066,42 +1124,6 @@ public final class RowBuffer {
         this = tempReference_this.get();
     }
 
-    private void writeUInt16(Short value) {
-        this.buffer.writeShortLE(value);
-    }
-
-    private void writeUInt32(Integer value) {
-        this.buffer.writeIntLE(value);
-    }
-
-    private void writeUInt64(Long value) {
-        this.buffer.writeLongLE(value);
-    }
-
-    private void writeUInt8(Byte value) {
-        this.buffer.writeByte(value);
-    }
-
-    public void writeUInt16(int offset, short value) {
-        Item<Short> item = this.write(this::writeUInt16, offset, value);
-    }
-
-    public void writeUInt32(int offset, int value) {
-        Item<Integer> item = this.write(this::writeUInt32, offset, value);
-    }
-
-    public void writeUInt64(int offset, long value) {
-        Item<Long> item = this.write(this::writeUInt64, offset, value);
-    }
-
-    public void writeUInt8(int offset, byte value) {
-        Item<Byte> item = this.write(this::writeUInt8, offset, value);
-    }
-
-    public void writeUnixDateTime(int offset, UnixDateTime value) {
-        Item<Long> item = this.write(this::writeUInt64, offset, value.milliseconds());
-    }
-
     public void WriteVariableBinary(int offset, ReadOnlySpan<Byte> value, boolean exists,
                                     Out<Integer> shift) {
         int numBytes = value.Length;
@@ -1172,44 +1194,6 @@ public final class RowBuffer {
     }
 
     /**
-     * Compute the byte offset from the beginning of the row for a given variable column's value.
-     *
-     * @param layout      The (optional) layout of the current scope.
-     * @param scopeOffset The 0-based offset to the beginning of the scope's value.
-     * @param varIndex    The 0-based index of the variable column within the variable segment.
-     * @return The byte offset from the beginning of the row where the variable column's value should be
-     * located.
-     */
-    public int ComputeVariableValueOffset(Layout layout, int scopeOffset, int varIndex) {
-        if (layout == null) {
-            return scopeOffset;
-        }
-
-        int index = layout.numFixed() + varIndex;
-        ReadOnlySpan<LayoutColumn> columns = layout.columns();
-        checkState(index <= columns.Length);
-        int offset = scopeOffset + layout.size();
-        for (int i = layout.numFixed(); i < index; i++) {
-            LayoutColumn col = columns[i];
-            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
-                int lengthSizeInBytes;
-                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
-                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-                //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
-                long valueSizeInBytes = this.read7BitEncodedUInt(offset);
-                lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
-                if (col.type().getIsVarint()) {
-                    offset += lengthSizeInBytes;
-                } else {
-                    offset += (int) valueSizeInBytes + lengthSizeInBytes;
-                }
-            }
-        }
-
-        return offset;
-    }
-
-    /**
      * Compute the number of bytes necessary to store the unsigned 32-bit integer value using the varuint encoding
      *
      * @param value The value to be encoded
@@ -1229,32 +1213,6 @@ public final class RowBuffer {
     public void decrementUInt32(int offset, long decrement) {
         long value = this.buffer.getUnsignedIntLE(offset);
         this.buffer.setIntLE(offset, (int) (value - decrement));
-    }
-
-    /**
-     * Delete the sparse field at the indicated path.
-     *
-     * @param edit The field to delete.
-     */
-    public void DeleteSparse(RowCursor edit) {
-        // If the field doesn't exist, then nothing to do.
-        if (!edit.exists()) {
-            return;
-        }
-
-        int numBytes = 0;
-        int _;
-        Out<Integer> tempOut__ = new Out<Integer>();
-        int _;
-        Out<Integer> tempOut__2 = new Out<Integer>();
-        int shift;
-        Out<Integer> tempOut_shift = new Out<Integer>();
-        this.EnsureSparse(edit, edit.get().cellType(), edit.get().cellTypeArgs().clone(), numBytes,
-            RowOptions.Delete, tempOut__, tempOut__2, tempOut_shift);
-        shift = tempOut_shift.get();
-        _ = tempOut__2.get();
-        _ = tempOut__.get();
-        this.length(this.length() + shift);
     }
 
     public void deleteVariable(int offset, boolean isVarint) {
@@ -1320,8 +1278,8 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor prepareSparseMove(@Nonnull final RowCursor scope, @Nonnull final RowCursor srcEdit) {
 
-        checkNotNull(srcEdit);
-        checkNotNull(scope);
+        checkNotNull(srcEdit, "expected non-null srcEdit");
+        checkNotNull(scope, "expected non-null scope");
         checkArgument(scope.index() == 0);
         checkArgument(scope.scopeType().isUniqueScope());
 
@@ -1400,7 +1358,7 @@ public final class RowBuffer {
     }
 
     public Utf8String readFixedString(int offset, int length) {
-        Item<Utf8String> item = this.read(() -> Utf8String.fromUnsafe(this.buffer.readSlice(length)), offset);
+        Item<Utf8String> item = this.read(this::readFixedString, offset, length);
         return item.value();
     }
 
@@ -1408,14 +1366,6 @@ public final class RowBuffer {
         Item<Float128> item = this.read(this::readFloat128, offset);
         return item.value();
     }
-
-    // TODO: DANOBLE: Support MongoDbObjectId values
-    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
-    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
-    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
-    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-    //        value = tempReference_value.get();
-    //    }
 
     public float readFloat32(int offset) {
         Item<Float> item = this.read(this.buffer::readFloatLE, offset);
@@ -1445,7 +1395,7 @@ public final class RowBuffer {
         checkNotNull(inputStream, "expected non-null inputStream");
         checkNotNull(resolver, "expected non-null resolver");
         checkNotNull(version, "expected non-null version");
-        checkState(byteCount >= HybridRowHeader.SIZE, "expected byteCount >= %s, not %s", HybridRowHeader.SIZE,
+        checkState(byteCount >= HybridRowHeader.BYTES, "expected byteCount >= %s, not %s", HybridRowHeader.BYTES,
             byteCount);
 
         this.reset();
@@ -1481,10 +1431,10 @@ public final class RowBuffer {
     public boolean readFrom(
         @Nonnull final ByteBuf input, @Nonnull final HybridRowVersion version, @Nonnull final LayoutResolver resolver) {
 
-        checkNotNull(input);
-        checkNotNull(version);
-        checkNotNull(resolver);
-        checkState(input.readableBytes() >= HybridRowHeader.SIZE);
+        checkNotNull(input, "expected non-null input");
+        checkNotNull(version, "expected non-null version");
+        checkNotNull(resolver, "expected non-null resolver");
+        checkState(input.readableBytes() >= HybridRowHeader.BYTES);
 
         this.reset();
         this.resolver = resolver;
@@ -1524,6 +1474,14 @@ public final class RowBuffer {
         Item<SchemaId> item = this.read(() -> SchemaId.from(this.buffer.readIntLE()), offset);
         return item.value();
     }
+
+    // TODO: DANOBLE: Support MongoDbObjectId values
+    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
+    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
+    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
+    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+    //        value = tempReference_value.get();
+    //    }
 
     public ByteBuf readSparseBinary(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BINARY);
@@ -1600,7 +1558,7 @@ public final class RowBuffer {
 
     public NullValue readSparseNull(@Nonnull RowCursor edit) {
 
-        checkNotNull(edit);
+        checkNotNull(edit, "expected non-null edit");
 
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.NULL);
         edit.endOffset(edit.valueOffset());
@@ -1608,13 +1566,29 @@ public final class RowBuffer {
         return NullValue.Default;
     }
 
+    public Utf8String readSparsePath(@Nonnull final RowCursor edit) {
+
+        checkNotNull(edit, "expected non-null edit");
+        final StringTokenizer tokenizer = edit.layout().tokenizer();
+        final Optional<Utf8String> path = tokenizer.tryFindString(edit.pathToken());
+
+        if (path.isPresent()) {
+            return path.get();
+        }
+
+        final int length = edit.pathToken() - tokenizer.count();
+        Item<Utf8String> item = this.read(this::readFixedString, edit.pathOffset(), length);
+
+        return item.value();
+    }
+
     public int readSparsePathLen(
         @Nonnull final Layout layout, final int offset, @Nonnull final Out<Integer> pathLenInBytes,
         @Nonnull final Out<Integer> pathOffset) {
 
-        checkNotNull(layout);
-        checkNotNull(pathOffset);
-        checkNotNull(pathLenInBytes);
+        checkNotNull(layout, "expected non-null layout");
+        checkNotNull(pathOffset, "expected non-null pathOffset");
+        checkNotNull(pathLenInBytes, "expected non-null pathLenInBytes");
 
         final Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
         final int token = item.value().intValue();
@@ -1958,6 +1932,12 @@ public final class RowBuffer {
         throw new IllegalStateException(lenientFormat("Not a scope type: %s", scopeType));
     }
 
+    public byte[] toArray() {
+        byte[] content = new byte[this.length()];
+        this.buffer.getBytes(0, content);
+        return content;
+    }
+
     public void unsetBit(final int offset, @Nonnull final LayoutBit bit) {
         checkNotNull(bit, "expected non-null bit");
         checkArgument(!bit.isInvalid());
@@ -1976,12 +1956,11 @@ public final class RowBuffer {
      * more bytes. An {@link IllegalArgumentException} is thrown, if the specified 64-bit integer value is outside
      * the range of an unsigned 32-bit integer, [0, 0x00000000FFFFFFFFL].
      *
-     * @param ignored
      * @param value   a 64-bit integer constrained to the range of an unsigned 32-bit integer, [0, 0x00000000FFFFFFFFL]
      * @return The number of bytes written
      */
-    public int write7BitEncodedUInt(final int ignored, final long value) {
-        checkArgument(0 <= value && value <= 0x00000000FFFFFFFFL);
+    public int write7BitEncodedUInt(final long value) {
+        checkArgument(0 <= value && value <= 0x00000000FFFFFFFFL, "expected value in range [0, %s], not %s", 0x00000000FFFFFFFFL, value);
         long n = value;
         int i = 0;
         while (n >= 0x80L) {
@@ -2086,10 +2065,10 @@ public final class RowBuffer {
         @Nonnull final RowCursor edit, @Nonnull final LayoutScope scopeType, @Nonnull final UpdateOptions options,
         @Nonnull final Out<RowCursor> newScope) {
 
-        checkNotNull(edit);
-        checkNotNull(scopeType);
-        checkNotNull(options);
-        checkNotNull(newScope);
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(scopeType, "expected non-null scopeType");
+        checkNotNull(options, "expected non-null options");
+        checkNotNull(newScope, "expected non-null newScope");
 
         int numBytes = (LayoutCode.SIZE / Byte.SIZE); // end scope type code
         TypeArgumentList typeArgs = TypeArgumentList.EMPTY;
@@ -2100,7 +2079,7 @@ public final class RowBuffer {
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
 
-        this.ensureSparse(edit, scopeType, typeArgs, numBytes, options, tempOut_metaBytes, tempOut_spaceNeeded,
+        this.EnsureSparse(edit, scopeType, typeArgs, numBytes, options, tempOut_metaBytes, tempOut_spaceNeeded,
             tempOut_shift);
         shift = tempOut_shift.get();
         spaceNeeded = tempOut_spaceNeeded.get();
@@ -2118,28 +2097,6 @@ public final class RowBuffer {
                 .layout(edit.layout());
     }
 
-    public void WriteSparseFloat32(@Nonnull RowCursor edit, float value, @Nonnull UpdateOptions options) {
-
-        int numBytes = (Float.SIZE / Byte.SIZE);
-        int metaBytes;
-
-        Out<Integer> tempOut_metaBytes = new Out<Integer>();
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        int shift;
-        Out<Integer> tempOut_shift = new Out<Integer>();
-        this.ensureSparse(edit, LayoutTypes.FLOAT_32, TypeArgumentList.EMPTY, numBytes, options, tempOut_metaBytes,
-            tempOut_spaceNeeded, tempOut_shift);
-        shift = tempOut_shift.get();
-        spaceNeeded = tempOut_spaceNeeded.get();
-        metaBytes = tempOut_metaBytes.get();
-        this.writeSparseMetadata(edit, LayoutType.Float32, TypeArgumentList.EMPTY, metaBytes);
-        this.writeFloat32(edit.get().valueOffset(), value);
-        checkState(spaceNeeded == metaBytes + (Float.SIZE / Byte.SIZE));
-        edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
-        this.length(this.length() + shift);
-    }
-
     public void writeSparseTypeCode(int offset, LayoutCode code) {
         this.writeUInt8(offset, code.value());
     }
@@ -2153,6 +2110,26 @@ public final class RowBuffer {
     public void writeTo(@Nonnull final OutputStream stream) throws IOException {
         checkNotNull(stream, "expected non-null stream");
         this.buffer.getBytes(0, stream, this.length());
+    }
+
+    public void writeUInt16(int offset, short value) {
+        Item<Short> item = this.write(this::writeUInt16, offset, value);
+    }
+
+    public void writeUInt32(int offset, int value) {
+        Item<Integer> item = this.write(this::writeUInt32, offset, value);
+    }
+
+    public void writeUInt64(int offset, long value) {
+        Item<Long> item = this.write(this::writeUInt64, offset, value);
+    }
+
+    public void writeUInt8(int offset, byte value) {
+        Item<Byte> item = this.write(this::writeUInt8, offset, value);
+    }
+
+    public void writeUnixDateTime(int offset, UnixDateTime value) {
+        Item<Long> item = this.write(this::writeUInt64, offset, value.milliseconds());
     }
 
     /**
@@ -2270,6 +2247,108 @@ public final class RowBuffer {
         return RowBuffer.count7BitEncodedUInt(RowBuffer.rotateSignToLsb(value));
     }
 
+    /**
+     * Ensure that sufficient space exists in the row buffer to write the specified value
+     *
+     * @param edit        The prepared edit indicating where and in what context the current write will happen.
+     * @param cellType    The type of the field to be written.
+     * @param typeArgs    The type arguments of the field to be written.
+     * @param numBytes    The number of bytes needed to encode the value of the field to be written.
+     * @param options     The kind of edit to be performed.
+     * @param metaBytes   On success, the number of bytes needed to encode the metadata of the new field.
+     * @param spaceNeeded On success, the number of bytes needed in total to encode the new field and its metadata.
+     * @param shift       On success, the number of bytes the length of the row buffer was increased.
+     */
+    private void EnsureSparse(
+        @Nonnull final RowCursor edit, @Nonnull final LayoutType cellType, @Nonnull final TypeArgumentList typeArgs,
+        final int numBytes, @Nonnull final RowOptions options, @Nonnull final Out<Integer> metaBytes,
+        @Nonnull final Out<Integer> spaceNeeded, @Nonnull final Out<Integer> shift) {
+
+        int metaOffset = edit.metaOffset();
+        int spaceAvailable = 0;
+
+        // Compute the metadata offsets
+
+        if (edit.scopeType().hasImplicitTypeCode(edit)) {
+            metaBytes.setAndGet(0);
+        } else {
+            metaBytes.setAndGet(cellType.countTypeArgument(typeArgs));
+        }
+
+        if (!edit.scopeType().isIndexedScope()) {
+            checkState(edit.writePath() != null);
+            int pathLenInBytes = RowBuffer.countSparsePath(edit);
+            metaBytes.setAndGet(metaBytes.get() + pathLenInBytes);
+        }
+
+        if (edit.exists()) {
+            // Compute value offset for existing value to be overwritten.
+            spaceAvailable = this.sparseComputeSize(edit);
+        }
+
+        spaceNeeded.setAndGet(options == RowOptions.DELETE ? 0 : metaBytes.get() + numBytes);
+        shift.setAndGet(spaceNeeded.get() - spaceAvailable);
+        if (shift.get() > 0) {
+            this.ensure(this.length() + shift.get());
+        }
+
+        this.buffer.Slice(metaOffset + spaceAvailable, this.length() - (metaOffset + spaceAvailable)).CopyTo(this.buffer.Slice(metaOffset + spaceNeeded.get()));
+
+        // TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
+        //#if DEBUG
+        if (shift.get() < 0) {
+            // Fill deleted bits (in debug builds) to detect overflow/alignment errors.
+            this.buffer.Slice(this.length() + shift.get(), -shift.get()).Fill(0xFF);
+        }
+        //#endif
+
+        // Update the stored size (fixed arity scopes don't store the size because it is implied by the type args).
+        if (edit.scopeType().isSizedScope() && !edit.scopeType().isFixedArity()) {
+            if ((options == RowOptions.INSERT) || (options == RowOptions.INSERT_AT) || ((options == RowOptions.UPSERT) && !edit.get().exists())) {
+                // Add one to the current scope count.
+                checkState(!edit.exists());
+                this.incrementUInt32(edit.start(), 1);
+                edit.count(edit.count() + 1);
+            } else if ((options == RowOptions.DELETE) && edit.exists()) {
+                // Subtract one from the current scope count.
+                checkState(this.readUInt32(edit.start()) > 0);
+                this.decrementUInt32(edit.start(), 1);
+                edit.count(edit.count() - 1);
+            }
+        }
+
+        if (options == RowOptions.DELETE) {
+            edit.cellType(null);
+            edit.cellTypeArgs(null);
+            edit.exists(false);
+        } else {
+            edit.cellType(cellType);
+            edit.cellTypeArgs(typeArgs);
+            edit.exists(true);
+        }
+    }
+
+    /**
+     * Ensure that sufficient space exists in the row buffer to write the specified value
+     *
+     * @param edit        The prepared edit indicating where and in what context the current write will happen.
+     * @param cellType    The type of the field to be written.
+     * @param typeArgs    The type arguments of the field to be written.
+     * @param numBytes    The number of bytes needed to encode the value of the field to be written.
+     * @param options     The kind of edit to be performed.
+     * @param metaBytes   On success, the number of bytes needed to encode the metadata of the new field.
+     * @param spaceNeeded On success, the number of bytes needed in total to encode the new field and its metadata.
+     * @param shift       On success, the number of bytes the length of the row buffer was increased.
+     */
+    private void EnsureSparse(
+        @Nonnull final RowCursor edit, @Nonnull final LayoutType cellType, @Nonnull final TypeArgumentList typeArgs,
+        final int numBytes, @Nonnull final UpdateOptions options, @Nonnull final Out<Integer> metaBytes,
+        @Nonnull final Out<Integer> spaceNeeded, @Nonnull final Out<Integer> shift) {
+        checkNotNull(options, "expected non-null options");
+        RowOptions rowOptions = RowOptions.from(options.value());
+        this.EnsureSparse(edit, cellType, typeArgs, numBytes, rowOptions, metaBytes, spaceNeeded, shift);
+    }
+
     private void EnsureVariable(int offset, boolean isVarint, int numBytes, boolean exists,
                                 Out<Integer> spaceNeeded, Out<Integer> shift) {
         int spaceAvailable = 0;
@@ -2374,15 +2453,17 @@ public final class RowBuffer {
         return true;
     }
 
-    private int WriteBinary(int offset, ReadOnlySpan<Byte> value) {
-        int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
-        value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
-        return sizeLenInBytes;
+    private void writeVariableBinary(ByteBuf value) {
+        this.write7BitEncodedUInt(value.readableBytes());
+        this.buffer.writeBytes(value);
+    }
+
+    private int WriteBinary(int offset, ByteBuf value) {
+        Item<ByteBuf> item = this.write(this::writeVariableBinary, offset, value);
+        return item.length();
     }
 
     private int WriteBinary(int offset, ReadOnlySequence<Byte> value) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: int sizeLenInBytes = this.Write7BitEncodedUInt(offset, (ulong)value.Length);
         int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
         value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
         return sizeLenInBytes;
@@ -2516,138 +2597,40 @@ public final class RowBuffer {
         this.buffer.ensureWritable(size);
     }
 
-    /**
-     * Ensure that sufficient space exists in the row buffer to write the current value.
-     *
-     * @param edit        The prepared edit indicating where and in what context the current write will
-     *                    happen.
-     * @param cellType    The type of the field to be written.
-     * @param typeArgs    The type arguments of the field to be written.
-     * @param numBytes    The number of bytes needed to encode the value of the field to be written.
-     * @param options     The kind of edit to be performed.
-     * @param metaBytes   On success, the number of bytes needed to encode the metadata of the new
-     *                    field.
-     * @param spaceNeeded On success, the number of bytes needed in total to encode the new field
-     *                    and its metadata.
-     * @param shift       On success, the number of bytes the length of the row buffer was increased
-     */
-    private void ensureSparse(
-        @Nonnull final RowCursor edit, @Nonnull final LayoutType cellType, @Nonnull final TypeArgumentList typeArgs,
-        final int numBytes, @Nonnull final RowOptions options, @Nonnull final Out<Integer> metaBytes,
-        @Nonnull final Out<Integer> spaceNeeded, @Nonnull final Out<Integer> shift) {
+    private <T> Item<T> read(@Nonnull final Supplier<T> reader, @Nonnull final RowCursor cursor) {
 
-        int metaOffset = edit.metaOffset();
-        int spaceAvailable = 0;
-
-        // Compute the metadata offsets
-        if (edit.scopeType().hasImplicitTypeCode(edit)) {
-            metaBytes.setAndGet(0);
-        } else {
-            metaBytes.setAndGet(cellType.countTypeArgument(typeArgs));
-        }
-
-        if (!edit.scopeType().isIndexedScope()) {
-            checkState(edit.writePath() != null);
-            int pathLenInBytes = RowBuffer.countSparsePath(edit);
-            metaBytes.setAndGet(metaBytes.get() + pathLenInBytes);
-        }
-
-        if (edit.exists()) {
-            // Compute value offset for existing value to be overwritten.
-            spaceAvailable = this.sparseComputeSize(edit);
-        }
-
-        spaceNeeded.setAndGet(options == RowOptions.Delete ? 0 : metaBytes.get() + numBytes);
-        shift.setAndGet(spaceNeeded.get() - spaceAvailable);
-        if (shift.get() > 0) {
-            this.ensure(this.length() + shift.get());
-        }
-
-        this.buffer.Slice(metaOffset + spaceAvailable, this.length() - (metaOffset + spaceAvailable)).CopyTo(this.buffer.Slice(metaOffset + spaceNeeded.get()));
-
-        // TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-        //#if DEBUG
-        if (shift.get() < 0) {
-            // Fill deleted bits (in debug builds) to detect overflow/alignment errors.
-            this.buffer.Slice(this.length() + shift.get(), -shift.get()).Fill(0xFF);
-        }
-        //#endif
-
-        // Update the stored size (fixed arity scopes don't store the size because it is implied by the type args).
-        if (edit.scopeType().isSizedScope() && !edit.scopeType().isFixedArity()) {
-            if ((options == RowOptions.Insert) || (options == RowOptions.InsertAt) || ((options == RowOptions.Upsert) && !edit.get().exists())) {
-                // Add one to the current scope count.
-                checkState(!edit.exists());
-                this.incrementUInt32(edit.start(), 1);
-                edit.count(edit.count() + 1);
-            } else if ((options == RowOptions.Delete) && edit.exists()) {
-                // Subtract one from the current scope count.
-                checkState(this.readUInt32(edit.start()) > 0);
-                this.decrementUInt32(edit.start(), 1);
-                edit.count(edit.count() - 1);
-            }
-        }
-
-        if (options == RowOptions.Delete) {
-            edit.cellType(null);
-            edit.cellTypeArgs(null);
-            edit.exists(false);
-        } else {
-            edit.cellType(cellType);
-            edit.cellTypeArgs(typeArgs);
-            edit.exists(true);
-        }
-    }
-
-    /**
-     * <see
-     * cref="EnsureSparse(ref RowCursor, LayoutCode , TypeArgumentList , int ,RowOptions, out int, out int, out int)" />
-     * .
-     */
-    private void ensureSparse(
-        @Nonnull final RowCursor edit, @Nonnull final LayoutType cellType, @Nonnull final TypeArgumentList typeArgs,
-        final int numBytes, @Nonnull final UpdateOptions options, @Nonnull final Out<Integer> metaBytes,
-        @Nonnull final Out<Integer> spaceNeeded, @Nonnull final Out<Integer> shift) {
-
-        checkNotNull(edit);
-        checkNotNull(cellType);
-        checkNotNull(typeArgs);
-        checkNotNull(options);
-        checkNotNull(metaBytes);
-        checkNotNull(spaceNeeded);
-        checkNotNull(shift);
-
-        final RowOptions rowOptions = RowOptions.from(options.value());
-        this.ensureSparse(edit, cellType, typeArgs, numBytes, rowOptions, metaBytes, spaceNeeded, shift);
-    }
-
-    private <T> Item<T> read(@Nonnull final Supplier<T> supplier, @Nonnull RowCursor cursor) {
-        checkNotNull(supplier, "expected non-null supplier");
+        checkNotNull(reader, "expected non-null supplier");
         checkNotNull(cursor, "expected non-null cursor");
-        Item<T> item = this.read(supplier, cursor.valueOffset());
+
+        Item<T> item = this.read(reader, cursor.valueOffset());
         cursor.endOffset(this.buffer.readerIndex());
+
         return item;
     }
 
-    private <T> Item<T> read(@Nonnull final Supplier<T> supplier, int offset) {
+    private <T> Item<T> read(@Nonnull final Supplier<T> reader, int offset) {
 
-        checkNotNull(supplier);
+        checkNotNull(reader, "expected non-null reader");
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
 
         this.buffer.readerIndex(offset);
-        T value = supplier.get();
+        final T value = reader.get();
 
         return Item.of(value, offset, this.buffer.readerIndex() - offset);
     }
 
-    private <T> T read(@Nonnull final Supplier<T> supplier, int offset, @Nonnull Out<Integer> lengthInBytes) {
+    private <T> Item<T> read(@Nonnull final Function<Integer, T> reader, final int offset, final int length) {
 
-        checkNotNull(supplier);
-        checkNotNull(lengthInBytes);
+        checkNotNull(reader, "expected non-null reader");
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+        checkArgument(length >= 0, "expected non-negative length, not %s", length);
 
-        Item<T> item = this.read(supplier, offset);
-        lengthInBytes.set(item.length());
+        this.buffer.readerIndex(offset);
+        final T value = reader.apply(length);
+        final int actualLength = this.buffer.readerIndex() - offset;
+        checkState(actualLength == length, "expected read of length %s, not %s", length, actualLength);
 
-        return item.value();
+        return Item.of(value, offset, actualLength);
     }
 
     private long read7BitEncodedInt() {
@@ -2677,6 +2660,10 @@ public final class RowBuffer {
 
     private BigDecimal readDecimal() {
         return DecimalCodec.decode(this.buffer);
+    }
+
+    private Utf8String readFixedString(int length) {
+        return Utf8String.fromUnsafe(this.buffer.readSlice(length));
     }
 
     private Float128 readFloat128() {
@@ -2721,7 +2708,7 @@ public final class RowBuffer {
      */
     private void readSparseMetadata(@Nonnull final RowCursor edit) {
 
-        checkNotNull(edit);
+        checkNotNull(edit, "expected non-null edit");
 
         if (edit.scopeType().hasImplicitTypeCode(edit)) {
             edit.scopeType().setImplicitTypeCode(edit);
@@ -2945,15 +2932,14 @@ public final class RowBuffer {
      */
     private boolean validateHeader(@Nonnull final HybridRowVersion version) {
 
-        checkNotNull(version);
+        checkNotNull(version, "expected non-null version");
 
-        Out<Integer> lengthInBytes = new Out<>();
-        HybridRowHeader header = this.read(this::readHeader, 0, lengthInBytes);
+        final Item<HybridRowHeader> item = this.read(this::readHeader, 0);
+        final HybridRowHeader header = item.value();
+        final Layout layout = this.resolver.resolve(header.schemaId());
 
-        Layout layout = this.resolver.resolve(header.schemaId());
         checkState(header.schemaId().equals(layout.schemaId()));
-
-        return header.version().equals(version) && (HybridRowHeader.SIZE + layout.size()) <= this.length();
+        return header.version().equals(version) && (HybridRowHeader.BYTES + layout.size()) <= this.length();
     }
 
     private <T> Item<T> write(@Nonnull final Consumer<T> consumer, final int offset, @Nonnull final T value) {
@@ -3142,6 +3128,7 @@ public final class RowBuffer {
 
         this.writeSparsePath(edit, metaOffset);
         edit.valueOffset(edit.metaOffset() + metaBytes);
+
         checkState(edit.valueOffset() == edit.metaOffset() + metaBytes);
     }
 
@@ -3182,6 +3169,22 @@ public final class RowBuffer {
         int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
         value.Span.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
         return sizeLenInBytes;
+    }
+
+    private void writeUInt16(Short value) {
+        this.buffer.writeShortLE(value);
+    }
+
+    private void writeUInt32(Integer value) {
+        this.buffer.writeIntLE(value);
+    }
+
+    private void writeUInt64(Long value) {
+        this.buffer.writeLongLE(value);
+    }
+
+    private void writeUInt8(Byte value) {
+        this.buffer.writeByte(value);
     }
 
     private static class Item<T> {

@@ -137,7 +137,7 @@ public final class RowWriterUnitTests {
                     ResultAssert.IsSuccess(writer2.WriteInt8(null, value));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col2 =
@@ -158,11 +158,11 @@ public final class RowWriterUnitTests {
                             ResultAssert.IsSuccess(writer3.WriteFloat32(null, value2));
                         }
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col3 =
@@ -176,7 +176,7 @@ public final class RowWriterUnitTests {
                     ResultAssert.IsSuccess(writer2.WriteString(null, value));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col4 =
@@ -190,7 +190,7 @@ public final class RowWriterUnitTests {
             {
                 ResultAssert.IsSuccess(writer2.WriteVarInt(null, values.Item1));
                 ResultAssert.IsSuccess(writer2.WriteInt64(null, values.Item2));
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col5 =
@@ -209,10 +209,10 @@ public final class RowWriterUnitTests {
                 {
                     ResultAssert.IsSuccess(writer3.WriteInt8(null, values2.Item1));
                     ResultAssert.IsSuccess(writer3.WriteInt8(null, values2.Item2));
-                    return Result.Success;
+                    return Result.SUCCESS;
                 }));
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col6 =
@@ -230,7 +230,7 @@ public final class RowWriterUnitTests {
                     (ref RowWriter writer3, TypeArgument typeArg2, IRowSerializable values2) -> values2.Write(tempReference_writer3, typeArg2.clone())));
                 writer3 = tempReference_writer3.get();
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col7 =
@@ -259,7 +259,7 @@ public final class RowWriterUnitTests {
 
                 ResultAssert.IsSuccess(writer2.WriteScope(null, typeArg.getTypeArgs().get(1).clone(), values.Item2,
                     f1));
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col8 =
@@ -271,7 +271,7 @@ public final class RowWriterUnitTests {
             {
                 ResultAssert.IsSuccess(writer2.WriteUInt8(null, values.Item1));
                 ResultAssert.IsSuccess(writer2.WriteString(null, values.Item2));
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col9 =
@@ -284,7 +284,7 @@ public final class RowWriterUnitTests {
                 ResultAssert.IsSuccess(writer2.WriteUInt8(null, values.Item1));
                 ResultAssert.IsSuccess(writer2.WriteBool(null, values.Item2));
                 ResultAssert.IsSuccess(writer2.WriteString(null, values.Item3));
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col10 =
@@ -298,7 +298,7 @@ public final class RowWriterUnitTests {
                     ResultAssert.IsSuccess(writer2.WriteString(null, value));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col11 =
@@ -320,11 +320,11 @@ public final class RowWriterUnitTests {
                             ResultAssert.IsSuccess(writer3.WriteInt8(null, value2));
                         }
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col12 =
@@ -346,11 +346,11 @@ public final class RowWriterUnitTests {
                             ResultAssert.IsSuccess(writer3.WriteInt32(null, value2));
                         }
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col13 =
@@ -373,7 +373,7 @@ public final class RowWriterUnitTests {
                     writer3 = tempReference_writer3.get();
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col14 =
@@ -392,11 +392,11 @@ public final class RowWriterUnitTests {
                     {
                         ResultAssert.IsSuccess(writer3.WriteString(null, values2.Item1));
                         ResultAssert.IsSuccess(writer3.WriteString(null, values2.Item2));
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col15 =
@@ -421,14 +421,14 @@ public final class RowWriterUnitTests {
                                 ResultAssert.IsSuccess(writer4.WriteInt8(null, value3));
                             }
 
-                            return Result.Success;
+                            return Result.SUCCESS;
                         }));
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col16 =
@@ -457,18 +457,18 @@ public final class RowWriterUnitTests {
                                 {
                                     ResultAssert.IsSuccess(writer5.WriteInt32(null, values4.Item1));
                                     ResultAssert.IsSuccess(writer5.WriteInt32(null, values4.Item2));
-                                    return Result.Success;
+                                    return Result.SUCCESS;
                                 }));
                             }
 
-                            return Result.Success;
+                            return Result.SUCCESS;
                         }));
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             Out<LayoutColumn> tempOut_col17 =
@@ -485,16 +485,16 @@ public final class RowWriterUnitTests {
                         ResultAssert.IsSuccess(writer3.WriteScope(null, typeArg2.getTypeArgs().get(1).clone(), values2.Item2, (ref RowWriter writer4, TypeArgument typeArg3, IRowSerializable values3) -> values3.Write(tempReference_writer4, typeArg3.clone())));
                         writer4 = tempReference_writer4.get();
 
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             }));
 
             // Save the RowWriter length after everything is written for later comparison.
             writerLength = writer.Length;
-            return Result.Success;
+            return Result.SUCCESS;
         }));
         row = tempReference_row.get();
 

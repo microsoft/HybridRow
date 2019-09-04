@@ -21,14 +21,14 @@ public final class LayoutUDT extends LayoutPropertyScope {
     }
 
     public int countTypeArgument(TypeArgumentList value) {
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.SIZE;
+        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.BYTES;
     }
 
     @Override
     public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
                                                  Out<Integer> lenInBytes) {
         SchemaId schemaId = row.get().readSchemaId(offset).clone();
-        lenInBytes.setAndGet(SchemaId.SIZE);
+        lenInBytes.setAndGet(SchemaId.BYTES);
         return new TypeArgumentList(schemaId.clone());
     }
 
@@ -46,19 +46,19 @@ public final class LayoutUDT extends LayoutPropertyScope {
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
         Layout udt = b.get().resolver().resolve(typeArgs.schemaId().clone());
         Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         b.get().WriteSparseUDT(edit, this, udt, options, value.clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
     public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
         row.get().writeSparseTypeCode(offset, this.LayoutCode);
         row.get().writeSchemaId(offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), value.schemaId().clone());
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.SIZE;
+        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.BYTES;
     }
 }

@@ -34,24 +34,24 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(false);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         value.setAndGet(b.get().readBit(scope.get().start(), column.getBooleanBit().clone()));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
     public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<Boolean> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(false);
             return result;
         }
 
         value.setAndGet(b.get().ReadSparseBool(edit));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -59,7 +59,7 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
                              boolean value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (value) {
@@ -69,7 +69,7 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
         }
 
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -79,12 +79,12 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, boolean value,
                               UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseBool(edit, value, options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

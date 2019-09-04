@@ -98,7 +98,7 @@ public class RecordIOUnitTests {
             {
                 body = null;
                 if (index >= addresses.length) {
-                    return Result.Success;
+                    return Result.SUCCESS;
                 }
 
                 Out<ReadOnlyMemory<Byte>> tempOut_body = new Out<ReadOnlyMemory<Byte>>();
@@ -125,7 +125,7 @@ public class RecordIOUnitTests {
                 obj = tempOut_obj.get();
                 ResultAssert.IsSuccess(r);
                 addressesRead.add(obj);
-                return Result.Success;
+                return Result.SUCCESS;
             }, segment ->
             {
                 assert !segment.IsEmpty;
@@ -138,7 +138,7 @@ public class RecordIOUnitTests {
                 ResultAssert.IsSuccess(r);
                 assert obj.Comment == sampleComment;
                 assert obj.SDL == sampleSDL;
-                return Result.Success;
+                return Result.SUCCESS;
             }, resizer);
 
             ResultAssert.IsSuccess(r);
@@ -168,7 +168,7 @@ public class RecordIOUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = DiagnosticConverter.ReaderToString(tempReference_reader, out str);
         reader = tempReference_reader.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             obj.setAndGet(null);
             return r;
         }
@@ -203,7 +203,7 @@ public class RecordIOUnitTests {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = DiagnosticConverter.ReaderToString(tempReference_reader, out str);
         reader = tempReference_reader.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             obj.setAndGet(null);
             return r;
         }
@@ -231,12 +231,12 @@ public class RecordIOUnitTests {
             new Reference<RowBuffer>(row);
         Result r = RowWriter.WriteBuffer(tempReference_row, obj, AddressSerializer.Write);
         row = tempReference_row.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             buffer.setAndGet(null);
             return r;
         }
 
         buffer.setAndGet(resizer.getMemory().Slice(0, row.length()));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

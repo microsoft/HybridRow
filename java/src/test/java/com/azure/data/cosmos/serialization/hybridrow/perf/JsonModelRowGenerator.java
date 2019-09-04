@@ -72,7 +72,7 @@ public final class JsonModelRowGenerator {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public byte[] ToArray()
     public byte[] ToArray() {
-        return this.row.ToArray();
+        return this.row.toArray();
     }
 
     public Result WriteBuffer(HashMap<Utf8String, Object> value) {
@@ -92,7 +92,7 @@ public final class JsonModelRowGenerator {
                 return result;
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         });
         this.row = tempReference_row.get();
         return tempVar;
@@ -166,7 +166,7 @@ public final class JsonModelRowGenerator {
                         return result;
                     }
 
-                    return Result.Success;
+                    return Result.SUCCESS;
                 });
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case List<object> x:
@@ -178,16 +178,16 @@ public final class JsonModelRowGenerator {
                         Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer2 = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);
                         Result result = JsonModelRowGenerator.JsonModelSwitch(tempReference_writer2, null, elm);
                         writer2 = tempReference_writer2.get();
-                        if (result != Result.Success) {
+                        if (result != Result.SUCCESS) {
                             return result;
                         }
                     }
 
-                    return Result.Success;
+                    return Result.SUCCESS;
                 });
             default:
                 throw new IllegalStateException(lenientFormat("Unknown type will be ignored: %s", value.getClass().getSimpleName()));
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 }

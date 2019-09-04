@@ -33,19 +33,19 @@ public final class LayoutVarInt extends LayoutType<Long> {
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
         value.setAndGet(0);
-        return Result.Failure;
+        return Result.FAILURE;
     }
 
     @Override
     public Result readSparse(RowBuffer b, RowCursor edit, Out<Long> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(0);
             return result;
         }
 
         value.setAndGet(b.get().ReadSparseVarInt(edit));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -53,20 +53,20 @@ public final class LayoutVarInt extends LayoutType<Long> {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             column.getOffset());
         value.setAndGet(b.get().ReadVariableInt(varOffset));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
     public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
                              long value) {
         Contract.Fail("Not Implemented");
-        return Result.Failure;
+        return Result.FAILURE;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -76,12 +76,12 @@ public final class LayoutVarInt extends LayoutType<Long> {
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value,
                               UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseVarInt(edit, value, options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -94,7 +94,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
                                 LayoutColumn col, long value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
@@ -107,6 +107,6 @@ public final class LayoutVarInt extends LayoutType<Long> {
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);
         scope.get().valueOffset(scope.get().valueOffset() + shift);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

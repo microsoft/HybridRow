@@ -69,7 +69,7 @@ public final class RowReaderExtensions {
                 case IMMUTABLE_TAGGED2_SCOPE: {
                     // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
                     Result r = reader.get().ReadScope(null, (ref RowReader child, Object _) -> child.VisitReader());
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -83,6 +83,6 @@ public final class RowReaderExtensions {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

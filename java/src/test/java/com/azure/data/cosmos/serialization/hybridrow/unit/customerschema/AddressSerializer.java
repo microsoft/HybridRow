@@ -19,7 +19,7 @@ public final class AddressSerializer {
                     Out<String> tempOut_Street = new Out<String>();
                     r = reader.get().ReadString(tempOut_Street);
                     obj.get().argValue.Street = tempOut_Street.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -28,7 +28,7 @@ public final class AddressSerializer {
                     Out<String> tempOut_City = new Out<String>();
                     r = reader.get().ReadString(tempOut_City);
                     obj.get().argValue.City = tempOut_City.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -37,7 +37,7 @@ public final class AddressSerializer {
                     Out<String> tempOut_State = new Out<String>();
                     r = reader.get().ReadString(tempOut_State);
                     obj.get().argValue.State = tempOut_State.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -51,7 +51,7 @@ public final class AddressSerializer {
                     parent.PostalCode = tempOut_PostalCode.get();
                     child = tempReference_child.get();
 
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -59,28 +59,28 @@ public final class AddressSerializer {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Address obj) {
         Result r;
         if (obj.Street != null) {
             r = writer.get().WriteString("street", obj.Street);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
 
         if (obj.City != null) {
             r = writer.get().WriteString("city", obj.City);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
 
         if (obj.State != null) {
             r = writer.get().WriteString("state", obj.State);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
@@ -91,6 +91,6 @@ public final class AddressSerializer {
             return r;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

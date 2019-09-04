@@ -40,12 +40,12 @@ public final class LayoutArray extends LayoutIndexedScope {
     public Result writeScope(RowBuffer b, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
         Result result = prepareSparseWrite(b, edit, this.typeArg(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         b.writeSparseArray(edit, this, options, value);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

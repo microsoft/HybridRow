@@ -101,7 +101,7 @@ public final class CodeGenRowGenerator {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public byte[] ToArray()
     public byte[] ToArray() {
-        return this.row.ToArray();
+        return this.row.toArray();
     }
 
     public Result WriteBuffer(HashMap<Utf8String, Object> tableValue) {
@@ -164,21 +164,21 @@ public final class CodeGenRowGenerator {
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
             Result r = LayoutType.Utf8.ReadVariable(row, root, this.street, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.city, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             Utf8Span _;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
             r = LayoutType.Utf8.ReadFixed(row, root, this.state, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -187,21 +187,21 @@ public final class CodeGenRowGenerator {
             Out<RowCursor> tempOut_childScope = new Out<RowCursor>();
             r = LayoutType.UDT.ReadScope(row, root, tempOut_childScope);
             childScope = tempOut_childScope.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
             r = this.postalCodeSerializer.ReadBuffer(row, tempReference_childScope);
             childScope = tempReference_childScope.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             Reference<RowCursor> tempReference_childScope2 = new Reference<RowCursor>(childScope);
             RowCursors.skip(root.get().clone(), row, tempReference_childScope2);
             childScope = tempReference_childScope2.get();
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         @Override
@@ -215,7 +215,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.street, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -227,7 +227,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.city, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -239,7 +239,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteFixed(row, root, this.state, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -256,14 +256,14 @@ public final class CodeGenRowGenerator {
                             r = LayoutType.UDT.WriteScope(row, root, this.postalCode.typeArgs().clone(), tempOut_childScope);
                             childScope = tempOut_childScope.get();
 
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
 
                             Reference<RowCursor> tempReference_childScope = new Reference<RowCursor>(childScope);
                             r = this.postalCodeSerializer.WriteBuffer(row, tempReference_childScope, (HashMap<Utf8String, Object>)value);
                             childScope = tempReference_childScope.get();
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
 
@@ -280,7 +280,7 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         }
     }
 
@@ -364,7 +364,7 @@ public final class CodeGenRowGenerator {
             Out<UUID> tempOut__ = new Out<UUID>();
             Result r = LayoutType.Guid.readFixed(row, root, this.guestId, tempOut__);
             _ = tempOut__.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -373,7 +373,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.firstName, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -382,7 +382,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.lastName, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -391,7 +391,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.title, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -401,7 +401,7 @@ public final class CodeGenRowGenerator {
                 new Out<RowCursor>();
             r = LayoutType.TypedArray.ReadScope(row, root, tempOut_childScope);
             childScope = tempOut_childScope.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -414,7 +414,7 @@ public final class CodeGenRowGenerator {
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 r = LayoutType.Utf8.ReadSparse(row, ref childScope, out _);
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     return r;
                 }
             }
@@ -429,7 +429,7 @@ public final class CodeGenRowGenerator {
                 new Out<RowCursor>();
             r = LayoutType.TypedArray.ReadScope(row, root, tempOut_childScope2);
             childScope = tempOut_childScope2.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -442,7 +442,7 @@ public final class CodeGenRowGenerator {
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 r = LayoutType.Utf8.ReadSparse(row, ref childScope, out _);
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     return r;
                 }
             }
@@ -457,7 +457,7 @@ public final class CodeGenRowGenerator {
                 new Out<RowCursor>();
             r = LayoutType.TypedMap.ReadScope(row, root, tempOut_childScope3);
             childScope = tempOut_childScope3.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -470,12 +470,12 @@ public final class CodeGenRowGenerator {
                 r = LayoutType.TypedTuple.ReadScope(row, tempReference_childScope3, tempOut_tupleScope);
                 tupleScope = tempOut_tupleScope.get();
                 childScope = tempReference_childScope3.get();
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     return r;
                 }
 
                 if (!tupleScope.MoveNext(row)) {
-                    return Result.InvalidRow;
+                    return Result.INVALID_ROW;
                 }
 
                 Utf8Span _;
@@ -486,12 +486,12 @@ public final class CodeGenRowGenerator {
                 // these cannot be converted using the 'Ref' helper class unless the method is within the code
                 // being modified:
                 r = LayoutType.Utf8.ReadSparse(row, ref tupleScope, out _);
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     return r;
                 }
 
                 if (!tupleScope.MoveNext(row)) {
-                    return Result.InvalidRow;
+                    return Result.INVALID_ROW;
                 }
 
                 Reference<RowCursor> tempReference_tupleScope =
@@ -502,7 +502,7 @@ public final class CodeGenRowGenerator {
                 r = LayoutType.ImmutableUDT.ReadScope(row, tempReference_tupleScope, tempOut_valueScope);
                 valueScope = tempOut_valueScope.get();
                 tupleScope = tempReference_tupleScope.get();
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     return r;
                 }
 
@@ -510,7 +510,7 @@ public final class CodeGenRowGenerator {
                     new Reference<RowCursor>(valueScope);
                 r = this.addressSerializer.ReadBuffer(row, tempReference_valueScope);
                 valueScope = tempReference_valueScope.get();
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     return r;
                 }
 
@@ -550,7 +550,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Guid.writeFixed(row, root, this.guestId, (UUID)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -563,7 +563,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.firstName, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -576,7 +576,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.lastName, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -589,7 +589,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.title, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -617,7 +617,7 @@ public final class CodeGenRowGenerator {
                                         (Utf8String)item);
                                     childScope = tempRef_childScope.argValue;
                                     row2 = tempRef_row2.argValue;
-                                    if (r2 != Result.Success) {
+                                    if (r2 != Result.SUCCESS) {
                                         return r2;
                                     }
 
@@ -627,9 +627,9 @@ public final class CodeGenRowGenerator {
                                     row2 = tempRef_row22.argValue;
                                 }
 
-                                return Result.Success;
+                                return Result.SUCCESS;
                             });
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -647,7 +647,7 @@ public final class CodeGenRowGenerator {
                             r = LayoutType.TypedArray.WriteScope(row, root, this.phoneNumbers.typeArgs().clone(),
                                 tempOut_childScope);
                             childScope = tempOut_childScope.get();
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
 
@@ -656,7 +656,7 @@ public final class CodeGenRowGenerator {
                                 // 'ref' keyword - these cannot be converted using the 'Ref' helper class
                                 // unless the method is within the code being modified:
                                 r = LayoutType.Utf8.WriteSparse(row, ref childScope, (Utf8String)item);
-                                if (r != Result.Success) {
+                                if (r != Result.SUCCESS) {
                                     return r;
                                 }
 
@@ -700,7 +700,7 @@ public final class CodeGenRowGenerator {
                                             (Utf8String)ctx2.value[0]);
                                         tupleScope = tempRef_tupleScope.argValue;
                                         row3 = tempRef_row3.argValue;
-                                        if (r3 != Result.Success) {
+                                        if (r3 != Result.SUCCESS) {
                                             return r3;
                                         }
 
@@ -720,7 +720,7 @@ public final class CodeGenRowGenerator {
                                     })
                                     childScope = tempReference_childScope.get();
                                     row2 = tempReference_row2.get();
-                                    if (r2 != Result.Success) {
+                                    if (r2 != Result.SUCCESS) {
                                         return r2;
                                     }
 
@@ -730,9 +730,9 @@ public final class CodeGenRowGenerator {
                                     row2 = tempRef_row22.argValue;
                                 }
 
-                                return Result.Success;
+                                return Result.SUCCESS;
                             })
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -745,7 +745,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.confirmNumber, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -758,7 +758,7 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         }
     }
 
@@ -806,7 +806,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             Result r = LayoutType.Utf8.ReadFixed(row, root, this.hotelId, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -815,7 +815,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.name, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -824,7 +824,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             r = LayoutType.Utf8.ReadVariable(row, root, this.phone, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -834,7 +834,7 @@ public final class CodeGenRowGenerator {
                 new Out<RowCursor>();
             r = LayoutType.UDT.ReadScope(row, root, tempOut_childScope);
             childScope = tempOut_childScope.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -842,7 +842,7 @@ public final class CodeGenRowGenerator {
                 new Reference<RowCursor>(childScope);
             r = this.addressSerializer.ReadBuffer(row, tempReference_childScope);
             childScope = tempReference_childScope.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -851,7 +851,7 @@ public final class CodeGenRowGenerator {
             RowCursors.skip(root.get().clone(), row,
                 tempReference_childScope2);
             childScope = tempReference_childScope2.get();
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         @Override
@@ -867,7 +867,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteFixed(row, root, this.hotelId, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -880,7 +880,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.name, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -893,7 +893,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteVariable(row, root, this.phone, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -911,7 +911,7 @@ public final class CodeGenRowGenerator {
                             r = LayoutType.UDT.WriteScope(row, root, this.address.typeArgs().clone(),
                                 tempOut_childScope);
                             childScope = tempOut_childScope.get();
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
 
@@ -919,7 +919,7 @@ public final class CodeGenRowGenerator {
                             r = this.addressSerializer.WriteBuffer(row, tempReference_childScope, (HashMap<Utf8String,
                                 Object>)value);
                             childScope = tempReference_childScope.get();
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
 
@@ -936,7 +936,7 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         }
     }
 
@@ -975,7 +975,7 @@ public final class CodeGenRowGenerator {
             Out<Integer> tempOut__ = new Out<Integer>();
             Result r = LayoutType.Int32.readFixed(row, root, this.zip, tempOut__);
             _ = tempOut__.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -1000,7 +1000,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Int32.WriteFixed(row, root, this.zip, (int)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -1014,7 +1014,7 @@ public final class CodeGenRowGenerator {
                         if (value != null) {
                             root.get().Find(row, this.plus4Token.clone());
                             r = LayoutType.Int16.WriteSparse(row, root, (short)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -1027,7 +1027,7 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         }
     }
 
@@ -1066,7 +1066,7 @@ public final class CodeGenRowGenerator {
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
             Result r = LayoutType.Utf8.ReadFixed(row, root, this.hotelId, out _);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -1074,7 +1074,7 @@ public final class CodeGenRowGenerator {
             Out<LocalDateTime> tempOut__ = new Out<LocalDateTime>();
             r = LayoutType.DateTime.ReadFixed(row, root, this.date, tempOut__);
             _ = tempOut__.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -1084,7 +1084,7 @@ public final class CodeGenRowGenerator {
             //ORIGINAL LINE: r = LayoutType.UInt8.ReadFixed(ref row, ref root, this.roomNumber, out byte _);
             r = LayoutType.UInt8.readFixed(row, root, this.roomNumber, tempOut__2);
             _ = tempOut__2.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -1108,7 +1108,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Utf8.WriteFixed(row, root, this.hotelId, (Utf8String)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -1121,7 +1121,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.DateTime.WriteFixed(row, root, this.date, (LocalDateTime)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -1137,7 +1137,7 @@ public final class CodeGenRowGenerator {
                             //ORIGINAL LINE: r = LayoutType.UInt8.WriteFixed(ref row, ref root, this.roomNumber,
                             // (byte)value);
                             r = LayoutType.UInt8.WriteFixed(row, root, this.roomNumber, (byte)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -1150,7 +1150,7 @@ public final class CodeGenRowGenerator {
                     case 0
                         if (value != null) {
                             r = LayoutType.Boolean.WriteFixed(row, root, this.isAvailable, (boolean)value);
-                            if (r != Result.Success) {
+                            if (r != Result.SUCCESS) {
                                 return r;
                             }
                         }
@@ -1163,7 +1163,7 @@ public final class CodeGenRowGenerator {
                 }
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         }
     }
 }

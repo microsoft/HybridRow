@@ -2154,7 +2154,7 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         Result r = t.ReadSparse(row, ref nestedField, out value);
-        Assert.IsTrue(r == Result.NotFound || r == Result.TypeMismatch, tag);
+        Assert.IsTrue(r == Result.NOT_FOUND || r == Result.TYPE_MISMATCH, tag);
 
         // Write the nested field.
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
@@ -3215,7 +3215,7 @@ private final static class VariableInterleaving extends RoundTripVariable {
                                                                      Reference<RowCursor> root, LayoutColumn col, Expected expected) {
         TLayout t = (TLayout)col.type();
         Result r = t.writeVariable(row, root, col, (TValue)expected.TooBig);
-        Assert.AreEqual(Result.TooBig, r, "Json: {0}", expected.Json);
+        Assert.AreEqual(Result.TOO_BIG, r, "Json: {0}", expected.Json);
     }
 
     private <TLayout extends LayoutType<TValue>, TValue> LayoutColumn Verify(Reference<RowBuffer> row,

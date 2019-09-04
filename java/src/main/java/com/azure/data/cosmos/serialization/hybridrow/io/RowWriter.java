@@ -372,7 +372,7 @@ public final class RowWriter {
                                         WriterFunc<TContext> func) {
         LayoutType type = typeArg.type();
         Result result = this.PrepareSparseWrite(path, typeArg.clone());
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
@@ -530,7 +530,7 @@ public final class RowWriter {
                 break;
 
             default:
-                return Result.Failure;
+                return Result.FAILURE;
         }
 
         Reference<RowBuffer> tempReference_row =
@@ -543,12 +543,12 @@ public final class RowWriter {
         Reference<RowWriter> tempReference_nestedWriter =
             new Reference<RowWriter>(nestedWriter);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-        result = func == null ? null : func.Invoke(ref nestedWriter, typeArg, context) ??Result.Success;
+        result = func == null ? null : func.Invoke(ref nestedWriter, typeArg, context) ??Result.SUCCESS;
         nestedWriter = tempReference_nestedWriter.get();
         this.row = nestedWriter.row.clone();
         nestedScope.count(nestedWriter.cursor.count());
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             // TODO: what about unique violations here?
             return result;
         }
@@ -558,7 +558,7 @@ public final class RowWriter {
                 new Reference<RowCursor>(nestedScope);
             result = this.row.TypedCollectionUniqueIndexRebuild(tempReference_nestedScope2);
             nestedScope = tempReference_nestedScope2.get();
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 // TODO: If the index rebuild fails then the row is corrupted.  Should we automatically clean up here?
                 return result;
             }
@@ -572,7 +572,7 @@ public final class RowWriter {
             , tempReference_cursor12);
         nestedWriter.cursor = tempReference_cursor12.get();
         this.row = tempReference_row2.get();
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -765,23 +765,23 @@ public final class RowWriter {
     private Result PrepareSparseWrite(UtfAnyString path, TypeArgument typeArg) {
         if (this.cursor.scopeType().isFixedArity() && !(this.cursor.scopeType() instanceof LayoutNullable)) {
             if ((this.cursor.index() < this.cursor.scopeTypeArgs().count()) && !typeArg.equals(this.cursor.scopeTypeArgs().get(this.cursor.index()).clone())) {
-                return Result.TypeConstraint;
+                return Result.TYPE_CONSTRAINT;
             }
         } else if (this.cursor.scopeType() instanceof LayoutTypedMap) {
             Reference<RowCursor> tempReference_cursor =
                 new Reference<RowCursor>(this.cursor);
             if (!typeArg.equals(this.cursor.scopeType().<LayoutUniqueScope>typeAs().FieldType(tempReference_cursor).clone())) {
                 this.cursor = tempReference_cursor.get();
-                return Result.TypeConstraint;
+                return Result.TYPE_CONSTRAINT;
             } else {
                 this.cursor = tempReference_cursor.get();
             }
         } else if (this.cursor.scopeType().isTypedScope() && !typeArg.equals(this.cursor.scopeTypeArgs().get(0).clone())) {
-            return Result.TypeConstraint;
+            return Result.TYPE_CONSTRAINT;
         }
 
         this.cursor.writePath(path);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -795,15 +795,15 @@ public final class RowWriter {
      * @return Success if the write is successful, an error code otherwise.
      */
     private <TLayoutType extends LayoutType<String> & ILayoutUtf8SpanWritable> Result WritePrimitive(UtfAnyString path, Utf8Span value, TLayoutType type, AccessUtf8SpanMethod sparse) {
-        Result result = Result.NotFound;
+        Result result = Result.NOT_FOUND;
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
-        if (result == Result.NotFound) {
+        if (result == Result.NOT_FOUND) {
             // Write sparse value.
             result = this.PrepareSparseWrite(path, type.getTypeArg().clone());
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 return result;
             }
 
@@ -834,15 +834,15 @@ public final class RowWriter {
      * @return Success if the write is successful, an error code otherwise.
      */
     private <TLayoutType extends LayoutType<TElement[]> & ILayoutSpanWritable<TElement>, TElement> Result WritePrimitive(UtfAnyString path, ReadOnlySpan<TElement> value, TLayoutType type, AccessReadOnlySpanMethod<TElement> sparse) {
-        Result result = Result.NotFound;
+        Result result = Result.NOT_FOUND;
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
-        if (result == Result.NotFound) {
+        if (result == Result.NOT_FOUND) {
             // Write sparse value.
             result = this.PrepareSparseWrite(path, type.getTypeArg().clone());
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 return result;
             }
 
@@ -873,15 +873,15 @@ public final class RowWriter {
      * @return Success if the write is successful, an error code otherwise.
      */
     private <TLayoutType extends LayoutType<TElement[]> & ILayoutSequenceWritable<TElement>, TElement> Result WritePrimitive(UtfAnyString path, ReadOnlySequence<TElement> value, TLayoutType type, AccessMethod<ReadOnlySequence<TElement>> sparse) {
-        Result result = Result.NotFound;
+        Result result = Result.NOT_FOUND;
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
-        if (result == Result.NotFound) {
+        if (result == Result.NOT_FOUND) {
             // Write sparse value.
             result = this.PrepareSparseWrite(path, type.getTypeArg().clone());
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 return result;
             }
 
@@ -912,16 +912,16 @@ public final class RowWriter {
      */
     private <TValue> Result WritePrimitive(UtfAnyString path, TValue value, LayoutType<TValue> type,
                                            AccessMethod<TValue> sparse) {
-        Result result = Result.NotFound;
+        Result result = Result.NOT_FOUND;
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.WriteSchematizedValue(path, value);
         }
 
-        if (result == Result.NotFound) {
+        if (result == Result.NOT_FOUND) {
             // Write sparse value.
 
             result = this.PrepareSparseWrite(path, type.getTypeArg().clone());
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 return result;
             }
 
@@ -953,13 +953,13 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         if (!this.cursor.layout().TryFind(path, out col)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         boolean tempVar = col.Type instanceof LayoutType<TValue>;
         LayoutType<TValue> t = tempVar ? (LayoutType<TValue>)col.Type : null;
         if (!(tempVar)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         switch (col.Storage) {
@@ -978,10 +978,10 @@ public final class RowWriter {
                 return tempVar3;
 
             default:
-                return Result.NotFound;
+                return Result.NOT_FOUND;
         }
 
-        return Result.NotFound;
+        return Result.NOT_FOUND;
     }
 
     /**
@@ -996,12 +996,12 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         if (!this.cursor.layout().TryFind(path, out col)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         LayoutType t = col.Type;
         if (!(t instanceof ILayoutUtf8SpanWritable)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         switch (col.Storage) {
@@ -1027,7 +1027,7 @@ public final class RowWriter {
                 this.row = tempReference_row2.get();
                 return tempVar2;
             default:
-                return Result.NotFound;
+                return Result.NOT_FOUND;
         }
     }
 
@@ -1043,12 +1043,12 @@ public final class RowWriter {
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         if (!this.cursor.layout().TryFind(path, out col)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         LayoutType t = col.Type;
         if (!(t instanceof ILayoutSpanWritable<TElement>)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         switch (col.Storage) {
@@ -1067,7 +1067,7 @@ public final class RowWriter {
                 this.row = tempReference_row2.get();
                 return tempVar2;
             default:
-                return Result.NotFound;
+                return Result.NOT_FOUND;
         }
     }
 
@@ -1083,12 +1083,12 @@ public final class RowWriter {
         LayoutColumn col;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         if (!this.cursor.layout().TryFind(path, out col)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         LayoutType t = col.Type;
         if (!(t instanceof ILayoutSequenceWritable<TElement>)) {
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         switch (col.Storage) {
@@ -1107,7 +1107,7 @@ public final class RowWriter {
                 this.row = tempReference_row2.get();
                 return tempVar2;
             default:
-                return Result.NotFound;
+                return Result.NOT_FOUND;
         }
     }
 

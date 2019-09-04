@@ -5,7 +5,6 @@ package com.azure.data.cosmos.serialization.hybridrow.perf;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -128,8 +127,8 @@ public final class ReaderBenchmark {
         {
             context.IncrementRecordCount();
             r = ReaderBenchmark.VisitOneRow(record, context.getResolver());
-            assert Result.Success == r;
-            return Result.Success;
+            assert Result.SUCCESS == r;
+            return Result.SUCCESS;
         }, segment ->
         {
             Segment _;
@@ -137,13 +136,13 @@ public final class ReaderBenchmark {
                 new Out<Segment>();
             r = SegmentSerializer.Read(segment.Span, context.getResolver(), tempOut__);
             _ = tempOut__.get();
-            assert Result.Success == r;
+            assert Result.SUCCESS == r;
 
             // TODO: do something with embedded schema.
-            return Result.Success;
+            return Result.SUCCESS;
         }, resizer);
 
-        assert Result.Success == r;
+        assert Result.SUCCESS == r;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:

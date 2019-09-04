@@ -97,13 +97,13 @@ public final class NullableUnitTests {
         Result r = NullableUnitTests.ReadNullableImpl(row, scope, itemType.clone(), tempOut_value,
             nullableScope.clone());
         value = tempOut_value.get();
-        if ((r != Result.Success) && (r != Result.NotFound)) {
+        if ((r != Result.SUCCESS) && (r != Result.NOT_FOUND)) {
             item.setAndGet(null);
             return r;
         }
 
-        item.setAndGet((r == Result.NotFound) ? null : value);
-        return Result.Success;
+        item.setAndGet((r == Result.NOT_FOUND) ? null : value);
+        return Result.SUCCESS;
     }
 
     private static <TValue> Result ReadNullable(Reference<RowBuffer> row,
@@ -111,7 +111,7 @@ public final class NullableUnitTests {
                                                 Out<TValue> item,
                                                 Out<RowCursor> nullableScope) {
         Result r = NullableUnitTests.ReadNullableImpl(row, scope, itemType.clone(), item, nullableScope.clone());
-        return (r == Result.NotFound) ? Result.Success : r;
+        return (r == Result.NOT_FOUND) ? Result.SUCCESS : r;
     }
 
     private static <TValue> Result ReadNullableImpl(Reference<RowBuffer> row,
@@ -119,7 +119,7 @@ public final class NullableUnitTests {
                                                     Out<TValue> item,
                                                     Out<RowCursor> nullableScope) {
         Result r = itemType.getType().<LayoutNullable>TypeAs().ReadScope(row, scope, nullableScope.clone());
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             item.setAndGet(null);
             return r;
         }
@@ -132,7 +132,7 @@ public final class NullableUnitTests {
 
         ResultAssert.NotFound(LayoutNullable.HasValue(row, nullableScope.clone()));
         item.setAndGet(null);
-        return Result.NotFound;
+        return Result.NOT_FOUND;
     }
 
     private Nullables ReadNullables(Reference<RowBuffer> row, Reference<RowCursor> root) {
@@ -150,7 +150,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.SUCCESS) {
             value.NullBool = new ArrayList<Boolean>();
             RowCursor nullableScope = null;
             Reference<RowCursor> tempReference_nullableScope =
@@ -183,7 +183,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.SUCCESS) {
             value.NullArray = new ArrayList<Float>();
             RowCursor nullableScope = null;
             Reference<RowCursor> tempReference_nullableScope2 =
@@ -216,7 +216,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedSet>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedSet>typeAs().ReadScope(row, ref scope, out scope) == Result.SUCCESS) {
             value.NullSet = new ArrayList<String>();
             RowCursor nullableScope = null;
             Reference<RowCursor> tempReference_nullableScope3 =
@@ -249,7 +249,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutTypedArray>typeAs().ReadScope(row, ref scope, out scope) == Result.SUCCESS) {
             value.NullTuple = new ArrayList<(Integer, Long) > ();
             RowCursor tupleScope = null;
             TypeArgument tupleType = c.TypeArgs[0];
@@ -316,7 +316,7 @@ public final class NullableUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref scope, out scope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref scope, out scope) == Result.SUCCESS) {
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: value.NullMap = new Dictionary<GuidCodec, Nullable<byte>>();
             value.NullMap = new HashMap<UUID, Byte>();
@@ -406,7 +406,7 @@ public final class NullableUnitTests {
         Result r = itemType.<LayoutNullable>TypeAs().WriteScope(row, scope, itemType.getTypeArgs().clone(), hasValue,
             nullableScope);
 
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -416,7 +416,7 @@ public final class NullableUnitTests {
             return r;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private void WriteNullables(Reference<RowBuffer> row, Reference<RowCursor> root,

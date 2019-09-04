@@ -973,7 +973,7 @@ public final class TypedMapUnitTests {
             new Out<RowCursor>();
         Result r = tupleLayout.ReadScope(row, scope, tempOut_tupleScope);
         tupleScope = tempOut_tupleScope.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -985,7 +985,7 @@ public final class TypedMapUnitTests {
         r = typeArgs.get(0).getType().<LayoutType<TKey>>TypeAs().ReadSparse(row, tempReference_tupleScope, tempOut_key);
         key = tempOut_key.get();
         tupleScope = tempReference_tupleScope.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -997,12 +997,12 @@ public final class TypedMapUnitTests {
         r = typeArgs.get(1).getType().<LayoutType<TValue>>TypeAs().ReadSparse(row, tempReference_tupleScope2, tempOut_value);
         value = tempOut_value.get();
         tupleScope = tempReference_tupleScope2.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
         pair.setAndGet(new KeyValuePair<TKey, TValue>(key, value));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private Movie ReadMovie(Reference<RowBuffer> row, Reference<RowCursor> root) {
@@ -1020,7 +1020,7 @@ public final class TypedMapUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref castScope, out castScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref castScope, out castScope) == Result.SUCCESS) {
             value.Cast = new HashMap<String, String>();
             while (castScope.MoveNext(row)) {
                 Reference<RowCursor> tempReference_castScope =
@@ -1047,7 +1047,7 @@ public final class TypedMapUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref statsScope, out statsScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref statsScope, out statsScope) == Result.SUCCESS) {
             value.Stats = new HashMap<UUID, Double>();
             while (statsScope.MoveNext(row)) {
                 Reference<RowCursor> tempReference_statsScope =
@@ -1074,7 +1074,7 @@ public final class TypedMapUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref relatedScope, out relatedScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref relatedScope, out relatedScope) == Result.SUCCESS) {
             value.Related = new HashMap<String, HashMap<Long, String>>();
             TypeArgument keyType = c.TypeArgs[0];
             TypeArgument valueType = c.TypeArgs[1];
@@ -1136,7 +1136,7 @@ public final class TypedMapUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref revenueScope, out revenueScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref revenueScope, out revenueScope) == Result.SUCCESS) {
             value.Revenue = new HashMap<LocalDateTime, Earnings>();
             TypeArgument keyType = c.TypeArgs[0];
             TypeArgument valueType = c.TypeArgs[1];
@@ -1195,7 +1195,7 @@ public final class TypedMapUnitTests {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = tupleLayout.WriteScope(row, scope, typeArgs.clone(), out tupleScope);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -1203,7 +1203,7 @@ public final class TypedMapUnitTests {
             new Reference<RowCursor>(tupleScope);
         r = typeArgs.get(0).getType().<LayoutType<TKey>>TypeAs().WriteSparse(row, tempReference_tupleScope, pair.Key);
         tupleScope = tempReference_tupleScope.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 

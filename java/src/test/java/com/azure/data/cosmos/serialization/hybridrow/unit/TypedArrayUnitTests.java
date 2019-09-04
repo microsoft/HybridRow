@@ -128,7 +128,7 @@ public final class TypedArrayUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref tagsScope, out tagsScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref tagsScope, out tagsScope) == Result.SUCCESS) {
             value.Tags = new ArrayList<String>();
             while (tagsScope.MoveNext(row)) {
                 String item;
@@ -155,7 +155,7 @@ public final class TypedArrayUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref optionsScope, out optionsScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref optionsScope, out optionsScope) == Result.SUCCESS) {
             value.Options = new ArrayList<Integer>();
             while (optionsScope.MoveNext(row)) {
                 TypeArgument itemType = c.TypeArgs[0];
@@ -203,7 +203,7 @@ public final class TypedArrayUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref ratingsScope, out ratingsScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref ratingsScope, out ratingsScope) == Result.SUCCESS) {
             value.Ratings = new ArrayList<ArrayList<Double>>();
             TypeArgument innerType = c.TypeArgs[0];
             LayoutTypedArray innerLayout = innerType.getType().<LayoutTypedArray>TypeAs();
@@ -249,7 +249,7 @@ public final class TypedArrayUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref similarsScope, out similarsScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref similarsScope, out similarsScope) == Result.SUCCESS) {
             value.Similars = new ArrayList<SimilarMatch>();
             while (similarsScope.MoveNext(row)) {
                 TypeArgument innerType = c.TypeArgs[0];
@@ -281,7 +281,7 @@ public final class TypedArrayUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref priorityScope, out priorityScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref priorityScope, out priorityScope) == Result.SUCCESS) {
             value.Priority = new ArrayList<Tuple<String, Long>>();
             RowCursor tupleScope = null;
             Reference<RowCursor> tempReference_tupleScope =

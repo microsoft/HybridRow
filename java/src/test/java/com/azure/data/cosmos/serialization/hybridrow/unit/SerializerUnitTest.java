@@ -70,7 +70,7 @@ public final class SerializerUnitTest {
             new Reference<RowBuffer>(row);
         Result r = RowWriter.WriteBuffer(tempReference_row, request, BatchRequestSerializer.Write);
         row = tempReference_row.get();
-        assert Result.Success == r;
+        assert Result.SUCCESS == r;
         System.out.printf("Length of serialized row: %1$s" + "\r\n", row.length());
 
         // Read the row back again.
@@ -85,7 +85,7 @@ public final class SerializerUnitTest {
         r = BatchRequestSerializer.Read(tempReference_reader, tempOut__);
         _ = tempOut__.get();
         reader = tempReference_reader.get();
-        assert Result.Success == r;
+        assert Result.SUCCESS == r;
 
         // Dump the materialized request to the console.
         Reference<RowBuffer> tempReference_row3 =
@@ -99,7 +99,7 @@ public final class SerializerUnitTest {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         r = DiagnosticConverter.ReaderToString(tempReference_reader2, out dumpStr);
         reader = tempReference_reader2.get();
-        assert Result.Success == r;
+        assert Result.SUCCESS == r;
         System.out.println(dumpStr);
     }
 
@@ -145,7 +145,7 @@ public final class SerializerUnitTest {
                         Out<Integer> tempOut_OperationType = new Out<Integer>();
                         r = reader.get().ReadInt32(tempOut_OperationType);
                         retval.OperationType = tempOut_OperationType.get();
-                        if (r != Result.Success) {
+                        if (r != Result.SUCCESS) {
                             return r;
                         }
 
@@ -159,7 +159,7 @@ public final class SerializerUnitTest {
                             (ref RowReader child, BatchOperation parent) -> BatchRequestHeadersSerializer.Read(tempReference_child, tempOut_Headers));
                         parent.Headers = tempOut_Headers.get();
                         child = tempReference_child.get();
-                        if (r != Result.Success) {
+                        if (r != Result.SUCCESS) {
                             return r;
                         }
 
@@ -168,7 +168,7 @@ public final class SerializerUnitTest {
                         Out<Integer> tempOut_ResourceType = new Out<Integer>();
                         r = reader.get().ReadInt32(tempOut_ResourceType);
                         retval.ResourceType = tempOut_ResourceType.get();
-                        if (r != Result.Success) {
+                        if (r != Result.SUCCESS) {
                             return r;
                         }
 
@@ -177,7 +177,7 @@ public final class SerializerUnitTest {
                         Out<String> tempOut_ResourcePath = new Out<String>();
                         r = reader.get().ReadString(tempOut_ResourcePath);
                         retval.ResourcePath = tempOut_ResourcePath.get();
-                        if (r != Result.Success) {
+                        if (r != Result.SUCCESS) {
                             return r;
                         }
 
@@ -188,7 +188,7 @@ public final class SerializerUnitTest {
                         //ORIGINAL LINE: r = reader.ReadBinary(out retval.ResourceBody);
                         r = reader.get().ReadBinary(tempOut_ResourceBody);
                         retval.ResourceBody = tempOut_ResourceBody.get();
-                        if (r != Result.Success) {
+                        if (r != Result.SUCCESS) {
                             return r;
                         }
 
@@ -197,29 +197,29 @@ public final class SerializerUnitTest {
             }
 
             operation.setAndGet(retval);
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg,
                                    BatchOperation operation) {
             Result r = writer.get().WriteInt32("operationType", operation.OperationType);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             r = writer.get().WriteScope("headers", BatchRequestHeadersSerializer.TypeArg, operation.Headers,
                 BatchRequestHeadersSerializer.Write);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             r = writer.get().WriteInt32("resourceType", operation.ResourceType);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
             r = writer.get().WriteString("resourcePath", operation.ResourcePath);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -250,7 +250,7 @@ public final class SerializerUnitTest {
                         Out<Long> tempOut_SampleRequestHeader = new Out<Long>();
                         Result r = reader.get().ReadInt64(tempOut_SampleRequestHeader);
                         retval.SampleRequestHeader = tempOut_SampleRequestHeader.get();
-                        if (r != Result.Success) {
+                        if (r != Result.SUCCESS) {
                             return r;
                         }
 
@@ -259,7 +259,7 @@ public final class SerializerUnitTest {
             }
 
             header.setAndGet(retval);
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg,
@@ -280,7 +280,7 @@ public final class SerializerUnitTest {
             Out<ArrayList<TItem>> tempOut_operations = new Out<ArrayList<TItem>>();
             Result r = RowReaderExtensions.ReadList(reader.get().clone(), BatchOperationSerializer.Read, tempOut_operations);
             operations = tempOut_operations.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 request.setAndGet(null);
                 return r;
             }
@@ -288,7 +288,7 @@ public final class SerializerUnitTest {
             request.setAndGet(new BatchRequest());
             request.get().Operations = operations;
 
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, BatchRequest request) {
@@ -297,12 +297,12 @@ public final class SerializerUnitTest {
             {
                 for (BatchOperation operation : operations) {
                     Result r = writer2.WriteScope(null, BatchOperationSerializer.TypeArg, operation, BatchOperationSerializer.Write);
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             });
         }
     }

@@ -28,9 +28,9 @@ import static com.google.common.base.Strings.lenientFormat;
 @JsonSerialize(using = SchemaId.JsonSerializer.class)
 public final class SchemaId {
 
+    public static final int BYTES = Integer.BYTES;
     public static final SchemaId INVALID = null;
     public static final SchemaId NONE = new SchemaId(-1);
-    public static final int SIZE = Integer.SIZE / Byte.SIZE;
 
     private static final long MAX_VALUE = 0x00000000FFFFFFFFL;
     private static final Int2ReferenceMap<SchemaId> cache = new Int2ReferenceOpenHashMap<>();
@@ -104,7 +104,7 @@ public final class SchemaId {
             final long value = parser.getLongValue();
 
             if (value < 0 || value > MAX_VALUE) {
-                String message = lenientFormat("expected integer value in [0, 4294967295], not %s", value);
+                String message = lenientFormat("expected value in [0, 4294967295], not %s", value);
                 throw MismatchedInputException.from(parser, SchemaId.class, message);
             }
 

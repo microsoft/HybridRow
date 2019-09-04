@@ -3,13 +3,15 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 /**
  * Describes the desired behavior when mutating a hybrid row.
  */
 public enum RowOptions {
-    None(0),
+
+    NONE(0),
 
     /**
      * Overwrite an existing value.
@@ -18,7 +20,7 @@ public enum RowOptions {
      * replaced inline.  The remainder of the row is resized to accomodate either an increase or decrease
      * in required space.
      */
-    Update(1),
+    UPDATE(1),
 
     /**
      * Insert a new value.
@@ -27,23 +29,23 @@ public enum RowOptions {
      * inserted immediately at the offset.  The remainder of the row is resized to accomodate either an
      * increase or decrease in required space.
      */
-    Insert(2),
+    INSERT(2),
 
     /**
      * Update an existing value or insert a new value, if no value exists.
      * <p>
-     * If a value exists, then this operation becomes {@link Update}, otherwise it
-     * becomes {@link Insert}.
+     * If a value exists, then this operation becomes {@link #UPDATE}, otherwise it
+     * becomes {@link #INSERT}.
      */
-    Upsert(3),
+    UPSERT(3),
 
     /**
      * Insert a new value moving existing values to the right.
      * <p>
      * Within an array scope, inserts a new value immediately at the index moving all subsequent
-     * items to the right. In any other scope behaves the same as {@link Upsert}.
+     * items to the right. In any other scope behaves the same as {@link #UPSERT}.
      */
-    InsertAt(4),
+    INSERT_AT(4),
 
     /**
      * Delete an existing value.
@@ -51,30 +53,31 @@ public enum RowOptions {
      * If a value exists, then it is removed.  The remainder of the row is resized to accomodate
      * a decrease in required space.  If no value exists this operation is a no-op.
      */
-    Delete(5);
+    DELETE(5);
 
-    public static final int SIZE = java.lang.Integer.SIZE;
-    private static HashMap<Integer, RowOptions> mappings;
-    private int value;
+    public static final int BYTES = Integer.BYTES;
+
+    private static Int2ObjectMap<RowOptions> mappings;
+    private final int value;
 
     RowOptions(int value) {
         this.value = value;
         mappings().put(value, this);
     }
 
-    public int getValue() {
-        return this.value;
-    }
-
     public static RowOptions from(int value) {
         return mappings().get(value);
     }
 
-    private static HashMap<Integer, RowOptions> mappings() {
+    public int value() {
+        return this.value;
+    }
+
+    private static Int2ObjectMap<RowOptions> mappings() {
         if (mappings == null) {
             synchronized (RowOptions.class) {
                 if (mappings == null) {
-                    mappings = new HashMap<>();
+                    mappings = new Int2ObjectOpenHashMap<>();
                 }
             }
         }

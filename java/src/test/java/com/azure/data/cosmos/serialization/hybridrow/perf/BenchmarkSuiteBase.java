@@ -111,19 +111,19 @@ public class BenchmarkSuiteBase {
                 {
                     body = null;
                     if (index >= rows.size()) {
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }
 
                     StreamingRowGenerator writer = new StreamingRowGenerator(BenchmarkSuiteBase.InitialCapacity, layout,
                         resolver, resizer);
 
                     Result r2 = writer.WriteBuffer(rows.get((int)index));
-                    if (r2 != Result.Success) {
+                    if (r2 != Result.SUCCESS) {
                         return r2;
                     }
 
                     body = resizer.getMemory().Slice(0, writer.getLength());
-                    return Result.Success;
+                    return Result.SUCCESS;
                 });
 
             ResultAssert.IsSuccess(r);
@@ -134,7 +134,7 @@ public class BenchmarkSuiteBase {
     //ORIGINAL LINE: private protected static class ResultAssert
     protected static class ResultAssert {
         public static void IsSuccess(Result actual) {
-			assert actual == Result.Success || Result.Success == actual;
+			assert actual == Result.SUCCESS || Result.SUCCESS == actual;
         }
     }
 }

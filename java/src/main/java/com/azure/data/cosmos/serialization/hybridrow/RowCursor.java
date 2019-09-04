@@ -52,13 +52,13 @@ public final class RowCursor implements Cloneable {
 
         final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
-        final int sparseSegmentOffset = row.ComputeVariableValueOffset(layout, HybridRowHeader.SIZE, layout.numVariable());
+        final int sparseSegmentOffset = row.ComputeVariableValueOffset(layout, HybridRowHeader.BYTES, layout.numVariable());
 
         return new RowCursor()
             .layout(layout)
             .scopeType(LayoutTypes.UDT)
             .scopeTypeArgs(new TypeArgumentList(schemaId))
-            .start(HybridRowHeader.SIZE)
+            .start(HybridRowHeader.BYTES)
             .metaOffset(sparseSegmentOffset)
             .valueOffset(sparseSegmentOffset);
     }
@@ -72,7 +72,7 @@ public final class RowCursor implements Cloneable {
             .layout(layout)
             .scopeType(LayoutTypes.UDT)
             .scopeTypeArgs(new TypeArgumentList(schemaId))
-            .start(HybridRowHeader.SIZE)
+            .start(HybridRowHeader.BYTES)
             .metaOffset(row.length())
             .valueOffset(row.length());
     }

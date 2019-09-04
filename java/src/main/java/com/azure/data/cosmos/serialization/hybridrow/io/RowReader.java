@@ -143,7 +143,7 @@ public final class RowReader {
                     this.cursor = cursor.get();
                     Reference<RowBuffer> row = new Reference<>(this.row);
                     Reference<RowCursor> tempReference_nullableScope = new Reference<>(nullableScope);
-                    boolean tempVar = LayoutNullable.hasValue(row, tempReference_nullableScope) == Result.Success;
+                    boolean tempVar = LayoutNullable.hasValue(row, tempReference_nullableScope) == Result.SUCCESS;
                     nullableScope = tempReference_nullableScope.get();
                     this.row = row.get();
                     return tempVar;
@@ -196,7 +196,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Utf8Span span = this.row.ReadSparsePath(tempReference_cursor);
+                Utf8Span span = this.row.readSparsePath(tempReference_cursor);
                 this.cursor = tempReference_cursor.get();
                 return Utf8String.CopyFrom(span);
             default:
@@ -216,7 +216,7 @@ public final class RowReader {
             case Sparse:
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Utf8Span tempVar = this.row.ReadSparsePath(tempReference_cursor);
+                Utf8Span tempVar = this.row.readSparsePath(tempReference_cursor);
                 this.cursor = tempReference_cursor.get();
                 return tempVar;
             default:
@@ -347,7 +347,7 @@ public final class RowReader {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadBinary(out ReadOnlySpan<byte> span);
         Result r = this.ReadBinary(out span);
-        value.setAndGet((r == Result.Success) ? span.ToArray() :)
+        value.setAndGet((r == Result.SUCCESS) ? span.ToArray() :)
         default
         return r;
     }
@@ -367,17 +367,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutBinary)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseBinary(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -394,17 +394,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutBoolean)) {
                     value.setAndGet(false);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseBoolean(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(false);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -421,17 +421,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutDateTime)) {
                     value.setAndGet(LocalDateTime.MIN);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseDateTime(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(LocalDateTime.MIN);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -448,17 +448,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutDecimal)) {
                     value.setAndGet(new BigDecimal(0));
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseDecimal(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(new BigDecimal(0));
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -475,17 +475,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutFloat128)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseFloat128(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -502,17 +502,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutFloat32)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseFloat32(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -529,17 +529,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutFloat64)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseFloat64(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -556,17 +556,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutGuid)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseGuid(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -583,17 +583,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutInt16)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseInt16(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -610,17 +610,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutInt32)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseInt32(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -637,17 +637,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutInt64)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseInt64(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -664,17 +664,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutInt8)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseInt8(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -691,17 +691,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutMongoDbObjectId)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.ReadSparseMongoDbObjectId(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -718,17 +718,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutNull)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseNull(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -772,9 +772,9 @@ public final class RowReader {
         Reference<RowReader> tempReference_nestedReader =
             new Reference<RowReader>(nestedReader);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-        Result result = func == null ? null : func.Invoke(ref nestedReader, context) ??Result.Success;
+        Result result = func == null ? null : func.Invoke(ref nestedReader, context) ??Result.SUCCESS;
         nestedReader = tempReference_nestedReader.get();
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
@@ -786,7 +786,7 @@ public final class RowReader {
             tempReference_cursor2);
         nestedReader.cursor = tempReference_cursor2.get();
         this.row = tempReference_row2.get();
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -800,7 +800,7 @@ public final class RowReader {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadString(out span);
-        value.setAndGet((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
         default
         return r;
     }
@@ -816,7 +816,7 @@ public final class RowReader {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadString(out span);
-        value.setAndGet((r == Result.Success) ? Utf8String.CopyFrom(span) :)
+        value.setAndGet((r == Result.SUCCESS) ? Utf8String.CopyFrom(span) :)
         default
         return r;
     }
@@ -834,17 +834,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutUtf8)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseString(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -863,17 +863,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutUInt16)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseUInt16(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -892,17 +892,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutUInt32)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseUInt32(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -921,17 +921,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutUInt64)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseUInt64(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -950,17 +950,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutUInt8)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseUInt8(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -977,17 +977,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutUnixDateTime)) {
                     value.setAndGet(null);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseUnixDateTime(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -1004,17 +1004,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutVarInt)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseVarInt(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -1033,17 +1033,17 @@ public final class RowReader {
             case Sparse:
                 if (!(this.cursor.cellType() instanceof LayoutVarUInt)) {
                     value.setAndGet(0);
-                    return Result.TypeMismatch;
+                    return Result.TYPE_MISMATCH;
                 }
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
                 value.setAndGet(this.row.readSparseVarUInt(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
-                return Result.Success;
+                return Result.SUCCESS;
             default:
                 value.setAndGet(0);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -1062,7 +1062,7 @@ public final class RowReader {
      */
     public Result SkipScope(Reference<RowReader> nestedReader) {
         if (nestedReader.get().cursor.start() != this.cursor.valueOffset()) {
-            return Result.Failure;
+            return Result.FAILURE;
         }
 
         Reference<RowBuffer> tempReference_row =
@@ -1073,7 +1073,7 @@ public final class RowReader {
             tempReference_cursor);
         nestedReader.get().argValue.cursor = tempReference_cursor.get();
         this.row = tempReference_row.get();
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public RowReader clone() {
@@ -1101,7 +1101,7 @@ public final class RowReader {
         LayoutType t = this.columns[this.columnIndex].Type;
         if (!(t instanceof LayoutType<TValue>)) {
             value.setAndGet(null);
-            return Result.TypeMismatch;
+            return Result.TYPE_MISMATCH;
         }
 
         switch (col == null ? null : col.storage()) {
@@ -1124,7 +1124,7 @@ public final class RowReader {
             default:
                 throw new IllegalStateException();
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -1139,7 +1139,7 @@ public final class RowReader {
         LayoutType t = this.columns[this.columnIndex].Type;
         if (!(t instanceof ILayoutUtf8SpanReadable)) {
             value.setAndGet(null);
-            return Result.TypeMismatch;
+            return Result.TYPE_MISMATCH;
         }
 
         switch (col == null ? null : col.storage()) {
@@ -1161,7 +1161,7 @@ public final class RowReader {
             default:
                 throw new IllegalStateException();
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 
@@ -1177,7 +1177,7 @@ public final class RowReader {
         LayoutType t = this.columns[this.columnIndex].Type;
         if (!(t instanceof ILayoutSpanReadable<TElement>)) {
             value.setAndGet(null);
-            return Result.TypeMismatch;
+            return Result.TYPE_MISMATCH;
         }
 
         switch (col == null ? null : col.storage()) {
@@ -1198,7 +1198,7 @@ public final class RowReader {
             default:
                 throw new IllegalStateException();
                 value.setAndGet(null);
-                return Result.Failure;
+                return Result.FAILURE;
         }
     }
 

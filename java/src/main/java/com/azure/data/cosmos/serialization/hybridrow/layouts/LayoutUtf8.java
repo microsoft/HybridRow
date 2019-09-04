@@ -31,7 +31,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadFixed(b, scope, column, out span);
-        value.setAndGet((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
         default
         return r;
     }
@@ -42,11 +42,11 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         checkArgument(col.getSize() >= 0);
         if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         value.setAndGet(b.get().readFixedString(scope.get().start() + col.getOffset(), col.getSize()));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -56,20 +56,20 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadSparse(b, edit, out span);
-        value.setAndGet((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
         default
         return r;
     }
 
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Utf8Span> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         value.setAndGet(b.get().readSparseString(edit));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -79,7 +79,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.ReadVariable(b, scope, column, out span);
-        value.setAndGet((r == Result.Success) ? span.toString() :)
+        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
         default
         return r;
     }
@@ -89,13 +89,13 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(null);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         value.setAndGet(b.get().readVariableString(varOffset));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -111,12 +111,12 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         checkArgument(col.getSize() >= 0);
         checkArgument(value.Length == col.getSize());
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         b.get().writeFixedString(scope.get().start() + col.getOffset(), value);
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -145,12 +145,12 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Utf8Span value,
                               UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseString(edit, value, options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -164,12 +164,12 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
                                 LayoutColumn col, Utf8Span value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         int length = value.Length;
         if ((col.getSize() > 0) && (length > col.getSize())) {
-            return Result.TooBig;
+            return Result.TOO_BIG;
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
@@ -182,6 +182,6 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);
         scope.get().valueOffset(scope.get().valueOffset() + shift);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

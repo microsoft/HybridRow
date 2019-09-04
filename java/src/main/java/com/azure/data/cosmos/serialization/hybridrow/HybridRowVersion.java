@@ -3,7 +3,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 /**
  * Versions of HybridRow
@@ -12,35 +13,36 @@ import java.util.HashMap;
  */
 public enum HybridRowVersion {
 
-    Invalid((byte)0),
+    INVALID((byte)0),
 
     /**
      * Initial version of the HybridRow format.
      */
     V1((byte)0x81);
 
-    public static final int SIZE = java.lang.Byte.SIZE;
-    private static java.util.HashMap<Byte, HybridRowVersion> mappings;
+    public static final int BYTES = Byte.BYTES;
+
+    private static Int2ObjectMap<HybridRowVersion> mappings;
     private byte value;
 
     HybridRowVersion(byte value) {
         this.value = value;
-        getMappings().put(value, this);
+        mappings().put(value, this);
+    }
+
+    public static HybridRowVersion from(byte value) {
+        return mappings().get(value);
     }
 
     public byte value() {
         return this.value;
     }
 
-    public static HybridRowVersion from(byte value) {
-        return getMappings().get(value);
-    }
-
-    private static java.util.HashMap<Byte, HybridRowVersion> getMappings() {
+    private static Int2ObjectMap<HybridRowVersion> mappings() {
         if (mappings == null) {
             synchronized (HybridRowVersion.class) {
                 if (mappings == null) {
-                    mappings = new HashMap<>();
+                    mappings = new Int2ObjectOpenHashMap<>();
                 }
             }
         }

@@ -27,7 +27,7 @@ public final class RecordIOFormatter {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
-        int estimatedSize = HybridRowHeader.SIZE + RecordIOFormatter.RecordLayout.getSize() + body.Length;
+        int estimatedSize = HybridRowHeader.BYTES + RecordIOFormatter.RecordLayout.getSize() + body.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: uint crc32 = Crc32.Update(0, body.Span);
         int crc32 = Crc32.Update(0, body.Span);
@@ -49,7 +49,7 @@ public final class RecordIOFormatter {
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
         int estimatedSize =
-            HybridRowHeader.SIZE + RecordIOFormatter.SegmentLayout.getSize() + segment.Comment == null ? null :
+            HybridRowHeader.BYTES + RecordIOFormatter.SegmentLayout.getSize() + segment.Comment == null ? null :
                 segment.Comment.length() != null ? segment.Comment.length() : 0 + segment.SDL == null ? null :
                     segment.SDL.length() != null ? segment.SDL.length() : 0 + 20;
 
@@ -65,11 +65,11 @@ public final class RecordIOFormatter {
         row.setAndGet(new RowBuffer(initialCapacity, resizer));
         row.get().initLayout(HybridRowVersion.V1, layout, SystemSchema.LayoutResolver);
         Result r = RowWriter.WriteBuffer(row.clone(), obj, writer);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             row.setAndGet(null);
             return r;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

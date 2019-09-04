@@ -19,7 +19,7 @@ public final class RecordSerializer {
                     Out<Integer> tempOut_Length = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_Length);
                     obj.get().argValue.Length = tempOut_Length.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -30,7 +30,7 @@ public final class RecordSerializer {
                     //ORIGINAL LINE: r = reader.ReadUInt32(out obj.Crc32);
                     r = reader.get().ReadUInt32(tempOut_Crc32);
                     obj.get().argValue.Crc32 = tempOut_Crc32.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -38,13 +38,13 @@ public final class RecordSerializer {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Record obj) {
         Result r;
         r = writer.get().WriteInt32("length", obj.Length);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 

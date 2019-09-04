@@ -1195,7 +1195,7 @@ public final class TypedSetUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref tagsScope, out tagsScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref tagsScope, out tagsScope) == Result.SUCCESS) {
             value.Attendees = new ArrayList<String>();
             while (tagsScope.MoveNext(row)) {
                 String item;
@@ -1222,7 +1222,7 @@ public final class TypedSetUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref projScope, out projScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref projScope, out projScope) == Result.SUCCESS) {
             value.Projects = new ArrayList<UUID>();
             while (projScope.MoveNext(row)) {
                 java.util.UUID item;
@@ -1249,7 +1249,7 @@ public final class TypedSetUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref checkboxScope, out checkboxScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref checkboxScope, out checkboxScope) == Result.SUCCESS) {
             value.Checkboxes = new ArrayList<Boolean>();
             while (checkboxScope.MoveNext(row)) {
                 boolean item;
@@ -1276,7 +1276,7 @@ public final class TypedSetUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref pricesScope, out pricesScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref pricesScope, out pricesScope) == Result.SUCCESS) {
             value.Prices = new ArrayList<ArrayList<Float>>();
             TypeArgument innerType = c.TypeArgs[0];
             LayoutUniqueScope innerLayout = innerType.getType().<LayoutUniqueScope>TypeAs();
@@ -1317,7 +1317,7 @@ public final class TypedSetUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref nestedScope, out nestedScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref nestedScope, out nestedScope) == Result.SUCCESS) {
             value.Nested = new ArrayList<ArrayList<ArrayList<Integer>>>();
             TypeArgument in2Type = c.TypeArgs[0];
             LayoutUniqueScope in2Layout = in2Type.getType().<LayoutUniqueScope>TypeAs();
@@ -1372,7 +1372,7 @@ public final class TypedSetUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref shoppingScope, out shoppingScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref shoppingScope, out shoppingScope) == Result.SUCCESS) {
             value.Shopping = new ArrayList<ShoppingItem>();
             while (shoppingScope.MoveNext(row)) {
                 TypeArgument innerType = c.TypeArgs[0];
@@ -1403,7 +1403,7 @@ public final class TypedSetUnitTests {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref workScope, out workScope) == Result.Success) {
+        if (c.<LayoutUniqueScope>typeAs().ReadScope(row, ref workScope, out workScope) == Result.SUCCESS) {
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: value.Work = new List<Tuple<bool, ulong>>();
             value.Work = new ArrayList<Tuple<Boolean, Long>>();
@@ -1456,12 +1456,12 @@ public final class TypedSetUnitTests {
                     ResultAssert.IsSuccess(writer2.WriteGuid(null, item));
                 }
 
-                return Result.Success;
+                return Result.SUCCESS;
             });
             return r;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private static void WriteShoppingItem(Reference<RowBuffer> row, Reference<RowCursor> matchScope, TypeArgumentList typeArgs, ShoppingItem m) {

@@ -37,14 +37,14 @@ public final class SegmentSerializer {
                     Out<Integer> tempOut_Length = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_Length);
                     obj.get().argValue.Length = tempOut_Length.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
                     // If the RowBuffer isn't big enough to contain the rest of the header, then just
                     // return the length.
                     if (reader.get().getLength() < obj.get().Length) {
-                        return Result.Success;
+                        return Result.SUCCESS;
                     }
 
                     break;
@@ -52,7 +52,7 @@ public final class SegmentSerializer {
                     Out<String> tempOut_Comment = new Out<String>();
                     r = reader.get().ReadString(tempOut_Comment);
                     obj.get().argValue.Comment = tempOut_Comment.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -61,7 +61,7 @@ public final class SegmentSerializer {
                     Out<String> tempOut_SDL = new Out<String>();
                     r = reader.get().ReadString(tempOut_SDL);
                     obj.get().argValue.SDL = tempOut_SDL.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -69,21 +69,21 @@ public final class SegmentSerializer {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Segment obj) {
         Result r;
         if (obj.Comment != null) {
             r = writer.get().WriteString("comment", obj.Comment);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
 
         if (obj.SDL != null) {
             r = writer.get().WriteString("sdl", obj.SDL);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
@@ -93,11 +93,11 @@ public final class SegmentSerializer {
         // Because the length field is itself fixed, writing the length can never change the length.
         int length = writer.get().getLength();
         r = writer.get().WriteInt32("length", length);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
         checkState(length == writer.get().getLength());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

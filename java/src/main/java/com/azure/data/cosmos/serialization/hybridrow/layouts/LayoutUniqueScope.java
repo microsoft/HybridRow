@@ -38,14 +38,14 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
                              Reference<RowCursor> patternScope, Out<RowCursor> value) {
         Result result = LayoutType.prepareSparseMove(b, scope, this, this.FieldType(scope).clone(), patternScope, UpdateOptions.Update, value.clone());
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         // Check if the search found the result.
         b.get().DeleteSparse(patternScope);
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -60,7 +60,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
             this.FieldType(destinationScope).clone(), sourceEdit, options, tempOut_dstEdit);
         dstEdit = tempOut_dstEdit.get();
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
@@ -73,7 +73,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         // TODO: it would be "better" if the destinationScope were updated to point to the
         // highest item seen.  Then we would avoid the maximum reparse.
         destinationScope.get().count(dstEdit.count());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = this.WriteScope(b, scope, typeArgs.clone(), out uniqueScope, options);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -120,9 +120,9 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         Reference<RowCursor> tempReference_childScope =
             new Reference<RowCursor>(childScope);
         // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-        r = func == null ? null : func.Invoke(ref b, ref childScope, context) ??Result.Success;
+        r = func == null ? null : func.Invoke(ref b, ref childScope, context) ??Result.SUCCESS;
         childScope = tempReference_childScope.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             this.deleteScope(b, scope);
             return r;
         }
@@ -132,7 +132,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
             new Reference<RowCursor>(uniqueScope);
         r = b.get().TypedCollectionUniqueIndexRebuild(tempReference_uniqueScope);
         uniqueScope = tempReference_uniqueScope.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             this.deleteScope(b, scope);
             return r;
         }
@@ -142,7 +142,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         RowCursors.skip(scope.get().clone(), b,
             tempReference_childScope2);
         childScope = tempReference_childScope2.get();
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

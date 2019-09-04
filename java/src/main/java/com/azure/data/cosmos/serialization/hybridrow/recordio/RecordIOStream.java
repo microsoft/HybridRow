@@ -123,7 +123,7 @@ public final class RecordIOStream {
                 record = tempOut_record.get();
                 prodType = tempOut_prodType.get();
 
-                if ((r != Result.Success) && (r != Result.InsufficientBuffer)) {
+                if ((r != Result.SUCCESS) && (r != Result.INSUFFICIENT_BUFFER)) {
                     return r;
                 }
 
@@ -134,7 +134,7 @@ public final class RecordIOStream {
                 }
 
                 // If there wasn't enough data to move the parser forward then get more data.
-                if (r == Result.InsufficientBuffer) {
+                if (r == Result.INSUFFICIENT_BUFFER) {
                     if (need > active.Length) {
                         resizer.Resize(need, avail.Span);
                         active = resizer.getMemory();
@@ -148,8 +148,8 @@ public final class RecordIOStream {
                 if (prodType == RecordIOParser.ProductionType.Segment) {
                     checkState(!record.IsEmpty);
                     r = visitSegment == null ? null : visitSegment.invoke(record) != null ?
-                        visitSegment.invoke(record) : Result.Success;
-                    if (r != Result.Success) {
+                        visitSegment.invoke(record) : Result.SUCCESS;
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
                 }
@@ -159,7 +159,7 @@ public final class RecordIOStream {
                     checkState(!record.IsEmpty);
 
                     r = visitRecord.invoke(record);
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
                 }
@@ -168,7 +168,7 @@ public final class RecordIOStream {
 
         // Make sure we processed all of the available data.
         checkState(avail.Length == 0);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -254,7 +254,7 @@ public final class RecordIOStream {
         //ORIGINAL LINE: Result r = RecordIOStream.FormatSegment(segment, resizer, out Memory<byte> metadata);
         Result r = RecordIOStream.FormatSegment(segment.clone(), resizer, tempOut_metadata);
         metadata = tempOut_metadata.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -268,7 +268,7 @@ public final class RecordIOStream {
             ReadOnlyMemory<Byte> body;
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to the C# deconstruction assignments:
             (r, body) =await produce (index++);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -281,7 +281,7 @@ public final class RecordIOStream {
             //ORIGINAL LINE: r = RecordIOStream.FormatRow(body, resizer, out metadata);
             r = RecordIOStream.FormatRow(body, resizer, tempOut_metadata2);
             metadata = tempOut_metadata2.get();
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -297,7 +297,7 @@ public final class RecordIOStream {
             await stm.WriteAsync(body);
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -315,13 +315,13 @@ public final class RecordIOStream {
         Out<RowBuffer> tempOut_row = new Out<RowBuffer>();
         Result r = RecordIOFormatter.FormatRecord(body, tempOut_row, resizer);
         row = tempOut_row.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             block.setAndGet(null);
             return r;
         }
 
         block.setAndGet(resizer.getMemory().Slice(0, row.Length));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -342,13 +342,13 @@ public final class RecordIOStream {
             new Out<RowBuffer>();
         Result r = RecordIOFormatter.FormatSegment(segment.clone(), tempOut_row, resizer);
         row = tempOut_row.get();
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             block.setAndGet(null);
             return r;
         }
 
         block.setAndGet(resizer.getMemory().Slice(0, row.Length));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**

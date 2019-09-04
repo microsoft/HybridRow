@@ -40,7 +40,7 @@ public final class RowReaderJsonExtensions {
 
         ctx.Builder.append("{");
         Result result = RowReaderJsonExtensions.ToJson(reader, ctx.clone());
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             str.setAndGet(null);
             return result;
         }
@@ -48,7 +48,7 @@ public final class RowReaderJsonExtensions {
         ctx.Builder.append(ctx.NewLine);
         ctx.Builder.append("}");
         str.setAndGet(ctx.Builder.toString());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private static Result ToJson(Reference<RowReader> reader, ReaderStringContext ctx) {
@@ -78,7 +78,7 @@ public final class RowReaderJsonExtensions {
                         new Out<NullValue>();
                     r = reader.get().ReadNull(tempOut__);
                     _ = tempOut__.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -91,7 +91,7 @@ public final class RowReaderJsonExtensions {
                     Out<Boolean> tempOut_value = new Out<Boolean>();
                     r = reader.get().ReadBool(tempOut_value);
                     value = tempOut_value.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -104,7 +104,7 @@ public final class RowReaderJsonExtensions {
                     Out<Byte> tempOut_value2 = new Out<Byte>();
                     r = reader.get().ReadInt8(tempOut_value2);
                     value = tempOut_value2.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -117,7 +117,7 @@ public final class RowReaderJsonExtensions {
                     Out<Short> tempOut_value3 = new Out<Short>();
                     r = reader.get().ReadInt16(tempOut_value3);
                     value = tempOut_value3.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -130,7 +130,7 @@ public final class RowReaderJsonExtensions {
                     Out<Integer> tempOut_value4 = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_value4);
                     value = tempOut_value4.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -143,7 +143,7 @@ public final class RowReaderJsonExtensions {
                     Out<Long> tempOut_value5 = new Out<Long>();
                     r = reader.get().ReadInt64(tempOut_value5);
                     value = tempOut_value5.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -158,7 +158,7 @@ public final class RowReaderJsonExtensions {
                     //ORIGINAL LINE: r = reader.ReadUInt8(out byte value);
                     r = reader.get().ReadUInt8(tempOut_value6);
                     value = tempOut_value6.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -173,7 +173,7 @@ public final class RowReaderJsonExtensions {
                     //ORIGINAL LINE: r = reader.ReadUInt16(out ushort value);
                     r = reader.get().ReadUInt16(tempOut_value7);
                     value = tempOut_value7.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -188,7 +188,7 @@ public final class RowReaderJsonExtensions {
                     //ORIGINAL LINE: r = reader.ReadUInt32(out uint value);
                     r = reader.get().ReadUInt32(tempOut_value8);
                     value = tempOut_value8.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -203,7 +203,7 @@ public final class RowReaderJsonExtensions {
                     //ORIGINAL LINE: r = reader.ReadUInt64(out ulong value);
                     r = reader.get().ReadUInt64(tempOut_value9);
                     value = tempOut_value9.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -216,7 +216,7 @@ public final class RowReaderJsonExtensions {
                     Out<Long> tempOut_value10 = new Out<Long>();
                     r = reader.get().ReadVarInt(tempOut_value10);
                     value = tempOut_value10.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -231,7 +231,7 @@ public final class RowReaderJsonExtensions {
                     //ORIGINAL LINE: r = reader.ReadVarUInt(out ulong value);
                     r = reader.get().ReadVarUInt(tempOut_value11);
                     value = tempOut_value11.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -244,7 +244,7 @@ public final class RowReaderJsonExtensions {
                     Out<Float> tempOut_value12 = new Out<Float>();
                     r = reader.get().ReadFloat32(tempOut_value12);
                     value = tempOut_value12.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -257,7 +257,7 @@ public final class RowReaderJsonExtensions {
                     Out<Double> tempOut_value13 = new Out<Double>();
                     r = reader.get().ReadFloat64(tempOut_value13);
                     value = tempOut_value13.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -271,7 +271,7 @@ public final class RowReaderJsonExtensions {
                         new Out<Float128>();
                     r = reader.get().ReadFloat128(tempOut__2);
                     _ = tempOut__2.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -285,7 +285,7 @@ public final class RowReaderJsonExtensions {
                     Out<BigDecimal> tempOut_value14 = new Out<BigDecimal>();
                     r = reader.get().ReadDecimal(tempOut_value14);
                     value = tempOut_value14.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -298,7 +298,7 @@ public final class RowReaderJsonExtensions {
                     Out<LocalDateTime> tempOut_value15 = new Out<LocalDateTime>();
                     r = reader.get().ReadDateTime(tempOut_value15);
                     value = tempOut_value15.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -314,7 +314,7 @@ public final class RowReaderJsonExtensions {
                         new Out<UnixDateTime>();
                     r = reader.get().ReadUnixDateTime(tempOut_value16);
                     value = tempOut_value16.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -327,7 +327,7 @@ public final class RowReaderJsonExtensions {
                     Out<UUID> tempOut_value17 = new Out<UUID>();
                     r = reader.get().ReadGuid(tempOut_value17);
                     value = tempOut_value17.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -342,7 +342,7 @@ public final class RowReaderJsonExtensions {
                     Out<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempOut_value18 = new Out<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>();
                     r = reader.get().ReadMongoDbObjectId(tempOut_value18);
                     value = tempOut_value18.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -361,7 +361,7 @@ public final class RowReaderJsonExtensions {
                     // - these cannot be converted using the 'Out' helper class unless the method is within the
                     // code being modified:
                     r = reader.get().ReadString(out value);
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -377,7 +377,7 @@ public final class RowReaderJsonExtensions {
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadBinary(out ReadOnlySpan<byte> value);
                     r = reader.get().ReadBinary(out value);
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -429,7 +429,7 @@ public final class RowReaderJsonExtensions {
                     ctx.Builder.append(scopeBracket);
                     int snapshot = ctx.Builder.length();
                     r = reader.get().ReadScope(new ReaderStringContext(ctx.Builder, ctx.Settings.clone(), ctx.Indent + 1), RowReaderJsonExtensions.ToJson);
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -449,7 +449,7 @@ public final class RowReaderJsonExtensions {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:

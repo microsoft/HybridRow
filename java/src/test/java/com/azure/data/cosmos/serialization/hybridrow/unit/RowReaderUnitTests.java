@@ -247,7 +247,7 @@ public final class RowReaderUnitTests {
             new Reference<RowReader>(nestedScope);
         Result result = rowReader.SkipScope(tempReference_nestedScope2);
         nestedScope = tempReference_nestedScope2.get();
-        assert Result.Success != result;
+        assert Result.SUCCESS != result;
     }
 
     private static Result ReadNestedDocumentDelegate(Reference<RowReader> reader, int context) {
@@ -265,7 +265,7 @@ public final class RowReaderUnitTests {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private static Result ReadNestedDocumentNonDelegate(Reference<RowReader> reader, int context) {
@@ -292,7 +292,7 @@ public final class RowReaderUnitTests {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private static Result ReadNestedDocumentNonDelegateWithSkipScope(Reference<RowReader> reader,
@@ -327,14 +327,14 @@ public final class RowReaderUnitTests {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private static Result ReadTuplePartial(Reference<RowReader> reader, int unused) {
         // Read only part of our tuple
         assert reader.get().Read();
         assert reader.get().Read();
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private static Result WriteNestedDocument(Reference<RowWriter> writer, TypeArgument typeArgument,
@@ -357,7 +357,7 @@ public final class RowReaderUnitTests {
 
         if (level == 0) {
             ResultAssert.IsSuccess(writer.get().WriteScope("x", tupleArgument.clone(), 0, WriteTuple));
-            return Result.Success;
+            return Result.SUCCESS;
         }
 
         ResultAssert.IsSuccess(writer.get().WriteScope("a", new TypeArgument(LayoutType.Object), level - 1,
@@ -369,7 +369,7 @@ public final class RowReaderUnitTests {
         ResultAssert.IsSuccess(writer.get().WriteScope("c", new TypeArgument(LayoutType.Object), level - 1,
             RowReaderUnitTests.WriteNestedDocument));
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
@@ -390,7 +390,7 @@ public final class RowReaderUnitTests {
 
         public Result Write(Reference<RowWriter> writer, TypeArgument typeArg) {
             Result result = writer.get().WriteInt32("x", this.X);
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 return result;
             }
 

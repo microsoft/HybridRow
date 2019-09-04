@@ -83,7 +83,7 @@ public final class TaggedUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref tag1Scope, out tag1Scope) == Result.Success) {
+        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref tag1Scope, out tag1Scope) == Result.SUCCESS) {
             assert tag1Scope.Immutable;
             assert tag1Scope.MoveNext(row);
             byte apiCode;
@@ -122,7 +122,7 @@ public final class TaggedUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref tag2Scope, out tag2Scope) == Result.Success) {
+        if (c.<LayoutIndexedScope>TypeAs().ReadScope(row, ref tag2Scope, out tag2Scope) == Result.SUCCESS) {
             assert !tag2Scope.Immutable;
             assert tag2Scope.MoveNext(row);
             byte apiCode;

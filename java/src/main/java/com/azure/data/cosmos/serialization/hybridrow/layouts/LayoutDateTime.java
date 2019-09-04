@@ -32,24 +32,24 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
             value.setAndGet(LocalDateTime.MIN);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         value.setAndGet(b.get().readDateTime(scope.get().start() + col.getOffset()));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
     public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                              Out<LocalDateTime> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(LocalDateTime.MIN);
             return result;
         }
 
         value.setAndGet(b.get().readSparseDateTime(edit));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -57,12 +57,12 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
                              LocalDateTime value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         b.get().writeDateTime(scope.get().start() + col.getOffset(), value);
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -71,12 +71,12 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
     public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
                               LocalDateTime value, UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseDateTime(edit, value, options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

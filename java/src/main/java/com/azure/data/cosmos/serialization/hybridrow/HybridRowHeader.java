@@ -10,7 +10,7 @@ public final class HybridRowHeader {
     /**
      * Size (in bytes) of a serialized header.
      */
-    public static final int SIZE = (HybridRowVersion.SIZE / Byte.SIZE) + SchemaId.SIZE;
+    public static final int BYTES = SchemaId.BYTES;
 
     private SchemaId schemaId;
     private HybridRowVersion version = HybridRowVersion.values()[0];

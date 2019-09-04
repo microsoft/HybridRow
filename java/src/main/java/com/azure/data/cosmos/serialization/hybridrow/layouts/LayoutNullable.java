@@ -47,7 +47,7 @@ public final class LayoutNullable extends LayoutIndexedScope {
         checkArgument(scope.index() == 1 || scope.index() == 2);
         checkArgument(scope.scopeTypeArgs().count() == 1);
         boolean hasValue = b.readInt8(scope.start()) != 0;
-        return hasValue ? Result.Success : Result.NotFound;
+        return hasValue ? Result.SUCCESS : Result.NOT_FOUND;
     }
 
     @Override
@@ -75,13 +75,13 @@ public final class LayoutNullable extends LayoutIndexedScope {
                              TypeArgumentList typeArgs, boolean hasValue, Out<RowCursor> value,
                              UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         b.get().WriteNullable(edit, this, typeArgs.clone(), options, hasValue, value.clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

@@ -30,24 +30,24 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(null);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         value.setAndGet(b.get().ReadFloat128(scope.get().start() + column.getOffset()).clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
     public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<Float128> value) {
         Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         value.setAndGet(b.get().ReadSparseFloat128(edit).clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -55,12 +55,12 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
                              Float128 value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         b.get().writeFloat128(scope.get().start() + column.getOffset(), value);
         b.get().SetBit(scope.get().start(), column.getNullBit().clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -70,12 +70,12 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     public Result writeSparse(RowBuffer b, RowCursor edit, Float128 value,
                               UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseFloat128(edit, value.clone(), options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

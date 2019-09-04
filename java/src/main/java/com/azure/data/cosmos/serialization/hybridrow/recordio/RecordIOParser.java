@@ -59,7 +59,7 @@ public final class RecordIOParser {
     public Result Process(Memory<Byte> buffer, Out<ProductionType> type,
                           Out<Memory<Byte>> record, Out<Integer> need,
                           Out<Integer> consumed) {
-        Result r = Result.Failure;
+        Result r = Result.FAILURE;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Memory<byte> b = buffer;
         Memory<Byte> b = buffer;
@@ -70,11 +70,11 @@ public final class RecordIOParser {
                 this.state = State.NeedSegmentLength;
                 // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
             case NeedSegmentLength: {
-                int minimalSegmentRowSize = HybridRowHeader.SIZE + RecordIOFormatter.SegmentLayout.getSize();
+                int minimalSegmentRowSize = HybridRowHeader.BYTES + RecordIOFormatter.SegmentLayout.getSize();
                 if (b.Length < minimalSegmentRowSize) {
                     need.setAndGet(minimalSegmentRowSize);
                     consumed.setAndGet(buffer.Length - b.Length);
-                    return Result.InsufficientBuffer;
+                    return Result.INSUFFICIENT_BUFFER;
                 }
 
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -92,7 +92,7 @@ public final class RecordIOParser {
                 r = SegmentSerializer.Read(tempReference_reader, tempOut_segment);
                 this.segment = tempOut_segment.get();
                 reader = tempReference_reader.get();
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     break;
                 }
 
@@ -105,7 +105,7 @@ public final class RecordIOParser {
                 if (b.Length < this.segment.Length) {
                     need.setAndGet(this.segment.Length);
                     consumed.setAndGet(buffer.Length - b.Length);
-                    return Result.InsufficientBuffer;
+                    return Result.INSUFFICIENT_BUFFER;
                 }
 
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -123,7 +123,7 @@ public final class RecordIOParser {
                 r = SegmentSerializer.Read(tempReference_reader2, tempOut_segment2);
                 this.segment = tempOut_segment2.get();
                 reader = tempReference_reader2.get();
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     break;
                 }
 
@@ -133,14 +133,14 @@ public final class RecordIOParser {
                 this.state = State.NeedHeader;
                 consumed.setAndGet(buffer.Length - b.Length);
                 type.setAndGet(ProductionType.Segment);
-                return Result.Success;
+                return Result.SUCCESS;
             }
 
             case NeedHeader: {
-                if (b.Length < HybridRowHeader.SIZE) {
-                    need.setAndGet(HybridRowHeader.SIZE);
+                if (b.Length < HybridRowHeader.BYTES) {
+                    need.setAndGet(HybridRowHeader.BYTES);
                     consumed.setAndGet(buffer.Length - b.Length);
-                    return Result.InsufficientBuffer;
+                    return Result.INSUFFICIENT_BUFFER;
                 }
 
                 HybridRowHeader header;
@@ -149,7 +149,7 @@ public final class RecordIOParser {
                 // being modified:
                 MemoryMarshal.TryRead(b.Span, out header);
                 if (header.Version != HybridRowVersion.V1) {
-                    r = Result.InvalidRow;
+                    r = Result.INVALID_ROW;
                     break;
                 }
 
@@ -165,16 +165,16 @@ public final class RecordIOParser {
 					goto case State.NeedRecord
                 }
 
-                r = Result.InvalidRow;
+                r = Result.INVALID_ROW;
                 break;
             }
 
             case NeedRecord: {
-                int minimalRecordRowSize = HybridRowHeader.SIZE + RecordIOFormatter.RecordLayout.getSize();
+                int minimalRecordRowSize = HybridRowHeader.BYTES + RecordIOFormatter.RecordLayout.getSize();
                 if (b.Length < minimalRecordRowSize) {
                     need.setAndGet(minimalRecordRowSize);
                     consumed.setAndGet(buffer.Length - b.Length);
-                    return Result.InsufficientBuffer;
+                    return Result.INSUFFICIENT_BUFFER;
                 }
 
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -190,7 +190,7 @@ public final class RecordIOParser {
                 r = RecordSerializer.Read(tempReference_reader3, tempOut_record);
                 this.record = tempOut_record.get();
                 reader = tempReference_reader3.get();
-                if (r != Result.Success) {
+                if (r != Result.SUCCESS) {
                     break;
                 }
 
@@ -204,7 +204,7 @@ public final class RecordIOParser {
                 if (b.Length < this.record.Length) {
                     need.setAndGet(this.record.Length);
                     consumed.setAndGet(buffer.Length - b.Length);
-                    return Result.InsufficientBuffer;
+                    return Result.INSUFFICIENT_BUFFER;
                 }
 
                 record.setAndGet(b.Slice(0, this.record.Length));
@@ -214,7 +214,7 @@ public final class RecordIOParser {
                 //ORIGINAL LINE: uint crc32 = Crc32.Update(0, record.Span);
                 int crc32 = Crc32.Update(0, record.get().Span);
                 if (crc32 != this.record.Crc32) {
-                    r = Result.InvalidRow;
+                    r = Result.INVALID_ROW;
                     break;
                 }
 
@@ -223,7 +223,7 @@ public final class RecordIOParser {
                 this.state = State.NeedHeader;
                 consumed.setAndGet(buffer.Length - b.Length);
                 type.setAndGet(ProductionType.Record);
-                return Result.Success;
+                return Result.SUCCESS;
             }
         }
 

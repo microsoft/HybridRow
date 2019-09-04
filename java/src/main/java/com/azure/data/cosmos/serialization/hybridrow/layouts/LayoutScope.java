@@ -75,12 +75,12 @@ public abstract class LayoutScope extends LayoutType {
 
         Result result = LayoutType.prepareSparseDelete(b, edit, this.layoutCode());
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.DeleteSparse(edit);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**
@@ -105,14 +105,14 @@ public abstract class LayoutScope extends LayoutType {
 
         Result result = LayoutType.prepareSparseRead(b, edit, this.layoutCode());
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         boolean immutable = this.isImmutable() || edit.immutable() || edit.scopeType().isUniqueScope();
         value.set(b.sparseIteratorReadScope(edit, immutable));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public void readSparsePath(@Nonnull final RowBuffer row, @Nonnull final RowCursor edit) {
@@ -159,7 +159,7 @@ public abstract class LayoutScope extends LayoutType {
         final Out<RowCursor> out = new Out<>();
         Result result = this.writeScope(b, scope, typeArgs, options, out);
 
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
@@ -167,14 +167,14 @@ public abstract class LayoutScope extends LayoutType {
 
         if (func != null) {
             result = func.invoke(b, childScope, context);
-            if (result != Result.Success) {
+            if (result != Result.SUCCESS) {
                 this.deleteScope(b, scope);
                 return result;
             }
         }
 
         RowCursors.skip(scope, b, childScope);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**

@@ -35,11 +35,11 @@ public final class LayoutUInt16 extends LayoutType<Short> {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
-            return Result.NotFound;
+            return Result.NOT_FOUND;
         }
 
         value.setAndGet(b.get().ReadUInt16(scope.get().start() + column.getOffset()));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -48,13 +48,13 @@ public final class LayoutUInt16 extends LayoutType<Short> {
     public Result readSparse(RowBuffer b, RowCursor edit,
                              Out<Short> value) {
         Result result = prepareSparseRead(b, edit, this.LayoutCode);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(0);
             return result;
         }
 
         value.setAndGet(b.get().ReadSparseUInt16(edit));
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -65,12 +65,12 @@ public final class LayoutUInt16 extends LayoutType<Short> {
                              short value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
-            return Result.InsufficientPermissions;
+            return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         b.get().writeUInt16(scope.get().start() + col.getOffset(), value);
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -81,12 +81,12 @@ public final class LayoutUInt16 extends LayoutType<Short> {
     public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, short value,
                               UpdateOptions options) {
         Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             return result;
         }
 
         b.get().WriteSparseUInt16(edit, value, options);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     @Override

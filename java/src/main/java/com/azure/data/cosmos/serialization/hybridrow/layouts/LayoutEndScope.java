@@ -37,6 +37,6 @@ public final class LayoutEndScope extends LayoutScope {
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
         Contract.Fail("Cannot write an EndScope directly");
         value.setAndGet(null);
-        return Result.Failure;
+        return Result.FAILURE;
     }
 }

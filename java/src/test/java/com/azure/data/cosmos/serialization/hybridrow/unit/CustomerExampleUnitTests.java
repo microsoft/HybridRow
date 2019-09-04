@@ -305,7 +305,7 @@ public final class CustomerExampleUnitTests {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         Result r = c.<LayoutUDT>TypeAs().ReadScope(row, root, out addressScope);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -319,7 +319,7 @@ public final class CustomerExampleUnitTests {
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             r = c.<LayoutUtf8>TypeAs().WriteVariable(row, ref addressScope, c, a.Street);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
@@ -333,7 +333,7 @@ public final class CustomerExampleUnitTests {
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             r = c.<LayoutUtf8>TypeAs().WriteVariable(row, ref addressScope, c, a.City);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
@@ -347,7 +347,7 @@ public final class CustomerExampleUnitTests {
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             r = c.<LayoutUtf8>TypeAs().WriteFixed(row, ref addressScope, c, a.State);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
         }
@@ -366,7 +366,7 @@ public final class CustomerExampleUnitTests {
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
             // modified:
             r = c.<LayoutUDT>TypeAs().WriteScope(row, ref addressScope, c.TypeArgs, out postalCodeScope);
-            if (r != Result.Success) {
+            if (r != Result.SUCCESS) {
                 return r;
             }
 
@@ -376,7 +376,7 @@ public final class CustomerExampleUnitTests {
             postalCodeScope = tempReference_postalCodeScope.get();
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     private int PrependGuestEmail(Reference<RowBuffer> row, Reference<RowCursor> root, String email) {
@@ -484,7 +484,7 @@ public final class CustomerExampleUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref emailScope, out emailScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref emailScope, out emailScope) == Result.SUCCESS) {
             g.Emails = new TreeSet<String>();
             while (emailScope.MoveNext(row)) {
                 String item;
@@ -511,7 +511,7 @@ public final class CustomerExampleUnitTests {
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref phoneNumbersScope, out phoneNumbersScope) == Result.Success) {
+        if (c.<LayoutTypedArray>TypeAs().ReadScope(row, ref phoneNumbersScope, out phoneNumbersScope) == Result.SUCCESS) {
             g.PhoneNumbers = new ArrayList<String>();
             while (phoneNumbersScope.MoveNext(row)) {
                 String item;
@@ -537,7 +537,7 @@ public final class CustomerExampleUnitTests {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        if (c.<LayoutTypedMap>TypeAs().ReadScope(row, ref addressesScope, out addressesScope) == Result.Success) {
+        if (c.<LayoutTypedMap>TypeAs().ReadScope(row, ref addressesScope, out addressesScope) == Result.SUCCESS) {
             Reference<RowCursor> tempReference_addressesScope = new Reference<RowCursor>(addressesScope);
             TypeArgument tupleType = LayoutType.TypedMap.FieldType(tempReference_addressesScope).clone();
             addressesScope = tempReference_addressesScope.get();
@@ -644,7 +644,7 @@ public final class CustomerExampleUnitTests {
         short plus4;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (c.<LayoutInt16>TypeAs().ReadSparse(row, postalCodeScope, out plus4) == Result.Success) {
+        if (c.<LayoutInt16>TypeAs().ReadSparse(row, postalCodeScope, out plus4) == Result.SUCCESS) {
             pc.Plus4 = plus4;
         }
 

@@ -42,29 +42,29 @@ public final class RowReaderExtensions {
                     Result r3 = ctx2.Deserializer.invoke(tempReference_itemReader, tempOut_op);
                     op = tempOut_op.get();
                     itemReader = tempReference_itemReader.get();
-                    if (r3 != Result.Success) {
+                    if (r3 != Result.SUCCESS) {
                         return r3;
                     }
 
                     ctx2.List.add(op);
-                    return Result.Success;
+                    return Result.SUCCESS;
                 });
 
-                if (r2 != Result.Success) {
+                if (r2 != Result.SUCCESS) {
                     return r2;
                 }
             }
 
-            return Result.Success;
+            return Result.SUCCESS;
         });
 
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             list.setAndGet(null);
             return r;
         }
 
         list.setAndGet(ctx.List);
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     /**

@@ -39,12 +39,12 @@ public final class LayoutObject extends LayoutPropertyScope {
     public Result writeScope(RowBuffer b, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
         Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.Success) {
+        if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
         b.get().WriteSparseObject(edit, this, options, value.clone());
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }

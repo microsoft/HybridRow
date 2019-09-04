@@ -30,7 +30,7 @@ public final class PostalCodeSerializer {
                     Out<Integer> tempOut_Zip = new Out<Integer>();
                     r = reader.get().ReadInt32(tempOut_Zip);
                     obj.get().argValue.Zip = tempOut_Zip.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -40,7 +40,7 @@ public final class PostalCodeSerializer {
                     Out<Short> tempOut_value = new Out<Short>();
                     r = reader.get().ReadInt16(tempOut_value);
                     value = tempOut_value.get();
-                    if (r != Result.Success) {
+                    if (r != Result.SUCCESS) {
                         return r;
                     }
 
@@ -49,13 +49,13 @@ public final class PostalCodeSerializer {
             }
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 
     public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, PostalCode obj) {
         Result r;
         r = writer.get().WriteInt32("zip", obj.Zip);
-        if (r != Result.Success) {
+        if (r != Result.SUCCESS) {
             return r;
         }
 
@@ -64,6 +64,6 @@ public final class PostalCodeSerializer {
             return r;
         }
 
-        return Result.Success;
+        return Result.SUCCESS;
     }
 }
