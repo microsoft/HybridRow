@@ -23,7 +23,7 @@ public final class RowCursors {
 
         if (!(edit.cellType() instanceof LayoutEndScope)) {
             while (row.sparseIteratorMoveNext(edit)) {
-                if (path.equals(row.readSparsePath(edit))) {
+                if (path.equals(row.ReadSparsePath(edit))) {
                     edit.exists(true);
                     break;
                 }

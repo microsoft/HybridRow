@@ -42,7 +42,7 @@ public final class LayoutBit {
      * @return The bit of the byte within the bitmask.
      */
     public int bit() {
-        return this.index() % LayoutTypes.BitsPerByte;
+        return this.index() % Byte.SIZE;
     }
 
     /**
@@ -65,7 +65,7 @@ public final class LayoutBit {
      * @return The byte offset containing this bit.
      */
     public int offset(int offset) {
-        return offset + (this.index() / LayoutTypes.BitsPerByte);
+        return offset + (this.index() / Byte.SIZE);
     }
 
     @Override
@@ -102,7 +102,7 @@ public final class LayoutBit {
          * The number of bytes needed to hold all bits so far allocated.
          */
         public final int getNumBytes() {
-            return LayoutBit.divCeiling(this.next, LayoutTypes.BitsPerByte);
+            return LayoutBit.divCeiling(this.next, Byte.SIZE);
         }
 
         /**

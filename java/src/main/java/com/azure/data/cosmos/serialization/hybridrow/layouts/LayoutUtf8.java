@@ -68,7 +68,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseString(edit));
+        value.setAndGet(b.get().readSparseString(edit));
         return Result.Success;
     }
 
@@ -92,9 +92,9 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return Result.NotFound;
         }
 
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
-        value.setAndGet(b.get().ReadVariableString(varOffset));
+        value.setAndGet(b.get().readVariableString(varOffset));
         return Result.Success;
     }
 
@@ -114,8 +114,8 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFixedString(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeFixedString(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
@@ -173,13 +173,13 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableString(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);
         scope.get().valueOffset(scope.get().valueOffset() + shift);
         return Result.Success;

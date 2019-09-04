@@ -417,7 +417,7 @@ public final class RowOperationDispatcher {
 
     public String RowToHex() {
         try (MemoryStream stm = new MemoryStream()) {
-            this.Row.WriteTo(stm);
+            this.Row.writeTo(stm);
             //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
             //ORIGINAL LINE: ReadOnlyMemory<byte> bytes = stm.GetBuffer().AsMemory(0, (int)stm.Position);
             ReadOnlyMemory<Byte> bytes = stm.GetBuffer().AsMemory(0, (int)stm.Position);

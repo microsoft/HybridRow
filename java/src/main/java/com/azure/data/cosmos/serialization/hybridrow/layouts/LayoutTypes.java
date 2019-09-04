@@ -9,7 +9,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 public abstract class LayoutTypes {
     public static final LayoutArray ARRAY = new LayoutArray(false);
     public static final LayoutBinary BINARY = new LayoutBinary();
-    public static final int BitsPerByte = 8;
     public static final LayoutBoolean BOOLEAN = new LayoutBoolean(true);
     public static final LayoutBoolean BooleanFalse = new LayoutBoolean(false);
     public static final LayoutDateTime DATE_TIME = new LayoutDateTime();

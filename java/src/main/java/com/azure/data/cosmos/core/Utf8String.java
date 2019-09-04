@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.base.Utf8;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
 
 import javax.annotation.Nonnull;
@@ -37,7 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @JsonSerialize(using = Utf8String.JsonSerializer.class)
 @SuppressWarnings("UnstableApiUsage")
-public final class Utf8String implements CharSequence, Comparable<Utf8String> {
+public final class Utf8String implements ByteBufHolder, CharSequence, Comparable<Utf8String> {
 
     public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER, 0);
     public static final Utf8String NULL = new Utf8String();
@@ -72,6 +73,114 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
      */
     public final boolean isNull() {
         return this.buffer == null;
+    }
+
+    /**
+     * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}
+     * <p>
+     * A value of {@code null} is returns, if this {@link Utf8String} is null.
+     * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
+     */
+    @Nullable
+    public ByteBuf content() {
+        return this.buffer;
+    }
+
+    /**
+     * Creates a deep copy of this {@link Utf8String}
+     */
+    @Override
+    public Utf8String copy() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Duplicates this {@link Utf8String}
+     * <p>
+     * Be aware that this will not automatically call {@link #retain()}.
+     */
+    @Override
+    public Utf8String duplicate() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Duplicates this {@link Utf8String}
+     * <p>
+     * This method returns a retained duplicate unlike {@link #duplicate()}.
+     *
+     * @see ByteBuf#retainedDuplicate()
+     */
+    @Override
+    public Utf8String retainedDuplicate() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns a new {@link Utf8String} which contains the specified {@code content}
+     *
+     * @param content text of the {@link Utf8String} to be created.
+     */
+    @Override
+    public Utf8String replace(ByteBuf content) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns the reference count of this {@link Utf8String}
+     * <p>
+     * If {@code 0}, it means this object has been deallocated.
+     */
+    @Override
+    public int refCnt() {
+        return this.buffer.refCnt();
+    }
+
+    @Override
+    public Utf8String retain() {
+        this.buffer.retain();
+        return this;
+    }
+
+    @Override
+    public Utf8String retain(int increment) {
+        this.buffer.retain(increment);
+        return this;
+    }
+
+    @Override
+    public Utf8String touch() {
+        this.buffer.touch();
+        return this;
+    }
+
+    @Override
+    public Utf8String touch(Object hint) {
+        this.buffer.touch(hint);
+        return this;
+    }
+
+    /**
+     * Decreases the reference count by {@code 1} and deallocates this object if the reference count reaches at
+     * {@code 0}.
+     *
+     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
+     */
+    @Override
+    public boolean release() {
+        return this.buffer.release();
+    }
+
+    /**
+     * Decreases the reference count by the specified {@code decrement} and deallocates this object if the reference
+     * count reaches at {@code 0}.
+     *
+     * @param decrement
+     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
+     */
+    @Override
+    public boolean release(int decrement) {
+        return false;
     }
 
     @Override
@@ -296,7 +405,7 @@ public final class Utf8String implements CharSequence, Comparable<Utf8String> {
         private final int length;
         private int index;
 
-        public CodePointIterable(final ByteBuf buffer, final int length) {
+        CodePointIterable(final ByteBuf buffer, final int length) {
             this.buffer = buffer;
             this.length = length;
             this.index = 0;

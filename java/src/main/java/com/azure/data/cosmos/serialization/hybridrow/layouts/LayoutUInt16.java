@@ -68,8 +68,8 @@ public final class LayoutUInt16 extends LayoutType<Short> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteUInt16(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeUInt16(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 

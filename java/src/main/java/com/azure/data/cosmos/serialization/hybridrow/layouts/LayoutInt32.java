@@ -59,7 +59,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
         }
 
         b.get().writeInt32(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 

@@ -101,7 +101,7 @@ public final class JsonModelRowGenerator {
     // TODO: C# TO JAVA CONVERTER: C# to Java Converter cannot determine whether this System.IO.Stream is input or
     // output:
     public void WriteTo(OutputStream stream) {
-        this.row.WriteTo(stream);
+        this.row.writeTo(stream);
     }
 
     public JsonModelRowGenerator clone() {

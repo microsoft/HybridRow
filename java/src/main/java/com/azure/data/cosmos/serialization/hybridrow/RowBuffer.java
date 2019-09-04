@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow;
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
-import com.azure.data.cosmos.serialization.hybridrow.RowBuffer.UniqueIndexItem;
 import com.azure.data.cosmos.serialization.hybridrow.codecs.DateTimeCodec;
 import com.azure.data.cosmos.serialization.hybridrow.codecs.DecimalCodec;
 import com.azure.data.cosmos.serialization.hybridrow.codecs.Float128Codec;
@@ -55,6 +54,7 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUtf8;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutVarInt;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutVarUInt;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.StringToken;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.StringTokenizer;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.UpdateOptions;
@@ -66,11 +66,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -142,239 +142,17 @@ public final class RowBuffer {
         checkState(HybridRowHeader.SIZE + layout.size() <= this.length());
     }
 
-    public ByteBuf readSparseBinary(RowCursor edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BINARY);
-        ByteBuf value = this.readBinary(edit.valueOffset());
-        edit.endOffset(this.buffer.readerIndex());
-        return value;
-    }
+    public Utf8String ReadSparsePath(RowCursor edit) {
 
-    public boolean readSparseBoolean(RowCursor edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BOOLEAN);
-        edit.endOffset(edit.valueOffset());
-        return edit.cellType() == LayoutTypes.BOOLEAN;
-    }
+        StringTokenizer tokenizer = edit.layout().tokenizer();
+        final Optional<Utf8String> path = tokenizer.tryFindString(edit.longValue().pathToken);
 
-    public OffsetDateTime readSparseDateTime(RowCursor edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DATE_TIME);
-        edit.endOffset(edit.valueOffset() + Long.SIZE);
-        return this.readDateTime(edit.valueOffset());
-    }
-
-    public BigDecimal readDecimal(int offset) {
-        Item<BigDecimal> item = this.read(() -> DecimalCodec.decode(this.buffer), offset);
-        return item.value();
-    }
-
-    public ByteBuf readFixedBinary(int offset, int length) {
-        Item<ByteBuf> item = this.read(() -> this.buffer.readSlice(length), offset);
-        return item.value();
-    }
-
-    public Utf8String readFixedString(int offset, int length) {
-        Item<Utf8String> item = this.read(() -> Utf8String.fromUnsafe(this.buffer.readSlice(length)), offset);
-        return item.value();
-    }
-
-    public int ReadInt32(int offset) {
-        Item<Integer> item = this.read(this.buffer::readIntLE, offset);
-        return item.value();
-    }
-
-    public Float128 readFloat128(int offset) {
-        Item<Float128> item = this.read(() -> Float128Codec.decode(this.buffer), offset);
-        return item.value();
-    }
-
-    public float readFloat32(int offset) {
-        Item<Float> item = this.read(this.buffer::readFloatLE, offset);
-        return item.value();
-    }
-
-    public double readFloat64(int offset) {
-        Item<Double> item = this.read(this.buffer::readDoubleLE, offset);
-        return item.value();
-    }
-
-    // TODO: DANOBLE: resurrect MongoDbObjectId
-    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
-    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
-    //    }
-
-    public SchemaId readSchemaId(int offset) {
-        Item<SchemaId> item = this.read(() -> SchemaId.from(this.buffer.readIntLE()), offset);
-        return item.value();
-    }
-
-    public BigDecimal readSparseDecimal(RowCursor edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DECIMAL);
-        BigDecimal value = this.readDecimal(edit.valueOffset());
-        edit.endOffset(this.buffer.readerIndex());
-        return value;
-    }
-
-    public Float128 readSparseFloat128(RowCursor edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_128);
-        Float128 value = this.readFloat128(edit.valueOffset());
-        edit.endOffset(this.buffer.readerIndex());
-        return value;
-    }
-
-    public float readSparseFloat32(RowCursor edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_32);
-        float value = this.readFloat32(edit.valueOffset());
-        edit.endOffset(this.buffer.readerIndex());
-        return value;
-    }
-
-    // TODO: DANOBLE: resurrect MongoDbObjectId
-    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
-    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
-    //        edit.get().endOffset = edit.get().valueOffset() + MongoDbObjectId.Size;
-    //        return this.ReadMongoDbObjectId(edit.get().valueOffset()).clone();
-    //    }
-
-    public Utf8Span ReadSparseString(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.Utf8);
-        int sizeLenInBytes;
-        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
-        Utf8Span span = this.ReadString(edit.get().valueOffset(), tempOut_sizeLenInBytes);
-        sizeLenInBytes = tempOut_sizeLenInBytes.get();
-        edit.get().endOffset = edit.get().valueOffset() + sizeLenInBytes + span.Length;
-        return span;
-    }
-
-    public long ReadSparseVarInt(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.VarInt);
-        int sizeLenInBytes;
-        Out<Integer> tempOut_sizeLenInBytes = new Out<Integer>();
-        long value = this.read7BitEncodedInt(edit.get().valueOffset(), tempOut_sizeLenInBytes);
-        sizeLenInBytes = tempOut_sizeLenInBytes.get();
-        edit.get().endOffset = edit.get().valueOffset() + sizeLenInBytes;
-        return value;
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ushort ReadUInt16(int offset)
-    public short ReadUInt16(int offset) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return MemoryMarshal.Read<ushort>(this.buffer.Slice(offset));
-        return MemoryMarshal.<Short>Read(this.buffer.Slice(offset));
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal uint ReadUInt32(int offset)
-    public int ReadUInt32(int offset) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return MemoryMarshal.Read<uint>(this.buffer.Slice(offset));
-        return MemoryMarshal.<Integer>Read(this.buffer.Slice(offset));
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ushort ReadSparseUInt16(ref RowCursor edit)
-    public short ReadSparseUInt16(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.UInt16);
-        edit.get().endOffset = edit.get().valueOffset() + (Short.SIZE / Byte.SIZE);
-        return this.ReadUInt16(edit.get().valueOffset());
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal uint ReadSparseUInt32(ref RowCursor edit)
-    public int ReadSparseUInt32(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.UInt32);
-        edit.get().endOffset = edit.get().valueOffset() + (Integer.SIZE / Byte.SIZE);
-        return this.ReadUInt32(edit.get().valueOffset());
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ulong ReadSparseUInt64(ref RowCursor edit)
-    public long ReadSparseUInt64(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.UInt64);
-        edit.get().endOffset = edit.get().valueOffset() + (Long.SIZE / Byte.SIZE);
-        return this.ReadUInt64(edit.get().valueOffset());
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal byte ReadSparseUInt8(ref RowCursor edit)
-    public byte ReadSparseUInt8(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.UInt8);
-        edit.get().endOffset = edit.get().valueOffset() + 1;
-        return this.ReadUInt8(edit.get().valueOffset());
-    }
-
-    public UnixDateTime ReadSparseUnixDateTime(Reference<RowCursor> edit) {
-        this.readSparsePrimitiveTypeCode(edit, LayoutType.UnixDateTime);
-        edit.get().endOffset = edit.get().valueOffset() + 8;
-        return this.ReadUnixDateTime(edit.get().valueOffset()).clone();
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ulong ReadUInt64(int offset)
-    public long ReadUInt64(int offset) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return MemoryMarshal.Read<ulong>(this.buffer.Slice(offset));
-        return MemoryMarshal.<Long>Read(this.buffer.Slice(offset));
-    }
-
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal byte ReadUInt8(int offset)
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal byte ReadUInt8(int offset)
-    public byte ReadUInt8(int offset) {
-        return this.buffer[offset];
-    }
-
-    public UnixDateTime ReadUnixDateTime(int offset) {
-        return MemoryMarshal.<UnixDateTime>Read(this.buffer.Slice(offset));
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal ReadOnlySpan<byte> ReadVariableBinary(int offset)
-    public ReadOnlySpan<Byte> ReadVariableBinary(int offset) {
-        int _;
-        Out<Integer> tempOut__ = new Out<Integer>();
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.ReadBinary(offset, out int _);
-        ReadOnlySpan<Byte> tempVar = this.readBinary(offset);
-        _ = tempOut__.get();
-        return tempVar;
-    }
-
-    public long ReadVariableInt(int offset) {
-        int _;
-        Out<Integer> tempOut__ = new Out<Integer>();
-        long tempVar = this.read7BitEncodedInt(offset, tempOut__);
-        _ = tempOut__.get();
-        return tempVar;
-    }
-
-    public Utf8Span ReadVariableString(int offset) {
-        int _;
-        Out<Integer> tempOut__ = new Out<Integer>();
-        Utf8Span tempVar = this.ReadString(offset, tempOut__);
-        _ = tempOut__.get();
-        return tempVar;
-    }
-
-    public long ReadVariableUInt(int offset) {
-        int _;
-        Out<Integer> tempOut__ = new Out<Integer>();
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.Read7BitEncodedUInt(offset, out int _);
-        long tempVar = this.read7BitEncodedUInt();
-        _ = tempOut__.get();
-        return tempVar;
-    }
-
-    public void SetBit(int offset, LayoutBit bit) {
-        if (bit.getIsInvalid()) {
-            return;
+        if (path.isPresent()) {
+            return path.get();
         }
 
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
-        //ORIGINAL LINE: this.buffer[bit.GetOffset(offset)] |= unchecked((byte)(1 << bit.GetBit()));
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        this.buffer[bit.offset(offset)] |= (byte) (1 << bit.bit());
+        int numBytes = edit.pathToken() - edit.layout().tokenizer().count();
+        return Utf8String.fromUnsafe(this.buffer.readSlice(edit.pathOffset(), numBytes));
     }
 
     /**
@@ -428,26 +206,6 @@ public final class RowBuffer {
 
         checkState(shiftDelete < 0);
         this.length(this.length() + shiftDelete);
-    }
-
-    public void UnsetBit(int offset, LayoutBit bit) {
-        checkState(LayoutBit.opNotEquals(bit.clone(), LayoutBit.INVALID));
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'unchecked' in this context:
-        //ORIGINAL LINE: this.buffer[bit.GetOffset(offset)] &= unchecked((byte)~(1 << bit.GetBit()));
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        this.buffer[bit.offset(offset)] &= (byte) ~(1 << bit.bit());
-    }
-
-    public void WriteDateTime(int offset, LocalDateTime value) {
-        Reference<LocalDateTime> tempReference_value = new Reference<LocalDateTime>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    public void WriteDecimal(int offset, BigDecimal value) {
-        Reference<BigDecimal> tempReference_value = new Reference<BigDecimal>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
     }
 
     /**
@@ -563,46 +321,6 @@ public final class RowBuffer {
         return Result.Success;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteFixedBinary(int offset, ReadOnlySpan<byte> value, int len)
-    public void WriteFixedBinary(int offset, ReadOnlySpan<Byte> value, int len) {
-        value.CopyTo(this.buffer.Slice(offset, len));
-        if (value.Length < len) {
-            this.buffer.Slice(offset + value.Length, len - value.Length).Fill(0);
-        }
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteFixedBinary(int offset, ReadOnlySequence<byte> value, int len)
-    public void WriteFixedBinary(int offset, ReadOnlySequence<Byte> value, int len) {
-        value.CopyTo(this.buffer.Slice(offset, len));
-        if (value.Length < len) {
-            this.buffer.Slice(offset + (int) value.Length, len - (int) value.Length).Fill(0);
-        }
-    }
-
-    public void WriteFixedString(int offset, Utf8Span value) {
-        value.Span.CopyTo(this.buffer.Slice(offset));
-    }
-
-    public void WriteFloat32(int offset, float value) {
-        Reference<Float> tempReference_value = new Reference<Float>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    public void WriteFloat64(int offset, double value) {
-        Reference<Double> tempReference_value = new Reference<Double>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    public void WriteGuid(int offset, UUID value) {
-        Reference<UUID> tempReference_value = new Reference<UUID>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
     public void WriteNullable(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
                               UpdateOptions options, boolean hasValue, Out<RowCursor> newScope) {
         int numBytes = this.countDefaultValue(scopeType, typeArgs);
@@ -641,10 +359,6 @@ public final class RowBuffer {
             new Reference<RowBuffer>(this);
         RowCursors.moveNext(newScope.get().clone(), tempReference_this);
         this = tempReference_this.get();
-    }
-
-    public void WriteSchemaId(int offset, SchemaId value) {
-        this.writeInt32(offset, value.value());
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -720,7 +434,7 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
-    public void WriteSparseDateTime(Reference<RowCursor> edit, LocalDateTime value, UpdateOptions options) {
+    public void WriteSparseDateTime(RowCursor edit, OffsetDateTime value, UpdateOptions options) {
         int numBytes = 8;
         int metaBytes;
         Out<Integer> tempOut_metaBytes = new Out<Integer>();
@@ -734,7 +448,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.DateTime, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteDateTime(edit.get().valueOffset(), value);
+        this.writeDateTime(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + 8);
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -755,7 +469,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.Decimal, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteDecimal(edit.get().valueOffset(), value);
+        this.writeDecimal(edit.get().valueOffset(), value);
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
         checkState(spaceNeeded == metaBytes + sizeof(BigDecimal));
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
@@ -796,7 +510,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.Float64, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteFloat64(edit.get().valueOffset(), value);
+        this.writeFloat64(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + (Double.SIZE / Byte.SIZE));
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -816,7 +530,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.Guid, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteGuid(edit.get().valueOffset(), value);
+        this.writeGuid(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + 16);
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -862,12 +576,9 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
-    // TODO: DANOBLE: Support MongoDbObjectId values
-    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
-    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
-    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
-    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-    //        value = tempReference_value.get();
+    // TODO: DANOBLE: resurrect MongoDbObjectId
+    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
+    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
     //    }
 
     public void WriteSparseInt64(Reference<RowCursor> edit, long value, UpdateOptions options) {
@@ -1004,6 +715,13 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
+    // TODO: DANOBLE: resurrect MongoDbObjectId
+    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
+    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
+    //        edit.get().endOffset = edit.get().valueOffset() + MongoDbObjectId.Size;
+    //        return this.ReadMongoDbObjectId(edit.get().valueOffset()).clone();
+    //    }
+
     public void WriteSparseTuple(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs
         , UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = (LayoutCode.SIZE / Byte.SIZE) * (1 + typeArgs.count()); // nulls for each element.
@@ -1090,7 +808,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.UInt16, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteUInt16(edit.get().valueOffset(), value);
+        this.writeUInt16(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + (Short.SIZE / Byte.SIZE));
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -1112,7 +830,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.UInt32, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteUInt32(edit.get().valueOffset(), value);
+        this.writeUInt32(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + (Integer.SIZE / Byte.SIZE));
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -1134,7 +852,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.UInt64, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteUInt64(edit.get().valueOffset(), value);
+        this.writeUInt64(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + (Long.SIZE / Byte.SIZE));
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -1156,7 +874,7 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.UInt8, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteUInt8(edit.get().valueOffset(), value);
+        this.writeUInt8(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + 1);
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -1177,7 +895,7 @@ public final class RowBuffer {
         metaBytes = tempOut_metaBytes.get();
 
         this.writeSparseMetadata(edit, LayoutType.UnixDateTime, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteUnixDateTime(edit.get().valueOffset(), value.clone());
+        this.writeUnixDateTime(edit.get().valueOffset(), value.clone());
         checkState(spaceNeeded == metaBytes + 8);
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
@@ -1227,13 +945,6 @@ public final class RowBuffer {
         this.length(this.length() + shift);
     }
 
-    /**
-     * Copies the content of the buffer into the target stream.
-     */
-    public void WriteTo(OutputStream stream) {
-        stream.Write(this.buffer.Slice(0, this.length()));
-    }
-
     public void WriteTypedArray(Reference<RowCursor> edit, LayoutScope scopeType, TypeArgumentList typeArgs,
                                 UpdateOptions options, Out<RowCursor> newScope) {
         int numBytes = (Integer.SIZE / Byte.SIZE);
@@ -1250,7 +961,7 @@ public final class RowBuffer {
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
         checkState(spaceNeeded == metaBytes + numBytes);
-        this.WriteUInt32(edit.get().valueOffset(), 0);
+        this.writeUInt32(edit.get().valueOffset(), 0);
         int valueOffset = edit.get().valueOffset() + (Integer.SIZE / Byte.SIZE); // Point after the Size
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1279,7 +990,7 @@ public final class RowBuffer {
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
         checkState(spaceNeeded == metaBytes + numBytes);
-        this.WriteUInt32(edit.get().valueOffset(), 0);
+        this.writeUInt32(edit.get().valueOffset(), 0);
         int valueOffset = edit.get().valueOffset() + (Integer.SIZE / Byte.SIZE); // Point after the Size
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1308,7 +1019,7 @@ public final class RowBuffer {
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, scopeType, typeArgs.clone(), metaBytes);
         checkState(spaceNeeded == metaBytes + numBytes);
-        this.WriteUInt32(edit.get().valueOffset(), 0);
+        this.writeUInt32(edit.get().valueOffset(), 0);
         int valueOffset = edit.get().valueOffset() + (Integer.SIZE / Byte.SIZE); // Point after the Size
         newScope.setAndGet(new RowCursor());
         newScope.get().scopeType(scopeType);
@@ -1355,42 +1066,69 @@ public final class RowBuffer {
         this = tempReference_this.get();
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteUInt16(int offset, ushort value)
-    public void WriteUInt16(int offset, short value) {
-        Reference<Short> tempReference_value = new Reference<Short>(value);
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: MemoryMarshal.Write(this.buffer.Slice(offset), ref value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
+    private void writeUInt16(Short value) {
+        this.buffer.writeShortLE(value);
+    }
+
+    private void writeUInt32(Integer value) {
+        this.buffer.writeIntLE(value);
+    }
+
+    private void writeUInt64(Long value) {
+        this.buffer.writeLongLE(value);
+    }
+
+    private void writeUInt8(Byte value) {
+        this.buffer.writeByte(value);
+    }
+
+    public void writeUInt16(int offset, short value) {
+        Item<Short> item = this.write(this::writeUInt16, offset, value);
+    }
+
+    public void writeUInt32(int offset, int value) {
+        Item<Integer> item = this.write(this::writeUInt32, offset, value);
+    }
+
+    public void writeUInt64(int offset, long value) {
+        Item<Long> item = this.write(this::writeUInt64, offset, value);
+    }
+
+    public void writeUInt8(int offset, byte value) {
+        Item<Byte> item = this.write(this::writeUInt8, offset, value);
+    }
+
+    public void writeUnixDateTime(int offset, UnixDateTime value) {
+        Item<Long> item = this.write(this::writeUInt64, offset, value.milliseconds());
+    }
+
+    public void WriteVariableBinary(int offset, ReadOnlySpan<Byte> value, boolean exists,
+                                    Out<Integer> shift) {
+        int numBytes = value.Length;
+        int spaceNeeded;
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
+        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
+        spaceNeeded = tempOut_spaceNeeded.get();
+
+        int sizeLenInBytes = this.WriteBinary(offset, value);
+        checkState(spaceNeeded == numBytes + sizeLenInBytes);
+        this.length(this.length() + shift.get());
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteUInt32(int offset, uint value)
-    public void WriteUInt32(int offset, int value) {
-        Reference<Integer> tempReference_value = new Reference<Integer>(value);
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: MemoryMarshal.Write(this.buffer.Slice(offset), ref value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
+    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySequence<byte> value, bool exists, out int
+    // shift)
+    public void WriteVariableBinary(int offset, ReadOnlySequence<Byte> value, boolean exists,
+                                    Out<Integer> shift) {
+        int numBytes = (int) value.Length;
+        int spaceNeeded;
+        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
+        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
+        spaceNeeded = tempOut_spaceNeeded.get();
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteUInt64(int offset, ulong value)
-    public void WriteUInt64(int offset, long value) {
-        Reference<Long> tempReference_value = new Reference<Long>(value);
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: MemoryMarshal.Write(this.buffer.Slice(offset), ref value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal void WriteUInt8(int offset, byte value)
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal void WriteUInt8(int offset, byte value)
-    public void WriteUInt8(int offset, byte value) {
-        this.buffer[offset] = value;
+        int sizeLenInBytes = this.WriteBinary(offset, value);
+        checkState(spaceNeeded == numBytes + sizeLenInBytes);
+        this.length(this.length() + shift.get());
     }
 
     public void WriteVariableInt(int offset, long value, boolean exists, Out<Integer> shift) {
@@ -1434,6 +1172,44 @@ public final class RowBuffer {
     }
 
     /**
+     * Compute the byte offset from the beginning of the row for a given variable column's value.
+     *
+     * @param layout      The (optional) layout of the current scope.
+     * @param scopeOffset The 0-based offset to the beginning of the scope's value.
+     * @param varIndex    The 0-based index of the variable column within the variable segment.
+     * @return The byte offset from the beginning of the row where the variable column's value should be
+     * located.
+     */
+    public int ComputeVariableValueOffset(Layout layout, int scopeOffset, int varIndex) {
+        if (layout == null) {
+            return scopeOffset;
+        }
+
+        int index = layout.numFixed() + varIndex;
+        ReadOnlySpan<LayoutColumn> columns = layout.columns();
+        checkState(index <= columns.Length);
+        int offset = scopeOffset + layout.size();
+        for (int i = layout.numFixed(); i < index; i++) {
+            LayoutColumn col = columns[i];
+            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
+                int lengthSizeInBytes;
+                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
+                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+                //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
+                long valueSizeInBytes = this.read7BitEncodedUInt(offset);
+                lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
+                if (col.type().getIsVarint()) {
+                    offset += lengthSizeInBytes;
+                } else {
+                    offset += (int) valueSizeInBytes + lengthSizeInBytes;
+                }
+            }
+        }
+
+        return offset;
+    }
+
+    /**
      * Compute the number of bytes necessary to store the unsigned 32-bit integer value using the varuint encoding
      *
      * @param value The value to be encoded
@@ -1455,50 +1231,12 @@ public final class RowBuffer {
         this.buffer.setIntLE(offset, (int) (value - decrement));
     }
 
-    public void WriteUnixDateTime(int offset, UnixDateTime value) {
-        Reference<UnixDateTime> tempReference_value =
-            new Reference<UnixDateTime>(value);
-        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-        value = tempReference_value.get();
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySpan<byte> value, bool exists, out int shift)
-    public void WriteVariableBinary(int offset, ReadOnlySpan<Byte> value, boolean exists,
-                                    Out<Integer> shift) {
-        int numBytes = value.Length;
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
-        spaceNeeded = tempOut_spaceNeeded.get();
-
-        int sizeLenInBytes = this.WriteBinary(offset, value);
-        checkState(spaceNeeded == numBytes + sizeLenInBytes);
-        this.length(this.length() + shift.get());
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: internal void WriteVariableBinary(int offset, ReadOnlySequence<byte> value, bool exists, out int
-    // shift)
-    public void WriteVariableBinary(int offset, ReadOnlySequence<Byte> value, boolean exists,
-                                    Out<Integer> shift) {
-        int numBytes = (int)value.Length;
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        this.EnsureVariable(offset, false, numBytes, exists, tempOut_spaceNeeded, shift);
-        spaceNeeded = tempOut_spaceNeeded.get();
-
-        int sizeLenInBytes = this.WriteBinary(offset, value);
-        checkState(spaceNeeded == numBytes + sizeLenInBytes);
-        this.length(this.length() + shift.get());
-    }
-
     /**
      * Delete the sparse field at the indicated path.
      *
      * @param edit The field to delete.
      */
-    public void deleteSparse(RowCursor edit) {
+    public void DeleteSparse(RowCursor edit) {
         // If the field doesn't exist, then nothing to do.
         if (!edit.exists()) {
             return;
@@ -1535,44 +1273,6 @@ public final class RowBuffer {
      */
     public HybridRowHeader header() {
         return this.readHeader();
-    }
-
-    /**
-     * Compute the byte offset from the beginning of the row for a given variable column's value.
-     *
-     * @param layout      The (optional) layout of the current scope.
-     * @param scopeOffset The 0-based offset to the beginning of the scope's value.
-     * @param varIndex    The 0-based index of the variable column within the variable segment.
-     * @return The byte offset from the beginning of the row where the variable column's value should be
-     * located.
-     */
-    public int computeVariableValueOffset(Layout layout, int scopeOffset, int varIndex) {
-        if (layout == null) {
-            return scopeOffset;
-        }
-
-        int index = layout.numFixed() + varIndex;
-        ReadOnlySpan<LayoutColumn> columns = layout.columns();
-        checkState(index <= columns.Length);
-        int offset = scopeOffset + layout.size();
-        for (int i = layout.numFixed(); i < index; i++) {
-            LayoutColumn col = columns[i];
-            if (this.readBit(scopeOffset, col.getNullBit().clone())) {
-                int lengthSizeInBytes;
-                Out<Integer> tempOut_lengthSizeInBytes = new Out<Integer>();
-                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-                //ORIGINAL LINE: ulong valueSizeInBytes = this.Read7BitEncodedUInt(offset, out int lengthSizeInBytes);
-                long valueSizeInBytes = this.read7BitEncodedUInt(offset, tempOut_lengthSizeInBytes);
-                lengthSizeInBytes = tempOut_lengthSizeInBytes.get();
-                if (col.type().getIsVarint()) {
-                    offset += lengthSizeInBytes;
-                } else {
-                    offset += (int) valueSizeInBytes + lengthSizeInBytes;
-                }
-            }
-        }
-
-        return offset;
     }
 
     public void incrementUInt32(final int offset, final long increment) {
@@ -1662,13 +1362,13 @@ public final class RowBuffer {
         return dstEdit;
     }
 
-    public long read7BitEncodedInt(int offset, Out<Integer> lengthInBytes) {
-        return RowBuffer.rotateSignToMsb(this.read7BitEncodedUInt(offset, lengthInBytes));
+    public long read7BitEncodedInt(int offset) {
+        Item<Long> item = this.read(this::read7BitEncodedInt, offset);
+        return item.value();
     }
 
-    public long read7BitEncodedUInt(int offset, Out<Integer> lengthInBytes) {
+    public long read7BitEncodedUInt(int offset) {
         Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
-        lengthInBytes.set(item.length());
         return item.value();
     }
 
@@ -1686,6 +1386,44 @@ public final class RowBuffer {
 
     public OffsetDateTime readDateTime(int offset) {
         Item<OffsetDateTime> item = this.read(() -> DateTimeCodec.decode(this.buffer), offset);
+        return item.value();
+    }
+
+    public BigDecimal readDecimal(int offset) {
+        Item<BigDecimal> item = this.read(() -> DecimalCodec.decode(this.buffer), offset);
+        return item.value();
+    }
+
+    public ByteBuf readFixedBinary(int offset, int length) {
+        Item<ByteBuf> item = this.read(() -> this.buffer.readSlice(length), offset);
+        return item.value();
+    }
+
+    public Utf8String readFixedString(int offset, int length) {
+        Item<Utf8String> item = this.read(() -> Utf8String.fromUnsafe(this.buffer.readSlice(length)), offset);
+        return item.value();
+    }
+
+    public Float128 readFloat128(int offset) {
+        Item<Float128> item = this.read(this::readFloat128, offset);
+        return item.value();
+    }
+
+    // TODO: DANOBLE: Support MongoDbObjectId values
+    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
+    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
+    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
+    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+    //        value = tempReference_value.get();
+    //    }
+
+    public float readFloat32(int offset) {
+        Item<Float> item = this.read(this.buffer::readFloatLE, offset);
+        return item.value();
+    }
+
+    public double readFloat64(int offset) {
+        Item<Double> item = this.read(this.buffer::readDoubleLE, offset);
         return item.value();
     }
 
@@ -1767,49 +1505,97 @@ public final class RowBuffer {
         return this.read(this.buffer::readShortLE, offset).value();
     }
 
-    public long readInt64(int offset) {
-        return this.read(this.buffer::readLongLE, offset).value();
+    public int readInt32(int offset) {
+        Item<Integer> item = this.read(this.buffer::readIntLE, offset);
+        return item.value();
     }
 
-    public byte readInt8(int offset, @Nonnull Out<Integer> lengthInBytes) {
-        return this.read(this.buffer::readByte, offset, lengthInBytes);
+    public long readInt64(int offset) {
+        Item<Long> item = this.read(this.buffer::readLongLE, offset);
+        return item.value();
+    }
+
+    public byte readInt8(int offset) {
+        Item<Byte> item = this.read(this.buffer::readByte, offset);
+        return item.value();
+    }
+
+    public SchemaId readSchemaId(int offset) {
+        Item<SchemaId> item = this.read(() -> SchemaId.from(this.buffer.readIntLE()), offset);
+        return item.value();
+    }
+
+    public ByteBuf readSparseBinary(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BINARY);
+        Item<ByteBuf> item = this.read(this::readVariableBinary, edit);
+        return item.value();
+    }
+
+    public boolean readSparseBoolean(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BOOLEAN);
+        edit.endOffset(edit.valueOffset());
+        return edit.cellType() == LayoutTypes.BOOLEAN;
+    }
+
+    public OffsetDateTime readSparseDateTime(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DATE_TIME);
+        edit.endOffset(edit.valueOffset() + Long.SIZE);
+        return this.readDateTime(edit.valueOffset());
+    }
+
+    public BigDecimal readSparseDecimal(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DECIMAL);
+        Item<BigDecimal> item = this.read(this::readDecimal, edit);
+        return item.value();
+    }
+
+    public Float128 readSparseFloat128(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_128);
+        Item<Float128> item = this.read(this::readFloat128, edit);
+        return item.value();
+    }
+
+    public float readSparseFloat32(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_32);
+        Item<Float> item = this.read(this.buffer::readFloatLE, edit);
+        return item.value();
     }
 
     public double readSparseFloat64(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_64);
-        edit.endOffset(edit.valueOffset() + (Double.SIZE / Byte.SIZE));
-        return this.readFloat64(edit.valueOffset());
+        Item<Double> item = this.read(this.buffer::readDoubleLE, edit);
+        return item.value();
     }
 
     public UUID readSparseGuid(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.GUID);
-        edit.endOffset(edit.valueOffset() + 16);
-        return this.readGuid(edit.valueOffset());
+        Item<UUID> item = this.read(this::readGuid, edit);
+        return item.value();
     }
 
     public short readSparseInt16(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_16);
-        edit.endOffset(edit.valueOffset() + (Short.SIZE / Byte.SIZE));
-        return this.readInt16(edit.valueOffset());
+        Item<Short> item = this.read(this.buffer::readShortLE, edit);
+        return item.value();
     }
 
     public int readSparseInt32(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_32);
-        edit.endOffset(edit.valueOffset() + (Integer.SIZE / Byte.SIZE));
-        return this.ReadInt32(edit.valueOffset());
+        Item<Integer> item = this.read(this.buffer::readIntLE, edit);
+        return item.value();
     }
 
     public long readSparseInt64(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_64);
-        edit.endOffset(edit.valueOffset() + (Long.SIZE / Byte.SIZE));
-        return this.readInt64(edit.valueOffset());
+        Item<Long> item = this.read(this.buffer::readLongLE, edit);
+        return item.value();
     }
 
     public byte readSparseInt8(RowCursor edit) {
-        // TODO: Remove calls to ReadSparsePrimitiveTypeCode once moved to V2 read.
+        // TODO: Remove calls to readSparsePrimitiveTypeCode once moved to V2 read.
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_8);
-        edit.endOffset(edit.valueOffset() + (Byte.SIZE / Byte.SIZE));
-        return this.readInt8(edit.valueOffset());
+        Item<Byte> item = this.read(this.buffer::readByte, edit);
+        return item.value();
     }
 
     public NullValue readSparseNull(@Nonnull RowCursor edit) {
@@ -1845,31 +1631,101 @@ public final class RowBuffer {
         return token;
     }
 
-    public Utf8String readSparsePath(RowCursor edit) {
-
-        final Optional<Utf8String> path = edit.layout().tokenizer().tryFindString(edit.longValue().pathToken);
-
-        if (path.isPresent()) {
-            return path.get();
-        }
-
-        int numBytes = edit.pathToken() - edit.layout().tokenizer().count();
-        return Utf8String.unsafeFromUtf8BytesNoValidation(this.buffer.Slice(edit.pathOffset(), numBytes));
+    public Utf8String readSparseString(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UTF_8);
+        Item<Utf8String> item = this.read(this::readUtf8String, edit);
+        return item.value();
     }
 
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal LayoutType ReadSparseTypeCode(int
-    // offset)
     public LayoutType readSparseTypeCode(int offset) {
-        return LayoutType.FromCode(LayoutCode.forValue(this.ReadUInt8(offset)));
+        return LayoutType.fromCode(LayoutCode.forValue(this.readInt8(offset)));
+    }
+
+    public int readSparseUInt16(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_16);
+        Item<Integer> item = this.read(this.buffer::readUnsignedShortLE, edit);
+        return item.value();
+    }
+
+    public long readSparseUInt32(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_32);
+        Item<Long> item = this.read(this.buffer::readUnsignedIntLE, edit);
+        return item.value();
+    }
+
+    public long readSparseUInt64(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_64);
+        Item<Long> item = this.read(this.buffer::readLongLE, edit);
+        return item.value;
+    }
+
+    public short readSparseUInt8(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_8);
+        Item<Short> item = this.read(this.buffer::readUnsignedByte, edit);
+        return item.value;
+    }
+
+    public UnixDateTime readSparseUnixDateTime(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UNIX_DATE_TIME);
+        Item<UnixDateTime> item = this.read(this::readUnixDateTime, edit);
+        return item.value();
+    }
+
+    public long readSparseVarInt(RowCursor edit) {
+        this.readSparsePrimitiveTypeCode(edit, LayoutTypes.VAR_INT);
+        Item<Long> item = this.read(this::read7BitEncodedInt, edit);
+        return item.value();
     }
 
     public long readSparseVarUInt(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.VAR_UINT);
-        int start = this.buffer.readerIndex();
-        long value = this.read7BitEncodedUInt();
-        edit.endOffset(edit.valueOffset() + (this.buffer.readerIndex() - start));
-        return value;
+        Item<Long> item = this.read(this::read7BitEncodedUInt, edit);
+        return item.value();
+    }
+
+    public int readUInt16(int offset) {
+        Item<Integer> item = this.read(this.buffer::readUnsignedShortLE, offset);
+        return item.value();
+    }
+
+    public long readUInt32(int offset) {
+        Item<Long> item = this.read(this.buffer::readUnsignedIntLE, offset);
+        return item.value();
+    }
+
+    public long readUInt64(int offset) {
+        Item<Long> item = this.read(this.buffer::readLongLE, offset);
+        return item.value();
+    }
+
+    public short readUInt8(int offset) {
+        Item<Short> item = this.read(this.buffer::readUnsignedByte, offset);
+        return item.value();
+    }
+
+    public UnixDateTime readUnixDateTime(int offset) {
+        Item<UnixDateTime> item = this.read(this::readUnixDateTime, offset);
+        return item.value();
+    }
+
+    public ByteBuf readVariableBinary(int offset) {
+        Item<ByteBuf> item = this.read(this::readVariableBinary, offset);
+        return item.value();
+    }
+
+    public long readVariableInt(int offset) {
+        Item<Long> item = this.read(this::read7BitEncodedInt, offset);
+        return item.value();
+    }
+
+    public Utf8String readVariableString(int offset) {
+        Item<Utf8String> item = this.read(this::readUtf8String, offset);
+        return item.value();
+    }
+
+    public long readVariableUInt(int offset) {
+        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        return item.value();
     }
 
     /**
@@ -1920,6 +1776,15 @@ public final class RowBuffer {
     public static long rotateSignToMsb(long unsignedValue) {
         boolean isNegative = unsignedValue % 2 != 0;
         return isNegative ? (~(unsignedValue >>> 1) + 1) | 0x8000000000000000L : unsignedValue >>> 1;
+    }
+
+    public void setBit(final int offset, @Nonnull final LayoutBit bit) {
+        checkNotNull(bit, "expected non-null bit");
+        if (bit.isInvalid()) {
+            return;
+        }
+        final int index = bit.offset(offset);
+        this.buffer.setByte(index, this.buffer.getByte(bit.offset(offset)) | (byte) (1 << bit.bit()));
     }
 
     /**
@@ -2020,7 +1885,7 @@ public final class RowBuffer {
                 .metaOffset(valueOffset)
                 .layout(edit.layout())
                 .immutable(immutable)
-                .count(this.ReadUInt32(edit.valueOffset()));
+                .count(this.readInt32(edit.valueOffset()));
         }
 
         if (scopeType instanceof LayoutTypedTuple || scopeType instanceof LayoutTuple || scopeType instanceof LayoutTagged || scopeType instanceof LayoutTagged2) {
@@ -2078,7 +1943,7 @@ public final class RowBuffer {
         if (scopeType instanceof LayoutUDT) {
 
             final Layout udt = this.resolver.resolve(edit.cellTypeArgs().schemaId());
-            final int valueOffset = this.computeVariableValueOffset(udt, edit.valueOffset(), udt.numVariable());
+            final int valueOffset = this.ComputeVariableValueOffset(udt, edit.valueOffset(), udt.numVariable());
 
             return new RowCursor()
                 .scopeType(scopeType)
@@ -2091,6 +1956,13 @@ public final class RowBuffer {
         }
 
         throw new IllegalStateException(lenientFormat("Not a scope type: %s", scopeType));
+    }
+
+    public void unsetBit(final int offset, @Nonnull final LayoutBit bit) {
+        checkNotNull(bit, "expected non-null bit");
+        checkArgument(!bit.isInvalid());
+        final int index = bit.offset(offset);
+        this.buffer.setByte(index, this.buffer.getByte(index) & (byte) ~(1 << bit.bit()));
     }
 
     public int write7BitEncodedInt(int offset, long value) {
@@ -2120,9 +1992,68 @@ public final class RowBuffer {
         return i;
     }
 
+    public void writeDateTime(int offset, OffsetDateTime value) {
+        Item<OffsetDateTime> item = this.write(this::writeDateTime, offset, value);
+    }
+
+    public void writeDecimal(int offset, BigDecimal value) {
+        Item<BigDecimal> item = this.write(this::writeDecimal, offset, value);
+    }
+
+    public void writeFixedBinary(final int offset, @Nonnull final ByteBuf value, final int length) {
+
+        checkNotNull(value, "expected non-null value");
+        checkArgument(offset >= 0, "expected offset >= 0, not %s", offset);
+        checkArgument(length >= 0, "expected length >= 0, not %s", length);
+
+        Item<ByteBuf> item = this.write(buffer -> {
+            int writableBytes = Math.min(length, buffer.readableBytes());
+            this.buffer.writeBytes(buffer, writableBytes);
+            if (writableBytes < length) {
+                this.buffer.writeZero(length - writableBytes);
+            }
+        }, offset, value);
+    }
+
+    public void writeFixedBinary(final int offset, @Nonnull final byte[] value, final int index, final int length) {
+
+        checkNotNull(value, "expected non-null value");
+        checkArgument(offset >= 0, "expected offset >= 0, not %s", offset);
+        checkArgument(length >= 0, "expected length >= 0, not %s", length);
+        checkArgument(0 <= index && index < value.length, "expected in range [0, %s), not index", index);
+
+        Item<byte[]> item = this.write(buffer -> {
+            int writableBytes = Math.min(length, buffer.length - index);
+            this.buffer.writeBytes(buffer, index, writableBytes);
+            if (writableBytes < length) {
+                this.buffer.writeZero(length - writableBytes);
+            }
+        }, offset, value);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public void writeFixedString(final int offset, @Nonnull final Utf8String value) {
+        checkNotNull(value, "expected non-null value");
+        checkArgument(!value.isNull(), "expected non-null value content");
+        Item<ByteBuf> item = this.write(this.buffer::writeBytes, offset, value.content());
+    }
+
     public void writeFloat128(int offset, Float128 value) {
         this.buffer.writeLongLE(value.low());
         this.buffer.writeLongLE(value.high());
+    }
+
+    public void writeFloat32(final int offset, final float value) {
+        Item<Float> item = this.write(this.buffer::writeFloatLE, offset, value);
+    }
+
+    public void writeFloat64(final int offset, final double value) {
+        Item<Double> item = this.write(this.buffer::writeDoubleLE, offset, value);
+    }
+
+    public void writeGuid(final int offset, @Nonnull final UUID value) {
+        checkNotNull(value, "expected non-null value");
+        Item<UUID> item = this.write(this::writeGuid, offset, value);
     }
 
     public void writeHeader(HybridRowHeader value) {
@@ -2144,6 +2075,11 @@ public final class RowBuffer {
 
     public void writeInt8(final int ignored, final byte value) {
         this.buffer.writeByte(value);
+    }
+
+    public void writeSchemaId(final int offset, @Nonnull final SchemaId value) {
+        checkNotNull(value, "expected non-null value");
+        this.writeInt32(offset, value.value());
     }
 
     public void writeSparseArray(
@@ -2182,7 +2118,7 @@ public final class RowBuffer {
                 .layout(edit.layout());
     }
 
-    public void writeSparseFloat32(@Nonnull RowCursor edit, float value, @Nonnull UpdateOptions options) {
+    public void WriteSparseFloat32(@Nonnull RowCursor edit, float value, @Nonnull UpdateOptions options) {
 
         int numBytes = (Float.SIZE / Byte.SIZE);
         int metaBytes;
@@ -2198,19 +2134,25 @@ public final class RowBuffer {
         spaceNeeded = tempOut_spaceNeeded.get();
         metaBytes = tempOut_metaBytes.get();
         this.writeSparseMetadata(edit, LayoutType.Float32, TypeArgumentList.EMPTY, metaBytes);
-        this.WriteFloat32(edit.get().valueOffset(), value);
+        this.writeFloat32(edit.get().valueOffset(), value);
         checkState(spaceNeeded == metaBytes + (Float.SIZE / Byte.SIZE));
         edit.get().endOffset = edit.get().metaOffset() + spaceNeeded;
         this.length(this.length() + shift);
     }
 
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [MethodImpl(MethodImplOptions.AggressiveInlining)] internal void WriteSparseTypeCode(int offset,
-    // LayoutCode code)
     public void writeSparseTypeCode(int offset, LayoutCode code) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: this.WriteUInt8(offset, (byte)code);
-        this.WriteUInt8(offset, code.value());
+        this.writeUInt8(offset, code.value());
+    }
+
+    /**
+     * Writes the content of the buffer on to an {@link OutputStream}
+     *
+     * @param stream the target @{link OutputStream}
+     * @throws IOException if the specified {@code stream} throws an {@link IOException} during output
+     */
+    public void writeTo(@Nonnull final OutputStream stream) throws IOException {
+        checkNotNull(stream, "expected non-null stream");
+        this.buffer.getBytes(0, stream, this.length());
     }
 
     /**
@@ -2250,16 +2192,6 @@ public final class RowBuffer {
         }
 
         return 1;
-    }
-
-    /**
-     * Compute the number of bytes necessary to store the signed integer using the varint encoding.
-     *
-     * @param value The value to be encoded
-     * @return The number of bytes needed to store the varint encoding of {@code value}
-     */
-    private static int Count7BitEncodedInt(long value) {
-        return RowBuffer.count7BitEncodedUInt(RowBuffer.rotateSignToLsb(value));
     }
 
     /**
@@ -2328,14 +2260,14 @@ public final class RowBuffer {
         return this.CompareFieldValue(leftKey.clone(), leftKeyLen, rightKey.clone(), rightKeyLen);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: private int WriteBinary(int offset, ReadOnlySpan<byte> value)
-    private int WriteBinary(int offset, ReadOnlySpan<Byte> value) {
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: int sizeLenInBytes = this.Write7BitEncodedUInt(offset, (ulong)value.Length);
-        int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
-        value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
-        return sizeLenInBytes;
+    /**
+     * Compute the number of bytes necessary to store the signed integer using the varint encoding.
+     *
+     * @param value The value to be encoded
+     * @return The number of bytes needed to store the varint encoding of {@code value}
+     */
+    private static int Count7BitEncodedInt(long value) {
+        return RowBuffer.count7BitEncodedUInt(RowBuffer.rotateSignToLsb(value));
     }
 
     private void EnsureVariable(int offset, boolean isVarint, int numBytes, boolean exists,
@@ -2346,7 +2278,7 @@ public final class RowBuffer {
         long existingValueBytes = 0;
         if (exists) {
             Out<Integer> tempOut_spaceAvailable = new Out<Integer>();
-            existingValueBytes = this.read7BitEncodedUInt(offset, tempOut_spaceAvailable);
+            existingValueBytes = this.read7BitEncodedUInt(offset);
             spaceAvailable = tempOut_spaceAvailable.get();
         }
 
@@ -2442,50 +2374,18 @@ public final class RowBuffer {
         return true;
     }
 
-    private ByteBuf readBinary(int offset) {
-        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
-        return this.buffer.readSlice(item.length);
+    private int WriteBinary(int offset, ReadOnlySpan<Byte> value) {
+        int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
+        value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
+        return sizeLenInBytes;
     }
 
-    private Utf8Span ReadString(int offset, Out<Integer> sizeLenInBytes) {
-        int numBytes = (int) this.read7BitEncodedUInt(offset, sizeLenInBytes);
-        return Utf8Span.UnsafeFromUtf8BytesNoValidation(this.buffer.Slice(offset + sizeLenInBytes.get(), numBytes));
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: private int WriteBinary(int offset, ReadOnlySequence<byte> value)
     private int WriteBinary(int offset, ReadOnlySequence<Byte> value) {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: int sizeLenInBytes = this.Write7BitEncodedUInt(offset, (ulong)value.Length);
         int sizeLenInBytes = this.write7BitEncodedUInt(offset, (long) value.Length);
         value.CopyTo(this.buffer.Slice(offset + sizeLenInBytes));
         return sizeLenInBytes;
-    }
-
-    private static int countSparsePath(@Nonnull final RowCursor edit) {
-
-        if (!edit.writePathToken().isNull()) {
-            StringToken token = edit.writePathToken();
-            ByteBuf varint = token.varint();
-            return varint.readerIndex() + varint.readableBytes();
-        }
-
-        Optional<StringToken> optional = edit.layout().tokenizer().findToken(edit.writePath());
-
-        if (optional.isPresent()) {
-            StringToken token = optional.get();
-            edit.writePathToken(token);
-            ByteBuf varint = token.varint();
-            return varint.readerIndex() + varint.readableBytes();
-        }
-
-        Utf8String path = edit.writePath().toUtf8();
-        assert path != null;
-
-        int numBytes = path.length();
-        int sizeLenInBytes = RowBuffer.count7BitEncodedUInt(edit.layout().tokenizer().count() + numBytes);
-
-        return sizeLenInBytes + numBytes;
     }
 
     /**
@@ -2586,6 +2486,32 @@ public final class RowBuffer {
         throw new IllegalStateException(lenientFormat("Not Implemented: %s", code));
     }
 
+    private static int countSparsePath(@Nonnull final RowCursor edit) {
+
+        if (!edit.writePathToken().isNull()) {
+            StringToken token = edit.writePathToken();
+            ByteBuf varint = token.varint();
+            return varint.readerIndex() + varint.readableBytes();
+        }
+
+        Optional<StringToken> optional = edit.layout().tokenizer().findToken(edit.writePath());
+
+        if (optional.isPresent()) {
+            StringToken token = optional.get();
+            edit.writePathToken(token);
+            ByteBuf varint = token.varint();
+            return varint.readerIndex() + varint.readableBytes();
+        }
+
+        Utf8String path = edit.writePath().toUtf8();
+        assert path != null;
+
+        int numBytes = path.length();
+        int sizeLenInBytes = RowBuffer.count7BitEncodedUInt(edit.layout().tokenizer().count() + numBytes);
+
+        return sizeLenInBytes + numBytes;
+    }
+
     private void ensure(int size) {
         this.buffer.ensureWritable(size);
     }
@@ -2656,7 +2582,7 @@ public final class RowBuffer {
                 edit.count(edit.count() + 1);
             } else if ((options == RowOptions.Delete) && edit.exists()) {
                 // Subtract one from the current scope count.
-                checkState(this.ReadUInt32(edit.start()) > 0);
+                checkState(this.readUInt32(edit.start()) > 0);
                 this.decrementUInt32(edit.start(), 1);
                 edit.count(edit.count() - 1);
             }
@@ -2695,6 +2621,14 @@ public final class RowBuffer {
         this.ensureSparse(edit, cellType, typeArgs, numBytes, rowOptions, metaBytes, spaceNeeded, shift);
     }
 
+    private <T> Item<T> read(@Nonnull final Supplier<T> supplier, @Nonnull RowCursor cursor) {
+        checkNotNull(supplier, "expected non-null supplier");
+        checkNotNull(cursor, "expected non-null cursor");
+        Item<T> item = this.read(supplier, cursor.valueOffset());
+        cursor.endOffset(this.buffer.readerIndex());
+        return item;
+    }
+
     private <T> Item<T> read(@Nonnull final Supplier<T> supplier, int offset) {
 
         checkNotNull(supplier);
@@ -2716,6 +2650,10 @@ public final class RowBuffer {
         return item.value();
     }
 
+    private long read7BitEncodedInt() {
+        return RowBuffer.rotateSignToMsb(this.read7BitEncodedUInt());
+    }
+
     private long read7BitEncodedUInt() {
 
         long b = this.buffer.readByte() & 0xFFL;
@@ -2735,6 +2673,18 @@ public final class RowBuffer {
         } while (b >= 0x80L);
 
         return result;
+    }
+
+    private BigDecimal readDecimal() {
+        return DecimalCodec.decode(this.buffer);
+    }
+
+    private Float128 readFloat128() {
+        return Float128Codec.decode(this.buffer);
+    }
+
+    private UUID readGuid() {
+        return GuidCodec.decode(this.buffer);
     }
 
     private HybridRowHeader readHeader() {
@@ -2839,6 +2789,22 @@ public final class RowBuffer {
         }
     }
 
+    private UnixDateTime readUnixDateTime() {
+        return new UnixDateTime(this.buffer.readLongLE());
+    }
+
+    private Utf8String readUtf8String() {
+        long length = this.read7BitEncodedUInt();
+        checkState(length <= Integer.MAX_VALUE, "expected length <= %s, not %s", Integer.MAX_VALUE, length);
+        return Utf8String.fromUnsafe(this.buffer.readSlice((int)length));
+    }
+
+    private ByteBuf readVariableBinary() {
+        long length = this.read7BitEncodedUInt();
+        checkState(length <= Integer.MAX_VALUE, "expected length <= %s, not %s", Integer.MAX_VALUE, length);
+        return this.buffer.readSlice((int)length);
+    }
+
     /**
      * Skip over a nested scope
      *
@@ -2936,7 +2902,7 @@ public final class RowBuffer {
             case BINARY: {
                 int sizeLenInBytes;
                 Out<Integer> tempOut_sizeLenInBytes = new Out<>();
-                int numBytes = (int) this.read7BitEncodedUInt(metaOffset + metaBytes, tempOut_sizeLenInBytes);
+                int numBytes = (int) this.read7BitEncodedUInt(metaOffset + metaBytes);
                 sizeLenInBytes = tempOut_sizeLenInBytes.get();
                 return metaBytes + sizeLenInBytes + numBytes;
             }
@@ -2945,7 +2911,7 @@ public final class RowBuffer {
             case VAR_UINT: {
                 int sizeLenInBytes;
                 Out<Integer> tempOut_sizeLenInBytes2 = new Out<Integer>();
-                this.read7BitEncodedUInt(metaOffset + metaBytes, tempOut_sizeLenInBytes2);
+                this.read7BitEncodedUInt(metaOffset + metaBytes);
                 sizeLenInBytes = tempOut_sizeLenInBytes2.get();
                 return metaBytes + sizeLenInBytes;
             }
@@ -2990,9 +2956,27 @@ public final class RowBuffer {
         return header.version().equals(version) && (HybridRowHeader.SIZE + layout.size()) <= this.length();
     }
 
+    private <T> Item<T> write(@Nonnull final Consumer<T> consumer, final int offset, @Nonnull final T value) {
+        checkNotNull(consumer, "expected non-null consumer");
+        checkNotNull(value, "expected non-null value");
+        this.buffer.writerIndex(offset);
+        consumer.accept(value);
+        return new Item<>(value, offset, this.buffer.writerIndex() - offset);
+    }
+
+    private void writeDateTime(OffsetDateTime value) {
+        DateTimeCodec.encode(value, this.buffer);
+    }
+
+    private void writeDecimal(BigDecimal value) {
+        DecimalCodec.encode(value, this.buffer);
+    }
+
     private int writeDefaultValue(int offset, LayoutType code, TypeArgumentList typeArgs) {
 
-        // JTHTODO: convert to a virtual?
+        // TODO: DANOBLE: Put default values in a central location (LayoutTypes?) and use them in this method
+        //   ensure that there are no null default values (which this method currently uses)
+        // TODO: JTH: convert to a virtual?
 
         if (code == LayoutTypes.NULL) {
             this.writeSparseTypeCode(offset, code.layoutCode());
@@ -3025,32 +3009,32 @@ public final class RowBuffer {
         }
 
         if (code == LayoutTypes.UINT_8) {
-            this.WriteUInt8(offset, (byte) 0);
+            this.writeUInt8(offset, (byte) 0);
             return LayoutTypes.UINT_8.size();
         }
 
         if (code == LayoutTypes.UINT_16) {
-            this.WriteUInt16(offset, (short) 0);
+            this.writeUInt16(offset, (short) 0);
             return LayoutTypes.UINT_16.size();
         }
 
         if (code == LayoutTypes.UINT_32) {
-            this.WriteUInt32(offset, 0);
+            this.writeUInt32(offset, 0);
             return LayoutTypes.UINT_32.size();
         }
 
         if (code == LayoutTypes.UINT_64) {
-            this.WriteUInt64(offset, 0);
+            this.writeUInt64(offset, 0);
             return LayoutTypes.UINT_64.size();
         }
 
         if (code == LayoutTypes.FLOAT_32) {
-            this.WriteFloat32(offset, 0);
+            this.writeFloat32(offset, 0);
             return LayoutTypes.FLOAT_32.size();
         }
 
         if (code == LayoutTypes.FLOAT_64) {
-            this.WriteFloat64(offset, 0);
+            this.writeFloat64(offset, 0);
             return LayoutTypes.FLOAT_64.size();
         }
 
@@ -3060,22 +3044,22 @@ public final class RowBuffer {
         }
 
         if (code == LayoutTypes.DECIMAL) {
-            this.WriteDecimal(offset, BigDecimal.ZERO);
+            this.writeDecimal(offset, BigDecimal.ZERO);
             return LayoutTypes.DECIMAL.size();
         }
 
         if (code == LayoutTypes.DATE_TIME) {
-            this.WriteDateTime(offset, LocalDateTime.MIN);
+            this.writeDateTime(offset, OffsetDateTime.MIN);
             return LayoutTypes.DATE_TIME.size();
         }
 
         if (code == LayoutTypes.UNIX_DATE_TIME) {
-            this.WriteUnixDateTime(offset, null);
+            this.writeUnixDateTime(offset, null);
             return LayoutTypes.UNIX_DATE_TIME.size();
         }
 
         if (code == LayoutTypes.GUID) {
-            this.WriteGuid(offset, null);
+            this.writeGuid(offset, null);
             return LayoutTypes.GUID.size();
         }
 
@@ -3099,7 +3083,7 @@ public final class RowBuffer {
 
         if (code == LayoutTypes.TYPED_ARRAY || code == LayoutTypes.TypedSet || code == LayoutTypes.TypedMap) {
             // Variable length typed collection scopes preceded by their scope size take sizeof(uint) for a size of 0.
-            this.WriteUInt32(offset, 0);
+            this.writeUInt32(offset, 0);
             return (Integer.SIZE / Byte.SIZE);
         }
 
@@ -3140,6 +3124,10 @@ public final class RowBuffer {
             return udt.size() + (LayoutCode.SIZE / Byte.SIZE);
         }
         throw new IllegalStateException(lenientFormat("Not Implemented: %s", code));
+    }
+
+    private void writeGuid(UUID value) {
+        GuidCodec.encode(value, this.buffer);
     }
 
     private void writeSparseMetadata(

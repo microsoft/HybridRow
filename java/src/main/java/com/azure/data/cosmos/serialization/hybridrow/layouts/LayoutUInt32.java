@@ -68,8 +68,8 @@ public final class LayoutUInt32 extends LayoutType<Integer> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteUInt32(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeUInt32(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 

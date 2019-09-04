@@ -9,89 +9,68 @@ package com.azure.data.cosmos.serialization.hybridrow;
  * A {@link UnixDateTime} is a fixed length value-type providing millisecond
  * granularity as a signed offset from the Unix Epoch (midnight, January 1, 1970 UTC).
  */
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [DebuggerDisplay("{" + nameof(UnixDateTime.Milliseconds) + "}")][StructLayout(LayoutKind.Sequential,
-// Pack = 1)] public readonly struct UnixDateTime : IEquatable<UnixDateTime>
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: [DebuggerDisplay("{" + nameof(UnixDateTime.Milliseconds) + "}")][StructLayout(LayoutKind.Sequential,
-// Pack = 1)] public readonly struct UnixDateTime : IEquatable<UnixDateTime>
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# readonly struct:
-public final class UnixDateTime implements IEquatable<UnixDateTime> {
+public final class UnixDateTime {
     /**
-     * The unix epoch.
-     * {@link UnixDateTime} values are signed values centered on {@link Epoch}.
-     * <para />
-     * This is the same value as default({@link UnixDateTime}).
+     * Unix epoch
+     * <p>
+     * {@link UnixDateTime} values are signed values centered on this value.
      */
-    public static final UnixDateTime Epoch = new UnixDateTime();
+    public static final UnixDateTime EPOCH = new UnixDateTime();
+
     /**
-     * The size (in bytes) of a UnixDateTime.
+     * Size in bytes of a {@link UnixDateTime}
      */
-    public static final int Size = (Long.SIZE / Byte.SIZE);
-    /**
-     * The number of milliseconds since {@link Epoch}.
-     * This value may be negative.
-     */
-    private long Milliseconds;
+    public static final int BYTES = Long.SIZE;
+
+    private long milliseconds;
 
     /**
      * Initializes a new instance of the {@link UnixDateTime} struct.
      *
-     * @param milliseconds The number of milliseconds since {@link Epoch}.
+     * @param milliseconds The number of milliseconds since {@link EPOCH}.
      */
-    public UnixDateTime() {
+    private UnixDateTime() {
     }
 
     public UnixDateTime(long milliseconds) {
-        this.Milliseconds = milliseconds;
-    }
-
-    public long getMilliseconds() {
-        return Milliseconds;
+        this.milliseconds = milliseconds;
     }
 
     /**
-     * Returns true if this is the same value as {@link other}.
+     * {@code> true} if this value is the same as another value
      *
-     * @param other The value to compare against.
-     * @return True if the two values are the same.
+     * @param other value to compare
+     * @return {code true} if this value is the same as the {code other}
      */
     public boolean equals(UnixDateTime other) {
-        return this.getMilliseconds() == other.getMilliseconds();
-    }
-
-    /**
-     * {@link object.Equals(object)} overload.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (null == obj) {
+        if (other == null) {
             return false;
         }
-
-        return obj instanceof UnixDateTime && this.equals((UnixDateTime)obj);
+        return this.milliseconds() == other.milliseconds();
     }
 
-    /**
-     * {@link object.GetHashCode} overload.
-     */
+    @Override
+    public boolean equals(Object other) {
+        if (null == other) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        return other instanceof UnixDateTime && this.equals((UnixDateTime)other);
+    }
+
     @Override
     public int hashCode() {
-        return (new Long(this.getMilliseconds())).hashCode();
+        return Long.valueOf(this.milliseconds).hashCode();
     }
 
     /**
-     * Operator == overload.
+     * The number of milliseconds since {@link #EPOCH}
+     * <p>
+     * This value may be negative
      */
-    public static boolean opEquals(UnixDateTime left, UnixDateTime right) {
-        return left.equals(right.clone());
-    }
-
-    /**
-     * Operator != overload.
-     */
-    public static boolean opNotEquals(UnixDateTime left, UnixDateTime right) {
-        return !left.equals(right.clone());
+    public long milliseconds() {
+        return this.milliseconds;
     }
 }

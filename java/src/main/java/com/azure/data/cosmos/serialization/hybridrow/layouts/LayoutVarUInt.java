@@ -115,13 +115,13 @@ public final class LayoutVarUInt extends LayoutType<Long> {
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
         b.get().WriteVariableUInt(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);
         scope.get().valueOffset(scope.get().valueOffset() + shift);
         return Result.Success;

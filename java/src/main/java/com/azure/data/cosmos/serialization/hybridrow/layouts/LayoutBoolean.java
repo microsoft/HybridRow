@@ -63,12 +63,12 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
         }
 
         if (value) {
-            b.get().SetBit(scope.get().start(), col.getBooleanBit().clone());
+            b.get().setBit(scope.get().start(), col.getBooleanBit().clone());
         } else {
-            b.get().UnsetBit(scope.get().start(), col.getBooleanBit().clone());
+            b.get().unsetBit(scope.get().start(), col.getBooleanBit().clone());
         }
 
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 

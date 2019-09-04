@@ -52,7 +52,7 @@ public final class RowCursor implements Cloneable {
 
         final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
-        final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.SIZE, layout.numVariable());
+        final int sparseSegmentOffset = row.ComputeVariableValueOffset(layout, HybridRowHeader.SIZE, layout.numVariable());
 
         return new RowCursor()
             .layout(layout)

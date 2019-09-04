@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class LayoutUnixDateTime extends LayoutType<com.azure.data.cosmos.serialization.hybridrow.UnixDateTime> {
     public LayoutUnixDateTime() {
         super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.UNIX_DATE_TIME,
-            com.azure.data.cosmos.serialization.hybridrow.UnixDateTime.Size);
+            com.azure.data.cosmos.serialization.hybridrow.UnixDateTime.BYTES);
     }
 
     public boolean isFixed() {

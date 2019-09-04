@@ -196,7 +196,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Utf8Span span = this.row.readSparsePath(tempReference_cursor);
+                Utf8Span span = this.row.ReadSparsePath(tempReference_cursor);
                 this.cursor = tempReference_cursor.get();
                 return Utf8String.CopyFrom(span);
             default:
@@ -216,7 +216,7 @@ public final class RowReader {
             case Sparse:
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                Utf8Span tempVar = this.row.readSparsePath(tempReference_cursor);
+                Utf8Span tempVar = this.row.ReadSparsePath(tempReference_cursor);
                 this.cursor = tempReference_cursor.get();
                 return tempVar;
             default:
@@ -839,7 +839,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseString(tempReference_cursor));
+                value.setAndGet(this.row.readSparseString(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -868,7 +868,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseUInt16(tempReference_cursor));
+                value.setAndGet(this.row.readSparseUInt16(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -897,7 +897,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseUInt32(tempReference_cursor));
+                value.setAndGet(this.row.readSparseUInt32(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -926,7 +926,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseUInt64(tempReference_cursor));
+                value.setAndGet(this.row.readSparseUInt64(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -955,7 +955,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseUInt8(tempReference_cursor));
+                value.setAndGet(this.row.readSparseUInt8(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -982,7 +982,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseUnixDateTime(tempReference_cursor).clone());
+                value.setAndGet(this.row.readSparseUnixDateTime(tempReference_cursor).clone());
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:
@@ -1009,7 +1009,7 @@ public final class RowReader {
 
                 Reference<RowCursor> tempReference_cursor =
                     new Reference<RowCursor>(this.cursor);
-                value.setAndGet(this.row.ReadSparseVarInt(tempReference_cursor));
+                value.setAndGet(this.row.readSparseVarInt(tempReference_cursor));
                 this.cursor = tempReference_cursor.get();
                 return Result.Success;
             default:

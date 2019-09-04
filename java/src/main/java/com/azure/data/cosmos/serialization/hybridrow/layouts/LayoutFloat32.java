@@ -58,8 +58,8 @@ public final class LayoutFloat32 extends LayoutType<Float> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFloat32(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeFloat32(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
@@ -74,7 +74,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
             return result;
         }
 
-        b.get().writeSparseFloat32(edit, value, options);
+        b.get().WriteSparseFloat32(edit, value, options);
         return Result.Success;
     }
 

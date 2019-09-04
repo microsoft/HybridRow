@@ -4,7 +4,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -80,7 +79,7 @@ public abstract class LayoutScope extends LayoutType {
             return result;
         }
 
-        b.deleteSparse(edit);
+        b.DeleteSparse(edit);
         return Result.Success;
     }
 

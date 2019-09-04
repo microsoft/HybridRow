@@ -107,7 +107,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.TypeMismatch;
         }
 
-        b.UnsetBit(scope.start(), column.nullBit());
+        b.unsetBit(scope.start(), column.nullBit());
         return Result.Success;
     }
 
@@ -127,7 +127,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return result;
         }
 
-        b.deleteSparse(edit);
+        b.DeleteSparse(edit);
         return Result.Success;
     }
 
@@ -148,9 +148,9 @@ public abstract class LayoutType<T> implements ILayoutType {
         boolean exists = b.readBit(scope.start(), column.nullBit());
 
         if (exists) {
-            int varOffset = b.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+            int varOffset = b.ComputeVariableValueOffset(scope.layout(), scope.start(), column.offset());
             b.deleteVariable(varOffset, this.isVarint());
-            b.UnsetBit(scope.start(), column.nullBit());
+            b.unsetBit(scope.start(), column.nullBit());
         }
 
         return Result.Success;
@@ -245,19 +245,19 @@ public abstract class LayoutType<T> implements ILayoutType {
         }
 
         if (destinationScope.immutable()) {
-            b.deleteSparse(srcEdit);
+            b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.InsufficientPermissions;
         }
 
         if (!srcEdit.cellTypeArgs().equals(elementType.typeArgs())) {
-            b.deleteSparse(srcEdit);
+            b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TypeConstraint;
         }
 
         if (options == UpdateOptions.InsertAt) {
-            b.deleteSparse(srcEdit);
+            b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TypeConstraint;
         }
@@ -265,13 +265,13 @@ public abstract class LayoutType<T> implements ILayoutType {
         // Prepare the insertion at the destination.
         dstEdit.setAndGet(b.prepareSparseMove(destinationScope, srcEdit));
         if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
-            b.deleteSparse(srcEdit);
+            b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.NotFound;
         }
 
         if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
-            b.deleteSparse(srcEdit);
+            b.DeleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.Exists;
         }

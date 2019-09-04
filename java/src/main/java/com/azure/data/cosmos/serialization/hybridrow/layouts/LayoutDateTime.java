@@ -60,8 +60,8 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteDateTime(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeDateTime(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 

@@ -58,8 +58,8 @@ public final class LayoutFloat64 extends LayoutType<Double> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteFloat64(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeFloat64(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 

@@ -68,8 +68,8 @@ public final class LayoutUInt8 extends LayoutType<Byte> {
             return Result.InsufficientPermissions;
         }
 
-        b.get().WriteUInt8(scope.get().start() + col.getOffset(), value);
-        b.get().SetBit(scope.get().start(), col.getNullBit().clone());
+        b.get().writeUInt8(scope.get().start() + col.getOffset(), value);
+        b.get().setBit(scope.get().start(), col.getNullBit().clone());
         return Result.Success;
     }
 
