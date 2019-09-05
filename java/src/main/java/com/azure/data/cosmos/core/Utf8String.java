@@ -178,6 +178,17 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Encoded length of this {@link Utf8String}
+     * <p>
+     * This is the same value as would be returned by {@link String#getBytes()#length} with no time or space overhead.
+     *
+     * @return encoded length of {@link Utf8String}
+     */
+    public final int encodedLength() {
+        return this.buffer.writerIndex();
+    }
+
     public final boolean equals(ByteBuf other) {
         return this.buffer.equals(other);
     }

@@ -66,18 +66,6 @@ public final class TypeArgumentList {
         return this.args.length;
     }
 
-    /**
-     * Stream for iterating over elements in this {@link TypeArgumentList}
-     * <p>
-     * @return a stream for iterating over elements in this {@link TypeArgumentList}
-     */
-    public Stream<TypeArgument> elements() {
-        if (this.args.length == 0) {
-            return Stream.empty();
-        }
-        return StreamSupport.stream(Arrays.spliterator(this.args), false);
-    }
-
     public boolean equals(TypeArgumentList other) {
         if (null == other) {
             return false;
@@ -121,6 +109,18 @@ public final class TypeArgumentList {
      */
     public SchemaId schemaId() {
         return this.schemaId;
+    }
+
+    /**
+     * Stream for iterating over elements in this {@link TypeArgumentList}
+     * <p>
+     * @return a stream for iterating over elements in this {@link TypeArgumentList}
+     */
+    public Stream<TypeArgument> stream() {
+        if (this.args.length == 0) {
+            return Stream.empty();
+        }
+        return StreamSupport.stream(Arrays.spliterator(this.args), false);
     }
 
     @Override

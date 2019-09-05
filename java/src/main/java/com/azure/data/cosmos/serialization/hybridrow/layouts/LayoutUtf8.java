@@ -177,7 +177,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().WriteVariableString(varOffset, value, exists, tempOut_shift);
+        b.get().writeVariableString(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);
