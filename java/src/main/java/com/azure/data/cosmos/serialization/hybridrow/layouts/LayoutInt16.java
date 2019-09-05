@@ -74,7 +74,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
             return result;
         }
 
-        b.get().WriteSparseInt16(edit, value, options);
+        b.get().writeSparseInt16(edit, value, options);
         return Result.SUCCESS;
     }
 

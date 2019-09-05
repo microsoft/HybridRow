@@ -74,7 +74,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
             return result;
         }
 
-        b.get().WriteSparseInt8(edit, value, options);
+        b.get().writeSparseInt8(edit, value, options);
         return Result.SUCCESS;
     }
 

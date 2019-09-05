@@ -94,7 +94,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
             return result;
         }
 
-        b.get().WriteSparseVarUInt(edit, value, options);
+        b.get().writeSparseVarUInt(edit, value, options);
         return Result.SUCCESS;
     }
 
@@ -119,7 +119,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().WriteVariableUInt(varOffset, value, exists, tempOut_shift);
+        b.get().writeVariableUInt(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);

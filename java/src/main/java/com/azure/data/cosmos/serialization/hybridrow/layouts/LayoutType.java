@@ -127,7 +127,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return result;
         }
 
-        b.DeleteSparse(edit);
+        b.deleteSparse(edit);
         return Result.SUCCESS;
     }
 
@@ -245,19 +245,19 @@ public abstract class LayoutType<T> implements ILayoutType {
         }
 
         if (destinationScope.immutable()) {
-            b.DeleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (!srcEdit.cellTypeArgs().equals(elementType.typeArgs())) {
-            b.DeleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TYPE_CONSTRAINT;
         }
 
         if (options == UpdateOptions.InsertAt) {
-            b.DeleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TYPE_CONSTRAINT;
         }
@@ -265,13 +265,13 @@ public abstract class LayoutType<T> implements ILayoutType {
         // Prepare the insertion at the destination.
         dstEdit.setAndGet(b.prepareSparseMove(destinationScope, srcEdit));
         if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
-            b.DeleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.NOT_FOUND;
         }
 
         if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
-            b.DeleteSparse(srcEdit);
+            b.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.EXISTS;
         }

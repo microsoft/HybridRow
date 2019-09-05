@@ -79,7 +79,7 @@ public abstract class LayoutScope extends LayoutType {
             return result;
         }
 
-        b.DeleteSparse(edit);
+        b.deleteSparse(edit);
         return Result.SUCCESS;
     }
 

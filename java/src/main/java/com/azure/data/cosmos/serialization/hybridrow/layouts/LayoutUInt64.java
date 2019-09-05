@@ -85,7 +85,7 @@ public final class LayoutUInt64 extends LayoutType<Long> {
             return result;
         }
 
-        b.get().WriteSparseUInt64(edit, value, options);
+        b.get().writeSparseUInt64(edit, value, options);
         return Result.SUCCESS;
     }
 

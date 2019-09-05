@@ -75,7 +75,7 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
             return result;
         }
 
-        b.get().WriteSparseDateTime(edit, value, options);
+        b.get().writeSparseDateTime(edit, value, options);
         return Result.SUCCESS;
     }
 

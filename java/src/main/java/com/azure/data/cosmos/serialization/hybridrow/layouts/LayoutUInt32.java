@@ -85,7 +85,7 @@ public final class LayoutUInt32 extends LayoutType<Integer> {
             return result;
         }
 
-        b.get().WriteSparseUInt32(edit, value, options);
+        b.get().writeSparseUInt32(edit, value, options);
         return Result.SUCCESS;
     }
 

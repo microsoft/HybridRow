@@ -74,7 +74,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
             return result;
         }
 
-        b.get().WriteSparseInt32(edit, value, options);
+        b.get().writeSparseInt32(edit, value, options);
         return Result.SUCCESS;
     }
 

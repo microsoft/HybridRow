@@ -83,7 +83,7 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
             return result;
         }
 
-        b.get().WriteSparseBool(edit, value, options);
+        b.get().writeSparseBoolean(edit, value, options);
         return Result.SUCCESS;
     }
 

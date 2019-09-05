@@ -56,7 +56,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     private Utf8String(@Nonnull final ByteBuf buffer, final int decodedLength) {
-        checkNotNull(buffer);
+        checkNotNull(buffer, "expected non-null buffer");
         this.buffer = buffer.asReadOnly();
         this.length = decodedLength;
     }
@@ -73,114 +73,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     public final boolean isNull() {
         return this.buffer == null;
-    }
-
-    /**
-     * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}
-     * <p>
-     * A value of {@code null} is returns, if this {@link Utf8String} is null.
-     * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
-     */
-    @Nullable
-    public ByteBuf content() {
-        return this.buffer;
-    }
-
-    /**
-     * Creates a deep copy of this {@link Utf8String}
-     */
-    @Override
-    public Utf8String copy() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Duplicates this {@link Utf8String}
-     * <p>
-     * Be aware that this will not automatically call {@link #retain()}.
-     */
-    @Override
-    public Utf8String duplicate() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Duplicates this {@link Utf8String}
-     * <p>
-     * This method returns a retained duplicate unlike {@link #duplicate()}.
-     *
-     * @see ByteBuf#retainedDuplicate()
-     */
-    @Override
-    public Utf8String retainedDuplicate() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns a new {@link Utf8String} which contains the specified {@code content}
-     *
-     * @param content text of the {@link Utf8String} to be created.
-     */
-    @Override
-    public Utf8String replace(ByteBuf content) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns the reference count of this {@link Utf8String}
-     * <p>
-     * If {@code 0}, it means this object has been deallocated.
-     */
-    @Override
-    public int refCnt() {
-        return this.buffer.refCnt();
-    }
-
-    @Override
-    public Utf8String retain() {
-        this.buffer.retain();
-        return this;
-    }
-
-    @Override
-    public Utf8String retain(int increment) {
-        this.buffer.retain(increment);
-        return this;
-    }
-
-    @Override
-    public Utf8String touch() {
-        this.buffer.touch();
-        return this;
-    }
-
-    @Override
-    public Utf8String touch(Object hint) {
-        this.buffer.touch(hint);
-        return this;
-    }
-
-    /**
-     * Decreases the reference count by {@code 1} and deallocates this object if the reference count reaches at
-     * {@code 0}.
-     *
-     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
-     */
-    @Override
-    public boolean release() {
-        return this.buffer.release();
-    }
-
-    /**
-     * Decreases the reference count by the specified {@code decrement} and deallocates this object if the reference
-     * count reaches at {@code 0}.
-     *
-     * @param decrement
-     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
-     */
-    @Override
-    public boolean release(int decrement) {
-        return false;
     }
 
     @Override
@@ -208,7 +100,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     public final int compareTo(@Nonnull final Utf8String other) {
 
-        checkNotNull(other);
+        checkNotNull(other, "expected non-null other");
 
         if (other.buffer == this.buffer) {
             return 0;
@@ -257,6 +149,35 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return length - otherLength;
     }
 
+    /**
+     * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}
+     * <p>
+     * A value of {@code null} is returns, if this {@link Utf8String} is null.
+     * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
+     */
+    @Nullable
+    public ByteBuf content() {
+        return this.buffer;
+    }
+
+    /**
+     * Creates a deep copy of this {@link Utf8String}
+     */
+    @Override
+    public Utf8String copy() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Duplicates this {@link Utf8String}
+     * <p>
+     * Be aware that this will not automatically call {@link #retain()}.
+     */
+    @Override
+    public Utf8String duplicate() {
+        throw new UnsupportedOperationException();
+    }
+
     public final boolean equals(ByteBuf other) {
         return this.buffer.equals(other);
     }
@@ -298,6 +219,35 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return false;
     }
 
+    /**
+     * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation
+     * <p>
+     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
+     *
+     * @param buffer The {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
+     * @return A {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
+     * otherwise.
+     */
+    @Nonnull
+    public static Optional<Utf8String> from(@Nonnull final ByteBuf buffer) {
+        checkNotNull(buffer, "expected non-null buffer");
+        return Utf8.isWellFormed(buffer.array()) ? Optional.of(new Utf8String(buffer)) : Optional.empty();
+    }
+
+    /**
+     * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation
+     * <p>
+     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
+     *
+     * @param buffer The {@link ByteBuf} to assign to the {@link Utf8String} created.
+     * @return a new {@link Utf8String}
+     */
+    @Nonnull
+    public static Utf8String fromUnsafe(@Nonnull ByteBuf buffer) {
+        checkNotNull(buffer, "expected non-null buffer");
+        return new Utf8String(buffer);
+    }
+
     @Override
     public int hashCode() {
         return this.buffer.hashCode();
@@ -310,6 +260,73 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     public final int length() {
         return this.length;
+    }
+
+    /**
+     * Returns the reference count of this {@link Utf8String}
+     * <p>
+     * If {@code 0}, it means this object has been deallocated.
+     */
+    @Override
+    public int refCnt() {
+        return this.buffer.refCnt();
+    }
+
+    /**
+     * Decreases the reference count by {@code 1} and deallocates this object if the reference count reaches at
+     * {@code 0}.
+     *
+     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
+     */
+    @Override
+    public boolean release() {
+        return this.buffer.release();
+    }
+
+    /**
+     * Decreases the reference count by the specified {@code decrement} and deallocates this object if the reference
+     * count reaches at {@code 0}.
+     *
+     * @param decrement
+     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
+     */
+    @Override
+    public boolean release(int decrement) {
+        return false;
+    }
+
+    /**
+     * Returns a new {@link Utf8String} which contains the specified {@code content}
+     *
+     * @param content text of the {@link Utf8String} to be created.
+     */
+    @Override
+    public Utf8String replace(ByteBuf content) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Utf8String retain() {
+        this.buffer.retain();
+        return this;
+    }
+
+    @Override
+    public Utf8String retain(int increment) {
+        this.buffer.retain(increment);
+        return this;
+    }
+
+    /**
+     * Duplicates this {@link Utf8String}
+     * <p>
+     * This method returns a retained duplicate unlike {@link #duplicate()}.
+     *
+     * @see ByteBuf#retainedDuplicate()
+     */
+    @Override
+    public Utf8String retainedDuplicate() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -326,6 +343,18 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     public String toUtf16() {
         return this.buffer.getCharSequence(0, this.buffer.capacity(), UTF_8).toString();
+    }
+
+    @Override
+    public Utf8String touch() {
+        this.buffer.touch();
+        return this;
+    }
+
+    @Override
+    public Utf8String touch(Object hint) {
+        this.buffer.touch(hint);
+        return this;
     }
 
     /**
@@ -354,35 +383,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         checkState(count == length, "count: %s, length: %s", count, length);
 
         return new Utf8String(buffer, string.length());
-    }
-
-    /**
-     * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation
-     * <p>
-     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
-     *
-     * @param buffer The {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
-     * @return A {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
-     * otherwise.
-     */
-    @Nonnull
-    public static Optional<Utf8String> from(@Nonnull final ByteBuf buffer) {
-        checkNotNull(buffer);
-        return Utf8.isWellFormed(buffer.array()) ? Optional.of(new Utf8String(buffer)) : Optional.empty();
-    }
-
-    /**
-     * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation
-     * <p>
-     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
-     *
-     * @param buffer The {@link ByteBuf} to assign to the {@link Utf8String} created.
-     * @return a new {@link Utf8String}
-     */
-    @Nonnull
-    public static Utf8String fromUnsafe(@Nonnull ByteBuf buffer) {
-        checkNotNull(buffer);
-        return new Utf8String(buffer);
     }
 
     private static int decodedLength(final ByteBuf buffer) {
@@ -498,7 +498,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         @Override
         public boolean tryAdvance(@Nonnull final IntConsumer action) {
 
-            checkNotNull(action);
+            checkNotNull(action, "expected non-null action");
 
             if (this.hasNext()) {
                 action.accept(this.next());

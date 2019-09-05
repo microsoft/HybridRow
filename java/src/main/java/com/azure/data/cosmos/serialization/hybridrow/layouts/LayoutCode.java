@@ -87,7 +87,7 @@ public enum LayoutCode {
 
     END_SCOPE((byte)70);
 
-    public static final int SIZE = Byte.SIZE;
+    public static final int BYTES = Byte.BYTES;
 
     private static Map<Byte, LayoutCode> mappings;
     private byte value;

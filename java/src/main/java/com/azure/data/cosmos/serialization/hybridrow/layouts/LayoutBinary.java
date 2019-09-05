@@ -203,7 +203,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return result;
         }
 
-        b.get().WriteSparseBinary(edit, value, options);
+        b.get().writeSparseBinary(edit, value, options);
         return Result.SUCCESS;
     }
 
@@ -223,7 +223,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return result;
         }
 
-        b.get().WriteSparseBinary(edit, value, options);
+        b.get().writeSparseBinary(edit, value, options);
         return Result.SUCCESS;
     }
 
@@ -259,7 +259,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().WriteVariableBinary(varOffset, value, exists, tempOut_shift);
+        b.get().writeVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);
@@ -287,7 +287,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().WriteVariableBinary(varOffset, value, exists, tempOut_shift);
+        b.get().writeVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
         b.get().setBit(scope.get().start(), col.getNullBit().clone());
         scope.get().metaOffset(scope.get().metaOffset() + shift);

@@ -45,7 +45,7 @@ public final class LayoutArray extends LayoutIndexedScope {
             return result;
         }
 
-        b.writeSparseArray(edit, this, options, value);
+        b.WriteSparseArray(edit, this, options, value);
         return Result.SUCCESS;
     }
 }

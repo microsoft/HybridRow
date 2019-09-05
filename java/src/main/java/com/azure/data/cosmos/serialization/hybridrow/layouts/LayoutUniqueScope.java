@@ -43,7 +43,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         }
 
         // Check if the search found the result.
-        b.get().DeleteSparse(patternScope);
+        b.get().deleteSparse(patternScope);
 
         return Result.SUCCESS;
     }

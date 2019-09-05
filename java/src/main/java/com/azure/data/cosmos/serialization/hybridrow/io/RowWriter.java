@@ -386,7 +386,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope =
                     new Out<RowCursor>();
-                this.row.WriteSparseObject(tempRef_cursor, scopeType, UpdateOptions.Upsert, tempOut_nestedScope);
+                this.row.writeSparseObject(tempRef_cursor, scopeType, UpdateOptions.Upsert, tempOut_nestedScope);
                 nestedScope = tempOut_nestedScope.get();
                 this.cursor = tempRef_cursor.argValue;
                 break;
@@ -398,7 +398,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope2 =
                     new Out<RowCursor>();
-                this.row.writeSparseArray(tempRef_cursor2, scopeType, UpdateOptions.Upsert, tempOut_nestedScope2);
+                this.row.WriteSparseArray(tempRef_cursor2, scopeType, UpdateOptions.Upsert, tempOut_nestedScope2);
                 nestedScope = tempOut_nestedScope2.get();
                 this.cursor = tempRef_cursor2.argValue;
                 break;
@@ -480,7 +480,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope8 =
                     new Out<RowCursor>();
-                this.row.WriteNullable(tempRef_cursor8, scopeType, typeArg.typeArgs().clone(),
+                this.row.writeNullable(tempRef_cursor8, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, func != null, tempOut_nestedScope8);
                 nestedScope = tempOut_nestedScope8.get();
                 this.cursor = tempRef_cursor8.argValue;

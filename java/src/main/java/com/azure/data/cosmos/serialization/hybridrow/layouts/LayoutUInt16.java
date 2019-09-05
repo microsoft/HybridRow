@@ -85,7 +85,7 @@ public final class LayoutUInt16 extends LayoutType<Short> {
             return result;
         }
 
-        b.get().WriteSparseUInt16(edit, value, options);
+        b.get().writeSparseUInt16(edit, value, options);
         return Result.SUCCESS;
     }
 

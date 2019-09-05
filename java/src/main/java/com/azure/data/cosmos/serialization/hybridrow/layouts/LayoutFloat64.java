@@ -74,7 +74,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
             return result;
         }
 
-        b.get().WriteSparseFloat64(edit, value, options);
+        b.get().writeSparseFloat64(edit, value, options);
         return Result.SUCCESS;
     }
 
