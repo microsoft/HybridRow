@@ -386,7 +386,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope =
                     new Out<RowCursor>();
-                this.row.writeSparseObject(tempRef_cursor, scopeType, UpdateOptions.Upsert, tempOut_nestedScope);
+                this.row.writeSparseObject(tempRef_cursor, scopeType, UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope.get();
                 this.cursor = tempRef_cursor.argValue;
                 break;
@@ -398,7 +398,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope2 =
                     new Out<RowCursor>();
-                this.row.WriteSparseArray(tempRef_cursor2, scopeType, UpdateOptions.Upsert, tempOut_nestedScope2);
+                this.row.writeSparseArray(tempRef_cursor2, scopeType, UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope2.get();
                 this.cursor = tempRef_cursor2.argValue;
                 break;
@@ -424,7 +424,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope4 =
                     new Out<RowCursor>();
-                this.row.WriteSparseTuple(tempRef_cursor4, scopeType, typeArg.typeArgs().clone(),
+                this.row.writeSparseTuple(tempRef_cursor4, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope4);
                 nestedScope = tempOut_nestedScope4.get();
                 this.cursor = tempRef_cursor4.argValue;
@@ -438,8 +438,8 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope5 =
                     new Out<RowCursor>();
-                this.row.WriteTypedTuple(tempRef_cursor5, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope5);
+                this.row.writeTypedTuple(tempRef_cursor5, scopeType, typeArg.typeArgs().clone(),
+                    UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope5.get();
                 this.cursor = tempRef_cursor5.argValue;
 
@@ -452,8 +452,8 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope6 =
                     new Out<RowCursor>();
-                this.row.WriteTypedTuple(tempRef_cursor6, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope6);
+                this.row.writeTypedTuple(tempRef_cursor6, scopeType, typeArg.typeArgs().clone(),
+                    UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope6.get();
                 this.cursor = tempRef_cursor6.argValue;
 
@@ -466,8 +466,8 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope7 =
                     new Out<RowCursor>();
-                this.row.WriteTypedTuple(tempRef_cursor7, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope7);
+                this.row.writeTypedTuple(tempRef_cursor7, scopeType, typeArg.typeArgs().clone(),
+                    UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope7.get();
                 this.cursor = tempRef_cursor7.argValue;
 
@@ -481,7 +481,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope8 =
                     new Out<RowCursor>();
                 this.row.writeNullable(tempRef_cursor8, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, func != null, tempOut_nestedScope8);
+                    UpdateOptions.Upsert, func != null);
                 nestedScope = tempOut_nestedScope8.get();
                 this.cursor = tempRef_cursor8.argValue;
 
@@ -508,8 +508,8 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope10 =
                     new Out<RowCursor>();
-                this.row.WriteTypedSet(tempRef_cursor10, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope10);
+                this.row.writeTypedSet(tempRef_cursor10, scopeType, typeArg.typeArgs().clone(),
+                    UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope10.get();
                 this.cursor = tempRef_cursor10.argValue;
 

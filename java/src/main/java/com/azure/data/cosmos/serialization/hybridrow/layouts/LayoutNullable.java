@@ -80,7 +80,7 @@ public final class LayoutNullable extends LayoutIndexedScope {
             return result;
         }
 
-        b.get().writeNullable(edit, this, typeArgs.clone(), options, hasValue, value.clone());
+        b.get().writeNullable(edit, this, typeArgs.clone(), options, hasValue);
         return Result.SUCCESS;
     }
 

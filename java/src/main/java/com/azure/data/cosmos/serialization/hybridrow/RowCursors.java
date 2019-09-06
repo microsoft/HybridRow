@@ -120,7 +120,7 @@ public final class RowCursors {
         if (childScope.scopeType().isSizedScope()) {
             edit.endOffset(childScope.metaOffset());
         } else {
-            edit.endOffset(childScope.metaOffset() + (LayoutCode.SIZE / Byte.SIZE)); // move past  end of scope marker
+            edit.endOffset(childScope.metaOffset() + LayoutCode.BYTES); // move past end of scope marker
         }
     }
 }

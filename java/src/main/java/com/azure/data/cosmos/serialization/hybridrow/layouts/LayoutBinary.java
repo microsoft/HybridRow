@@ -117,7 +117,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
             return Result.NOT_FOUND;
         }
 
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         value.setAndGet(b.get().readVariableBinary(varOffset));
         return Result.SUCCESS;
@@ -255,7 +255,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
@@ -283,7 +283,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();

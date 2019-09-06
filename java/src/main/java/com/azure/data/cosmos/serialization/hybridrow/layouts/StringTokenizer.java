@@ -54,7 +54,7 @@ public final class StringTokenizer {
      * @param path  The string to look up.
      * @return {@code true} if successful, {@code false} otherwise.
      */
-    public Optional<StringToken> findToken(UtfAnyString path) {
+    public Optional<StringToken> tryFindToken(UtfAnyString path) {
 
         if (path.isNull()) {
             return Optional.empty();

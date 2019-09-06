@@ -92,7 +92,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return Result.NOT_FOUND;
         }
 
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         value.setAndGet(b.get().readVariableString(varOffset));
         return Result.SUCCESS;
@@ -149,7 +149,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
             return result;
         }
 
-        b.get().WriteSparseString(edit, value, options);
+        b.get().writeSparseString(edit, value, options);
         return Result.SUCCESS;
     }
 
@@ -173,7 +173,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();

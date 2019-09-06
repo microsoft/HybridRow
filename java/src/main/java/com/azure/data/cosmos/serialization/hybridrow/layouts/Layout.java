@@ -9,12 +9,18 @@ import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Schema;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -42,15 +48,22 @@ public final class Layout {
     private final SchemaId schemaId;
     private final int size;
     private final StringTokenizer tokenizer;
-    private final LayoutColumn[] topColumns;
+    private final ImmutableList<LayoutColumn> topColumns;
 
+    @SuppressWarnings("UnstableApiUsage")
     public Layout(
-        @Nonnull final String name, @Nonnull final SchemaId schemaId, final int numBitmaskBytes,
-        final int minRequiredSize, @Nonnull final ArrayList<LayoutColumn> columns
-    ) {
-        checkNotNull(name);
-        checkNotNull(schemaId);
-        checkNotNull(columns);
+        @Nonnull final String name,
+        @Nonnull final SchemaId schemaId,
+        final int numBitmaskBytes,
+        final int minRequiredSize,
+        @Nonnull final ArrayList<LayoutColumn> columns) {
+
+        checkNotNull(name, "expected non-null name");
+        checkNotNull(schemaId, "expected non-null schemaId");
+        checkNotNull(columns, "expected non-null columns");
+
+        checkArgument(numBitmaskBytes >= 0, "expected non-negative numBitmaskBytes, not %s", numBitmaskBytes);
+        checkArgument(minRequiredSize >= 0, "expected non-negative minRequiredSize", minRequiredSize);
 
         this.name = name;
         this.schemaId = schemaId;
@@ -60,7 +73,7 @@ public final class Layout {
         this.pathMap = new HashMap<>(columns.size());
         this.pathStringMap = new HashMap<>(columns.size());
 
-        final ArrayList<LayoutColumn> top = new ArrayList<>(columns.size());
+        ImmutableList.Builder<LayoutColumn> builder = ImmutableList.builderWithExpectedSize(columns.size());
         int numFixed = 0;
         int numVariable = 0;
 
@@ -77,13 +90,13 @@ public final class Layout {
             }
 
             if (column.parent() == null) {
-                top.add(column);
+                builder.add(column);
             }
         }
 
         this.numFixed = numFixed;
         this.numVariable = numVariable;
-        this.topColumns = top.toArray(new LayoutColumn[0]);
+        this.topColumns = builder.build();
     }
 
     /**
@@ -119,10 +132,12 @@ public final class Layout {
     }
 
     /**
-     * The set of top level columns defined in the layout (in left-to-right order).
+     * Top level columns defined by the current {@link Layout} in left-to-right order
+     *
+     * @return Top level columns defined by the current {@link Layout} in left-to-right order
      */
-    public ReadOnlySpan<LayoutColumn> columns() {
-        return this.topColumns.AsSpan();
+    public List<LayoutColumn> columns() {
+        return this.topColumns;
     }
 
     /**
@@ -186,18 +201,18 @@ public final class Layout {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Layout:\n");
-        sb.append(String.format("\tCount: %1$s\n", this.topColumns.length));
+        sb.append(String.format("\tCount: %1$s\n", this.topColumns.size()));
         sb.append(String.format("\tFixedSize: %1$s\n", this.size()));
 
         for (LayoutColumn column : this.topColumns) {
             if (column.type().isFixed()) {
                 if (column.type().isBoolean()) {
-                    sb.append(String.format("\t%1$s: %2$s @ %3$s:%4$s:%5$s\n", column.fullPath(), column.type().name(), column.getOffset(), column.getNullBit(), column.getBooleanBit()));
+                    sb.append(String.format("\t%1$s: %2$s @ %3$s:%4$s:%5$s\n", column.fullPath(), column.type().name(), column.offset(), column.nullBit(), column.booleanBit()));
                 } else {
-                    sb.append(String.format("\t%1$s: %2$s @ %3$s\n", column.fullPath(), column.type().name(), column.getOffset()));
+                    sb.append(String.format("\t%1$s: %2$s @ %3$s\n", column.fullPath(), column.type().name(), column.offset()));
                 }
             } else {
-                sb.append(String.format("\t%1$s: %2$s[%4$s] @ %3$s\n", column.fullPath(), column.type().name(), column.getOffset(), column.getSize()));
+                sb.append(String.format("\t%1$s: %2$s[%4$s] @ %3$s\n", column.fullPath(), column.type().name(), column.offset(), column.size()));
             }
         }
 

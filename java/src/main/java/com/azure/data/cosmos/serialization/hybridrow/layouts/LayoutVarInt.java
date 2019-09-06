@@ -98,7 +98,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
         }
 
         boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().ComputeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             col.getOffset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();

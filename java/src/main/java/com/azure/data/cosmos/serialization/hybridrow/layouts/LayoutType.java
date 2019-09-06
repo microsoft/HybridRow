@@ -148,7 +148,7 @@ public abstract class LayoutType<T> implements ILayoutType {
         boolean exists = b.readBit(scope.start(), column.nullBit());
 
         if (exists) {
-            int varOffset = b.ComputeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+            int varOffset = b.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
             b.deleteVariable(varOffset, this.isVarint());
             b.unsetBit(scope.start(), column.nullBit());
         }
