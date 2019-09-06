@@ -3,39 +3,36 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Object properties represent nested structures.
  * <p>
- * Object properties map to multiple columns depending on the number of internal properties
- * within the defined object structure.  Object properties are provided as a convince in schema
- * design.  They are effectively equivalent to defining the same properties explicitly via
- * {@link PrimitivePropertyType} with nested property paths.
+ * Object properties map to multiple columns depending on the number of internal properties within the defined object
+ * structure.  Object properties are provided as a convince in schema design.  They are effectively equivalent to
+ * defining the same properties explicitly via {@link PrimitivePropertyType} with nested property paths.
  */
 public class ObjectPropertyType extends ScopePropertyType {
-    /**
-     * A list of zero or more property definitions that define the columns within the schema.
-     */
-    private ArrayList<Property> properties;
+
+    private List<Property> properties;
 
     /**
      * Initializes a new instance of the {@link ObjectPropertyType} class.
      */
     public ObjectPropertyType() {
-        this.properties = new ArrayList<Property>();
+        this.properties = Collections.emptyList();
     }
 
     /**
-     * A list of zero or more property definitions that define the columns within the schema.
+     * A list of zero or more property definitions that define the columns within the schema
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "properties")] public List<Property> Properties
-    public final ArrayList<Property> getProperties() {
+    public final List<Property> properties() {
         return this.properties;
     }
 
-    public final void setProperties(ArrayList<Property> value) {
-        this.properties = value != null ? value : new ArrayList<Property>();
+    public final ObjectPropertyType properties(List<Property> value) {
+        this.properties = value != null ? value : Collections.emptyList();
+        return this;
     }
 }

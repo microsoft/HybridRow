@@ -27,6 +27,7 @@ public final class Float128 {
      * The size (in bytes) of a {@link Float128}.
      */
     public static final int BYTES = 2 * Long.BYTES;
+    public static final Float128 ZERO = new Float128(0L, 0L);
 
     private final long high;
     private final long low;

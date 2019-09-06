@@ -410,7 +410,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope3 =
                     new Out<RowCursor>();
-                this.row.WriteTypedArray(tempRef_cursor3, scopeType, typeArg.typeArgs().clone(),
+                this.row.writeTypedArray(tempRef_cursor3, scopeType, typeArg.typeArgs().clone(),
                     UpdateOptions.Upsert, tempOut_nestedScope3);
                 nestedScope = tempOut_nestedScope3.get();
                 this.cursor = tempRef_cursor3.argValue;
@@ -495,7 +495,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope9 =
                     new Out<RowCursor>();
-                this.row.WriteSparseUDT(tempReference_cursor9, scopeType, udt, UpdateOptions.Upsert, tempOut_nestedScope9);
+                this.row.writeSparseUDT(tempReference_cursor9, scopeType, udt, UpdateOptions.Upsert, tempOut_nestedScope9);
                 nestedScope = tempOut_nestedScope9.get();
                 this.cursor = tempReference_cursor9.get();
                 break;
@@ -522,8 +522,8 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope11 =
                     new Out<RowCursor>();
-                this.row.WriteTypedMap(tempRef_cursor11, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope11);
+                this.row.writeTypedMap(tempRef_cursor11, scopeType, typeArg.typeArgs().clone(),
+                    UpdateOptions.Upsert);
                 nestedScope = tempOut_nestedScope11.get();
                 this.cursor = tempRef_cursor11.argValue;
 
@@ -556,7 +556,7 @@ public final class RowWriter {
         if (type instanceof LayoutUniqueScope) {
             Reference<RowCursor> tempReference_nestedScope2 =
                 new Reference<RowCursor>(nestedScope);
-            result = this.row.TypedCollectionUniqueIndexRebuild(tempReference_nestedScope2);
+            result = this.row.typedCollectionUniqueIndexRebuild(tempReference_nestedScope2);
             nestedScope = tempReference_nestedScope2.get();
             if (result != Result.SUCCESS) {
                 // TODO: If the index rebuild fails then the row is corrupted.  Should we automatically clean up here?

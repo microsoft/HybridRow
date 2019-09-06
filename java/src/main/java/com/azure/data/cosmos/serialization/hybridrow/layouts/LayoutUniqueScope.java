@@ -67,7 +67,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         // Perform the move.
         Reference<RowCursor> tempReference_dstEdit =
             new Reference<RowCursor>(dstEdit);
-        b.get().TypedCollectionMoveField(tempReference_dstEdit, sourceEdit, RowOptions.from(options));
+        b.get().typedCollectionMoveField(tempReference_dstEdit, sourceEdit, RowOptions.from(options));
         dstEdit = tempReference_dstEdit.get();
 
         // TODO: it would be "better" if the destinationScope were updated to point to the

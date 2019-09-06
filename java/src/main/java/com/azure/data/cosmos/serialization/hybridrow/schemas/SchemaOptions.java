@@ -7,14 +7,23 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
  * Describes the set of options that apply to the entire schema and the way it is validated.
  */
 public class SchemaOptions {
+
+    private boolean disableSystemPrefix;
+    private boolean disallowUnschematized;
+    private boolean enablePropertyLevelTimestamp;
+
     /**
      * If the is value true, then disables prefixing the system properties with a prefix __sys_
      * for reserved properties owned by the store layer.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "disableSystemPrefix", DefaultValueHandling = DefaultValueHandling
-    // .IgnoreAndPopulate)][JsonConverter(typeof(StrictBooleanConverter))] public bool DisableSystemPrefix {get;set;}
-    private boolean DisableSystemPrefix;
+    public final boolean disableSystemPrefix() {
+        return this.disableSystemPrefix;
+    }
+
+    public final void disableSystemPrefix(boolean value) {
+        this.disableSystemPrefix = value;
+    }
+
     /**
      * If true then structural schema validation is enabled.
      * <p>
@@ -25,42 +34,25 @@ public class SchemaOptions {
      * column override of the path.  The value will be stored (and any existing value at that path will be
      * overwritten).  No error will be given.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "disallowUnschematized")][JsonConverter(typeof
-    // (StrictBooleanConverter))] public bool DisallowUnschematized {get;set;}
-    private boolean DisallowUnschematized;
+    public final boolean disallowUnschematized() {
+        return this.disallowUnschematized;
+    }
+
+    public final void disallowUnschematized(boolean value) {
+        this.disallowUnschematized = value;
+    }
+
     /**
      * If set and has the value true, then triggers behavior in the Schema that acts based on property
      * level timestamps. In Cassandra, this means that new columns are added for each top level property
      * that has values of the client side timestamp. This is then used in conflict resolution to independently
      * resolve each property based on the timestamp value of that property.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "enablePropertyLevelTimestamp")][JsonConverter(typeof
-    // (StrictBooleanConverter))] public bool EnablePropertyLevelTimestamp {get;set;}
-    private boolean EnablePropertyLevelTimestamp;
-
-    public final boolean getDisableSystemPrefix() {
-        return DisableSystemPrefix;
+    public final boolean enablePropertyLevelTimestamp() {
+        return this.enablePropertyLevelTimestamp;
     }
 
-    public final void setDisableSystemPrefix(boolean value) {
-        DisableSystemPrefix = value;
-    }
-
-    public final boolean getDisallowUnschematized() {
-        return DisallowUnschematized;
-    }
-
-    public final void setDisallowUnschematized(boolean value) {
-        DisallowUnschematized = value;
-    }
-
-    public final boolean getEnablePropertyLevelTimestamp() {
-        return EnablePropertyLevelTimestamp;
-    }
-
-    public final void setEnablePropertyLevelTimestamp(boolean value) {
-        EnablePropertyLevelTimestamp = value;
+    public final void enablePropertyLevelTimestamp(boolean value) {
+        this.enablePropertyLevelTimestamp = value;
     }
 }

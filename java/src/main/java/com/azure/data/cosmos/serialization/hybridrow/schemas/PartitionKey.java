@@ -11,15 +11,14 @@ public class PartitionKey {
      * The logical path of the referenced property.
      * Partition keys MUST refer to properties defined within the same {@link Schema}.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "path", Required = Required.Always)] public string Path {get;set;}
-    private String Path;
+    private String path;
 
-    public final String getPath() {
-        return Path;
+    public final String path() {
+        return this.path;
     }
 
-    public final void setPath(String value) {
-        Path = value;
+    public final PartitionKey path(String value) {
+        this.path = value;
+        return this;
     }
 }

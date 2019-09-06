@@ -6,56 +6,51 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
 /**
  * The base class for property types both primitive and complex.
  */
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [JsonConverter(typeof(PropertySchemaConverter))] public abstract class PropertyType
 public abstract class PropertyType {
+
+    private String apiType;
+    private boolean nullable;
+    private TypeKind type = TypeKind.values()[0];
+
+    protected PropertyType() {
+        this.nullable(true);
+    }
+
     /**
      * Api-specific type annotations for the property.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "apitype")] public string ApiType {get;set;}
-    private String ApiType;
+    public final String apiType() {
+        return this.apiType;
+    }
+
+    public final PropertyType apiType(String value) {
+        this.apiType = value;
+        return this;
+    }
+
     /**
-     * True if the property can be null.
-     * Default: true.
+     * {@code true} if the property can be {@code null}
+     * <p>
+     * Default: {@code true}
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [DefaultValue(true)][JsonProperty(PropertyName = "nullable", DefaultValueHandling =
-    // DefaultValueHandling.IgnoreAndPopulate)][JsonConverter(typeof(StrictBooleanConverter))] public bool Nullable
-    // {get;set;}
-    private boolean Nullable;
+    public final boolean nullable() {
+        return this.nullable;
+    }
+
+    public final PropertyType nullable(boolean value) {
+        this.nullable = value;
+        return this;
+    }
+
     /**
-     * The logical type of the property.
+     * The logical type of the property
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "type")] public TypeKind Type {get;set;}
-    private TypeKind Type = TypeKind.values()[0];
-
-    protected PropertyType() {
-        this.setNullable(true);
+    public final TypeKind type() {
+        return this.type;
     }
 
-    public final String getApiType() {
-        return ApiType;
-    }
-
-    public final void setApiType(String value) {
-        ApiType = value;
-    }
-
-    public final boolean getNullable() {
-        return Nullable;
-    }
-
-    public final void setNullable(boolean value) {
-        Nullable = value;
-    }
-
-    public final TypeKind getType() {
-        return Type;
-    }
-
-    public final void setType(TypeKind value) {
-        Type = value;
+    public final PropertyType type(TypeKind value) {
+        this.type = value;
+        return this;
     }
 }

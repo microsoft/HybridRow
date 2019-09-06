@@ -9,10 +9,12 @@ import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.ISpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.SystemSchema;
 
 public final class RecordIOFormatter {
-    public static final Layout RecordLayout = SystemSchema.LayoutResolver.Resolve(SystemSchema.RecordSchemaId);
-    public static final Layout SegmentLayout = SystemSchema.LayoutResolver.Resolve(SystemSchema.SegmentSchemaId);
+    public static final Layout RecordLayout = SystemSchema.LayoutResolver.resolve(SystemSchema.RecordSchemaId);
+    public static final Layout SegmentLayout = SystemSchema.LayoutResolver.resolve(SystemSchema.SegmentSchemaId);
 
     public static Result FormatRecord(ReadOnlyMemory<Byte> body, Out<RowBuffer> row) {
         return FormatRecord(body, row, null);

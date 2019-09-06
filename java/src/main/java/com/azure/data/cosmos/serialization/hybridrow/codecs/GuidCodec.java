@@ -15,6 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class GuidCodec {
 
     public static final int BYTES = 2 * Long.BYTES;
+    public static final UUID EMPTY = new UUID(0L, 0L);
 
     private GuidCodec() {
     }

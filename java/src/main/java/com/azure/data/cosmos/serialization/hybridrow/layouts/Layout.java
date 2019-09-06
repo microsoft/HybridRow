@@ -13,12 +13,9 @@ import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * order and type of columns defines the physical ordering of bytes used to encode the row and impacts the cost of
  * updating the row.
  * <p>
- * A layout is created by compiling a {@link Schema} through {@link Schema#Compile(Namespace)} or by constructor through
+ * A layout is created by compiling a {@link Schema} through {@link Schema#compile(Namespace)} or by constructor through
  * a {@link LayoutBuilder}.
  *
  * {@link Layout} is immutable.

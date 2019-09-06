@@ -6,7 +6,6 @@
 package com.azure.data.cosmos.serialization.hybridrow;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.codecs.DateTimeCodec;
 import com.azure.data.cosmos.serialization.hybridrow.codecs.DecimalCodec;
@@ -70,6 +69,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -82,6 +82,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
+
+// import com.azure.data.cosmos.serialization.hybridrow.RowBuffer.UniqueIndexItem;
 
 //import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes.MongoDbObjectId;
 
@@ -152,256 +154,6 @@ public final class RowBuffer {
         checkState(HybridRowHeader.BYTES + layout.size() <= this.length());
     }
 
-    public void TypedCollectionMoveField(RowCursor dstEdit, RowCursor srcEdit, RowOptions options) {
-
-        int encodedSize = this.sparseComputeSize(srcEdit);
-        int numBytes = encodedSize - (srcEdit.valueOffset() - srcEdit.metaOffset());
-
-        // Insert the field metadata into its new location.
-        int metaBytes;
-        Out<Integer> tempOut_metaBytes = new Out<Integer>();
-        int spaceNeeded;
-        Out<Integer> tempOut_spaceNeeded = new Out<Integer>();
-        int shiftInsert;
-        Out<Integer> tempOut_shiftInsert = new Out<Integer>();
-        this.ensureSparse(numBytes, dstEdit, srcEdit.cellType(), srcEdit.cellTypeArgs(),
-            options, tempOut_metaBytes, tempOut_spaceNeeded, tempOut_shiftInsert);
-        shiftInsert = tempOut_shiftInsert.get();
-        spaceNeeded = tempOut_spaceNeeded.get();
-        metaBytes = tempOut_metaBytes.get();
-
-        this.writeSparseMetadata(dstEdit, srcEdit.cellType(), srcEdit.cellTypeArgs(), metaBytes);
-        checkState(spaceNeeded == metaBytes + numBytes);
-        if (srcEdit.metaOffset() >= dstEdit.metaOffset()) {
-            srcEdit.metaOffset(srcEdit.metaOffset() + shiftInsert);
-            srcEdit.valueOffset(srcEdit.valueOffset() + shiftInsert);
-        }
-
-        // Copy the value bits from the old location.
-        this.buffer.Slice(srcEdit.valueOffset(), numBytes).CopyTo(this.buffer.Slice(dstEdit.valueOffset()));
-        this.length(this.length() + shiftInsert);
-
-        // Delete the old location.
-        Out<Integer> tempOut_metaBytes2 = new Out<Integer>();
-        Out<Integer> tempOut_spaceNeeded2 = new Out<Integer>();
-        int shiftDelete;
-        Out<Integer> tempOut_shiftDelete = new Out<Integer>();
-        this.ensureSparse(numBytes, srcEdit, srcEdit.cellType(), srcEdit.cellTypeArgs(),
-            RowOptions.DELETE, tempOut_metaBytes2, tempOut_spaceNeeded2, tempOut_shiftDelete);
-        shiftDelete = tempOut_shiftDelete.get();
-        spaceNeeded = tempOut_spaceNeeded2.get();
-        metaBytes = tempOut_metaBytes2.get();
-
-        checkState(shiftDelete < 0);
-
-        // TODO: DANOBLE: Do not change writerIndex here (?)
-        this.buffer.writerIndex(this.length() + shiftDelete);
-    }
-
-    /**
-     * Rebuild the unique index for a set/map scope.
-     *
-     * @param scope The sparse scope to rebuild an index for.
-     * @return Success if the index could be built, an error otherwise.
-     * <p>
-     * The <paramref name="scope" /> MUST be a set or map scope.
-     * <p>
-     * The scope may have been built (e.g. via RowWriter) with relaxed uniqueness constraint checking.
-     * This operation rebuilds an index to support verification of uniqueness constraints during
-     * subsequent partial updates.  If the appropriate uniqueness constraints cannot be established (i.e.
-     * a duplicate exists), this operation fails.  Before continuing, the resulting scope should either:
-     * <list type="number">
-     * <item>
-     * <description>
-     * Be repaired (e.g. by deleting duplicates) and the index rebuild operation should be
-     * run again.
-     * </description>
-     * </item> <item>
-     * <description>Be deleted.  The entire scope should be removed including its items.</description>
-     * </item>
-     * </list> Failure to perform one of these actions will leave the row is potentially in a corrupted
-     * state where partial updates may subsequent fail.
-     * </p>
-     * <p>
-     * The target <paramref name="scope" /> may or may not have already been indexed.  This
-     * operation is idempotent.
-     * </p>
-     */
-    public Result TypedCollectionUniqueIndexRebuild(@Nonnull final RowCursor scope) {
-
-        checkNotNull(scope, "expected non-null scope");
-        checkArgument(scope.scopeType().isUniqueScope());
-        checkArgument(scope.index() == 0);
-
-        RowCursor edit = scope.clone();
-
-        if (edit.count() <= 1) {
-            return Result.SUCCESS;
-        }
-
-        // Compute Index Elements.
-        // TODO: C# TO JAVA CONVERTER: There is no equivalent to 'stackalloc' in Java:
-        UniqueIndexItem item;
-        Span<UniqueIndexItem> uniqueIndex = edit.count() < 100 ? stackalloc UniqueIndexItem[edit.count()] :
-        new UniqueIndexItem[edit.count()];
-        edit.metaOffset(scope.valueOffset());
-        for (; edit.index() < edit.count(); edit.index(edit.index() + 1)) {
-            Reference<RowCursor> tempReference_dstEdit =
-                new Reference<RowCursor>(edit);
-            this.readSparseMetadata(tempReference_dstEdit);
-            edit = tempReference_dstEdit;
-            Contract.Assert(edit.pathOffset() ==
-            default)
-                Reference<RowCursor> tempReference_dstEdit2 =
-                    new Reference<RowCursor>(edit);
-                int elmSize = this.sparseComputeSize(tempReference_dstEdit2);
-                edit = tempReference_dstEdit2.get();
-
-                UniqueIndexItem tempVar = new UniqueIndexItem();
-                tempVar.code(edit.cellType().LayoutCode);
-                tempVar.metaOffset(edit.metaOffset());
-                tempVar.valueOffset(edit.valueOffset());
-                tempVar.size(elmSize);
-                uniqueIndex[edit.index()] = tempVar.clone();
-
-                edit.metaOffset(edit.metaOffset() + elmSize);
-        }
-
-        // Create scratch space equal to the sum of the sizes of the scope's values.
-        // Implementation Note: theoretically this scratch space could be eliminated by
-        // performing the item move operations directly during the Insertion Sort, however,
-        // doing so might result in moving the same item multiple times.  Under the assumption
-        // that items are relatively large, using scratch space requires each item to be moved
-        // AT MOST once.  Given that row buffer memory is likely reused, scratch space is
-        // relatively memory efficient.
-        int shift = edit.metaOffset() - scope.valueOffset();
-
-        // Sort and check for duplicates.
-        // TODO: C# TO JAVA CONVERTER: C# 'unsafe' code is not converted by C# to Java Converter:
-        Span<UniqueIndexItem> p = new Span<UniqueIndexItem>(Unsafe.AsPointer(ref uniqueIndex
-        .GetPinnableReference()), uniqueIndex.Length);
-        if (!this.insertionSort(scope, edit, p))
-        {
-            return Result.Exists;
-        }
-
-        // Move elements.
-        int metaOffset = scope.valueOffset();
-        this.ensure(this.length() + shift);
-        this.buffer.Slice(metaOffset, this.length() - metaOffset).CopyTo(this.buffer.Slice(metaOffset + shift));
-        for (UniqueIndexItem x : uniqueIndex) {
-            this.buffer.Slice(x.metaOffset() + shift, x.size()).CopyTo(this.buffer.Slice(metaOffset));
-            metaOffset += x.size();
-        }
-
-        // Delete the scratch space (if necessary - if it doesn't just fall off the end of the row).
-        if (metaOffset != this.length()) {
-            this.buffer.Slice(metaOffset + shift, this.length() - metaOffset).CopyTo(this.buffer.Slice(metaOffset));
-        }
-
-        // TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-        //#if DEBUG
-        // Fill deleted bits (in debug builds) to detect overflow/alignment errors.
-        this.buffer.Slice(this.length(), shift).Fill(0xFF);
-        //#endif
-
-        return Result.SUCCESS;
-    }
-
-    public void WriteSparseUDT(@Nonnull final RowCursor edit, LayoutScope scopeType, Layout udt,
-                               UpdateOptions options, Out<RowCursor> newScope) {
-
-        TypeArgumentList typeArgs = new TypeArgumentList(udt.schemaId().clone());
-        int numBytes = udt.size() + LayoutCode.BYTES;
-        int metaBytes;
-        final Out<Integer> metaBytes = new Out<>();
-        int spaceNeeded;
-        final Out<Integer> spaceNeeded = new Out<>();
-        int shift;
-        final Out<Integer> shift = new Out<>();
-
-        final int priorLength = this.length();
-
-        this.ensureSparse(numBytes, edit, scopeType, typeArgs, options, metaBytes,
-            spaceNeeded, shift);
-        this.writeSparseMetadata(edit, scopeType, typeArgs, metaBytes);
-
-        // Clear all presence bits.
-        this.buffer.Slice(edit.valueOffset(), udt.size()).Fill(0);
-
-        // Write scope terminator.
-        int valueOffset = edit.valueOffset() + udt.size();
-        this.writeSparseTypeCode(valueOffset, LayoutCode.END_SCOPE);
-        checkState(spaceNeeded == metaBytes + numBytes);
-        newScope.setAndGet(new RowCursor());
-        newScope.get().scopeType(scopeType);
-        newScope.get().scopeTypeArgs(typeArgs);
-        newScope.get().start(edit.valueOffset());
-        newScope.get().valueOffset(valueOffset);
-        newScope.get().metaOffset(valueOffset);
-        newScope.get().layout(udt);
-
-        checkState(this.length() == priorLength + shift.get());
-    }
-
-    public void WriteTypedArray(@Nonnull final RowCursor edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                                UpdateOptions options, Out<RowCursor> newScope) {
-        int numBytes = Integer.BYTES;
-        int metaBytes;
-        final Out<Integer> metaBytes = new Out<>();
-        int spaceNeeded;
-        final Out<Integer> spaceNeeded = new Out<>();
-        int shift;
-        final Out<Integer> shift = new Out<>();
-
-        final int priorLength = this.length();
-
-        this.ensureSparse(numBytes, edit, scopeType, typeArgs, options, metaBytes,
-            spaceNeeded, shift);
-        this.writeSparseMetadata(edit, scopeType, typeArgs, metaBytes);
-        checkState(spaceNeeded == metaBytes + numBytes);
-        this.writeUInt32(edit.valueOffset(), 0);
-        int valueOffset = edit.valueOffset() + (Integer.SIZE / Byte.SIZE); // Point after the Size
-        newScope.setAndGet(new RowCursor());
-        newScope.get().scopeType(scopeType);
-        newScope.get().scopeTypeArgs(typeArgs);
-        newScope.get().start(edit.valueOffset());
-        newScope.get().valueOffset(valueOffset);
-        newScope.get().metaOffset(valueOffset);
-        newScope.get().layout(edit.layout());
-
-        checkState(this.length() == priorLength + shift.get());
-    }
-
-    public void WriteTypedMap(@Nonnull final RowCursor edit, LayoutScope scopeType, TypeArgumentList typeArgs,
-                              UpdateOptions options, Out<RowCursor> newScope) {
-        int numBytes = Integer.BYTES; // Sized scope.
-        int metaBytes;
-        final Out<Integer> metaBytes = new Out<>();
-        int spaceNeeded;
-        final Out<Integer> spaceNeeded = new Out<>();
-        int shift;
-        final Out<Integer> shift = new Out<>();
-
-        final int priorLength = this.length();
-
-        this.ensureSparse(numBytes, edit, scopeType, typeArgs, options, metaBytes,
-            spaceNeeded, shift);
-        this.writeSparseMetadata(edit, scopeType, typeArgs, metaBytes);
-        checkState(spaceNeeded == metaBytes + numBytes);
-        this.writeUInt32(edit.valueOffset(), 0);
-        int valueOffset = edit.valueOffset() + (Integer.SIZE / Byte.SIZE); // Point after the Size
-        newScope.setAndGet(new RowCursor());
-        newScope.get().scopeType(scopeType);
-        newScope.get().scopeTypeArgs(typeArgs);
-        newScope.get().start(edit.valueOffset());
-        newScope.get().valueOffset(valueOffset);
-        newScope.get().metaOffset(valueOffset);
-        newScope.get().layout(edit.layout());
-
-        checkState(this.length() == priorLength + shift.get());
-    }
-
     /**
      * Compute the byte offset from the beginning of the row for a given variable's value
      *
@@ -441,25 +193,6 @@ public final class RowBuffer {
 
         return offset;
     }
-
-    // TODO: DANOBLE: ressurrect this method
-    //    public void WriteSparseMongoDbObjectId(@Nonnull final RowCursor edit, MongoDbObjectId value,
-    //                                           UpdateOptions options) {
-    //        int numBytes = MongoDbObjectId.Size;
-    //        int metaBytes;
-    //        final Out<Integer> metaBytes = new Out<>();
-    //        int spaceNeeded;
-    //        final Out<Integer> spaceNeeded = new Out<>();
-    //        int shift;
-    //        final Out<Integer> shift = new Out<>();
-    //        this.ensureSparse(numBytes, edit, MongoDbObjectId, TypeArgumentList.EMPTY, options,
-    //            metaBytes, spaceNeeded, shift);
-    //        this.writeSparseMetadata(edit, MongoDbObjectId, TypeArgumentList.EMPTY, metaBytes);
-    //        this.WriteMongoDbObjectId(edit.valueOffset(), value.clone());
-    //        checkState(spaceNeeded == metaBytes + MongoDbObjectId.Size);
-    //        edit.endOffset(edit.metaOffset() + spaceNeeded.get());
-    //        this.buffer.writerIndex(this.length() + shift);
-    //    }
 
     /**
      * Compute the number of bytes necessary to store the unsigned 32-bit integer value using the varuint encoding
@@ -538,15 +271,29 @@ public final class RowBuffer {
         return this.readHeader();
     }
 
+    // TODO: DANOBLE: ressurrect this method
+    //    public void WriteSparseMongoDbObjectId(@Nonnull final RowCursor edit, MongoDbObjectId value,
+    //                                           UpdateOptions options) {
+    //        int numBytes = MongoDbObjectId.Size;
+    //        int metaBytes;
+    //        final Out<Integer> metaBytes = new Out<>();
+    //        int spaceNeeded;
+    //        final Out<Integer> spaceNeeded = new Out<>();
+    //        int shift;
+    //        final Out<Integer> shift = new Out<>();
+    //        this.ensureSparse(numBytes, edit, MongoDbObjectId, TypeArgumentList.EMPTY, options,
+    //            metaBytes, spaceNeeded, shift);
+    //        this.writeSparseMetadata(edit, MongoDbObjectId, TypeArgumentList.EMPTY, metaBytes);
+    //        this.WriteMongoDbObjectId(edit.valueOffset(), value.clone());
+    //        checkState(spaceNeeded == metaBytes + MongoDbObjectId.Size);
+    //        edit.endOffset(edit.metaOffset() + spaceNeeded.get());
+    //        this.buffer.writerIndex(this.length() + shift);
+    //    }
+
     public void incrementUInt32(final int offset, final long increment) {
         final long value = this.buffer.getUnsignedIntLE(offset);
         this.buffer.setIntLE(offset, (int) (value + increment));
     }
-
-    // TODO: DANOBLE: resurrect this method
-    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
-    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
-    //    }
 
     /**
      * Initializes a row to the minimal size for the given layout.
@@ -640,6 +387,11 @@ public final class RowBuffer {
         return item.value();
     }
 
+    // TODO: DANOBLE: resurrect this method
+    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
+    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
+    //    }
+
     public boolean readBit(final int offset, @Nonnull final LayoutBit bit) {
 
         checkNotNull(bit, "expected non-null bit");
@@ -651,13 +403,6 @@ public final class RowBuffer {
         Item<Boolean> item = this.read(() -> (this.buffer.readByte() & (byte) (1 << bit.bit())) != 0, bit.offset(offset));
         return item.value();
     }
-
-    // TODO: DANOBLE: resurrect this method
-    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
-    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
-    //        edit.endOffset = edit.valueOffset() + MongoDbObjectId.Size;
-    //        return this.ReadMongoDbObjectId(edit.valueOffset()).clone();
-    //    }
 
     public OffsetDateTime readDateTime(int offset) {
         Item<OffsetDateTime> item = this.read(() -> DateTimeCodec.decode(this.buffer), offset);
@@ -683,6 +428,13 @@ public final class RowBuffer {
         Item<Float128> item = this.read(this::readFloat128, offset);
         return item.value();
     }
+
+    // TODO: DANOBLE: resurrect this method
+    //    public MongoDbObjectId ReadSparseMongoDbObjectId(Reference<RowCursor> edit) {
+    //        this.readSparsePrimitiveTypeCode(edit, MongoDbObjectId);
+    //        edit.endOffset = edit.valueOffset() + MongoDbObjectId.Size;
+    //        return this.ReadMongoDbObjectId(edit.valueOffset()).clone();
+    //    }
 
     public float readFloat32(int offset) {
         Item<Float> item = this.read(this.buffer::readFloatLE, offset);
@@ -997,14 +749,6 @@ public final class RowBuffer {
         return item.value();
     }
 
-    // TODO: DANOBLE: Support MongoDbObjectId values
-    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
-    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
-    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
-    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-    //        value = tempReference_value.get();
-    //    }
-
     public long readVariableInt(int offset) {
         Item<Long> item = this.read(this::read7BitEncodedInt, offset);
         return item.value();
@@ -1034,6 +778,14 @@ public final class RowBuffer {
     public LayoutResolver resolver() {
         return this.resolver;
     }
+
+    // TODO: DANOBLE: Support MongoDbObjectId values
+    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
+    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
+    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
+    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+    //        value = tempReference_value.get();
+    //    }
 
     /**
      * Rotates the sign bit of a two's complement value to the least significant bit
@@ -1168,7 +920,7 @@ public final class RowBuffer {
 
         if (scopeType instanceof LayoutTypedArray || scopeType instanceof LayoutTypedSet || scopeType instanceof LayoutTypedMap) {
 
-            final int valueOffset = edit.valueOffset() + (Integer.SIZE / Byte.SIZE); // Point after the Size
+            final int valueOffset = edit.valueOffset() + Integer.BYTES; // Point after the Size
 
             return new RowCursor()
                 .scopeType(scopeType)
@@ -1257,6 +1009,150 @@ public final class RowBuffer {
         return content;
     }
 
+    public void typedCollectionMoveField(
+        @Nonnull final RowCursor dstEdit,
+        @Nonnull final RowCursor srcEdit,
+        @Nonnull final RowOptions options) {
+
+        final int length = this.sparseComputeSize(srcEdit) - (srcEdit.valueOffset() - srcEdit.metaOffset());
+
+        // Insert the field metadata into its new location
+
+        Out<Integer> metaBytes = new Out<>();
+        Out<Integer> spaceNeeded = new Out<>();
+        Out<Integer> shiftInsert = new Out<>();
+        Out<Integer> shiftDelete = new Out<>();
+
+        final int priorLength = this.length();
+
+        this.ensureSparse(
+            length, dstEdit, srcEdit.cellType(), srcEdit.cellTypeArgs(), options, metaBytes, spaceNeeded, shiftInsert);
+        this.writeSparseMetadata(dstEdit, srcEdit.cellType(), srcEdit.cellTypeArgs(), metaBytes.get());
+
+        if (srcEdit.metaOffset() >= dstEdit.metaOffset()) {
+            srcEdit.metaOffset(srcEdit.metaOffset() + shiftInsert.get());
+            srcEdit.valueOffset(srcEdit.valueOffset() + shiftInsert.get());
+        }
+
+        // Copy the value bits from the old location
+
+        this.writeFixedBinary(dstEdit.valueOffset(), this.buffer, srcEdit.valueOffset(), length);
+
+        checkState(spaceNeeded.get() == metaBytes.get() + length);
+        checkState(this.length() == priorLength + shiftInsert.get());
+
+        // Delete the old location
+
+        this.ensureSparse(
+            length, srcEdit, srcEdit.cellType(), srcEdit.cellTypeArgs(), RowOptions.DELETE, metaBytes, spaceNeeded,
+            shiftDelete);
+
+        checkState(shiftDelete.get() < 0);
+        checkState(spaceNeeded.get() == metaBytes.get() + length);
+        checkState(this.length() == priorLength + shiftDelete.get());
+    }
+
+    /**
+     * Rebuild the unique index for a set/map scope.
+     *
+     * @param scope The sparse scope to rebuild an index for.
+     * @return Success if the index could be built, an error otherwise.
+     * <p>
+     * The <paramref name="scope" /> MUST be a set or map scope.
+     * <p>
+     * The scope may have been built (e.g. via RowWriter) with relaxed uniqueness constraint checking.
+     * This operation rebuilds an index to support verification of uniqueness constraints during
+     * subsequent partial updates.  If the appropriate uniqueness constraints cannot be established (i.e.
+     * a duplicate exists), this operation fails.  Before continuing, the resulting scope should either:
+     * <list type="number">
+     * <item>
+     * <description>
+     * Be repaired (e.g. by deleting duplicates) and the index rebuild operation should be
+     * run again.
+     * </description>
+     * </item> <item>
+     * <description>Be deleted.  The entire scope should be removed including its items.</description>
+     * </item>
+     * </list> Failure to perform one of these actions will leave the row is potentially in a corrupted
+     * state where partial updates may subsequent fail.
+     * </p>
+     * <p>
+     * The target <paramref name="scope" /> may or may not have already been indexed.  This
+     * operation is idempotent.
+     * </p>
+     */
+    @Nonnull
+    public Result typedCollectionUniqueIndexRebuild(@Nonnull final RowCursor scope) {
+
+        checkNotNull(scope, "expected non-null scope");
+        checkArgument(scope.scopeType().isUniqueScope(), "expected unique scope type");
+        checkArgument(scope.index() == 0, "expected scope index of zero");
+
+        RowCursor edit = scope.clone();
+
+        if (edit.count() <= 1) {
+            return Result.SUCCESS;
+        }
+
+        // Compute index elements
+
+        UniqueIndexItem[] uniqueIndex = new UniqueIndexItem[edit.count()];
+        edit.metaOffset(scope.valueOffset());
+
+        for (; edit.index() < edit.count(); edit.index(edit.index() + 1)) {
+
+            final RowCursor dstEdit = new RowCursor();
+            this.readSparseMetadata(dstEdit);
+
+            checkState(edit.pathOffset() == 0);
+
+            final int elementSize = this.sparseComputeSize(edit);
+
+            uniqueIndex[edit.index()] = new UniqueIndexItem()
+                .code(edit.cellType().layoutCode())
+                .metaOffset(edit.metaOffset())
+                .valueOffset(edit.valueOffset())
+                .size(elementSize);
+
+            edit.metaOffset(edit.metaOffset() + elementSize);
+        }
+
+        // Create scratch space equal to the sum of the sizes of the scope's values.
+        // Implementation Note: theoretically this scratch space could be eliminated by
+        // performing the item move operations directly during the Insertion Sort, however,
+        // doing so might result in moving the same item multiple times.  Under the assumption
+        // that items are relatively large, using scratch space requires each item to be moved
+        // AT MOST once.  Given that row buffer memory is likely reused, scratch space is
+        // relatively memory efficient.
+
+        int shift = edit.metaOffset() - scope.valueOffset();
+
+        // Sort and check for duplicates
+
+        if (!this.insertionSort(scope, edit, Arrays.asList(uniqueIndex))) {
+            return Result.EXISTS;
+        }
+
+        // Move elements
+
+        int metaOffset = scope.valueOffset();
+        this.ensure(this.length() + shift);
+        this.writeFixedBinary(metaOffset + shift, this.buffer, metaOffset, this.length() - metaOffset);
+
+        for (UniqueIndexItem item : uniqueIndex) {
+            this.writeFixedBinary(metaOffset, this.buffer, item.metaOffset() + shift, item.size());
+            metaOffset += item.size();
+        }
+
+        // Delete the scratch space (if necessary - if it doesn't just fall off the end of the row)
+
+        if (metaOffset != this.length()) {
+            this.writeFixedBinary(metaOffset, this.buffer, metaOffset + shift, this.length() - metaOffset);
+        }
+
+        return Result.SUCCESS;
+    }
+
     public void unsetBit(final int offset, @Nonnull final LayoutBit bit) {
         checkNotNull(bit, "expected non-null bit");
         checkArgument(!bit.isInvalid());
@@ -1299,7 +1195,6 @@ public final class RowBuffer {
     }
 
     public void writeFixedBinary(final int offset, @Nonnull final ByteBuf value, final int length) {
-
         checkNotNull(value, "expected non-null value");
         checkArgument(offset >= 0, "expected offset >= 0, not %s", offset);
         checkArgument(length >= 0, "expected length >= 0, not %s", length);
@@ -1311,6 +1206,13 @@ public final class RowBuffer {
                 this.buffer.writeZero(length - writableBytes);
             }
         }, offset, value);
+    }
+
+    public void writeFixedBinary(final int offset, @Nonnull final ByteBuf value, final int index, final int length) {
+        checkArgument(index >= 0, "expected index >= 0, not %s", index);
+        value.markReaderIndex().readerIndex(index);
+        this.writeFixedBinary(offset, value, length);
+        value.resetReaderIndex();
     }
 
     public void writeFixedBinary(final int offset, @Nonnull final byte[] value, final int index, final int length) {
@@ -1888,6 +1790,43 @@ public final class RowBuffer {
         this.writeUInt8(offset, code.value());
     }
 
+    @Nonnull
+    public RowCursor writeSparseUDT(
+        @Nonnull final RowCursor edit,
+        @Nonnull final LayoutScope scope,
+        @Nonnull final Layout udt,
+        @Nonnull final UpdateOptions options) {
+
+        TypeArgumentList typeArgs = new TypeArgumentList(udt.schemaId());
+        int length = udt.size() + LayoutCode.BYTES;
+
+        final Out<Integer> metaBytes = new Out<>();
+        final Out<Integer> spaceNeeded = new Out<>();
+        final Out<Integer> shift = new Out<>();
+
+        final int priorLength = this.length();
+
+        this.ensureSparse(length, edit, scope, typeArgs, options, metaBytes, spaceNeeded, shift);
+        this.writeSparseMetadata(edit, scope, typeArgs, metaBytes.get());
+        this.write(this.buffer::writeZero, edit.valueOffset(), udt.size());  // clear all presence bits
+
+        // Write scope terminator
+
+        int valueOffset = edit.valueOffset() + udt.size();
+        this.writeSparseTypeCode(valueOffset, LayoutCode.END_SCOPE);
+
+        checkState(spaceNeeded.get() == metaBytes.get() + length);
+        checkState(this.length() == priorLength + shift.get());
+
+        return new RowCursor()
+            .scopeType(scope)
+            .scopeTypeArgs(typeArgs)
+            .start(edit.valueOffset())
+            .valueOffset(valueOffset)
+            .metaOffset(valueOffset)
+            .layout(udt);
+    }
+
     public void writeSparseUInt16(
         @Nonnull final RowCursor edit, final short value, @Nonnull final UpdateOptions options) {
 
@@ -2072,6 +2011,71 @@ public final class RowBuffer {
     public void writeTo(@Nonnull final OutputStream stream) throws IOException {
         checkNotNull(stream, "expected non-null stream");
         this.buffer.getBytes(0, stream, this.length());
+    }
+
+    @Nonnull
+    public RowCursor writeTypedArray(
+        @Nonnull final RowCursor edit,
+        @Nonnull final LayoutScope scope,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options) {
+
+        final int length = Integer.BYTES;
+        final Out<Integer> metaBytes = new Out<>();
+        final Out<Integer> spaceNeeded = new Out<>();
+        final Out<Integer> shift = new Out<>();
+
+        final int priorLength = this.length();
+
+        this.ensureSparse(length, edit, scope, typeArgs, options, metaBytes, spaceNeeded, shift);
+        this.writeSparseMetadata(edit, scope, typeArgs, metaBytes.get());
+        this.writeUInt32(edit.valueOffset(), 0);
+
+        checkState(spaceNeeded.get() == metaBytes.get() + length);
+        checkState(this.length() == priorLength + shift.get());
+
+        int valueOffset = edit.valueOffset() + Integer.BYTES; // point after the size
+
+        return new RowCursor()
+            .scopeType(scope)
+            .scopeTypeArgs(typeArgs)
+            .start(edit.valueOffset())
+            .valueOffset(valueOffset)
+            .metaOffset(valueOffset)
+            .layout(edit.layout());
+    }
+
+    @Nonnull
+    public RowCursor writeTypedMap(
+        @Nonnull final RowCursor edit,
+        @Nonnull final LayoutScope scope,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options) {
+
+        final int length = Integer.BYTES; // sized scope
+
+        final Out<Integer> metaBytes = new Out<>();
+        final Out<Integer> spaceNeeded = new Out<>();
+        final Out<Integer> shift = new Out<>();
+
+        final int priorLength = this.length();
+
+        this.ensureSparse(length, edit, scope, typeArgs, options, metaBytes, spaceNeeded, shift);
+        this.writeSparseMetadata(edit, scope, typeArgs, metaBytes.get());
+        this.writeUInt32(edit.valueOffset(), 0);
+
+        checkState(spaceNeeded.get() == metaBytes.get() + length);
+        checkState(this.length() == priorLength + shift.get());
+
+        int valueOffset = edit.valueOffset() + Integer.BYTES; // point after the size
+
+        return new RowCursor()
+            .scopeType(scope)
+            .scopeTypeArgs(typeArgs)
+            .start(edit.valueOffset())
+            .valueOffset(valueOffset)
+            .metaOffset(valueOffset)
+            .layout(edit.layout());
     }
 
     @Nonnull
@@ -2423,7 +2427,7 @@ public final class RowBuffer {
         }
         if (code instanceof LayoutTypedArray || code instanceof LayoutTypedSet || code instanceof LayoutTypedMap) {
             // Variable length typed collection scopes preceded by their scope size take sizeof(uint) for a size of 0.
-            return (Integer.SIZE / Byte.SIZE);
+            return Integer.BYTES;
         }
         if (code instanceof LayoutTuple) {
             // Fixed arity sparse collections take 1 byte for end-of-scope plus a null for each element.
@@ -2874,7 +2878,7 @@ public final class RowBuffer {
             checkState(edit.pathOffset() == 0);
             checkState(edit.pathToken() == 0);
         } else {
-            int offset = edit.metaOffset() + LayoutCode.SIZE;
+            int offset = edit.metaOffset() + LayoutCode.BYTES;
             Out<Integer> pathLenInBytes = new Out<>();
             Out<Integer> pathOffset = new Out<>();
             int token = this.readSparsePathLen(edit.layout(), offset, pathLenInBytes, pathOffset);
@@ -3147,7 +3151,7 @@ public final class RowBuffer {
         }
 
         if (code == LayoutTypes.FLOAT_128) {
-            this.writeFloat128(offset, null);
+            this.writeFloat128(offset, Float128.ZERO);
             return LayoutTypes.FLOAT_128.size();
         }
 
@@ -3162,12 +3166,12 @@ public final class RowBuffer {
         }
 
         if (code == LayoutTypes.UNIX_DATE_TIME) {
-            this.writeUnixDateTime(offset, null);
+            this.writeUnixDateTime(offset, UnixDateTime.EPOCH);
             return LayoutTypes.UNIX_DATE_TIME.size();
         }
 
         if (code == LayoutTypes.GUID) {
-            this.writeGuid(offset, null);
+            this.writeGuid(offset, GuidCodec.EMPTY);
             return LayoutTypes.GUID.size();
         }
 
@@ -3179,8 +3183,8 @@ public final class RowBuffer {
         }
 
         if (code == LayoutTypes.UTF_8 || code == LayoutTypes.BINARY || code == LayoutTypes.VAR_INT || code == LayoutTypes.VAR_UINT) {
-            // Variable length types preceded by their varuint size take 1 byte for a size of 0.
-            return this.write7BitEncodedUInt(offset, 0);
+            // Variable length types preceded by their varuint size take 1 byte for a size of 0
+            return this.write(this::write7BitEncodedUInt, offset, 0L).length();
         }
 
         if (code == LayoutTypes.OBJECT || code == LayoutTypes.ARRAY) {
@@ -3192,7 +3196,7 @@ public final class RowBuffer {
         if (code == LayoutTypes.TYPED_ARRAY || code == LayoutTypes.TypedSet || code == LayoutTypes.TypedMap) {
             // Variable length typed collection scopes preceded by their scope size take sizeof(uint) for a size of 0.
             this.writeUInt32(offset, 0);
-            return (Integer.SIZE / Byte.SIZE);
+            return Integer.BYTES;
         }
 
         if (code == LayoutTypes.TUPLE) {
@@ -3223,14 +3227,15 @@ public final class RowBuffer {
 
         if (code == LayoutTypes.UDT) {
 
-            // Clear all presence bits.
+            // Clear all presence bits
             Layout udt = this.resolver.resolve(typeArgs.schemaId());
-            this.buffer.Slice(offset, udt.size()).Fill(0);
+            this.write(this.buffer::writeZero, offset, udt.size());
 
-            // Write scope terminator.
+            // Write scope terminator
             this.writeSparseTypeCode(offset + udt.size(), LayoutCode.END_SCOPE);
             return udt.size() + LayoutCode.BYTES;
         }
+
         throw new IllegalStateException(lenientFormat("Not Implemented: %s", code));
     }
 
@@ -3290,6 +3295,7 @@ public final class RowBuffer {
             this.write(this::writeFixedString, edit.pathOffset(), writePath);
         }
     }
+
 
     private void writeUInt16(Short value) {
         this.buffer.writeShortLE(value);
@@ -3361,20 +3367,20 @@ public final class RowBuffer {
      */
     static final class UniqueIndexItem {
 
-        private LayoutCode Code = LayoutCode.values()[0];
-        private int MetaOffset;
-        private int Size;
-        private int ValueOffset;
+        private LayoutCode code = LayoutCode.values()[0];
+        private int metaOffset;
+        private int size;
+        private int valueOffset;
 
         /**
          * The layout code of the value.
          */
         public LayoutCode code() {
-            return this.Code;
+            return this.code;
         }
 
         public UniqueIndexItem code(LayoutCode code) {
-            this.Code = code;
+            this.code = code;
             return this;
         }
 
@@ -3382,11 +3388,11 @@ public final class RowBuffer {
          * If existing, the offset to the metadata of the existing field, otherwise the location to insert a new field
          */
         public int metaOffset() {
-            return this.MetaOffset;
+            return this.metaOffset;
         }
 
         public UniqueIndexItem metaOffset(int metaOffset) {
-            this.MetaOffset = metaOffset;
+            this.metaOffset = metaOffset;
             return this;
         }
 
@@ -3394,11 +3400,11 @@ public final class RowBuffer {
          * Size of the target element
          */
         public int size() {
-            return this.Size;
+            return this.size;
         }
 
         public UniqueIndexItem size(int size) {
-            this.Size = size;
+            this.size = size;
             return this;
         }
 
@@ -3406,11 +3412,11 @@ public final class RowBuffer {
          * If existing, the offset to the value of the existing field, otherwise undefined
          */
         public int valueOffset() {
-            return this.ValueOffset;
+            return this.valueOffset;
         }
 
         public UniqueIndexItem valueOffset(int valueOffset) {
-            this.ValueOffset = valueOffset;
+            this.valueOffset = valueOffset;
             return this;
         }
     }

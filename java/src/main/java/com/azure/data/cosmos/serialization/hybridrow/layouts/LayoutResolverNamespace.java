@@ -53,10 +53,10 @@ public final class LayoutResolverNamespace extends LayoutResolver {
             return layout;
         }
 
-        for (Schema s : this.schemaNamespace.getSchemas()) {
-            if (SchemaId.opEquals(s.getSchemaId().clone(),
+        for (Schema s : this.schemaNamespace.schemas()) {
+            if (SchemaId.opEquals(s.schemaId().clone(),
                 schemaId.clone())) {
-                layout = s.Compile(this.schemaNamespace);
+                layout = s.compile(this.schemaNamespace);
                 layout = this.layoutCache.putIfAbsent(schemaId.value(), layout);
                 return layout;
             }

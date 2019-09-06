@@ -4,6 +4,7 @@
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tuple properties represent a typed, finite, ordered set of two or more items.
@@ -12,7 +13,7 @@ public class TuplePropertyType extends ScopePropertyType {
     /**
      * Types of the elements of the tuple in element order.
      */
-    private ArrayList<PropertyType> items;
+    private List<PropertyType> items;
 
     /**
      * Initializes a new instance of the {@link TuplePropertyType} class.
@@ -23,14 +24,15 @@ public class TuplePropertyType extends ScopePropertyType {
 
     /**
      * Types of the elements of the tuple in element order.
+     * @return
      */
     // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
     //ORIGINAL LINE: [JsonProperty(PropertyName = "items")] public List<PropertyType> Items
-    public final ArrayList<PropertyType> getItems() {
+    public final List<PropertyType> items() {
         return this.items;
     }
 
-    public final void setItems(ArrayList<PropertyType> value) {
+    public final void items(List<PropertyType> value) {
         this.items = value != null ? value : new ArrayList<PropertyType>();
     }
 }

@@ -3,39 +3,15 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
-import Newtonsoft.Json.*;
+import com.azure.data.cosmos.core.Json;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1716 // Identifiers should not match keywords
-
-
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [JsonObject] public class Namespace
 public class Namespace {
-    /**
-     * The standard settings used by the JSON parser for interpreting {@link Namespace}
-     * documents.
-     */
-    private static final JsonSerializerSettings NamespaceParseSettings = new JsonSerializerSettings() {
-        CheckAdditionalContent =true
-    };
-    /**
-     * The fully qualified identifier of the namespace.
-     */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "name")] public string Name {get;set;}
-    private String Name;
-    /**
-     * The version of the HybridRow Schema Definition Language used to encode this namespace.
-     */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "version")] public SchemaLanguageVersion Version {get;set;}
-    private SchemaLanguageVersion Version = SchemaLanguageVersion.values()[0];
-    /**
-     * The set of schemas that make up the {@link Namespace}.
-     */
+
+    private String name;
+    private SchemaLanguageVersion version = SchemaLanguageVersion.values()[0];
     private ArrayList<Schema> schemas;
 
     /**
@@ -45,12 +21,15 @@ public class Namespace {
         this.setSchemas(new ArrayList<Schema>());
     }
 
+    /**
+     * The fully qualified identifier of the namespace.
+     */
     public final String getName() {
-        return Name;
+        return this.name;
     }
 
     public final void setName(String value) {
-        Name = value;
+        this.name = value;
     }
 
     /**
@@ -60,9 +39,7 @@ public class Namespace {
      * Table schemas can only reference UDT schemas defined in the same namespace.  UDT schemas can
      * contain nested UDTs whose schemas are defined within the same namespace.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "schemas")] public List<Schema> Schemas
-    public final ArrayList<Schema> getSchemas() {
+    public final ArrayList<Schema> schemas() {
         return this.schemas;
     }
 
@@ -70,23 +47,26 @@ public class Namespace {
         this.schemas = value != null ? value : new ArrayList<Schema>();
     }
 
+    /**
+     * The version of the HybridRow Schema Definition Language used to encode this namespace.
+     */
     public final SchemaLanguageVersion getVersion() {
-        return Version;
+        return this.version;
     }
 
     public final void setVersion(SchemaLanguageVersion value) {
-        Version = value;
+        this.version = value;
     }
 
     /**
      * Parse a JSON document and return a full namespace.
      *
-     * @param json The JSON text to parse.
+     * @param value The JSON text to parse
      * @return A namespace containing a set of logical schemas.
      */
-    public static Namespace Parse(String json) {
-        Namespace ns = JsonConvert.<Namespace>DeserializeObject(json, Namespace.NamespaceParseSettings);
-        SchemaValidator.Validate(ns);
+    public static Optional<Namespace> parse(String value) {
+        Optional<Namespace> ns = Json.<Namespace>parse(value);
+        ns.ifPresent(SchemaValidator::Validate);
         return ns;
     }
 }

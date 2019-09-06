@@ -91,7 +91,7 @@ public abstract class LayoutType<T> implements ILayoutType {
     }
 
     public int countTypeArgument(TypeArgumentList value) {
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
+        return LayoutCode.BYTES;
     }
 
     public final Result deleteFixed(RowBuffer b, RowCursor scope, LayoutColumn column) {
@@ -311,7 +311,9 @@ public abstract class LayoutType<T> implements ILayoutType {
      * @return Success if the write is permitted, the error code otherwise.
      */
     public static Result prepareSparseWrite(
-        @Nonnull final RowBuffer b, @Nonnull final RowCursor edit, @Nonnull final TypeArgument typeArg,
+        @Nonnull final RowBuffer b,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgument typeArg,
         @Nonnull final UpdateOptions options) {
 
         if (edit.immutable() || (edit.scopeType().isUniqueScope() && !edit.deferUniqueIndex())) {
@@ -356,10 +358,10 @@ public abstract class LayoutType<T> implements ILayoutType {
     public static TypeArgument readTypeArgument(RowBuffer row, int offset, Out<Integer> lenInBytes) {
         LayoutType itemCode = row.readSparseTypeCode(offset);
         int argsLenInBytes;
-        Out<Integer> tempOut_argsLenInBytes = new Out<Integer>();
-        TypeArgumentList itemTypeArgs = itemCode.readTypeArgumentList(row, offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), tempOut_argsLenInBytes);
+        Out<Integer> tempOut_argsLenInBytes = new Out<>();
+        TypeArgumentList itemTypeArgs = itemCode.readTypeArgumentList(row, offset + LayoutCode.BYTES, tempOut_argsLenInBytes);
         argsLenInBytes = tempOut_argsLenInBytes.get();
-        lenInBytes.setAndGet((com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + argsLenInBytes);
+        lenInBytes.setAndGet(LayoutCode.BYTES + argsLenInBytes);
         return new TypeArgument(itemCode, itemTypeArgs);
     }
 
@@ -396,7 +398,7 @@ public abstract class LayoutType<T> implements ILayoutType {
 
     public int writeTypeArgument(RowBuffer row, int offset, TypeArgumentList value) {
         row.writeSparseTypeCode(offset, this.layoutCode());
-        return com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE;
+        return LayoutCode.BYTES;
     }
 
     public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, T value) {

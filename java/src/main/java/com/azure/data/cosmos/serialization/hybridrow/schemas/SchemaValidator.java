@@ -24,19 +24,19 @@ HashMap<SchemaId, Schema> ids
             , TypeKind.Schema, s.getType()));
         HashMap<String, Property> pathDupCheck = new HashMap<String, Property>(s.getProperties().size());
         for (Property p : s.getProperties()) {
-            ValidateAssert.DuplicateCheck(p.getPath(), p, pathDupCheck, "Property path", "Schema");
+            ValidateAssert.DuplicateCheck(p.path(), p, pathDupCheck, "Property path", "Schema");
         }
 
         for (PartitionKey pk : s.getPartitionKeys()) {
-            ValidateAssert.Exists(pk.getPath(), pathDupCheck, "Partition key column", "Schema");
+            ValidateAssert.Exists(pk.path(), pathDupCheck, "Partition key column", "Schema");
         }
 
         for (PrimarySortKey ps : s.getPrimarySortKeys()) {
-            ValidateAssert.Exists(ps.getPath(), pathDupCheck, "Primary sort key column", "Schema");
+            ValidateAssert.Exists(ps.path(), pathDupCheck, "Primary sort key column", "Schema");
         }
 
         for (StaticKey sk : s.getStaticKeys()) {
-            ValidateAssert.Exists(sk.getPath(), pathDupCheck, "Static key column", "Schema");
+            ValidateAssert.Exists(sk.path(), pathDupCheck, "Static key column", "Schema");
         }
 
         for (Property p : s.getProperties()) {
@@ -108,8 +108,8 @@ HashMap<SchemaId, Schema> ids
                 op:
                 HashMap<String, Property> pathDupCheck = new HashMap<String, Property>(op.Properties.Count);
                 for (Property nested : op.Properties) {
-                    ValidateAssert.DuplicateCheck(nested.getPath(), nested, pathDupCheck, "Property path", "Object");
-                    SchemaValidator.Visit(nested.getPropertyType(), p, schemas, ids);
+                    ValidateAssert.DuplicateCheck(nested.path(), nested, pathDupCheck, "Property path", "Object");
+                    SchemaValidator.Visit(nested.propertyType(), p, schemas, ids);
                 }
 
                 break;
@@ -121,8 +121,8 @@ HashMap<SchemaId, Schema> ids
                 if (SchemaId.opNotEquals(up.SchemaId,
                     SchemaId.INVALID)) {
                     Schema s = ValidateAssert.Exists(up.SchemaId, ids, "Schema id", "Namespace");
-                    ValidateAssert.AreEqual(up.Name, s.getName(), String.format("Schema name '%1$s' does not match " +
-                        "the name of schema with id '%2$s': %3$s", up.Name, up.SchemaId, s.getName()));
+                    ValidateAssert.AreEqual(up.Name, s.name(), String.format("Schema name '%1$s' does not match " +
+                        "the name of schema with id '%2$s': %3$s", up.Name, up.SchemaId, s.name()));
                 }
 
                 break;
@@ -133,27 +133,27 @@ HashMap<SchemaId, Schema> ids
     }>schemas,
 
     public static void Validate(Namespace ns) {
-        HashMap<String, Integer> nameVersioningCheck = new HashMap<String, Integer>(ns.getSchemas().size());
+        HashMap<String, Integer> nameVersioningCheck = new HashMap<String, Integer>(ns.schemas().size());
         HashMap< (String, SchemaId),
-        Schema > nameDupCheck = new HashMap<(String, SchemaId), Schema > (ns.getSchemas().size());
-        HashMap<SchemaId, Schema> idDupCheck = new HashMap<SchemaId, Schema>(ns.getSchemas().size());
-        for (Schema s : ns.getSchemas()) {
-            ValidateAssert.IsValidSchemaId(s.getSchemaId().clone(), "Schema id");
-            ValidateAssert.IsValidIdentifier(s.getName(), "Schema name");
-            ValidateAssert.DuplicateCheck(s.getSchemaId().clone(), s, idDupCheck, "Schema id", "Namespace");
-            ValidateAssert.DuplicateCheck((s.getName(), s.getSchemaId().clone()), s, nameDupCheck, "Schema reference"
+        Schema > nameDupCheck = new HashMap<(String, SchemaId), Schema > (ns.schemas().size());
+        HashMap<SchemaId, Schema> idDupCheck = new HashMap<SchemaId, Schema>(ns.schemas().size());
+        for (Schema s : ns.schemas()) {
+            ValidateAssert.IsValidSchemaId(s.schemaId().clone(), "Schema id");
+            ValidateAssert.IsValidIdentifier(s.name(), "Schema name");
+            ValidateAssert.DuplicateCheck(s.schemaId().clone(), s, idDupCheck, "Schema id", "Namespace");
+            ValidateAssert.DuplicateCheck((s.name(), s.schemaId().clone()), s, nameDupCheck, "Schema reference"
                 , "Namespace")
 
             // Count the versions of each schema by name.
             int count;
-            count = nameVersioningCheck.get(s.getName());
-            nameVersioningCheck.put(s.getName(), count + 1);
+            count = nameVersioningCheck.get(s.name());
+            nameVersioningCheck.put(s.name(), count + 1);
         }
 
         // Enable id-less Schema references for all types with a unique version in the namespace.
-        for (Schema s : ns.getSchemas()) {
-            if (nameVersioningCheck.get(s.getName()).equals(1)) {
-                ValidateAssert.DuplicateCheck((s.getName(), SchemaId.INVALID), s, nameDupCheck, "Schema reference",
+        for (Schema s : ns.schemas()) {
+            if (nameVersioningCheck.get(s.name()).equals(1)) {
+                ValidateAssert.DuplicateCheck((s.name(), SchemaId.INVALID), s, nameDupCheck, "Schema reference",
                     "Namespace")
             }
         }

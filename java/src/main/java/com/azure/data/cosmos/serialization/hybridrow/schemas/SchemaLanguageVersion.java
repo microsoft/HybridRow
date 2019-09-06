@@ -3,45 +3,40 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1028 // Enum Storage should be Int32
-
+import java.util.HashMap;
 
 /**
  * Versions of the HybridRow Schema Description Language.
  */
-// TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-//ORIGINAL LINE: [JsonConverter(typeof(StringEnumConverter), true)] public enum SchemaLanguageVersion : byte
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: [JsonConverter(typeof(StringEnumConverter), true)] public enum SchemaLanguageVersion : byte
 public enum SchemaLanguageVersion {
     /**
      * Initial version of the HybridRow Schema Description Lanauge.
      */
     V1((byte)0);
 
-    public static final int SIZE = java.lang.Byte.SIZE;
-    private static java.util.HashMap<Byte, SchemaLanguageVersion> mappings;
-    private byte byteValue;
+    public static final int BYTES = Byte.BYTES;
+
+    private static HashMap<Byte, SchemaLanguageVersion> mappings;
+    private byte value;
 
     SchemaLanguageVersion(byte value) {
-        byteValue = value;
-        getMappings().put(value, this);
+        this.value = value;
+        mappings().put(value, this);
     }
 
     public byte getValue() {
-        return byteValue;
+        return this.value;
     }
 
     public static SchemaLanguageVersion forValue(byte value) {
-        return getMappings().get(value);
+        return mappings().get(value);
     }
 
-    private static java.util.HashMap<Byte, SchemaLanguageVersion> getMappings() {
+    private static HashMap<Byte, SchemaLanguageVersion> mappings() {
         if (mappings == null) {
             synchronized (SchemaLanguageVersion.class) {
                 if (mappings == null) {
-                    mappings = new java.util.HashMap<Byte, SchemaLanguageVersion>();
+                    mappings = new HashMap<>();
                 }
             }
         }
