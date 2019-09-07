@@ -101,9 +101,9 @@ public final class LayoutColumn {
     }
 
     /**
-     * If {@link #storage} equals {@link StorageKind#Fixed} then the byte offset to the field location.
+     * If {@link #storage} equals {@link StorageKind#FIXED} then the byte offset to the field location.
      * <p>
-     * If {@link #storage} equals {@link StorageKind#Variable} then the zero-based index of the field from the
+     * If {@link #storage} equals {@link StorageKind#VARIABLE} then the zero-based index of the field from the
      * beginning of the variable length segment.
      * <p>
      * For all other values of {@link #storage}, {@link #offset} is ignored.

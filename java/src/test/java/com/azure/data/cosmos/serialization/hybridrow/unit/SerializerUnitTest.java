@@ -138,12 +138,12 @@ public final class SerializerUnitTest {
         public static Result Read(Reference<RowReader> reader, Out<BatchOperation> operation) {
             BatchOperation retval = new BatchOperation();
             operation.setAndGet(null);
-            while (reader.get().Read()) {
+            while (reader.get().read()) {
                 Result r;
-                switch (reader.get().getPath()) {
+                switch (reader.get().path()) {
                     case "operationType":
                         Out<Integer> tempOut_OperationType = new Out<Integer>();
-                        r = reader.get().ReadInt32(tempOut_OperationType);
+                        r = reader.get().readInt32(tempOut_OperationType);
                         retval.OperationType = tempOut_OperationType.get();
                         if (r != Result.SUCCESS) {
                             return r;
@@ -166,7 +166,7 @@ public final class SerializerUnitTest {
                         break;
                     case "resourceType":
                         Out<Integer> tempOut_ResourceType = new Out<Integer>();
-                        r = reader.get().ReadInt32(tempOut_ResourceType);
+                        r = reader.get().readInt32(tempOut_ResourceType);
                         retval.ResourceType = tempOut_ResourceType.get();
                         if (r != Result.SUCCESS) {
                             return r;
@@ -244,11 +244,11 @@ public final class SerializerUnitTest {
                                   Out<BatchRequestHeaders> header) {
             BatchRequestHeaders retval = new BatchRequestHeaders();
             header.setAndGet(null);
-            while (reader.get().Read()) {
-                switch (reader.get().getPath()) {
+            while (reader.get().read()) {
+                switch (reader.get().path()) {
                     case "sampleRequestHeader":
                         Out<Long> tempOut_SampleRequestHeader = new Out<Long>();
-                        Result r = reader.get().ReadInt64(tempOut_SampleRequestHeader);
+                        Result r = reader.get().readInt64(tempOut_SampleRequestHeader);
                         retval.SampleRequestHeader = tempOut_SampleRequestHeader.get();
                         if (r != Result.SUCCESS) {
                             return r;
@@ -273,8 +273,8 @@ public final class SerializerUnitTest {
         public static final TypeArgument OperationsTypeArg = new TypeArgument(LayoutType.TypedArray, new TypeArgumentList(new TypeArgument[] { BatchOperationSerializer.TypeArg }));
 
         public static Result Read(Reference<RowReader> reader, Out<BatchRequest> request) {
-            assert reader.get().Read();
-            checkState(reader.get().getPath().equals("operations"));
+            assert reader.get().read();
+            checkState(reader.get().path().equals("operations"));
 
             java.util.ArrayList<BatchOperation> operations;
             Out<ArrayList<TItem>> tempOut_operations = new Out<ArrayList<TItem>>();

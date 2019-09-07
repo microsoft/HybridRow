@@ -2900,7 +2900,7 @@ public final class RowBuffer {
     private ByteBuf readVariableBinary() {
         long length = this.read7BitEncodedUInt();
         checkState(length <= Integer.MAX_VALUE, "expected length <= %s, not %s", Integer.MAX_VALUE, length);
-        return this.buffer.readSlice((int)length);
+        return this.buffer.readSlice((int)length).asReadOnly();
     }
 
     private void shift(int destination, int source, int length) {

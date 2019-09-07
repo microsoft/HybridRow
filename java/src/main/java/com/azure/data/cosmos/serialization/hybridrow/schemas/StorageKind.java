@@ -8,20 +8,27 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
  */
 public enum StorageKind {
     /**
+     * The property does not define a column
+     * <p>
+     * This is indicative of an error in the the column specification.
+     */
+    NONE(-1),
+
+    /**
      * The property defines a sparse column
      * <p>
      * Columns marked as sparse consume no space in the row when not present.  When present they appear in an unordered
      * linked list at the end of the row. Access time for sparse columns is proportional to the number of sparse columns
      * in the row.
      */
-    Sparse(0),
+    SPARSE(0),
 
     /**
      * The property is a fixed-length, space-reserved column
      * <p>
      * The column will consume 1 null-bit, and its byte-width regardless of whether the value is present in the row.
      */
-    Fixed(1),
+    FIXED(1),
 
     /**
      * The property is a variable-length column.
@@ -32,7 +39,7 @@ public enum StorageKind {
      * When a <em>long</em> value is marked variable then a null-bit is reserved and the value is optionally encoded as
      * variable if small enough to fit, otherwise the null-bit is set and the value is encoded as sparse.
      */
-    Variable(2);
+    VARIABLE(2);
 
     public static final int SIZE = java.lang.Integer.SIZE;
     private static java.util.HashMap<Integer, StorageKind> mappings;

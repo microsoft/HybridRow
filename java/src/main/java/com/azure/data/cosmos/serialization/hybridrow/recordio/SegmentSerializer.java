@@ -28,14 +28,14 @@ public final class SegmentSerializer {
 
     public static Result Read(Reference<RowReader> reader, Out<Segment> obj) {
         obj.setAndGet(null);
-        while (reader.get().Read()) {
+        while (reader.get().read()) {
             Result r;
 
             // TODO: use Path tokens here.
-            switch (reader.get().getPath().toString()) {
+            switch (reader.get().path().toString()) {
                 case "length":
                     Out<Integer> tempOut_Length = new Out<Integer>();
-                    r = reader.get().ReadInt32(tempOut_Length);
+                    r = reader.get().readInt32(tempOut_Length);
                     obj.get().argValue.Length = tempOut_Length.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -43,7 +43,7 @@ public final class SegmentSerializer {
 
                     // If the RowBuffer isn't big enough to contain the rest of the header, then just
                     // return the length.
-                    if (reader.get().getLength() < obj.get().Length) {
+                    if (reader.get().length() < obj.get().Length) {
                         return Result.SUCCESS;
                     }
 

@@ -53,9 +53,9 @@ public final class RowReaderJsonExtensions {
 
     private static Result ToJson(Reference<RowReader> reader, ReaderStringContext ctx) {
         int index = 0;
-        while (reader.get().Read()) {
-            String path = !reader.get().getPath().IsNull ? String.format("%1$s%2$s%3$s:", ctx.Settings.QuoteChar,
-                reader.get().getPath(), ctx.Settings.QuoteChar) : null;
+        while (reader.get().read()) {
+            String path = !reader.get().path().IsNull ? String.format("%1$s%2$s%3$s:", ctx.Settings.QuoteChar,
+                reader.get().path(), ctx.Settings.QuoteChar) : null;
             if (index != 0) {
                 ctx.Builder.append(',');
             }
@@ -71,12 +71,12 @@ public final class RowReaderJsonExtensions {
             Result r;
             char scopeBracket = '\0';
             char scopeCloseBracket = '\0';
-            switch (reader.get().getType().LayoutCode) {
+            switch (reader.get().type().LayoutCode) {
                 case Null: {
                     NullValue _;
                     Out<NullValue> tempOut__ =
                         new Out<NullValue>();
-                    r = reader.get().ReadNull(tempOut__);
+                    r = reader.get().readNull(tempOut__);
                     _ = tempOut__.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -89,7 +89,7 @@ public final class RowReaderJsonExtensions {
                 case Boolean: {
                     boolean value;
                     Out<Boolean> tempOut_value = new Out<Boolean>();
-                    r = reader.get().ReadBool(tempOut_value);
+                    r = reader.get().readBoolean(tempOut_value);
                     value = tempOut_value.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -102,7 +102,7 @@ public final class RowReaderJsonExtensions {
                 case Int8: {
                     byte value;
                     Out<Byte> tempOut_value2 = new Out<Byte>();
-                    r = reader.get().ReadInt8(tempOut_value2);
+                    r = reader.get().readInt8(tempOut_value2);
                     value = tempOut_value2.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -115,7 +115,7 @@ public final class RowReaderJsonExtensions {
                 case Int16: {
                     short value;
                     Out<Short> tempOut_value3 = new Out<Short>();
-                    r = reader.get().ReadInt16(tempOut_value3);
+                    r = reader.get().readInt16(tempOut_value3);
                     value = tempOut_value3.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -128,7 +128,7 @@ public final class RowReaderJsonExtensions {
                 case Int32: {
                     int value;
                     Out<Integer> tempOut_value4 = new Out<Integer>();
-                    r = reader.get().ReadInt32(tempOut_value4);
+                    r = reader.get().readInt32(tempOut_value4);
                     value = tempOut_value4.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -141,7 +141,7 @@ public final class RowReaderJsonExtensions {
                 case Int64: {
                     long value;
                     Out<Long> tempOut_value5 = new Out<Long>();
-                    r = reader.get().ReadInt64(tempOut_value5);
+                    r = reader.get().readInt64(tempOut_value5);
                     value = tempOut_value5.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -156,7 +156,7 @@ public final class RowReaderJsonExtensions {
                     Out<Byte> tempOut_value6 = new Out<Byte>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt8(out byte value);
-                    r = reader.get().ReadUInt8(tempOut_value6);
+                    r = reader.get().readUInt8(tempOut_value6);
                     value = tempOut_value6.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -171,7 +171,7 @@ public final class RowReaderJsonExtensions {
                     Out<Short> tempOut_value7 = new Out<Short>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt16(out ushort value);
-                    r = reader.get().ReadUInt16(tempOut_value7);
+                    r = reader.get().readUInt16(tempOut_value7);
                     value = tempOut_value7.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -186,7 +186,7 @@ public final class RowReaderJsonExtensions {
                     Out<Integer> tempOut_value8 = new Out<Integer>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt32(out uint value);
-                    r = reader.get().ReadUInt32(tempOut_value8);
+                    r = reader.get().readUInt32(tempOut_value8);
                     value = tempOut_value8.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -201,7 +201,7 @@ public final class RowReaderJsonExtensions {
                     Out<Long> tempOut_value9 = new Out<Long>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadUInt64(out ulong value);
-                    r = reader.get().ReadUInt64(tempOut_value9);
+                    r = reader.get().readUInt64(tempOut_value9);
                     value = tempOut_value9.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -242,7 +242,7 @@ public final class RowReaderJsonExtensions {
                 case Float32: {
                     float value;
                     Out<Float> tempOut_value12 = new Out<Float>();
-                    r = reader.get().ReadFloat32(tempOut_value12);
+                    r = reader.get().readFloat32(tempOut_value12);
                     value = tempOut_value12.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -255,7 +255,7 @@ public final class RowReaderJsonExtensions {
                 case Float64: {
                     double value;
                     Out<Double> tempOut_value13 = new Out<Double>();
-                    r = reader.get().ReadFloat64(tempOut_value13);
+                    r = reader.get().readFloat64(tempOut_value13);
                     value = tempOut_value13.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -269,7 +269,7 @@ public final class RowReaderJsonExtensions {
                     Float128 _;
                     Out<Float128> tempOut__2 =
                         new Out<Float128>();
-                    r = reader.get().ReadFloat128(tempOut__2);
+                    r = reader.get().readFloat128(tempOut__2);
                     _ = tempOut__2.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -283,7 +283,7 @@ public final class RowReaderJsonExtensions {
                 case Decimal: {
                     java.math.BigDecimal value;
                     Out<BigDecimal> tempOut_value14 = new Out<BigDecimal>();
-                    r = reader.get().ReadDecimal(tempOut_value14);
+                    r = reader.get().readDecimal(tempOut_value14);
                     value = tempOut_value14.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -296,7 +296,7 @@ public final class RowReaderJsonExtensions {
                 case DateTime: {
                     java.time.LocalDateTime value;
                     Out<LocalDateTime> tempOut_value15 = new Out<LocalDateTime>();
-                    r = reader.get().ReadDateTime(tempOut_value15);
+                    r = reader.get().readDateTime(tempOut_value15);
                     value = tempOut_value15.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -312,7 +312,7 @@ public final class RowReaderJsonExtensions {
                     UnixDateTime value;
                     Out<UnixDateTime> tempOut_value16 =
                         new Out<UnixDateTime>();
-                    r = reader.get().ReadUnixDateTime(tempOut_value16);
+                    r = reader.get().readUnixDateTime(tempOut_value16);
                     value = tempOut_value16.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -325,7 +325,7 @@ public final class RowReaderJsonExtensions {
                 case Guid: {
                     java.util.UUID value;
                     Out<UUID> tempOut_value17 = new Out<UUID>();
-                    r = reader.get().ReadGuid(tempOut_value17);
+                    r = reader.get().readGuid(tempOut_value17);
                     value = tempOut_value17.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -389,7 +389,7 @@ public final class RowReaderJsonExtensions {
 
                 case NullableScope:
                 case ImmutableNullableScope: {
-                    if (!reader.get().getHasValue()) {
+                    if (!reader.get().hasValue()) {
                         ctx.Builder.append("null");
                         break;
                     }
@@ -443,7 +443,7 @@ public final class RowReaderJsonExtensions {
                 }
 
                 default: {
-                    throw new IllegalStateException(lenientFormat("Unknown type will be ignored: %s", reader.get().getType().LayoutCode));
+                    throw new IllegalStateException(lenientFormat("Unknown type will be ignored: %s", reader.get().type().LayoutCode));
                     break;
                 }
             }

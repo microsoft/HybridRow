@@ -23,12 +23,12 @@ public final class PostalCodeSerializer {
 
     public static Result Read(Reference<RowReader> reader, Out<PostalCode> obj) {
         obj.setAndGet(new PostalCode());
-        while (reader.get().Read()) {
+        while (reader.get().read()) {
             Result r;
-            switch (reader.get().getPath()) {
+            switch (reader.get().path()) {
                 case "zip":
                     Out<Integer> tempOut_Zip = new Out<Integer>();
-                    r = reader.get().ReadInt32(tempOut_Zip);
+                    r = reader.get().readInt32(tempOut_Zip);
                     obj.get().argValue.Zip = tempOut_Zip.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -38,7 +38,7 @@ public final class PostalCodeSerializer {
                 case "plus4":
                     short value;
                     Out<Short> tempOut_value = new Out<Short>();
-                    r = reader.get().ReadInt16(tempOut_value);
+                    r = reader.get().readInt16(tempOut_value);
                     value = tempOut_value.get();
                     if (r != Result.SUCCESS) {
                         return r;

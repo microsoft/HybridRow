@@ -68,7 +68,7 @@ public final class CustomerExampleUnitTests {
 
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor rc1 = RowCursor.Create(tempReference_row);
+        RowCursor rc1 = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(row);
@@ -79,7 +79,7 @@ public final class CustomerExampleUnitTests {
         row = tempReference_row2.get();
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
-        RowCursor rc2 = RowCursor.Create(tempReference_row3);
+        RowCursor rc2 = RowCursor.create(tempReference_row3);
         row = tempReference_row3.get();
         Reference<RowBuffer> tempReference_row4 =
             new Reference<RowBuffer>(row);
@@ -93,7 +93,7 @@ public final class CustomerExampleUnitTests {
         // Append an item to an existing list.
         Reference<RowBuffer> tempReference_row5 =
             new Reference<RowBuffer>(row);
-        RowCursor rc3 = RowCursor.Create(tempReference_row5);
+        RowCursor rc3 = RowCursor.create(tempReference_row5);
         row = tempReference_row5.get();
         Reference<RowBuffer> tempReference_row6 =
             new Reference<RowBuffer>(row);
@@ -106,7 +106,7 @@ public final class CustomerExampleUnitTests {
         g1.Emails.add("vice_president@whitehouse.gov");
         Reference<RowBuffer> tempReference_row7 =
             new Reference<RowBuffer>(row);
-        RowCursor rc4 = RowCursor.Create(tempReference_row7);
+        RowCursor rc4 = RowCursor.create(tempReference_row7);
         row = tempReference_row7.get();
         Reference<RowBuffer> tempReference_row8 =
             new Reference<RowBuffer>(row);
@@ -120,7 +120,7 @@ public final class CustomerExampleUnitTests {
         // Prepend an item to an existing list.
         Reference<RowBuffer> tempReference_row9 =
             new Reference<RowBuffer>(row);
-        RowCursor rc5 = RowCursor.Create(tempReference_row9);
+        RowCursor rc5 = RowCursor.create(tempReference_row9);
         row = tempReference_row9.get();
         Reference<RowBuffer> tempReference_row10 =
             new Reference<RowBuffer>(row);
@@ -135,7 +135,7 @@ public final class CustomerExampleUnitTests {
         }
         Reference<RowBuffer> tempReference_row11 =
             new Reference<RowBuffer>(row);
-        RowCursor rc6 = RowCursor.Create(tempReference_row11);
+        RowCursor rc6 = RowCursor.create(tempReference_row11);
         row = tempReference_row11.get();
         Reference<RowBuffer> tempReference_row12 =
             new Reference<RowBuffer>(row);
@@ -149,7 +149,7 @@ public final class CustomerExampleUnitTests {
         // InsertAt an item to an existing list.
         Reference<RowBuffer> tempReference_row13 =
             new Reference<RowBuffer>(row);
-        RowCursor rc7 = RowCursor.Create(tempReference_row13);
+        RowCursor rc7 = RowCursor.create(tempReference_row13);
         row = tempReference_row13.get();
         Reference<RowBuffer> tempReference_row14 =
             new Reference<RowBuffer>(row);
@@ -166,7 +166,7 @@ public final class CustomerExampleUnitTests {
 
         Reference<RowBuffer> tempReference_row15 =
             new Reference<RowBuffer>(row);
-        RowCursor rc8 = RowCursor.Create(tempReference_row15);
+        RowCursor rc8 = RowCursor.create(tempReference_row15);
         row = tempReference_row15.get();
         Reference<RowBuffer> tempReference_row16 =
             new Reference<RowBuffer>(row);
@@ -187,7 +187,7 @@ public final class CustomerExampleUnitTests {
         Hotel h1 = this.hotelExample;
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(row);
@@ -199,7 +199,7 @@ public final class CustomerExampleUnitTests {
 
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
-        root = RowCursor.Create(tempReference_row3);
+        root = RowCursor.create(tempReference_row3);
         row = tempReference_row3.get();
         Reference<RowBuffer> tempReference_row4 =
             new Reference<RowBuffer>(row);
@@ -221,7 +221,7 @@ public final class CustomerExampleUnitTests {
         Hotel h1 = this.hotelExample;
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(row);
@@ -233,7 +233,7 @@ public final class CustomerExampleUnitTests {
 
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
-        root = RowCursor.Create(tempReference_row3);
+        root = RowCursor.create(tempReference_row3);
         row = tempReference_row3.get();
         Address tempVar = new Address();
         tempVar.setStreet("300B Brownie Way");

@@ -67,7 +67,7 @@ public final class TypedMapUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteMovie(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        this.WriteMovie(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row3 =
@@ -77,7 +77,7 @@ public final class TypedMapUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Movie t2 = this.ReadMovie(tempReference_row3, RowCursor.Create(tempReference_row4, out _));
+        Movie t2 = this.ReadMovie(tempReference_row3, RowCursor.create(tempReference_row4, out _));
         row = tempReference_row4.get();
         row = tempReference_row3.get();
         assert t1 == t2;
@@ -90,7 +90,7 @@ public final class TypedMapUnitTests {
         row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
 
         ArrayList<String> expected = new ArrayList<String>(Arrays.asList("Mark", "Harrison", "Carrie"));
@@ -186,7 +186,7 @@ public final class TypedMapUnitTests {
         row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
 
         Movie t1 = new Movie();
@@ -194,7 +194,7 @@ public final class TypedMapUnitTests {
             Map.entry("Carrie", "Leia")));
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(row);
-        RowCursor rc1 = RowCursor.Create(tempReference_row2);
+        RowCursor rc1 = RowCursor.create(tempReference_row2);
         row = tempReference_row2.get();
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
@@ -286,7 +286,7 @@ public final class TypedMapUnitTests {
         row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
 
         Movie t1 = new Movie();
@@ -303,7 +303,7 @@ public final class TypedMapUnitTests {
 
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(row);
-        RowCursor rc1 = RowCursor.Create(tempReference_row2);
+        RowCursor rc1 = RowCursor.create(tempReference_row2);
         row = tempReference_row2.get();
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
@@ -477,7 +477,7 @@ public final class TypedMapUnitTests {
         row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
 
         // Write a map and then try to write directly into it.
@@ -679,7 +679,7 @@ public final class TypedMapUnitTests {
         row.initLayout(HybridRowVersion.V1, this.layout, this.resolver);
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         row = tempReference_row.get();
 
         ArrayList<String> expected = new ArrayList<String>(Arrays.asList("Mark", "Harrison", "Carrie"));

@@ -161,7 +161,7 @@ public final class RowWriter {
      */
     public static <TContext> Result WriteBuffer(Reference<RowBuffer> row, TContext context,
                                                 WriterFunc<TContext> func) {
-        RowCursor scope = RowCursor.Create(row);
+        RowCursor scope = RowCursor.create(row);
         Reference<RowCursor> tempReference_scope =
             new Reference<RowCursor>(scope);
         RowWriter writer = new RowWriter(row, tempReference_scope);

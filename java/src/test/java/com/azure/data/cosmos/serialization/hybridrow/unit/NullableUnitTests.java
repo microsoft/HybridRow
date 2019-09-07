@@ -59,7 +59,7 @@ public final class NullableUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteNullables(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        this.WriteNullables(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row3 =
@@ -69,7 +69,7 @@ public final class NullableUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Nullables t2 = this.ReadNullables(tempReference_row3, RowCursor.Create(tempReference_row4, out _));
+        Nullables t2 = this.ReadNullables(tempReference_row3, RowCursor.create(tempReference_row4, out _));
         row = tempReference_row4.get();
         row = tempReference_row3.get();
         assert t1 == t2;
@@ -516,7 +516,7 @@ public final class NullableUnitTests {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
                 // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
-                RowCursor.CreateForAppend(row, out temp).Find(row, "");
+                RowCursor.createForAppend(row, out temp).Find(row, "");
                 Reference<RowCursor> tempReference_temp =
                     new Reference<RowCursor>(temp);
                 RowCursor _;
@@ -632,7 +632,7 @@ public final class NullableUnitTests {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
                 // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
-                RowCursor.CreateForAppend(row, out temp).Find(row, "");
+                RowCursor.createForAppend(row, out temp).Find(row, "");
                 RowCursor tupleScope;
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
                 // these cannot be converted using the 'Out' helper class unless the method is within the code

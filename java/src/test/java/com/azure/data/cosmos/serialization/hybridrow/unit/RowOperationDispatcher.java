@@ -122,7 +122,7 @@ public final class RowOperationDispatcher {
     public void LayoutCodeSwitch(String path, LayoutType type, TypeArgumentList typeArgs, Object value) {
         Reference<RowBuffer> tempReference_Row =
             new Reference<RowBuffer>(this.Row);
-        RowCursor root = RowCursor.Create(tempReference_Row);
+        RowCursor root = RowCursor.create(tempReference_Row);
         this.Row = tempReference_Row.get();
         Reference<RowCursor> tempReference_root =
             new Reference<RowCursor>(root);
@@ -164,7 +164,7 @@ public final class RowOperationDispatcher {
             typeArgs = col.typeArgs().clone();
         }
 
-        if ((path != null) && (col == null || col.storage() == StorageKind.Sparse)) {
+        if ((path != null) && (col == null || col.storage() == StorageKind.SPARSE)) {
             Reference<RowBuffer> tempReference_Row =
                 new Reference<RowBuffer>(this.Row);
             scope.get().Find(tempReference_Row, path);

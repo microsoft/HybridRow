@@ -57,8 +57,8 @@ HashMap<SchemaId, Schema> ids
                 pp:
                 ValidateAssert.IsTrue(pp.Length >= 0, "Length MUST be positive");
                 if (parent != null) {
-                    ValidateAssert.AreEqual(pp.Storage, StorageKind.Sparse, String.format("Nested fields MUST have " +
-                        "storage %1$s", StorageKind.Sparse));
+                    ValidateAssert.AreEqual(pp.Storage, StorageKind.SPARSE, String.format("Nested fields MUST have " +
+                        "storage %1$s", StorageKind.SPARSE));
                 }
 
                 break;

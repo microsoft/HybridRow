@@ -501,7 +501,7 @@ public final class RowWriterUnitTests {
         Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(row);
         RowReader reader = new RowReader(tempReference_row2);
         row = tempReference_row2.get();
-        assert reader.getLength() == writerLength;
+        assert reader.length() == writerLength;
         Reference<RowReader> tempReference_reader = new Reference<RowReader>(reader);
         RowReaderUnitTests.PrintReader(tempReference_reader, 0);
         reader = tempReference_reader.get();

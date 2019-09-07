@@ -12,9 +12,9 @@ import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
 public final class AddressSerializer {
     public static Result Read(Reference<RowReader> reader, Out<Address> obj) {
         obj.setAndGet(new Address());
-        while (reader.get().Read()) {
+        while (reader.get().read()) {
             Result r;
-            switch (reader.get().getPath()) {
+            switch (reader.get().path()) {
                 case "street":
                     Out<String> tempOut_Street = new Out<String>();
                     r = reader.get().ReadString(tempOut_Street);

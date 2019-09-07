@@ -22,9 +22,6 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
 
 	private CharSequence buffer;
 
-	public UtfAnyString() {
-	}
-
 	public UtfAnyString(final String string) {
 		this.buffer = string;
 	}
@@ -78,10 +75,6 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
 			throw new UnsupportedOperationException("String is null");
 		}
 		return this.buffer.charAt(index);
-	}
-
-	public UtfAnyString clone() {
-		return new UtfAnyString(this.buffer);
 	}
 
 	public int compareTo(@Nonnull final String other) {
@@ -216,7 +209,7 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
 
 		if (this.buffer instanceof String) {
 
-			final int ignored = ((String) buffer).codePoints().reduce(0, (index, codePoint) -> {
+			final int ignored = ((String) this.buffer).codePoints().reduce(0, (index, codePoint) -> {
 				if (index % 2 == 0) {
 					hash[0] = ((hash[0] << 5) + hash[0]) ^ codePoint;
 				} else {
@@ -245,126 +238,6 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
 			throw new UnsupportedOperationException("String is null");
 		}
 		return this.buffer.length();
-	}
-
-	public static boolean opEquals(UtfAnyString left, UtfAnyString right) {
-		return left.equals(right.clone());
-	}
-
-	public static boolean opEquals(UtfAnyString left, String right) {
-		return left.equals(right);
-	}
-
-	public static boolean opEquals(String left, UtfAnyString right) {
-		return right.equals(left);
-	}
-
-	public static boolean opEquals(UtfAnyString left, Utf8String right) {
-		return left.equals(right);
-	}
-
-	public static boolean opEquals(Utf8String left, UtfAnyString right) {
-		return right.equals(left);
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, UtfAnyString right) {
-		return left.compareTo(right.clone()) > 0;
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, String right) {
-		return left.compareTo(right) > 0;
-	}
-
-	public static boolean opGreaterThan(String left, UtfAnyString right) {
-		return right.compareTo(left) <= 0;
-	}
-
-	public static boolean opGreaterThan(UtfAnyString left, Utf8String right) {
-		return left.compareTo(right) > 0;
-	}
-
-	public static boolean opGreaterThan(Utf8String left, UtfAnyString right) {
-		return right.compareTo(left) <= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, UtfAnyString right) {
-		return left.compareTo(right.clone()) >= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, String right) {
-		return left.compareTo(right) >= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(String left, UtfAnyString right) {
-		return right.compareTo(left) < 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(UtfAnyString left, Utf8String right) {
-		return left.compareTo(right) >= 0;
-	}
-
-	public static boolean opGreaterThanOrEquals(Utf8String left, UtfAnyString right) {
-		return right.compareTo(left) < 0;
-	}
-
-	public static boolean opLessThan(UtfAnyString left, UtfAnyString right) {
-		return left.compareTo(right.clone()) < 0;
-	}
-
-	public static boolean opLessThan(UtfAnyString left, String right) {
-		return left.compareTo(right) < 0;
-	}
-
-	public static boolean opLessThan(String left, UtfAnyString right) {
-		return right.compareTo(left) >= 0;
-	}
-
-	public static boolean opLessThan(UtfAnyString left, Utf8String right) {
-		return left.compareTo(right) < 0;
-	}
-
-	public static boolean opLessThan(Utf8String left, UtfAnyString right) {
-		return right.compareTo(left) >= 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, UtfAnyString right) {
-		return left.compareTo(right.clone()) <= 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, String right) {
-		return left.compareTo(right) <= 0;
-	}
-
-	public static boolean opLessThanOrEquals(String left, UtfAnyString right) {
-		return right.compareTo(left) > 0;
-	}
-
-	public static boolean opLessThanOrEquals(UtfAnyString left, Utf8String right) {
-		return left.compareTo(right) <= 0;
-	}
-
-	public static boolean opLessThanOrEquals(Utf8String left, UtfAnyString right) {
-		return right.compareTo(left) > 0;
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, UtfAnyString right) {
-		return !left.equals(right.clone());
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, String right) {
-		return !left.equals(right);
-	}
-
-	public static boolean opNotEquals(String left, UtfAnyString right) {
-		return !right.equals(left);
-	}
-
-	public static boolean opNotEquals(UtfAnyString left, Utf8String right) {
-		return !left.equals(right);
-	}
-
-	public static boolean opNotEquals(Utf8String left, UtfAnyString right) {
-		return !right.equals(left);
 	}
 
 	/**

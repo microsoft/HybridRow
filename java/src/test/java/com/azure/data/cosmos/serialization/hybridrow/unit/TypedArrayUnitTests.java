@@ -61,7 +61,7 @@ public final class TypedArrayUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteTagged(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        this.WriteTagged(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row3 =
@@ -71,7 +71,7 @@ public final class TypedArrayUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Tagged t2 = this.ReadTagged(tempReference_row3, RowCursor.Create(tempReference_row4, out _));
+        Tagged t2 = this.ReadTagged(tempReference_row3, RowCursor.create(tempReference_row4, out _));
         row = tempReference_row4.get();
         row = tempReference_row3.get();
         assert t1 == t2;

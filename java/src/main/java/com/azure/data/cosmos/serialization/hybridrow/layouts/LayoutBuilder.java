@@ -45,16 +45,16 @@ public final class LayoutBuilder {
         if (type.isNull()) {
             checkArgument(nullable);
             LayoutBit nullBit = this.bitAllocator.Allocate();
-            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.parent(),
+            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
                 this.fixedCount, 0, nullBit, LayoutBit.INVALID, 0);
         } else if (type.isBoolean()) {
             LayoutBit nullBit = nullable ? this.bitAllocator.Allocate() : LayoutBit.INVALID;
             LayoutBit boolbit = this.bitAllocator.Allocate();
-            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.parent(),
+            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
                 this.fixedCount, 0, nullBit, boolbit, 0);
         } else {
             LayoutBit nullBit = nullable ? this.bitAllocator.Allocate() : LayoutBit.INVALID;
-            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Fixed, this.parent(),
+            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
                 this.fixedCount, this.fixedSize, nullBit, LayoutBit.INVALID, length);
 
             this.fixedSize += type.isFixed() ? type.size() : length;
@@ -66,7 +66,7 @@ public final class LayoutBuilder {
 
     public void addObjectScope(String path, LayoutType type) {
 
-        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Sparse, this.parent(),
+        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.SPARSE, this.parent(),
             this.sparseCount, -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
 
         this.sparseCount++;
@@ -76,7 +76,7 @@ public final class LayoutBuilder {
 
     public void addSparseColumn(String path, LayoutType type) {
 
-        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Sparse, this.parent(),
+        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.SPARSE, this.parent(),
             this.sparseCount, -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
 
         this.sparseCount++;
@@ -85,7 +85,7 @@ public final class LayoutBuilder {
 
     public void addTypedScope(String path, LayoutType type, TypeArgumentList typeArgs) {
 
-        LayoutColumn col = new LayoutColumn(path, type, typeArgs, StorageKind.Sparse, this.parent(), this.sparseCount,
+        LayoutColumn col = new LayoutColumn(path, type, typeArgs, StorageKind.SPARSE, this.parent(), this.sparseCount,
             -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
 
         this.sparseCount++;
@@ -97,7 +97,7 @@ public final class LayoutBuilder {
         checkArgument(length >= 0);
         checkArgument(type.allowVariable());
 
-        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.Variable, this.parent(),
+        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.VARIABLE, this.parent(),
             this.varCount, this.varCount, this.bitAllocator.Allocate(), LayoutBit.INVALID, length);
 
         this.varCount++;

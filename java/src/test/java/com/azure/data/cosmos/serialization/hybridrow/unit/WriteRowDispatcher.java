@@ -105,7 +105,7 @@ public final class WriteRowDispatcher implements IDispatcher {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            RowCursor.CreateForAppend(tempReference_Row2, out tempCursor);
+            RowCursor.createForAppend(tempReference_Row2, out tempCursor);
             dispatcher.get().argValue.Row = tempReference_Row2.get();
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being
@@ -178,7 +178,7 @@ public final class WriteRowDispatcher implements IDispatcher {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            RowCursor.CreateForAppend(tempReference_Row2, out tempCursor);
+            RowCursor.createForAppend(tempReference_Row2, out tempCursor);
             dispatcher.get().argValue.Row = tempReference_Row2.get();
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
             // cannot be converted using the 'Ref' helper class unless the method is within the code being

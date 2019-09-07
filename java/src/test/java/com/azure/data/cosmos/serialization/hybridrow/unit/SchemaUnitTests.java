@@ -136,8 +136,8 @@ public class SchemaUnitTests {
                     Storage = _Storage;
                 }
             }
-            Object[] expectedProps = new Object[] { AnonymousType("a", TypeKind.Int8, StorageKind.Fixed),
-                AnonymousType2("b", TypeKind.Utf8, StorageKind.Variable) };
+            Object[] expectedProps = new Object[] { AnonymousType("a", TypeKind.Int8, StorageKind.FIXED),
+                AnonymousType2("b", TypeKind.Utf8, StorageKind.VARIABLE) };
 
             for (int i = 0; i < n1.getSchemas().get(0).getProperties().size(); i++) {
                 Property p = n1.getSchemas().get(0).getProperties().get(i);

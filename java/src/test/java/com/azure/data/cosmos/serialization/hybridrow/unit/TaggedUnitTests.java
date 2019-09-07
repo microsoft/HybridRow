@@ -41,7 +41,7 @@ public final class TaggedUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteTaggedApi(tempReference_row, RowCursor.Create(tempReference_row2, out _), c1);
+        this.WriteTaggedApi(tempReference_row, RowCursor.create(tempReference_row2, out _), c1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row3 =
@@ -51,7 +51,7 @@ public final class TaggedUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        TaggedApi c2 = this.ReadTaggedApi(tempReference_row3, RowCursor.Create(tempReference_row4, out _));
+        TaggedApi c2 = this.ReadTaggedApi(tempReference_row3, RowCursor.create(tempReference_row4, out _));
         row = tempReference_row4.get();
         row = tempReference_row3.get();
         assert c1 == c2;

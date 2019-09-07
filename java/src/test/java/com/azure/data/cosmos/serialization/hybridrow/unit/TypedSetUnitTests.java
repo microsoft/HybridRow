@@ -65,7 +65,7 @@ public final class TypedSetUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteTodo(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        this.WriteTodo(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row3 =
@@ -75,7 +75,7 @@ public final class TypedSetUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Todo t2 = this.ReadTodo(tempReference_row3, RowCursor.Create(tempReference_row4, out _));
+        Todo t2 = this.ReadTodo(tempReference_row3, RowCursor.create(tempReference_row4, out _));
         row = tempReference_row4.get();
         row = tempReference_row3.get();
         assert t1 == t2;
@@ -103,14 +103,14 @@ public final class TypedSetUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            this.WriteTodo(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+            this.WriteTodo(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
             row = tempReference_row2.get();
             row = tempReference_row.get();
 
             // Attempt to update each item in turn and then update it with itself.
             Reference<RowBuffer> tempReference_row3 =
                 new Reference<RowBuffer>(row);
-            RowCursor root = RowCursor.Create(tempReference_row3);
+            RowCursor root = RowCursor.create(tempReference_row3);
             row = tempReference_row3.get();
             LayoutColumn c;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -195,14 +195,14 @@ public final class TypedSetUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteTodo(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        this.WriteTodo(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
 
         // Attempt to find each item in turn.
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row3);
+        RowCursor root = RowCursor.create(tempReference_row3);
         row = tempReference_row3.get();
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -377,14 +377,14 @@ public final class TypedSetUnitTests {
         RowCursor _;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        this.WriteTodo(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+        this.WriteTodo(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
         row = tempReference_row2.get();
         row = tempReference_row.get();
 
         // Attempt to insert duplicate items in existing sets.
         Reference<RowBuffer> tempReference_row3 =
             new Reference<RowBuffer>(row);
-        RowCursor root = RowCursor.Create(tempReference_row3);
+        RowCursor root = RowCursor.create(tempReference_row3);
         row = tempReference_row3.get();
         LayoutColumn c;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -710,7 +710,7 @@ public final class TypedSetUnitTests {
         RowCursor setScope;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        RowCursor.Create(tempReference_row, out setScope).Find(tempReference_row2, c.Path);
+        RowCursor.create(tempReference_row, out setScope).Find(tempReference_row2, c.Path);
         row = tempReference_row2.get();
         row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row3 =
@@ -736,7 +736,7 @@ public final class TypedSetUnitTests {
         RowCursor tempCursor;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        RowCursor.Create(tempReference_row5, out tempCursor).Find(tempReference_row6, Utf8String.Empty);
+        RowCursor.create(tempReference_row5, out tempCursor).Find(tempReference_row6, Utf8String.Empty);
         row = tempReference_row6.get();
         row = tempReference_row5.get();
         Reference<RowBuffer> tempReference_row7 =
@@ -777,7 +777,7 @@ public final class TypedSetUnitTests {
             new Reference<RowBuffer>(row);
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        RowCursor.Create(tempReference_row11, out setScope).Find(tempReference_row12, c.Path);
+        RowCursor.create(tempReference_row11, out setScope).Find(tempReference_row12, c.Path);
         row = tempReference_row12.get();
         row = tempReference_row11.get();
         Reference<RowBuffer> tempReference_row13 =
@@ -799,7 +799,7 @@ public final class TypedSetUnitTests {
         RowCursor tempCursor1;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        RowCursor.Create(tempReference_row14, out tempCursor1).Find(tempReference_row15, "prices.0");
+        RowCursor.create(tempReference_row14, out tempCursor1).Find(tempReference_row15, "prices.0");
         row = tempReference_row15.get();
         row = tempReference_row14.get();
         Reference<RowBuffer> tempReference_row16 =
@@ -819,7 +819,7 @@ public final class TypedSetUnitTests {
         RowCursor tempCursor2;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        RowCursor.Create(tempReference_row17, out tempCursor2).Find(tempReference_row18, "prices.0.0");
+        RowCursor.create(tempReference_row17, out tempCursor2).Find(tempReference_row18, "prices.0.0");
         row = tempReference_row18.get();
         row = tempReference_row17.get();
         Reference<RowBuffer> tempReference_row19 =
@@ -910,7 +910,7 @@ public final class TypedSetUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            RowCursor.Create(tempReference_row2, out root);
+            RowCursor.create(tempReference_row2, out root);
             row = tempReference_row2.get();
             Reference<RowBuffer> tempReference_row3 =
                 new Reference<RowBuffer>(row);
@@ -965,7 +965,7 @@ public final class TypedSetUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            Todo t2 = this.ReadTodo(tempReference_row8, RowCursor.Create(tempReference_row9, out _));
+            Todo t2 = this.ReadTodo(tempReference_row8, RowCursor.create(tempReference_row9, out _));
             row = tempReference_row9.get();
             row = tempReference_row8.get();
             assert t1 == t2;
@@ -994,14 +994,14 @@ public final class TypedSetUnitTests {
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
             // cannot be converted using the 'Out' helper class unless the method is within the code being
             // modified:
-            this.WriteTodo(tempReference_row, RowCursor.Create(tempReference_row2, out _), t1);
+            this.WriteTodo(tempReference_row, RowCursor.create(tempReference_row2, out _), t1);
             row = tempReference_row2.get();
             row = tempReference_row.get();
 
             // Attempt to find each item in turn and then delete it.
             Reference<RowBuffer> tempReference_row3 =
                 new Reference<RowBuffer>(row);
-            RowCursor root = RowCursor.Create(tempReference_row3);
+            RowCursor root = RowCursor.create(tempReference_row3);
             row = tempReference_row3.get();
             LayoutColumn c;
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these

@@ -98,7 +98,7 @@ public final class LayoutCompiler {
                         (PrimitivePropertyType)tempVar : null;
                     if (pp != null) {
                         switch (pp.storage()) {
-                            case Fixed:
+                            case FIXED:
                                 if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException("Cannot have fixed storage within a sparse " +
                                         "scope.");
@@ -111,7 +111,7 @@ public final class LayoutCompiler {
 
                                 builder.addFixedColumn(p.path(), type, pp.nullable(), pp.length());
                                 break;
-                            case Variable:
+                            case VARIABLE:
                                 if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException("Cannot have variable storage within a " +
                                         "sparse scope.");
@@ -124,7 +124,7 @@ public final class LayoutCompiler {
 
                                 builder.addVariableColumn(p.path(), type, pp.length());
                                 break;
-                            case Sparse:
+                            case SPARSE:
                                 if (!pp.nullable()) {
                                     throw new LayoutCompilationException("Non-nullable sparse columns are not " +
                                         "supported.");

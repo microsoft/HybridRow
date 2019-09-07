@@ -81,7 +81,7 @@ public final class CodeGenRowGenerator {
         this.row = new RowBuffer(buffer.AsSpan(), HybridRowVersion.V1, this.row.resolver());
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(this.row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         this.row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(this.row);
@@ -107,7 +107,7 @@ public final class CodeGenRowGenerator {
     public Result WriteBuffer(HashMap<Utf8String, Object> tableValue) {
         Reference<RowBuffer> tempReference_row =
             new Reference<RowBuffer>(this.row);
-        RowCursor root = RowCursor.Create(tempReference_row);
+        RowCursor root = RowCursor.create(tempReference_row);
         this.row = tempReference_row.get();
         Reference<RowBuffer> tempReference_row2 =
             new Reference<RowBuffer>(this.row);

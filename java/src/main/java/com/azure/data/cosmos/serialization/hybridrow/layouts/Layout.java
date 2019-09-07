@@ -80,9 +80,9 @@ public final class Layout {
             this.pathMap.put(column.fullPath(), column);
             this.pathStringMap.put(column.fullPath().toString(), column);
 
-            if (column.storage() == StorageKind.Fixed) {
+            if (column.storage() == StorageKind.FIXED) {
                 numFixed++;
-            } else if (column.storage() == StorageKind.Variable) {
+            } else if (column.storage() == StorageKind.VARIABLE) {
                 numVariable++;
             }
 

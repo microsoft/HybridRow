@@ -48,7 +48,7 @@ public final class RowCursor implements Cloneable {
         }
     }
 
-    public static RowCursor Create(RowBuffer row) {
+    public static RowCursor create(RowBuffer row) {
 
         final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
@@ -63,7 +63,7 @@ public final class RowCursor implements Cloneable {
             .valueOffset(sparseSegmentOffset);
     }
 
-    public static RowCursor CreateForAppend(RowBuffer row) {
+    public static RowCursor createForAppend(RowBuffer row) {
 
         final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
