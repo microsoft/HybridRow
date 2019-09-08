@@ -24,28 +24,28 @@ public final class LayoutArray extends LayoutIndexedScope {
     }
 
     @Override
+    @Nonnull
     public Result writeScope(
-        @Nonnull final RowBuffer b,
+        @Nonnull final RowBuffer buffer,
         @Nonnull final RowCursor edit,
         @Nonnull final TypeArgumentList typeArgs,
-        @Nonnull Out<RowCursor> value
-    ) {
-        return this.writeScope(b, edit, typeArgs, UpdateOptions.Upsert, value);
+        @Nonnull Out<RowCursor> value) {
+        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
-    // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
-                             TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Result result = prepareSparseWrite(b, edit, this.typeArg(), options);
+    @Nonnull
+    public Result writeScope(
+        RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        b.writeSparseArray(edit, this, options);
+        buffer.writeSparseArray(edit, this, options);
         return Result.SUCCESS;
     }
 }

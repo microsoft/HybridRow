@@ -6,6 +6,7 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
 public final class LayoutResolverSimple extends LayoutResolver {
+
     private tangible.Func1Param<SchemaId, Layout> resolver;
 
     public LayoutResolverSimple(tangible.Func1Param<SchemaId, Layout> resolver) {
@@ -14,6 +15,6 @@ public final class LayoutResolverSimple extends LayoutResolver {
 
     @Override
     public Layout resolve(SchemaId schemaId) {
-        return this.resolver.invoke(schemaId.clone());
+        return this.resolver.invoke(schemaId);
     }
 }

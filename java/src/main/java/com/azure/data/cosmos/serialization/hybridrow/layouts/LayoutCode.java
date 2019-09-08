@@ -3,9 +3,10 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1028 // Enum Storage should be Int32
-
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +14,12 @@ import java.util.Map;
 /**
  * Type coded used in the binary encoding to indicate the formatting of succeeding bytes.
  */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public enum LayoutCode : byte
 public enum LayoutCode {
 
     INVALID((byte)0),
 
     NULL((byte)1),
+
     BOOLEAN_FALSE((byte)2),
     BOOLEAN((byte)3),
 
@@ -28,14 +28,8 @@ public enum LayoutCode {
     INT_32((byte)7),
     INT_64((byte)8),
     UINT_8((byte)9),
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: UInt16 = 10,
     UINT_16((byte)10),
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: UInt32 = 11,
     UINT_32((byte)11),
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: UInt64 = 12,
     UINT_64((byte)12),
     VAR_INT((byte)13),
     VAR_UINT((byte)14),
@@ -56,26 +50,37 @@ public enum LayoutCode {
 
     OBJECT_SCOPE((byte)30),
     IMMUTABLE_OBJECT_SCOPE((byte)31),
+
     ARRAY_SCOPE((byte)32),
     IMMUTABLE_ARRAY_SCOPE((byte)33),
+
     TYPED_ARRAY_SCOPE((byte)34),
     IMMUTABLE_TYPED_ARRAY_SCOPE((byte)35),
+
     TUPLE_SCOPE((byte)36),
     IMMUTABLE_TUPLE_SCOPE((byte)37),
+
     TYPED_TUPLE_SCOPE((byte)38),
     IMMUTABLE_TYPED_TUPLE_SCOPE((byte)39),
+
     MAP_SCOPE((byte)40),
     IMMUTABLE_MAP_SCOPE((byte)41),
+
     TYPED_MAP_SCOPE((byte)42),
     IMMUTABLE_TYPED_MAP_SCOPE((byte)43),
+
     SET_SCOPE((byte)44),
     IMMUTABLE_SET_SCOPE((byte)45),
+
     TYPED_SET_SCOPE((byte)46),
     IMMUTABLE_TYPED_SET_SCOPE((byte)47),
+
     NULLABLE_SCOPE((byte)48),
     IMMUTABLE_NULLABLE_SCOPE((byte)49),
+
     TAGGED_SCOPE((byte)50),
     IMMUTABLE_TAGGED_SCOPE((byte)51),
+
     TAGGED2_SCOPE((byte)52),
     IMMUTABLE_TAGGED2_SCOPE((byte)53),
 
@@ -89,7 +94,7 @@ public enum LayoutCode {
 
     public static final int BYTES = Byte.BYTES;
 
-    private static Map<Byte, LayoutCode> mappings;
+    private static Byte2ObjectMap<LayoutCode> mappings;
     private byte value;
 
     LayoutCode(byte value) {
@@ -98,10 +103,10 @@ public enum LayoutCode {
     }
 
     public byte value() {
-        return value;
+        return this.value;
     }
 
-    public static LayoutCode forValue(byte value) {
+    public static LayoutCode from(byte value) {
         return mappings().get(value);
     }
 
@@ -109,7 +114,7 @@ public enum LayoutCode {
         if (mappings == null) {
             synchronized (LayoutCode.class) {
                 if (mappings == null) {
-                    mappings = new HashMap<Byte, LayoutCode>();
+                    mappings = new Byte2ObjectOpenHashMap<>();
                 }
             }
         }

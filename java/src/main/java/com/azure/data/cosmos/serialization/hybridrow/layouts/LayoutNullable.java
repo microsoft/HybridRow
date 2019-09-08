@@ -37,7 +37,7 @@ public final class LayoutNullable extends LayoutIndexedScope {
         checkArgument(edit.index() >= 0);
         checkArgument(edit.scopeTypeArgs().count() == 1);
         checkArgument(edit.index() == 1);
-        return !LayoutCodeTraits.AlwaysRequiresTypeCode(edit.scopeTypeArgs().get(0).type().layoutCode());
+        return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.scopeTypeArgs().get(0).type().layoutCode());
     }
 
     public static Result hasValue(@Nonnull final RowBuffer b, @Nonnull final RowCursor scope) {
@@ -85,18 +85,18 @@ public final class LayoutNullable extends LayoutIndexedScope {
     }
 
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(b, edit, typeArgs, UpdateOptions.Upsert, value);
+        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        return this.WriteScope(b, edit, typeArgs.clone(), true, value, options);
+        return this.WriteScope(buffer, edit, typeArgs.clone(), true, value, options);
     }
 
     @Override

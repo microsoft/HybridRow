@@ -155,8 +155,8 @@ public final class SerializerUnitTest {
                         Out<BatchRequestHeaders> tempOut_Headers = new Out<BatchRequestHeaders>();
                         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword
                         // - these are not converted by C# to Java Converter:
-                        r = reader.get().ReadScope(retval,
-                            (ref RowReader child, BatchOperation parent) -> BatchRequestHeadersSerializer.Read(tempReference_child, tempOut_Headers));
+                        r = reader.get().readScope(retval,
+                            (RowReader RowReader child, BatchOperation parent) -> BatchRequestHeadersSerializer.Read(tempReference_child, tempOut_Headers));
                         parent.Headers = tempOut_Headers.get();
                         child = tempReference_child.get();
                         if (r != Result.SUCCESS) {
@@ -175,7 +175,7 @@ public final class SerializerUnitTest {
                         break;
                     case "resourcePath":
                         Out<String> tempOut_ResourcePath = new Out<String>();
-                        r = reader.get().ReadString(tempOut_ResourcePath);
+                        r = reader.get().readString(tempOut_ResourcePath);
                         retval.ResourcePath = tempOut_ResourcePath.get();
                         if (r != Result.SUCCESS) {
                             return r;

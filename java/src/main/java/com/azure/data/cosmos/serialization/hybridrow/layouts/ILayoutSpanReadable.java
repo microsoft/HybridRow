@@ -4,23 +4,22 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import java.util.List;
+
 /**
- * An optional interface that indicates a {@link LayoutType{T}} can also read using a {@link ReadOnlySpan{T}}
+ * An optional interface that indicates a {@link LayoutType{T}} can also read using a read-only {@link List{T}}
  *
- * <typeparam name="TElement">The sub-element type to be written.</typeparam>
+ * @param <TElement> The sub-element type to be written
  */
 public interface ILayoutSpanReadable<TElement> extends ILayoutType {
-    Result ReadFixed(
-        Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<ReadOnlySpan<TElement>> value);
 
-    Result ReadSparse(
-        Reference<RowBuffer> b, Reference<RowCursor> scope, Out<ReadOnlySpan<TElement>> value);
+    Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<List<TElement>> value);
 
-    Result ReadVariable(
-        Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<ReadOnlySpan<TElement>> value);
+    Result readSparse(RowBuffer buffer, RowCursor scope, Out<List<TElement>> value);
+
+    Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<List<TElement>> value);
 }

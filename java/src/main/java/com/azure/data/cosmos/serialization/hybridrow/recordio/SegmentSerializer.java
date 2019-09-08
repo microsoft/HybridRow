@@ -50,7 +50,7 @@ public final class SegmentSerializer {
                     break;
                 case "comment":
                     Out<String> tempOut_Comment = new Out<String>();
-                    r = reader.get().ReadString(tempOut_Comment);
+                    r = reader.get().readString(tempOut_Comment);
                     obj.get().argValue.Comment = tempOut_Comment.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -59,7 +59,7 @@ public final class SegmentSerializer {
                     break;
                 case "sdl":
                     Out<String> tempOut_SDL = new Out<String>();
-                    r = reader.get().ReadString(tempOut_SDL);
+                    r = reader.get().readString(tempOut_SDL);
                     obj.get().argValue.SDL = tempOut_SDL.get();
                     if (r != Result.SUCCESS) {
                         return r;

@@ -29,11 +29,11 @@ public final class LayoutNull extends LayoutType<NullValue> {
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                             Out<NullValue> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         value.setAndGet(NullValue.Default);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             return Result.NOT_FOUND;
         }
 
@@ -41,27 +41,27 @@ public final class LayoutNull extends LayoutType<NullValue> {
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
+    public Result readSparse(RowBuffer buffer, RowCursor edit,
                              Out<NullValue> value) {
-        Result result = prepareSparseRead(b, edit, this.LayoutCode);
+        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        value.setAndGet(b.get().readSparseNull(edit).clone());
+        value.setAndGet(buffer.get().readSparseNull(edit).clone());
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                              NullValue value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
+        buffer.get().SetBit(scope.get().start(), column.getNullBit().clone());
         return Result.SUCCESS;
     }
 
@@ -69,19 +69,19 @@ public final class LayoutNull extends LayoutType<NullValue> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, NullValue value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, NullValue value,
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, NullValue value,
                               UpdateOptions options) {
-        Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg().clone(), options);
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().WriteSparseNull(edit, value.clone(), options);
+        buffer.get().WriteSparseNull(edit, value.clone(), options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, NullValue value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, NullValue value) {
+        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

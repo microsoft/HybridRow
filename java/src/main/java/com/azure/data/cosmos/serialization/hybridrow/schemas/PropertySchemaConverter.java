@@ -49,10 +49,10 @@ public class PropertySchemaConverter extends JsonConverter {
             case Array:
                 p = new ArrayPropertyType();
                 break;
-            case Set:
+            case SET:
                 p = new SetPropertyType();
                 break;
-            case Map:
+            case MAP:
                 p = new MapPropertyType();
                 break;
             case Object:
@@ -61,7 +61,7 @@ public class PropertySchemaConverter extends JsonConverter {
             case Tuple:
                 p = new TuplePropertyType();
                 break;
-            case Tagged:
+            case TAGGED:
                 p = new TaggedPropertyType();
                 break;
             case Schema:

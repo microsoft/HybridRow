@@ -107,7 +107,8 @@ public final class RowCursors {
         return true;
     }
 
-    public static void skip(@Nonnull final RowCursor edit, @Nonnull final RowBuffer row, @Nonnull final RowCursor childScope) {
+    public static void skip(
+        @Nonnull final RowCursor edit, @Nonnull final RowBuffer row, @Nonnull final RowCursor childScope) {
 
         checkArgument(childScope.start() == edit.valueOffset());
 

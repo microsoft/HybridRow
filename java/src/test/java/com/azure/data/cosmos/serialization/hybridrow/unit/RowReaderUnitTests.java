@@ -245,7 +245,7 @@ public final class RowReaderUnitTests {
         assert rowReader.read();
         Reference<RowReader> tempReference_nestedScope2 =
             new Reference<RowReader>(nestedScope);
-        Result result = rowReader.SkipScope(tempReference_nestedScope2);
+        Result result = rowReader.skipScope(tempReference_nestedScope2);
         nestedScope = tempReference_nestedScope2.get();
         assert Result.SUCCESS != result;
     }
@@ -254,12 +254,12 @@ public final class RowReaderUnitTests {
         while (reader.get().read()) {
             switch (reader.get().type().LayoutCode) {
                 case TupleScope: {
-                    ResultAssert.IsSuccess(reader.get().ReadScope(0, RowReaderUnitTests.ReadTuplePartial));
+                    ResultAssert.IsSuccess(reader.get().readScope(0, RowReaderUnitTests.ReadTuplePartial));
                     break;
                 }
 
                 case ObjectScope: {
-                    ResultAssert.IsSuccess(reader.get().ReadScope(0, RowReaderUnitTests.ReadNestedDocumentDelegate));
+                    ResultAssert.IsSuccess(reader.get().readScope(0, RowReaderUnitTests.ReadNestedDocumentDelegate));
                     break;
                 }
             }
@@ -286,7 +286,7 @@ public final class RowReaderUnitTests {
                         new Reference<RowReader>(nested);
                     ResultAssert.IsSuccess(RowReaderUnitTests.ReadNestedDocumentNonDelegate(tempReference_nested2, 0));
                     nested = tempReference_nested2.get();
-                    ResultAssert.IsSuccess(reader.get().ReadScope(0, RowReaderUnitTests.ReadNestedDocumentDelegate));
+                    ResultAssert.IsSuccess(reader.get().readScope(0, RowReaderUnitTests.ReadNestedDocumentDelegate));
                     break;
                 }
             }
@@ -307,7 +307,7 @@ public final class RowReaderUnitTests {
                     nested = tempReference_nested.get();
                     Reference<RowReader> tempReference_nested2 =
                         new Reference<RowReader>(nested);
-                    ResultAssert.IsSuccess(reader.get().SkipScope(tempReference_nested2));
+                    ResultAssert.IsSuccess(reader.get().skipScope(tempReference_nested2));
                     nested = tempReference_nested2.get();
                     break;
                 }
@@ -318,9 +318,9 @@ public final class RowReaderUnitTests {
                         new Reference<RowReader>(nested);
                     ResultAssert.IsSuccess(RowReaderUnitTests.ReadNestedDocumentNonDelegate(tempReference_nested3, 0));
                     nested = tempReference_nested3.get();
-                    ResultAssert.IsSuccess(reader.get().ReadScope(0, RowReaderUnitTests.ReadNestedDocumentDelegate));
+                    ResultAssert.IsSuccess(reader.get().readScope(0, RowReaderUnitTests.ReadNestedDocumentDelegate));
                     Reference<RowReader> tempReference_nested4 = new Reference<RowReader>(nested);
-                    ResultAssert.IsSuccess(reader.get().SkipScope(tempReference_nested4));
+                    ResultAssert.IsSuccess(reader.get().skipScope(tempReference_nested4));
                     nested = tempReference_nested4.get();
                     break;
                 }

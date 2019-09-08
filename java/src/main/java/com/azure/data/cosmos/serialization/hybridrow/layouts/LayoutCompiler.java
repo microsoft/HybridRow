@@ -19,8 +19,9 @@ import com.azure.data.cosmos.serialization.hybridrow.schemas.TaggedPropertyType;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.TuplePropertyType;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.TypeKind;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.UdtPropertyType;
+import tangible.ListHelper;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -42,21 +43,22 @@ public final class LayoutCompiler {
         checkArgument(!tangible.StringHelper.isNullOrWhiteSpace(schema.name()));
         checkArgument(ns.schemas().contains(schema));
 
-        LayoutBuilder builder = new LayoutBuilder(schema.name(), schema.schemaId().clone());
-        LayoutCompiler.AddProperties(builder, ns, LayoutCode.SCHEMA, schema.properties());
+        LayoutBuilder builder = new LayoutBuilder(schema.name(), schema.schemaId());
+        LayoutCompiler.addProperties(builder, ns, LayoutCode.SCHEMA, schema.properties());
 
         return builder.build();
     }
 
-    private static void AddProperties(LayoutBuilder builder, Namespace ns, LayoutCode scope,
-                                      ArrayList<Property> properties) {
+    private static void addProperties(LayoutBuilder builder, Namespace ns, LayoutCode scope, List<Property> properties) {
+
+        final Out<TypeArgumentList> typeArgs = new Out<>();
+
         for (Property p : properties) {
-            TypeArgumentList typeArgs = new TypeArgumentList();
-            Out<TypeArgumentList> tempOut_typeArgs =
-                new Out<TypeArgumentList>();
-            LayoutType type = LayoutCompiler.LogicalToPhysicalType(ns, p.propertyType(), tempOut_typeArgs);
-            typeArgs = tempOut_typeArgs.get();
-            switch (LayoutCodeTraits.ClearImmutableBit(type.LayoutCode)) {
+
+            LayoutType type = LayoutCompiler.logicalToPhysicalType(ns, p.propertyType(), typeArgs);
+
+            switch (LayoutCodeTraits.clearImmutableBit(type.layoutCode())) {
+
                 case OBJECT_SCOPE: {
                     if (!p.propertyType().nullable()) {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
@@ -64,7 +66,7 @@ public final class LayoutCompiler {
 
                     ObjectPropertyType op = (ObjectPropertyType)p.propertyType();
                     builder.addObjectScope(p.path(), type);
-                    LayoutCompiler.AddProperties(builder, ns, type.LayoutCode, op.properties());
+                    LayoutCompiler.addProperties(builder, ns, type.layoutCode(), op.properties());
                     builder.EndObjectScope();
                     break;
                 }
@@ -83,8 +85,7 @@ public final class LayoutCompiler {
                     if (!p.propertyType().nullable()) {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
                     }
-
-                    builder.addTypedScope(p.path(), type, typeArgs.clone());
+                    builder.addTypedScope(p.path(), type, typeArgs.get());
                     break;
                 }
 
@@ -99,12 +100,12 @@ public final class LayoutCompiler {
                     if (pp != null) {
                         switch (pp.storage()) {
                             case FIXED:
-                                if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
+                                if (LayoutCodeTraits.clearImmutableBit(scope) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException("Cannot have fixed storage within a sparse " +
                                         "scope.");
                                 }
 
-                                if (type.getIsNull() && !pp.nullable()) {
+                                if (type.isNull() && !pp.nullable()) {
                                     throw new LayoutCompilationException("Non-nullable null columns are not supported" +
                                         ".");
                                 }
@@ -112,7 +113,7 @@ public final class LayoutCompiler {
                                 builder.addFixedColumn(p.path(), type, pp.nullable(), pp.length());
                                 break;
                             case VARIABLE:
-                                if (LayoutCodeTraits.ClearImmutableBit(scope) != LayoutCode.SCHEMA) {
+                                if (LayoutCodeTraits.clearImmutableBit(scope) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException("Cannot have variable storage within a " +
                                         "sparse scope.");
                                 }
@@ -138,7 +139,7 @@ public final class LayoutCompiler {
                         }
                     } else {
                         throw new LayoutCompilationException(String.format("Unknown property type: %1$s",
-                            type.getName()));
+                            type.name()));
                     }
 
                     break;
@@ -147,7 +148,7 @@ public final class LayoutCompiler {
         }
     }
 
-    private static LayoutType LogicalToPhysicalType(Namespace ns, PropertyType logicalType,
+    private static LayoutType logicalToPhysicalType(Namespace ns, PropertyType logicalType,
                                                     Out<TypeArgumentList> typeArgs) {
         typeArgs.setAndGet(TypeArgumentList.EMPTY);
         boolean tempVar =
@@ -158,124 +159,125 @@ public final class LayoutCompiler {
 
         switch (logicalType.type()) {
             case Null:
-                return LayoutType.Null;
+                return LayoutTypes.NULL;
             case Boolean:
-                return LayoutType.Boolean;
+                return LayoutTypes.BOOLEAN;
             case Int8:
-                return LayoutType.Int8;
+                return LayoutTypes.INT_8;
             case Int16:
-                return LayoutType.Int16;
+                return LayoutTypes.INT_16;
             case Int32:
-                return LayoutType.Int32;
+                return LayoutTypes.INT_32;
             case Int64:
-                return LayoutType.Int64;
+                return LayoutTypes.INT_64;
             case UInt8:
-                return LayoutType.UInt8;
+                return LayoutTypes.UINT_8;
             case UInt16:
-                return LayoutType.UInt16;
+                return LayoutTypes.UINT_16;
             case UInt32:
-                return LayoutType.UInt32;
+                return LayoutTypes.UINT_32;
             case UInt64:
-                return LayoutType.UInt64;
+                return LayoutTypes.UINT_64;
             case Float32:
-                return LayoutType.Float32;
+                return LayoutTypes.FLOAT_32;
             case Float64:
-                return LayoutType.Float64;
+                return LayoutTypes.FLOAT_64;
             case Float128:
-                return LayoutType.Float128;
+                return LayoutTypes.FLOAT_128;
             case Decimal:
-                return LayoutType.Decimal;
+                return LayoutTypes.DECIMAL;
             case DateTime:
-                return LayoutType.DateTime;
+                return LayoutTypes.DATE_TIME;
             case UnixDateTime:
-                return LayoutType.UnixDateTime;
+                return LayoutTypes.UNIX_DATE_TIME;
             case Guid:
-                return LayoutType.Guid;
+                return LayoutTypes.GUID;
             case MongoDbObjectId:
-                return LayoutType.MongoDbObjectId;
+                throw new UnsupportedOperationException();
+                // return LayoutTypes.MONGO_DB_OBJECT_ID;
             case Utf8:
-                return LayoutType.Utf8;
+                return LayoutTypes.UTF_8;
             case Binary:
-                return LayoutType.Binary;
+                return LayoutTypes.BINARY;
             case VarInt:
-                return LayoutType.VarInt;
+                return LayoutTypes.VAR_INT;
             case VarUInt:
-                return LayoutType.VarUInt;
+                return LayoutTypes.VAR_UINT;
 
             case Object:
-                return immutable ? LayoutType.ImmutableObject : LayoutType.Object;
+                return immutable ? LayoutTypes.IMMUTABLE_OBJECT : LayoutTypes.OBJECT;
             case Array:
                 ArrayPropertyType ap = (ArrayPropertyType)logicalType;
                 if ((ap.items() != null) && (ap.items().type() != TypeKind.Any)) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_itemTypeArgs = new Out<TypeArgumentList>();
-                    LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, ap.items(), tempOut_itemTypeArgs);
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, ap.items(), tempOut_itemTypeArgs);
                     itemTypeArgs = tempOut_itemTypeArgs.get();
                     if (ap.items().nullable()) {
                         itemTypeArgs = new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
-                            itemTypeArgs.clone()) });
-                        itemType = itemType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
+                            itemTypeArgs) });
+                        itemType = itemType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
                     typeArgs.setAndGet(new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
-                        itemTypeArgs.clone()) }));
-                    return immutable ? LayoutType.ImmutableTypedArray : LayoutType.TypedArray;
+                        itemTypeArgs) }));
+                    return immutable ? LayoutTypes.IMMUTABLE_TYPED_ARRAY : LayoutTypes.TYPED_ARRAY;
                 }
 
-                return immutable ? LayoutType.ImmutableArray : LayoutType.Array;
-            case Set:
+                return immutable ? LayoutTypes.IMMUTABLE_ARRAY : LayoutTypes.ARRAY;
+            case SET:
                 SetPropertyType sp = (SetPropertyType)logicalType;
                 if ((sp.items() != null) && (sp.items().type() != TypeKind.Any)) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_itemTypeArgs2 = new Out<TypeArgumentList>();
-                    LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, sp.items(),
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, sp.items(),
                         tempOut_itemTypeArgs2);
                     itemTypeArgs = tempOut_itemTypeArgs2.get();
                     if (sp.items().nullable()) {
                         itemTypeArgs = new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
-                            itemTypeArgs.clone()) });
-                        itemType = itemType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
+                            itemTypeArgs) });
+                        itemType = itemType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
                     typeArgs.setAndGet(new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
-                        itemTypeArgs.clone()) }));
-                    return immutable ? LayoutType.ImmutableTypedSet : LayoutType.TypedSet;
+                        itemTypeArgs) }));
+                    return immutable ? LayoutTypes.IMMUTABLE_TYPED_SET : LayoutTypes.TYPED_SET;
                 }
 
                 // TODO(283638): implement sparse set.
                 throw new LayoutCompilationException(String.format("Unknown property type: %1$s",
                     logicalType.type()));
 
-            case Map:
+            case MAP:
                 MapPropertyType mp = (MapPropertyType)logicalType;
                 if ((mp.keys() != null) && (mp.keys().type() != TypeKind.Any) && (mp.values() != null) && (mp.values().type() != TypeKind.Any)) {
                     TypeArgumentList keyTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_keyTypeArgs = new Out<TypeArgumentList>();
-                    LayoutType keyType = LayoutCompiler.LogicalToPhysicalType(ns, mp.keys(), tempOut_keyTypeArgs);
+                    LayoutType keyType = LayoutCompiler.logicalToPhysicalType(ns, mp.keys(), tempOut_keyTypeArgs);
                     keyTypeArgs = tempOut_keyTypeArgs.get();
                     if (mp.keys().nullable()) {
                         keyTypeArgs = new TypeArgumentList(new TypeArgument[] { new TypeArgument(keyType,
-                            keyTypeArgs.clone()) });
-                        keyType = keyType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
+                            keyTypeArgs) });
+                        keyType = keyType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
                     TypeArgumentList valueTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_valueTypeArgs = new Out<TypeArgumentList>();
-                    LayoutType valueType = LayoutCompiler.LogicalToPhysicalType(ns, mp.values(),
+                    LayoutType valueType = LayoutCompiler.logicalToPhysicalType(ns, mp.values(),
                         tempOut_valueTypeArgs);
                     valueTypeArgs = tempOut_valueTypeArgs.get();
                     if (mp.values().nullable()) {
                         valueTypeArgs = new TypeArgumentList(new TypeArgument[] { new TypeArgument(valueType,
-                            valueTypeArgs.clone()) });
-                        valueType = valueType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
+                            valueTypeArgs) });
+                        valueType = valueType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
                     typeArgs.setAndGet(new TypeArgumentList(new TypeArgument[]
                         {
-                            new TypeArgument(keyType, keyTypeArgs.clone()),
-                            new TypeArgument(valueType, valueTypeArgs.clone())
+                            new TypeArgument(keyType, keyTypeArgs),
+                            new TypeArgument(valueType, valueTypeArgs)
                         }));
-                    return immutable ? LayoutType.ImmutableTypedMap : LayoutType.TypedMap;
+                    return immutable ? LayoutTypes.IMMUTABLE_TYPED_MAP : LayoutTypes.TYPED_MAP;
                 }
 
                 // TODO(283638): implement sparse map.
@@ -288,22 +290,22 @@ public final class LayoutCompiler {
                 for (int i = 0; i < tp.items().size(); i++) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_itemTypeArgs3 = new Out<TypeArgumentList>();
-                    LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, tp.items().get(i),
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, tp.items().get(i),
                         tempOut_itemTypeArgs3);
                     itemTypeArgs = tempOut_itemTypeArgs3.get();
                     if (tp.items().get(i).nullable()) {
                         itemTypeArgs = new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
-                            itemTypeArgs.clone()) });
-                        itemType = itemType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
+                            itemTypeArgs) });
+                        itemType = itemType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
-                    args[i] = new TypeArgument(itemType, itemTypeArgs.clone());
+                    args[i] = new TypeArgument(itemType, itemTypeArgs);
                 }
 
                 typeArgs.setAndGet(new TypeArgumentList(args));
-                return immutable ? LayoutType.ImmutableTypedTuple : LayoutType.TypedTuple;
+                return immutable ? LayoutTypes.IMMUTABLE_TYPED_TUPLE : LayoutTypes.TYPED_TUPLE;
 
-            case Tagged:
+            case TAGGED:
                 TaggedPropertyType tg = (TaggedPropertyType)logicalType;
                 if ((tg.items().size() < TaggedPropertyType.MinTaggedArguments) || (tg.items().size() > TaggedPropertyType.MaxTaggedArguments)) {
                     throw new LayoutCompilationException(String.format("Invalid number of arguments in Tagged: %1$s " +
@@ -312,28 +314,28 @@ public final class LayoutCompiler {
                 }
 
                 TypeArgument[] tgArgs = new TypeArgument[tg.items().size() + 1];
-                tgArgs[0] = new TypeArgument(LayoutType.UInt8, TypeArgumentList.EMPTY);
+                tgArgs[0] = new TypeArgument(LayoutTypes.UINT_8, TypeArgumentList.EMPTY);
                 for (int i = 0; i < tg.items().size(); i++) {
                     TypeArgumentList itemTypeArgs = new TypeArgumentList();
                     Out<TypeArgumentList> tempOut_itemTypeArgs4 = new Out<TypeArgumentList>();
-                    LayoutType itemType = LayoutCompiler.LogicalToPhysicalType(ns, tg.items().get(i),
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, tg.items().get(i),
                         tempOut_itemTypeArgs4);
                     itemTypeArgs = tempOut_itemTypeArgs4.get();
                     if (tg.items().get(i).nullable()) {
                         itemTypeArgs = new TypeArgumentList(new TypeArgument[] { new TypeArgument(itemType,
-                            itemTypeArgs.clone()) });
-                        itemType = itemType.Immutable ? LayoutType.ImmutableNullable : LayoutType.Nullable;
+                            itemTypeArgs) });
+                        itemType = itemType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
-                    tgArgs[i + 1] = new TypeArgument(itemType, itemTypeArgs.clone());
+                    tgArgs[i + 1] = new TypeArgument(itemType, itemTypeArgs);
                 }
 
                 typeArgs.setAndGet(new TypeArgumentList(tgArgs));
                 switch (tg.items().size()) {
                     case 1:
-                        return immutable ? LayoutType.ImmutableTagged : LayoutType.Tagged;
+                        return immutable ? LayoutTypes.IMMUTABLE_TAGGED : LayoutTypes.TAGGED;
                     case 2:
-                        return immutable ? LayoutType.ImmutableTagged2 : LayoutType.Tagged2;
+                        return immutable ? LayoutTypes.IMMUTABLE_TAGGED_2 : LayoutTypes.TAGGED_2;
                     default:
                         throw new LayoutCompilationException("Unexpected tagged arity");
                 }
@@ -341,24 +343,24 @@ public final class LayoutCompiler {
             case Schema:
                 UdtPropertyType up = (UdtPropertyType)logicalType;
                 Schema udtSchema;
-                if (SchemaId.opEquals(up.schemaId().clone(), SchemaId.INVALID)) {
-                    udtSchema = tangible.ListHelper.find(ns.schemas(), s = up.name().equals( > s.Name))
+                if (SchemaId.opEquals(up.schemaId(), SchemaId.INVALID)) {
+                    udtSchema = ListHelper.find(ns.schemas(), s = up.name().equals( > s.Name))
                 } else {
-                    udtSchema = tangible.ListHelper.find(ns.schemas(), s =
-                        SchemaId.opEquals( > s.SchemaId, up.schemaId().clone()))
+                    udtSchema = ListHelper.find(ns.schemas(), s =
+                        SchemaId.opEquals( > s.SchemaId, up.schemaId()))
                     if (!udtSchema.name().equals(up.name())) {
                         throw new LayoutCompilationException(String.format("Ambiguous schema reference: '%1$s:%2$s'",
-                            up.name(), up.schemaId().clone()));
+                            up.name(), up.schemaId()));
                     }
                 }
 
                 if (udtSchema == null) {
                     throw new LayoutCompilationException(String.format("Cannot resolve schema reference '%1$s:%2$s'",
-                        up.name(), up.schemaId().clone()));
+                        up.name(), up.schemaId()));
                 }
 
-                typeArgs.setAndGet(new TypeArgumentList(udtSchema.schemaId().clone()));
-                return immutable ? LayoutType.ImmutableUDT : LayoutType.UDT;
+                typeArgs.setAndGet(new TypeArgumentList(udtSchema.schemaId()));
+                return immutable ? LayoutTypes.IMMUTABLE_UDT : LayoutTypes.UDT;
 
             default:
                 throw new LayoutCompilationException(String.format("Unknown property type: %1$s",

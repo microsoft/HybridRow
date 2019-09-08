@@ -674,7 +674,7 @@ public final class RowBuffer {
     }
 
     public LayoutType readSparseTypeCode(int offset) {
-        return LayoutType.fromCode(LayoutCode.forValue(this.readInt8(offset)));
+        return LayoutType.fromCode(LayoutCode.from(this.readInt8(offset)));
     }
 
     public int readSparseUInt16(RowCursor edit) {
@@ -1160,7 +1160,7 @@ public final class RowBuffer {
         this.buffer.setByte(index, this.buffer.getByte(index) & (byte) ~(1 << bit.bit()));
     }
 
-    public int write7BitEncodedInt(long value) {
+    public int write7BitEncodedInt(final long value) {
         return this.write7BitEncodedUInt(RowBuffer.rotateSignToLsb(value));
     }
 
@@ -3193,7 +3193,7 @@ public final class RowBuffer {
             return LayoutCode.BYTES;
         }
 
-        if (code == LayoutTypes.TYPED_ARRAY || code == LayoutTypes.TypedSet || code == LayoutTypes.TypedMap) {
+        if (code == LayoutTypes.TYPED_ARRAY || code == LayoutTypes.TYPED_SET || code == LayoutTypes.TYPED_MAP) {
             // Variable length typed collection scopes preceded by their scope size take sizeof(uint) for a size of 0.
             this.writeUInt32(offset, 0);
             return Integer.BYTES;

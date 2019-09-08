@@ -33,25 +33,25 @@ public final class LayoutUDT extends LayoutPropertyScope {
     }
 
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(b, edit, typeArgs, UpdateOptions.Upsert, value);
+        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Layout udt = b.get().resolver().resolve(typeArgs.schemaId().clone());
-        Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
+        Layout udt = buffer.get().resolver().resolve(typeArgs.schemaId().clone());
+        Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        b.get().WriteSparseUDT(edit, this, udt, options, value.clone());
+        buffer.get().WriteSparseUDT(edit, this, udt, options, value.clone());
         return Result.SUCCESS;
     }
 

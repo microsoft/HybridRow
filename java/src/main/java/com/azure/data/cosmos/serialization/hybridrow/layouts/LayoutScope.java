@@ -10,6 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -22,8 +23,13 @@ public abstract class LayoutScope extends LayoutType {
     private final boolean isUniqueScope;
 
     protected LayoutScope(
-        @Nonnull final LayoutCode code, final boolean immutable, final boolean isSizedScope,
-        final boolean isIndexedScope, final boolean isFixedArity, final boolean isUniqueScope, boolean isTypedScope) {
+        @Nonnull final LayoutCode code,
+        final boolean immutable,
+        final boolean isSizedScope,
+        final boolean isIndexedScope,
+        final boolean isFixedArity,
+        final boolean isUniqueScope,
+        final boolean isTypedScope) {
 
         super(code, immutable, 0);
         this.isSizedScope = isSizedScope;
@@ -31,6 +37,16 @@ public abstract class LayoutScope extends LayoutType {
         this.isFixedArity = isFixedArity;
         this.isUniqueScope = isUniqueScope;
         this.isTypedScope = isTypedScope;
+    }
+
+    /**
+     * Returns {@code false} to indicate that a {@link LayoutScope} is a variable length, not fixed length layout type
+     *
+     * @return {@code false}
+     */
+    @Override
+    public boolean isFixed() {
+        return false;
     }
 
     /**
@@ -68,18 +84,19 @@ public abstract class LayoutScope extends LayoutType {
         return this.isUniqueScope;
     }
 
-    public final Result deleteScope(@Nonnull final RowBuffer b, @Nonnull final RowCursor edit) {
+    @Nonnull
+    public final Result deleteScope(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit) {
 
-        checkNotNull(b);
-        checkNotNull(edit);
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
 
-        Result result = LayoutType.prepareSparseDelete(b, edit, this.layoutCode());
+        Result result = LayoutType.prepareSparseDelete(buffer, edit, this.layoutCode());
 
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.deleteSparse(edit);
+        buffer.deleteSparse(edit);
         return Result.SUCCESS;
     }
 
@@ -97,21 +114,21 @@ public abstract class LayoutScope extends LayoutType {
 
     @Nonnull
     public final Result readScope(
-        @Nonnull final RowBuffer b, @Nonnull final RowCursor edit, @Nonnull final Out<RowCursor> value) {
+        @Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit, @Nonnull final Out<RowCursor> value) {
 
-        checkNotNull(b);
-        checkNotNull(edit);
-        checkNotNull(value);
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(value, "expected non-null value");
 
-        Result result = LayoutType.prepareSparseRead(b, edit, this.layoutCode());
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
 
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
         boolean immutable = this.isImmutable() || edit.immutable() || edit.scopeType().isUniqueScope();
-        value.set(b.sparseIteratorReadScope(edit, immutable));
+        value.set(buffer.sparseIteratorReadScope(edit, immutable));
         return Result.SUCCESS;
     }
 
@@ -127,37 +144,39 @@ public abstract class LayoutScope extends LayoutType {
         throw new UnsupportedOperationException();
     }
 
+    @Nonnull
     public abstract Result writeScope(
-        RowBuffer b,
+        RowBuffer buffer,
         RowCursor scope,
         TypeArgumentList typeArgs, Out<RowCursor> value);
 
+    @Nonnull
     public abstract Result writeScope(
-        RowBuffer b,
+        RowBuffer buffer,
         RowCursor scope,
         TypeArgumentList typeArgs,
         UpdateOptions options, Out<RowCursor> value);
 
+    @Nonnull
     public <TContext> Result writeScope(
-        RowBuffer b,
+        RowBuffer buffer,
         RowCursor scope,
         TypeArgumentList typeArgs,
         TContext context, WriterFunc<TContext> func) {
-        return this.writeScope(b, scope, typeArgs, context, func, UpdateOptions.Upsert);
+        return this.writeScope(buffer, scope, typeArgs, context, func, UpdateOptions.Upsert);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public virtual Result WriteScope<TContext>(ref RowBuffer b, ref RowCursor scope,
-    // TypeArgumentList typeArgs, TContext context, WriterFunc<TContext> func, UpdateOptions options = UpdateOptions
-    // .Upsert)
+    @Nonnull
     public <TContext> Result writeScope(
-        RowBuffer b,
-        RowCursor scope,
-        TypeArgumentList typeArgs,
-        TContext context, WriterFunc<TContext> func, UpdateOptions options) {
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nullable TContext context,
+        @Nullable WriterFunc<TContext> func,
+        @Nonnull UpdateOptions options) {
 
         final Out<RowCursor> out = new Out<>();
-        Result result = this.writeScope(b, scope, typeArgs, options, out);
+        Result result = this.writeScope(buffer, scope, typeArgs, options, out);
 
         if (result != Result.SUCCESS) {
             return result;
@@ -166,28 +185,33 @@ public abstract class LayoutScope extends LayoutType {
         final RowCursor childScope = out.get();
 
         if (func != null) {
-            result = func.invoke(b, childScope, context);
+            result = func.invoke(buffer, childScope, context);
             if (result != Result.SUCCESS) {
-                this.deleteScope(b, scope);
+                this.deleteScope(buffer, scope);
                 return result;
             }
         }
 
-        RowCursors.skip(scope, b, childScope);
+        RowCursors.skip(scope, buffer, childScope);
         return Result.SUCCESS;
     }
 
     /**
-     * A function to write content into a {@link RowBuffer}.
-     * <typeparam name="TContext">The type of the context value passed by the caller.</typeparam>
+     * A functional interfaced that can be used to write content to a {@link RowBuffer}
      *
-     * @param b       The row to write to.
-     * @param scope   The type of the scope to write into.
-     * @param context A context value provided by the caller.
-     * @return The result.
+     * @param <TContext> The type of the context value passed by the caller
      */
     @FunctionalInterface
     public interface WriterFunc<TContext> {
-        @Nonnull Result invoke(RowBuffer b, RowCursor scope, TContext context);
+        /**
+         * Writes content to a {@link RowBuffer}
+         *
+         * @param buffer  The row to write to
+         * @param scope   The type of the scope to write into
+         * @param context A context value provided by the caller
+         * @return The result
+         */
+        @Nonnull
+        Result invoke(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor scope, @Nullable TContext context);
     }
 }

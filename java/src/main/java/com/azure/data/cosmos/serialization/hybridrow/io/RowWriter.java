@@ -5,16 +5,18 @@ package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
+import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.UpdateOptions;
@@ -23,50 +25,43 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: public ref struct RowWriter
-//C# TO JAVA CONVERTER WARNING: Java has no equivalent to the C# ref struct:
 public final class RowWriter {
-    private RowCursor cursor = new RowCursor();
-    private RowBuffer row = new RowBuffer();
+
+    private RowCursor cursor;
+    private RowBuffer row;
 
     /**
-     * Initializes a new instance of the {@link RowWriter} struct.
+     * Initializes a new instance of the {@link RowWriter} struct
      *
      * @param row   The row to be read.
      * @param scope The scope into which items should be written.
      *              <p>
-     *              A {@link RowWriter} instance writes the fields of a given scope from left to right
-     *              in a forward only manner. If the root scope is provided then all top-level fields in the row can be
-     *              written.
+     *              A {@link RowWriter} instance writes the fields of a given scope from left to right in a forward only
+     *              manner. If the root scope is provided then all top-level fields in the row can be
      */
-    public RowWriter() {
-    }
-
-    private RowWriter(Reference<RowBuffer> row, Reference<RowCursor> scope) {
-        this.row = row.get().clone();
-        this.cursor = scope.get().clone();
+    private RowWriter(RowBuffer row, RowCursor scope) {
+        this.row = row;
+        this.cursor = scope;
     }
 
     /**
      * The active layout of the current writer scope.
      */
-    public Layout getLayout() {
+    public Layout layout() {
         return this.cursor.layout();
     }
 
     /**
      * The length of row in bytes.
      */
-    public int getLength() {
+    public int length() {
         return this.row.length();
     }
 
     /**
      * The resolver for UDTs.
      */
-    public LayoutResolver getResolver() {
+    public LayoutResolver resolver() {
         return this.row.resolver();
     }
 
@@ -77,8 +72,6 @@ public final class RowWriter {
      * @param value The value to write.
      * @return Success if the write is successful, an error code otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteBinary(UtfAnyString path, byte[] value)
     public Result WriteBinary(UtfAnyString path, byte[] value) {
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
@@ -87,7 +80,7 @@ public final class RowWriter {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.Binary, (ref RowWriter w, byte[] v) => w
         // .row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
-        return this.WritePrimitive(path, value, LayoutType.Binary,
+        return this.WritePrimitive(path, value, LayoutTypes.BINARY,
             (ref RowWriter w, byte[] v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
     }
 

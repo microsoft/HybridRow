@@ -11,12 +11,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
 /**
- * An implementation of {@link LayoutResolver} which dynamically compiles schema from
- * a {@link Namespace}.
+ * An implementation of {@link LayoutResolver} which dynamically compiles schema from a {@link Namespace}.
  * <p>
- * <p>
- * This resolver assumes that {@link Schema} within the {@link Namespace} have
- * their {@link Schema.SchemaId} properly populated. The resolver caches compiled schema.
+ * This resolver assumes that {@link Schema} within the {@link Namespace} have their {@link Schema#schemaId()} properly
+ * populated. The resolver caches compiled schema.
  * <p>
  * All members of this class are multi-thread safe.
  */
@@ -30,8 +28,6 @@ public final class LayoutResolverNamespace extends LayoutResolver {
         this(schemaNamespace, null);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public LayoutResolverNamespace(Namespace schemaNamespace, LayoutResolver parent = default)
     public LayoutResolverNamespace(Namespace schemaNamespace, LayoutResolver parent) {
         this.schemaNamespace = schemaNamespace;
         this.parent = parent;

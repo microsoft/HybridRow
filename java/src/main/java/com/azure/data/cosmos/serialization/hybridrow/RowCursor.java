@@ -40,7 +40,7 @@ public final class RowCursor implements Cloneable {
     RowCursor() {
     }
 
-    protected RowCursor clone() {
+    public RowCursor clone() {
         try {
             return (RowCursor) super.clone();
         } catch (CloneNotSupportedException error) {
@@ -118,6 +118,11 @@ public final class RowCursor implements Cloneable {
      */
     public boolean deferUniqueIndex() {
         return this.deferUniqueIndex;
+    }
+
+    public RowCursor deferUniqueIndex(boolean value) {
+        this.deferUniqueIndex = value;
+        return this;
     }
 
     /**

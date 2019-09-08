@@ -31,7 +31,7 @@ public final class RowReaderExtensions {
         // All lambda's here are static.
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        Result r = reader.get().ReadScope(ctx.clone(), (ref RowReader arrayReader, ListContext<TItem> ctx1) ->
+        Result r = reader.get().readScope(ctx.clone(), (RowReader RowReader arrayReader, ListContext<TItem> ctx1) ->
         {
             while (arrayReader.Read()) {
                 Result r2 = arrayReader.ReadScope(ctx1.clone(), (ref RowReader itemReader, ListContext<TItem> ctx2) ->

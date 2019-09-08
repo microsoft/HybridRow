@@ -7,15 +7,17 @@ import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.DecimalCodec;
 
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutDecimal extends LayoutType<BigDecimal> {
+
     public LayoutDecimal() {
-        // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to 'sizeof':
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.DECIMAL, sizeof(BigDecimal));
+        super(LayoutCode.DECIMAL, DecimalCodec.BYTES);
     }
 
     public boolean isFixed() {
@@ -27,62 +29,63 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                            Out<BigDecimal> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<BigDecimal> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
             value.setAndGet(new BigDecimal(0));
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().ReadDecimal(scope.get().start() + column.getOffset()));
+        value.setAndGet(buffer.readDecimal(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit,
                              Out<BigDecimal> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
         if (result != Result.SUCCESS) {
             value.setAndGet(new BigDecimal(0));
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseDecimal(edit));
+        value.setAndGet(buffer.readSparseDecimal(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                              BigDecimal value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().WriteDecimal(scope.get().start() + column.getOffset(), value);
-        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
+        buffer.writeDecimal(scope.start() + column.offset(), value);
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, decimal value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, BigDecimal value,
-                              UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, BigDecimal value, UpdateOptions options) {
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().WriteSparseDecimal(edit, value, options);
+        buffer.writeSparseDecimal(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit,
-                              BigDecimal value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, BigDecimal value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

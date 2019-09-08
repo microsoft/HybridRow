@@ -4,19 +4,19 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 /**
- * An optional interface that indicates a {@link LayoutType{T}} can also read using a {@link Utf8Span}.
+ * An optional interface that indicates a {@link LayoutType{T}} can also read using a {@link Utf8String}.
  */
 public interface ILayoutUtf8SpanReadable extends ILayoutType {
 
-    Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Utf8Span> value);
+    Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);
 
-    Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> scope, Out<Utf8Span> value);
+    Result readSparse(RowBuffer buffer, RowCursor scope, Out<Utf8String> value);
 
-    Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, Out<Utf8Span> value);
+    Result ReadVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);
 }

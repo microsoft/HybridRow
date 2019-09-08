@@ -4,91 +4,136 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class LayoutBoolean extends LayoutType<Boolean> {
+
     public LayoutBoolean(boolean value) {
-        super(, 0);
+        super(value ? LayoutCode.BOOLEAN : LayoutCode.BOOLEAN_FALSE, 0);
     }
 
+    @Override
     public boolean isBoolean() {
         return true;
     }
 
+    @Override
     public boolean isFixed() {
         return true;
     }
 
+    @Override
     public String name() {
         return "bool";
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                            Out<Boolean> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(false);
+    @Nonnull
+    public Result readFixed(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Out<Boolean> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(value, "expected non-null value");
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(false);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().readBit(scope.get().start(), column.getBooleanBit().clone()));
+        value.set(buffer.readBit(scope.start(), column.booleanBit()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
-                             Out<Boolean> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final Out<Boolean> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(value, "expected non-null value");
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
         if (result != Result.SUCCESS) {
-            value.setAndGet(false);
+            value.set(false);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseBool(edit));
+        value.set(buffer.readSparseBoolean(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             boolean value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Boolean value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(value, "expected non-null value");
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT,
+            "expected scope of %s, not %s", LayoutUDT.class, scope.scopeType().getClass());
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (value) {
-            b.get().setBit(scope.get().start(), col.getBooleanBit().clone());
+            buffer.setBit(scope.start(), column.booleanBit());
         } else {
-            b.get().unsetBit(scope.get().start(), col.getBooleanBit().clone());
+            buffer.unsetBit(scope.start(), column.booleanBit());
         }
 
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, bool value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, boolean value,
-                              UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final Boolean value,
+        @Nonnull final UpdateOptions options) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(value, "expected non-null value");
+        checkNotNull(options, "expected non-null options");
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseBoolean(edit, value, options);
+        buffer.writeSparseBoolean(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, boolean value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Boolean value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

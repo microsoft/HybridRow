@@ -26,41 +26,41 @@ public final class LayoutUnixDateTime extends LayoutType<com.azure.data.cosmos.s
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                             Out<UnixDateTime> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(null);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().ReadUnixDateTime(scope.get().start() + column.getOffset()).clone());
+        value.setAndGet(buffer.get().ReadUnixDateTime(scope.get().start() + column.getOffset()).clone());
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
+    public Result readSparse(RowBuffer buffer, RowCursor edit,
                              Out<UnixDateTime> value) {
-        Result result = prepareSparseRead(b, edit, this.LayoutCode);
+        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseUnixDateTime(edit).clone());
+        value.setAndGet(buffer.get().ReadSparseUnixDateTime(edit).clone());
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                              UnixDateTime value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
         if (scope.get().immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().WriteUnixDateTime(scope.get().start() + column.getOffset(), value.clone());
-        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
+        buffer.get().WriteUnixDateTime(scope.get().start() + column.getOffset(), value.clone());
+        buffer.get().SetBit(scope.get().start(), column.getNullBit().clone());
         return Result.SUCCESS;
     }
 
@@ -68,19 +68,19 @@ public final class LayoutUnixDateTime extends LayoutType<com.azure.data.cosmos.s
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, UnixDateTime value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, UnixDateTime value
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value
         , UpdateOptions options) {
-        Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg().clone(), options);
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().WriteSparseUnixDateTime(edit, value.clone(), options);
+        buffer.get().WriteSparseUnixDateTime(edit, value.clone(), options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, UnixDateTime value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value) {
+        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

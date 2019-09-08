@@ -34,7 +34,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
     //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // ulong value)
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
         value.setAndGet(0);
@@ -44,14 +44,14 @@ public final class LayoutVarUInt extends LayoutType<Long> {
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ulong value)
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit, Out<Long> value) {
-        Result result = prepareSparseRead(b, edit, this.LayoutCode);
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Long> value) {
+        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
         if (result != Result.SUCCESS) {
             value.setAndGet(0);
             return result;
         }
 
-        value.setAndGet(b.get().readSparseVarUInt(edit));
+        value.setAndGet(buffer.get().readSparseVarUInt(edit));
         return Result.SUCCESS;
     }
 
@@ -59,16 +59,16 @@ public final class LayoutVarUInt extends LayoutType<Long> {
     //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // ulong value)
     @Override
-    public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column, Out<Long> value) {
+    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NOT_FOUND;
         }
 
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = buffer.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             column.getOffset());
-        value.setAndGet(b.get().ReadVariableUInt(varOffset));
+        value.setAndGet(buffer.get().ReadVariableUInt(varOffset));
         return Result.SUCCESS;
     }
 

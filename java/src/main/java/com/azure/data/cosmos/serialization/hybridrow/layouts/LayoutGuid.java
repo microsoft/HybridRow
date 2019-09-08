@@ -7,14 +7,17 @@ import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.GuidCodec;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutGuid extends LayoutType<UUID> {
+
     public LayoutGuid() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.GUID, 16);
+        super(LayoutCode.GUID, GuidCodec.BYTES);
     }
 
     public boolean isFixed() {
@@ -26,62 +29,67 @@ public final class LayoutGuid extends LayoutType<UUID> {
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                            Out<UUID> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(null);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<UUID> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(null);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().ReadGuid(scope.get().start() + column.getOffset()));
+        value.set(buffer.readGuid(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
-                             Out<UUID> value) {
-        Result result = prepareSparseRead(b, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<UUID> value) {
+
+        Result result = prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseGuid(edit));
+        value.set(buffer.readSparseGuid(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                             UUID value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, UUID value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().WriteGuid(scope.get().start() + column.getOffset(), value);
-        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
+        buffer.writeGuid(scope.start() + column.offset(), value);
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, GuidCodec value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, UUID value,
-                              UpdateOptions options) {
-        Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, UUID value, UpdateOptions options) {
+
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().WriteSparseGuid(edit, value, options);
+        buffer.writeSparseGuid(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit,
-                              UUID value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, UUID value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

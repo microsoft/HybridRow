@@ -214,7 +214,7 @@ public final class RowReaderJsonExtensions {
                 case VarInt: {
                     long value;
                     Out<Long> tempOut_value10 = new Out<Long>();
-                    r = reader.get().ReadVarInt(tempOut_value10);
+                    r = reader.get().readVarInt(tempOut_value10);
                     value = tempOut_value10.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -229,7 +229,7 @@ public final class RowReaderJsonExtensions {
                     Out<Long> tempOut_value11 = new Out<Long>();
                     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                     //ORIGINAL LINE: r = reader.ReadVarUInt(out ulong value);
-                    r = reader.get().ReadVarUInt(tempOut_value11);
+                    r = reader.get().readVarUInt(tempOut_value11);
                     value = tempOut_value11.get();
                     if (r != Result.SUCCESS) {
                         return r;
@@ -428,7 +428,7 @@ public final class RowReaderJsonExtensions {
                 case EndScope: {
                     ctx.Builder.append(scopeBracket);
                     int snapshot = ctx.Builder.length();
-                    r = reader.get().ReadScope(new ReaderStringContext(ctx.Builder, ctx.Settings.clone(), ctx.Indent + 1), RowReaderJsonExtensions.ToJson);
+                    r = reader.get().readScope(new ReaderStringContext(ctx.Builder, ctx.Settings.clone(), ctx.Indent + 1), RowReaderJsonExtensions.ToJson);
                     if (r != Result.SUCCESS) {
                         return r;
                     }

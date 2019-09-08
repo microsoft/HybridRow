@@ -27,24 +27,24 @@ public final class LayoutObject extends LayoutPropertyScope {
 
 
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(b, edit, typeArgs, UpdateOptions.Upsert, value);
+        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg().clone(), options);
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        b.get().WriteSparseObject(edit, this, options, value.clone());
+        buffer.get().WriteSparseObject(edit, this, options, value.clone());
         return Result.SUCCESS;
     }
 }

@@ -27,7 +27,7 @@ public final class LayoutTypedSet extends LayoutUniqueScope {
     }
 
     @Override
-    public TypeArgument FieldType(Reference<RowCursor> scope) {
+    public TypeArgument fieldType(RowCursor scope) {
         return scope.get().scopeTypeArgs().get(0).clone();
     }
 
@@ -35,7 +35,7 @@ public final class LayoutTypedSet extends LayoutUniqueScope {
     public boolean HasImplicitTypeCode(Reference<RowCursor> edit) {
         checkState(edit.get().index() >= 0);
         checkState(edit.get().scopeTypeArgs().count() == 1);
-        return !LayoutCodeTraits.AlwaysRequiresTypeCode(edit.get().scopeTypeArgs().get(0).type().LayoutCode);
+        return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.get().scopeTypeArgs().get(0).type().LayoutCode);
     }
 
     @Override
@@ -51,24 +51,24 @@ public final class LayoutTypedSet extends LayoutUniqueScope {
     }
 
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(b, edit, typeArgs, UpdateOptions.Upsert, value);
+        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
+    public Result writeScope(RowBuffer buffer, RowCursor edit,
                              TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
+        Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs.clone()), options);
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        b.get().WriteTypedSet(edit, this, typeArgs.clone(), options, value.clone());
+        buffer.get().WriteTypedSet(edit, this, typeArgs.clone(), options, value.clone());
         return Result.SUCCESS;
     }
 

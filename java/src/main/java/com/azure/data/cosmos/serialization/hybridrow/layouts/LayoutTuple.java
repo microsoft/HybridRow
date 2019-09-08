@@ -13,73 +13,76 @@ import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.I
 import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TUPLE_SCOPE;
 
 public final class LayoutTuple extends LayoutIndexedScope {
+
     public LayoutTuple(boolean immutable) {
-        super(immutable ? IMMUTABLE_TUPLE_SCOPE : TUPLE_SCOPE, immutable, false, true, false, false);
+        super(
+            immutable ? IMMUTABLE_TUPLE_SCOPE : TUPLE_SCOPE,
+            immutable, false, true, false, false
+        );
     }
 
     public String name() {
-        return this.Immutable ? "im_tuple" : "tuple";
+        return this.isImmutable() ? "im_tuple" : "tuple";
     }
 
     public int countTypeArgument(TypeArgumentList value) {
-        int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
+        int lenInBytes = LayoutCode.BYTES;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: lenInBytes += RowBuffer.Count7BitEncodedUInt((ulong)value.Count);
         lenInBytes += RowBuffer.count7BitEncodedUInt(value.count());
         for (TypeArgument arg : value) {
-            lenInBytes += arg.type().CountTypeArgument(arg.typeArgs().clone());
+            lenInBytes += arg.type().countTypeArgument(arg.typeArgs());
         }
 
         return lenInBytes;
     }
 
     @Override
-    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
-                                                 Out<Integer> lenInBytes) {
-        int numTypeArgs = row.get().intValue().Read7BitEncodedUInt(offset, lenInBytes);
+    public TypeArgumentList readTypeArgumentList(RowBuffer buffer, int offset, Out<Integer> lenInBytes) {
+        int numTypeArgs = buffer.intValue().Read7BitEncodedUInt(offset, lenInBytes);
         TypeArgument[] retval = new TypeArgument[numTypeArgs];
         for (int i = 0; i < numTypeArgs; i++) {
             int itemLenInBytes;
             Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
-            retval[i] = readTypeArgument(row, offset + lenInBytes.get(), tempOut_itemLenInBytes);
+            retval[i] = readTypeArgument(buffer, offset + lenInBytes.get(), tempOut_itemLenInBytes);
             itemLenInBytes = tempOut_itemLenInBytes.get();
-            lenInBytes.setAndGet(lenInBytes.get() + itemLenInBytes);
+            lenInBytes.set(lenInBytes.get() + itemLenInBytes);
         }
 
         return new TypeArgumentList(retval);
     }
 
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
-                             TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(b, edit, typeArgs, UpdateOptions.Upsert, value);
+    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
     // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer b, RowCursor edit,
-                             TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Result result = prepareSparseWrite(b, edit, new TypeArgument(this, typeArgs.clone()), options);
+    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+
+        Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        b.get().WriteSparseTuple(edit, this, typeArgs.clone(), options, value.clone());
+        value.set(buffer.writeSparseTuple(edit, this, typeArgs, options));
         return Result.SUCCESS;
     }
 
     @Override
-    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        row.get().writeSparseTypeCode(offset, this.LayoutCode);
-        int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
+    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
+        buffer.writeSparseTypeCode(offset, this.layoutCode());
+        int lenInBytes = LayoutCode.BYTES;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: lenInBytes += row.Write7BitEncodedUInt(offset + lenInBytes, (ulong)value.Count);
-        lenInBytes += row.get().write7BitEncodedUInt(offset + lenInBytes, value.count());
+        //ORIGINAL LINE: lenInBytes += buffer.Write7BitEncodedUInt(offset + lenInBytes, (ulong)value.Count);
+        lenInBytes += buffer.write7BitEncodedUInt(offset + lenInBytes, (long) value.count());
         for (TypeArgument arg : value) {
-            lenInBytes += arg.type().writeTypeArgument(row, offset + lenInBytes, arg.typeArgs().clone());
+            lenInBytes += arg.type().writeTypeArgument(buffer, offset + lenInBytes, arg.typeArgs());
         }
 
         return lenInBytes;

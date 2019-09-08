@@ -4,16 +4,18 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutFloat64 extends LayoutType<Double> {
+
     public LayoutFloat64() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.FLOAT_64, (Double.SIZE / Byte.SIZE));
+        super(LayoutCode.FLOAT_64, Double.BYTES / Byte.SIZE);
     }
 
     public boolean isFixed() {
@@ -25,41 +27,47 @@ public final class LayoutFloat64 extends LayoutType<Double> {
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                            Out<Double> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(0);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Double> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(0D);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().ReadFloat64(scope.get().start() + column.getOffset()));
+        value.set(buffer.readFloat64(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
-                             Out<Double> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Double> value) {
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(0);
+            value.set(0D);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseFloat64(edit));
+        value.set(buffer.readSparseFloat64(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             double value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn col, Double value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().writeFloat64(scope.get().start() + col.getOffset(), value);
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
+        buffer.writeFloat64(scope.start() + col.offset(), value);
+        buffer.setBit(scope.start(), col.nullBit());
         return Result.SUCCESS;
     }
 
@@ -67,19 +75,22 @@ public final class LayoutFloat64 extends LayoutType<Double> {
     //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, double value,
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, double value,
-                              UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Double value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseFloat64(edit, value, options);
+        buffer.writeSparseFloat64(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, double value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Double value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

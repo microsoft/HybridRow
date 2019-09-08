@@ -193,7 +193,7 @@ public final class LayoutColumn {
     private static @Nonnull String fullPath(final LayoutColumn parent, @Nonnull final String path) {
 
         if (parent != null) {
-            switch (LayoutCodeTraits.ClearImmutableBit(parent.type().layoutCode())) {
+            switch (LayoutCodeTraits.clearImmutableBit(parent.type().layoutCode())) {
                 case OBJECT_SCOPE:
                 case SCHEMA:
                     return parent.fullPath().toString() + "." + path;

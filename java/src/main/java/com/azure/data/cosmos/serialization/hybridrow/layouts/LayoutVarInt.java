@@ -29,7 +29,7 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                             Out<Long> value) {
         Contract.Fail("Not Implemented");
         value.setAndGet(0);
@@ -37,28 +37,28 @@ public final class LayoutVarInt extends LayoutType<Long> {
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit, Out<Long> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Long> value) {
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.LayoutCode);
         if (result != Result.SUCCESS) {
             value.setAndGet(0);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseVarInt(edit));
+        value.setAndGet(buffer.get().ReadSparseVarInt(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column, Out<Long> value) {
+    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NOT_FOUND;
         }
 
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
+        int varOffset = buffer.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
             column.getOffset());
-        value.setAndGet(b.get().ReadVariableInt(varOffset));
+        value.setAndGet(buffer.get().ReadVariableInt(varOffset));
         return Result.SUCCESS;
     }
 

@@ -9,15 +9,14 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public sealed class LayoutBinary : LayoutType<byte[]>, ILayoutSpanWritable<byte>,
-// ILayoutSpanReadable<byte>, ILayoutSequenceWritable<byte>
-public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpanWritable<Byte>,
-    ILayoutSpanReadable<Byte>, ILayoutSequenceWritable<Byte> {
+public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpanWritable<Byte>, ILayoutSpanReadable<Byte>, ILayoutSequenceWritable<Byte> {
+
     public LayoutBinary() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.BINARY, 0);
+        super(LayoutCode.BINARY, 0);
     }
 
     public boolean isFixed() {
@@ -28,64 +27,59 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return "binary";
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
-    // byte[] value)
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                            Out<byte[]> value) {
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: Result r = this.ReadFixed(ref b, ref scope, col, out ReadOnlySpan<byte> span);
-        Result r = this.ReadFixed(b, scope, column, out span);
-        value.setAndGet((r == Result.SUCCESS) ? span.ToArray() :)
+        //ORIGINAL LINE: Result result = this.ReadFixed(ref b, ref scope, col, out ReadOnlySpan<byte> span);
+        Result result = this.ReadFixed(buffer, scope, column, out span);
+        value.set((result == Result.SUCCESS) ? span.ToArray() :)
         default
-        return r;
+        return result;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
-    // ReadOnlySpan<byte> value)
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                            Out<ReadOnlySpan<Byte>> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        checkArgument(col.getSize() >= 0);
-        if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
-            value.setAndGet(null);
+    public Result ReadFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<ReadOnlySpan<Byte>> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        checkArgument(column.size() >= 0);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(null);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().readFixedBinary(scope.get().start() + col.getOffset(), col.getSize()));
+        value.set(buffer.readFixedBinary(scope.start() + column.offset(), column.size()));
         return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte[] value)
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
-                             Out<byte[]> value) {
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadSparse(ref b, ref edit, out ReadOnlySpan<byte> span);
-        Result r = this.ReadSparse(b, edit, out span);
-        value.setAndGet((r == Result.SUCCESS) ? span.ToArray() :)
+        Result r = this.ReadSparse(buffer, edit, out span);
+        value.set((r == Result.SUCCESS) ? span.ToArray() :)
         default
         return r;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ReadOnlySpan<byte> value)
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<ReadOnlySpan<Byte>> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    public Result ReadSparse(RowBuffer buffer, RowCursor edit, Out<ReadOnlySpan<Byte>> value) {
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        value.setAndGet(b.get().readSparseBinary(edit));
+        value.set(buffer.readSparseBinary(edit));
         return Result.SUCCESS;
     }
 
@@ -93,33 +87,30 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // byte[] value)
     @Override
-    public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column
-        , Out<byte[]> value) {
+    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
         // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: Result r = this.ReadVariable(ref b, ref scope, col, out ReadOnlySpan<byte> span);
-        Result r = this.ReadVariable(b, scope, column, out span);
-        value.setAndGet((r == Result.SUCCESS) ? span.ToArray() :)
+        Result r = this.ReadVariable(buffer, scope, column, out span);
+        value.set((r == Result.SUCCESS) ? span.ToArray() :)
         default
         return r;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
+    //ORIGINAL LINE: public Result ReadVariable(ref RowBuffer buffer, ref RowCursor scope, LayoutColumn column, out
     // ReadOnlySpan<byte> value)
-    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
-        , Out<ReadOnlySpan<Byte>> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
-            value.setAndGet(null);
+    public Result ReadVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<ReadOnlySpan<Byte>> value) {
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(null);
             return Result.NOT_FOUND;
         }
 
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
-        value.setAndGet(b.get().readVariableBinary(varOffset));
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+        value.set(buffer.readVariableBinary(varOffset));
         return Result.SUCCESS;
     }
 
@@ -127,51 +118,50 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, byte[]
     // value)
     @Override
-    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                             byte[] value) {
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, byte[] value) {
         checkArgument(value != null);
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.WriteFixed(ref b, ref scope, col, new ReadOnlySpan<byte>(value));
-        return this.WriteFixed(b, scope, column, new ReadOnlySpan<Byte>(value));
+        return this.writeFixed(buffer, scope, column, new ReadOnlySpan<Byte>(value));
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySpan<byte> value)
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             ReadOnlySpan<Byte> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        checkArgument(col.getSize() >= 0);
-        checkArgument(value.Length == col.getSize());
-        if (scope.get().immutable()) {
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<Byte> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        checkArgument(column.size() >= 0);
+        checkArgument(value.Length == column.size());
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().WriteFixedBinary(scope.get().start() + col.getOffset(), value, col.getSize());
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
+        buffer.writeFixedBinary(scope.start() + column.offset(), value, column.size());
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
+    //ORIGINAL LINE: public Result WriteFixed(ref RowBuffer buffer, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySequence<byte> value)
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             ReadOnlySequence<Byte> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        checkArgument(col.getSize() >= 0);
-        checkArgument(value.Length == col.getSize());
-        if (scope.get().immutable()) {
+    public Result WriteFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, ReadOnlySequence<Byte> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        checkArgument(column.size() >= 0);
+        checkArgument(value.Length == column.size());
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().WriteFixedBinary(scope.get().start() + col.getOffset(), value, col.getSize());
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
+        buffer.writeFixedBinary(scope.start() + column.offset(), value, column.size());
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, byte[] value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, byte[] value) {
+        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -179,51 +169,51 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, byte[] value,
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, byte[] value,
                               UpdateOptions options) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.WriteSparse(ref b, ref edit, new ReadOnlySpan<byte>(value), options);
-        return this.WriteSparse(b, edit, new ReadOnlySpan<Byte>(value), options);
+        return this.WriteSparse(buffer, edit, new ReadOnlySpan<Byte>(value), options);
     }
 
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              ReadOnlySpan<Byte> value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Byte value) {
+        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ReadOnlySpan<byte> value,
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              ReadOnlySpan<Byte> value, UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, List<Byte> value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseBinary(edit, value, options);
+        buffer.writeSparseBinary(edit, value, options);
         return Result.SUCCESS;
     }
 
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              ReadOnlySequence<Byte> value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result WriteSparse(RowBuffer b, RowCursor edit, ReadOnlySequence<Byte> value) {
+        return writeSparse(b, edit, value, UpdateOptions.Upsert);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
     //ORIGINAL LINE: public Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ReadOnlySequence<byte> value,
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              ReadOnlySequence<Byte> value, UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    public Result WriteSparse(RowBuffer b, RowCursor edit, ReadOnlySequence<Byte> value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseBinary(edit, value, options);
+        b.writeSparseBinary(edit, value, options);
         return Result.SUCCESS;
     }
 
@@ -231,67 +221,68 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     //ORIGINAL LINE: public override Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // byte[] value)
     @Override
-    public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
-                                LayoutColumn col, byte[] value) {
+    public Result writeVariable(RowBuffer buffer, RowCursor scope,
+                                LayoutColumn column, byte[] value) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.WriteVariable(ref b, ref scope, col, new ReadOnlySpan<byte>(value));
-        return this.WriteVariable(b, scope, col, new ReadOnlySpan<Byte>(value));
+        return this.writeVariable(buffer, scope, column, new ReadOnlySpan<Byte>(value));
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
     // ReadOnlySpan<byte> value)
-    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
-                                LayoutColumn col, ReadOnlySpan<Byte> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<Byte> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         int length = value.Length;
-        if ((col.getSize() > 0) && (length > col.getSize())) {
+
+        if ((column.size() > 0) && (length > column.size())) {
             return Result.TOO_BIG;
         }
 
-        boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
+        boolean exists = buffer.readBit(scope.start(), column.nullBit());
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(),
+            column.offset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().writeVariableBinary(varOffset, value, exists, tempOut_shift);
+        buffer.writeVariableBinary(varOffset, value, exists, tempOut_shift);
         shift = tempOut_shift.get();
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        scope.get().metaOffset(scope.get().metaOffset() + shift);
-        scope.get().valueOffset(scope.get().valueOffset() + shift);
+        buffer.setBit(scope.start(), column.nullBit());
+        scope.metaOffset(scope.metaOffset() + shift);
+        scope.valueOffset(scope.valueOffset() + shift);
         return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
+    //ORIGINAL LINE: public Result WriteVariable(ref RowBuffer buffer, ref RowCursor scope, LayoutColumn column,
     // ReadOnlySequence<byte> value)
-    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
-                                LayoutColumn col, ReadOnlySequence<Byte> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    public Result WriteVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, ReadOnlySequence<Byte> value) {
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         int length = (int)value.Length;
-        if ((col.getSize() > 0) && (length > col.getSize())) {
+        if ((column.size() > 0) && (length > column.size())) {
             return Result.TOO_BIG;
         }
 
-        boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
+        boolean exists = buffer.readBit(scope.start(), column.nullBit());
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(),
+            column.offset());
         int shift;
         Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().writeVariableBinary(varOffset, value, exists, tempOut_shift);
-        shift = tempOut_shift.get();
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        scope.get().metaOffset(scope.get().metaOffset() + shift);
-        scope.get().valueOffset(scope.get().valueOffset() + shift);
+        buffer.writeVariableBinary(varOffset, value, exists, tempOut_shift);
+        shift = tempOut_shift;
+        buffer.setBit(scope.start(), column.nullBit());
+        scope.metaOffset(scope.metaOffset() + shift);
+        scope.valueOffset(scope.valueOffset() + shift);
         return Result.SUCCESS;
     }
 }

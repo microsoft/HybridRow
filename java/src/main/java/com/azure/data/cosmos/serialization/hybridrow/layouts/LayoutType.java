@@ -4,7 +4,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -199,7 +198,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        if (edit.exists() && LayoutCodeTraits.Canonicalize(edit.cellType().layoutCode()) != code) {
+        if (edit.exists() && LayoutCodeTraits.canonicalize(edit.cellType().layoutCode()) != code) {
             return Result.TYPE_MISMATCH;
         }
 
@@ -209,7 +208,7 @@ public abstract class LayoutType<T> implements ILayoutType {
     /**
      * Helper for preparing the move of a sparse field into an existing restricted edit.
      *
-     * @param b                The row to read from.
+     * @param buffer                The row to read from.
      * @param destinationScope The parent set edit into which the field should be moved.
      * @param destinationCode  The expected type of the edit moving within.
      * @param elementType      The expected type of the elements within the edit.
@@ -219,8 +218,9 @@ public abstract class LayoutType<T> implements ILayoutType {
      * @return Success if the move is permitted, the error code otherwise.
      * The source field is delete if the move prepare fails with a destination error.
      */
+    @Nonnull
     public static Result prepareSparseMove(
-        RowBuffer b,
+        RowBuffer buffer,
         RowCursor destinationScope,
         LayoutScope destinationCode,
         TypeArgument elementType,
@@ -232,7 +232,7 @@ public abstract class LayoutType<T> implements ILayoutType {
         checkArgument(destinationScope.index() == 0, "Can only insert into a edit at the root");
 
         // Prepare the delete of the source
-        Result result = LayoutType.prepareSparseDelete(b, srcEdit, elementType.type().layoutCode());
+        Result result = LayoutType.prepareSparseDelete(buffer, srcEdit, elementType.type().layoutCode());
 
         if (result != Result.SUCCESS) {
             dstEdit.setAndGet(null);
@@ -245,33 +245,33 @@ public abstract class LayoutType<T> implements ILayoutType {
         }
 
         if (destinationScope.immutable()) {
-            b.deleteSparse(srcEdit);
+            buffer.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (!srcEdit.cellTypeArgs().equals(elementType.typeArgs())) {
-            b.deleteSparse(srcEdit);
+            buffer.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TYPE_CONSTRAINT;
         }
 
         if (options == UpdateOptions.InsertAt) {
-            b.deleteSparse(srcEdit);
+            buffer.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.TYPE_CONSTRAINT;
         }
 
         // Prepare the insertion at the destination.
-        dstEdit.setAndGet(b.prepareSparseMove(destinationScope, srcEdit));
+        dstEdit.setAndGet(buffer.prepareSparseMove(destinationScope, srcEdit));
         if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
-            b.deleteSparse(srcEdit);
+            buffer.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.NOT_FOUND;
         }
 
         if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
-            b.deleteSparse(srcEdit);
+            buffer.deleteSparse(srcEdit);
             dstEdit.setAndGet(null);
             return Result.EXISTS;
         }
@@ -282,19 +282,20 @@ public abstract class LayoutType<T> implements ILayoutType {
     /**
      * Helper for preparing the read of a sparse field.
      *
-     * @param b    The row to read from.
+     * @param buffer    The row to read from.
      * @param edit The parent edit containing the field to read.
      * @param code The expected type of the field.
      * @return Success if the read is permitted, the error code otherwise.
      */
+    @Nonnull
     public static Result prepareSparseRead(
-        @Nonnull final RowBuffer b, @Nonnull final RowCursor edit, @Nonnull LayoutCode code) {
+        @Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit, @Nonnull LayoutCode code) {
 
         if (!edit.exists()) {
             return Result.NOT_FOUND;
         }
 
-        if (LayoutCodeTraits.Canonicalize(edit.cellType().layoutCode()) != code) {
+        if (LayoutCodeTraits.canonicalize(edit.cellType().layoutCode()) != code) {
             return Result.TYPE_MISMATCH;
         }
 
@@ -304,14 +305,15 @@ public abstract class LayoutType<T> implements ILayoutType {
     /**
      * Helper for preparing the write of a sparse field.
      *
-     * @param b       The row to write to.
+     * @param buffer       The row to write to.
      * @param edit    The cursor for the field to write.
      * @param typeArg The (optional) type constraints.
      * @param options The write options.
      * @return Success if the write is permitted, the error code otherwise.
      */
+    @Nonnull
     public static Result prepareSparseWrite(
-        @Nonnull final RowBuffer b,
+        @Nonnull final RowBuffer buffer,
         @Nonnull final RowCursor edit,
         @Nonnull final TypeArgument typeArg,
         @Nonnull final UpdateOptions options) {
@@ -351,9 +353,11 @@ public abstract class LayoutType<T> implements ILayoutType {
         return Result.SUCCESS;
     }
 
-    public abstract Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column, Out<T> value);
+    @Nonnull
+    public abstract Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<T> value);
 
-    public abstract Result readSparse(RowBuffer b, RowCursor edit, Out<T> value);
+    @Nonnull
+    public abstract Result readSparse(RowBuffer buffer, RowCursor edit, Out<T> value);
 
     public static TypeArgument readTypeArgument(RowBuffer row, int offset, Out<Integer> lenInBytes) {
         LayoutType itemCode = row.readSparseTypeCode(offset);
@@ -370,8 +374,9 @@ public abstract class LayoutType<T> implements ILayoutType {
         return TypeArgumentList.EMPTY;
     }
 
-    public Result readVariable(RowBuffer b, RowCursor scope, LayoutColumn column, Out<T> value) {
-        value.setAndGet(null);
+    @Nonnull
+    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<T> value) {
+        value.set(null);
         return Result.FAILURE;
     }
 
@@ -390,18 +395,22 @@ public abstract class LayoutType<T> implements ILayoutType {
         return (Value)this;
     }
 
-    public abstract Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column, T value);
+    @Nonnull
+    public abstract Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, T value);
 
-    public abstract Result writeSparse(RowBuffer b, RowCursor edit, T value);
+    @Nonnull
+    public abstract Result writeSparse(RowBuffer buffer, RowCursor edit, T value);
 
-    public abstract Result writeSparse(RowBuffer b, RowCursor edit, T value, UpdateOptions options);
+    @Nonnull
+    public abstract Result writeSparse(RowBuffer buffer, RowCursor edit, T value, UpdateOptions options);
 
     public int writeTypeArgument(RowBuffer row, int offset, TypeArgumentList value) {
         row.writeSparseTypeCode(offset, this.layoutCode());
         return LayoutCode.BYTES;
     }
 
-    public Result writeVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, T value) {
+    @Nonnull
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, T value) {
         return Result.FAILURE;
     }
 

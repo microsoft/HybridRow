@@ -167,12 +167,12 @@ public enum TypeKind {
     /**
      * A set property, either typed or untyped.
      */
-    Set(25),
+    SET(25),
 
     /**
      * A map property, either typed or untyped.
      */
-    Map(26),
+    MAP(26),
 
     /**
      * A tuple property.  Tuples are typed, finite, ordered, sets.
@@ -182,7 +182,7 @@ public enum TypeKind {
     /**
      * A tagged property.  Tagged properties pair one or more typed values with an API-specific uint8 type code.
      */
-    Tagged(28),
+    TAGGED(28),
 
     /**
      * A row with schema.

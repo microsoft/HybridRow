@@ -8,14 +8,18 @@ import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
+import com.azure.data.cosmos.serialization.hybridrow.codecs.DateTimeCodec;
 
+import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutDateTime extends LayoutType<DateTime> {
+public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
+
     public LayoutDateTime() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.DATE_TIME, 8);
+        super(LayoutCode.DATE_TIME, DateTimeCodec.BYTES);
     }
 
     public boolean isFixed() {
@@ -27,60 +31,66 @@ public final class LayoutDateTime extends LayoutType<DateTime> {
     }
 
     @Override
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                            Out<LocalDateTime> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
-            value.setAndGet(LocalDateTime.MIN);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<OffsetDateTime> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(OffsetDateTime.MIN);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().readDateTime(scope.get().start() + col.getOffset()));
+        value.set(buffer.readDateTime(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                             Out<LocalDateTime> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<OffsetDateTime> value) {
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(LocalDateTime.MIN);
+            value.set(OffsetDateTime.MIN);
             return result;
         }
 
-        value.setAndGet(b.get().readSparseDateTime(edit));
+        value.set(buffer.readSparseDateTime(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             LocalDateTime value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, OffsetDateTime value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().writeDateTime(scope.get().start() + col.getOffset(), value);
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        return Result.SUCCESS;
-    }
-
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, DateTime value,
-    // UpdateOptions options = UpdateOptions.Upsert)
-    public Result writeSparse(Reference<RowBuffer> b, Reference<RowCursor> edit,
-                              LocalDateTime value, UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
-        if (result != Result.SUCCESS) {
-            return result;
-        }
-
-        b.get().writeSparseDateTime(edit, value, options);
+        buffer.writeDateTime(scope.start() + column.offset(), value);
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, DateTime value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer b, RowCursor edit, OffsetDateTime value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg(), options);
+
+        if (result != Result.SUCCESS) {
+            return result;
+        }
+
+        b.writeSparseDateTime(edit, value, options);
+        return Result.SUCCESS;
+    }
+
+    @Override
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, OffsetDateTime value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

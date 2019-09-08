@@ -9,11 +9,14 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.serialization.hybridrow.Float128> {
+public final class LayoutFloat128 extends LayoutType<Float128> {
+
     public LayoutFloat128() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.FLOAT_128, HybridRow.Float128.Size);
+        super(LayoutCode.FLOAT_128, Float128.BYTES);
     }
 
     public boolean isFixed() {
@@ -25,61 +28,67 @@ public final class LayoutFloat128 extends LayoutType<com.azure.data.cosmos.seria
     }
 
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                            Out<Float128> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Float128> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
             value.setAndGet(null);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().ReadFloat128(scope.get().start() + column.getOffset()).clone());
+        value.setAndGet(buffer.readFloat128(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
-                             Out<Float128> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Float128> value) {
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseFloat128(edit).clone());
+        value.setAndGet(buffer.readSparseFloat128(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
-                             Float128 value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Float128 value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().writeFloat128(scope.get().start() + column.getOffset(), value);
-        b.get().SetBit(scope.get().start(), column.getNullBit().clone());
+        buffer.writeFloat128(scope.start() + column.offset(), value);
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, Float128 value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, Float128 value,
-                              UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Float128 value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().WriteSparseFloat128(edit, value.clone(), options);
+        buffer.writeSparseFloat128(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeSparse(RowBuffer b, RowCursor edit, Float128 value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Float128 value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 }

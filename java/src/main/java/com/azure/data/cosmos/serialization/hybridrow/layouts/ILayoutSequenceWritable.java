@@ -3,33 +3,24 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import java.util.List;
+
 /**
- * An optional interface that indicates a {@link LayoutType{T}} can also write using a {@link ReadOnlySequence{T}}.
+ * An optional interface that indicates a {@link LayoutType{T}} can also write using a read-only {@link List{T}}.
  *
- * <typeparam name="TElement">The sub-element type to be written.</typeparam>
+ * @param <TElement> The sub-element type to be written
  */
 public interface ILayoutSequenceWritable<TElement> extends ILayoutType {
 
-    Result WriteFixed(
-        Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, ReadOnlySequence<TElement> value);
+    Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn col, List<TElement> value);
 
-    Result WriteSparse(
-        Reference<RowBuffer> b, Reference<RowCursor> edit, ReadOnlySequence<TElement> value);
+    Result writeSparse(RowBuffer buffer, RowCursor edit, List<TElement> value);
 
-    // C# TO JAVA CONVERTER NOTE:
-    // Java does not support optional parameters, hence overloaded method(s) are created
-    // ORIGINAL LINE:
-    // Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ReadOnlySequence<TElement> value, UpdateOptions
-    // options = UpdateOptions.Upsert);
+    Result writeSparse(RowBuffer buffer, RowCursor edit, List<TElement> value, UpdateOptions options);
 
-    Result WriteSparse(
-        Reference<RowBuffer> b, Reference<RowCursor> edit, ReadOnlySequence<TElement> value, UpdateOptions options);
-
-    Result WriteVariable(
-        Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col, ReadOnlySequence<TElement> value);
+    Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<TElement> value);
 }

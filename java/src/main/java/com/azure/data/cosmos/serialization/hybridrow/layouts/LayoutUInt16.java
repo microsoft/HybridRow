@@ -30,30 +30,30 @@ public final class LayoutUInt16 extends LayoutType<Short> {
     //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
     // ushort value)
     @Override
-    public Result readFixed(RowBuffer b, RowCursor scope, LayoutColumn column,
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
                             Out<Short> value) {
         checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
+        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
             value.setAndGet(0);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().ReadUInt16(scope.get().start() + column.getOffset()));
+        value.setAndGet(buffer.get().ReadUInt16(scope.get().start() + column.getOffset()));
         return Result.SUCCESS;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ushort value)
     @Override
-    public Result readSparse(RowBuffer b, RowCursor edit,
+    public Result readSparse(RowBuffer buffer, RowCursor edit,
                              Out<Short> value) {
-        Result result = prepareSparseRead(b, edit, this.LayoutCode);
+        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
         if (result != Result.SUCCESS) {
             value.setAndGet(0);
             return result;
         }
 
-        value.setAndGet(b.get().ReadSparseUInt16(edit));
+        value.setAndGet(buffer.get().ReadSparseUInt16(edit));
         return Result.SUCCESS;
     }
 
