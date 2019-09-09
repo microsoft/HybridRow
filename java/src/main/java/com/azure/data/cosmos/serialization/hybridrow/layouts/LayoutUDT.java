@@ -4,61 +4,68 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class LayoutUDT extends LayoutPropertyScope {
+
     public LayoutUDT(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_SCHEMA :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SCHEMA, immutable);
+        super(immutable ? LayoutCode.IMMUTABLE_SCHEMA : LayoutCode.SCHEMA, immutable);
     }
 
+    @Override
+    public int countTypeArgument(@Nonnull TypeArgumentList value) {
+        checkNotNull(value, "expected non-null value");
+        return LayoutCode.BYTES + SchemaId.BYTES;
+    }
+
+    @Override
+    @Nonnull
     public String name() {
-        return this.Immutable ? "im_udt" : "udt";
-    }
-
-    public int countTypeArgument(TypeArgumentList value) {
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.BYTES;
+        return this.isImmutable() ? "im_udt" : "udt";
     }
 
     @Override
-    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
-                                                 Out<Integer> lenInBytes) {
-        SchemaId schemaId = row.get().readSchemaId(offset).clone();
-        lenInBytes.setAndGet(SchemaId.BYTES);
-        return new TypeArgumentList(schemaId.clone());
+    @Nonnull
+    public TypeArgumentList readTypeArgumentList(RowBuffer row, int offset, Out<Integer> lenInBytes) {
+        SchemaId schemaId = row.readSchemaId(offset);
+        lenInBytes.set(SchemaId.BYTES);
+        return new TypeArgumentList(schemaId);
     }
 
     @Override
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
+    @Nonnull
+    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
-    // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Layout udt = buffer.get().resolver().resolve(typeArgs.schemaId().clone());
-        Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs.clone()), options);
+    @Nonnull
+    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options,
+                             Out<RowCursor> value) {
+
+        Layout udt = buffer.resolver().resolve(typeArgs.schemaId());
+        Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        buffer.get().WriteSparseUDT(edit, this, udt, options, value.clone());
+        value.set(buffer.writeSparseUDT(edit, this, udt, options));
         return Result.SUCCESS;
     }
 
     @Override
-    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
-        row.get().writeSparseTypeCode(offset, this.LayoutCode);
-        row.get().writeSchemaId(offset + (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE), value.schemaId().clone());
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + SchemaId.BYTES;
+    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
+        buffer.writeSparseTypeCode(offset, this.layoutCode());
+        buffer.writeSchemaId(offset + LayoutCode.BYTES, value.schemaId());
+        return LayoutCode.BYTES + SchemaId.BYTES;
     }
 }

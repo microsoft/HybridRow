@@ -22,6 +22,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "float64";
     }
@@ -91,6 +92,6 @@ public final class LayoutFloat64 extends LayoutType<Double> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Double value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

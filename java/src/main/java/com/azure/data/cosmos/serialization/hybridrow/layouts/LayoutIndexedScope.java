@@ -18,7 +18,7 @@ public abstract class LayoutIndexedScope extends LayoutScope {
     }
 
     @Override
-    public void readSparsePath(@Nonnull final RowBuffer row, @Nonnull final RowCursor edit) {
+    public void readSparsePath(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit) {
         edit.pathToken(0);
         edit.pathOffset(0);
     }

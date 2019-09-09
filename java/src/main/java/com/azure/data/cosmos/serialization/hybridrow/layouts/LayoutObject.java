@@ -8,43 +8,46 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 public final class LayoutObject extends LayoutPropertyScope {
-    private TypeArgument TypeArg = new TypeArgument();
+
+    private TypeArgument typeArg;
 
     public LayoutObject(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_OBJECT_SCOPE :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.OBJECT_SCOPE, immutable);
-        this.TypeArg = new TypeArgument(this);
+        super(immutable ? LayoutCode.IMMUTABLE_OBJECT_SCOPE : LayoutCode.OBJECT_SCOPE, immutable);
+        this.typeArg = new TypeArgument(this);
     }
 
+    @Override
+    @Nonnull
     public String name() {
-        return this.Immutable ? "im_object" : "object";
+        return this.isImmutable() ? "im_object" : "object";
     }
 
     public TypeArgument typeArg() {
-        return TypeArg;
+        return this.typeArg;
     }
 
 
     @Override
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
+    @Nonnull
+    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
-    // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
             return result;
         }
 
-        buffer.get().WriteSparseObject(edit, this, options, value.clone());
+        value.set(buffer.writeSparseObject(edit, this, options));
         return Result.SUCCESS;
     }
 }

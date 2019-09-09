@@ -3,14 +3,15 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 /**
  * Describes the desired behavior when writing a {@link LayoutType}.
  */
 public enum UpdateOptions {
 
-    None(0),
+    NONE(0),
 
     /**
      * Overwrite an existing value.
@@ -19,35 +20,34 @@ public enum UpdateOptions {
      * replaced inline.  The remainder of the row is resized to accomodate either an increase or decrease
      * in required space.
      */
-    Update(1),
+    UPDATE(1),
 
     /**
-     * Insert a new value.
+     * Insert a new value
      * <p>
-     * An existing value is assumed NOT to exist at the offset provided.  The new value is
-     * inserted immediately at the offset.  The remainder of the row is resized to accomodate either an
-     * increase or decrease in required space.
+     * An existing value is assumed NOT to exist at the offset provided.  The new value is inserted immediately at the
+     * offset. The remainder of the row is resized to accommodate either an increase or decrease in required space.
      */
-    Insert(2),
+    INSERT(2),
 
     /**
-     * Update an existing value or insert a new value, if no value exists.
+     * Update an existing value or insert a new value, if no value exists
      * <p>
-     * If a value exists, then this operation becomes {@link Update}, otherwise it becomes
-     * {@link Insert}.
+     * If a value exists, then this operation becomes {@link #UPDATE}, otherwise it becomes {@link #INSERT}.
      */
-    Upsert(3),
+    UPSERT(3),
 
     /**
      * Insert a new value moving existing values to the right.
      * <p>
      * Within an array scope, inserts a new value immediately at the index moving all subsequent
-     * items to the right. In any other scope behaves the same as {@link Upsert}.
+     * items to the right. In any other scope behaves the same as {@link #UPSERT}.
      */
-    InsertAt(4);
+    INSERT_AT(4);
 
-    public static final int SIZE = java.lang.Integer.SIZE;
-    private static java.util.HashMap<Integer, UpdateOptions> mappings;
+    public static final int BYTES = Integer.BYTES;
+
+    private static Int2ObjectMap<UpdateOptions> mappings;
     private int value;
 
     UpdateOptions(int value) {
@@ -55,19 +55,19 @@ public enum UpdateOptions {
         mappings().put(value, this);
     }
 
-    public int value() {
-        return this.value;
-    }
-
     public static UpdateOptions from(int value) {
         return mappings().get(value);
     }
 
-    private static java.util.HashMap<Integer, UpdateOptions> mappings() {
+    public int value() {
+        return this.value;
+    }
+
+    private static Int2ObjectMap<UpdateOptions> mappings() {
         if (mappings == null) {
             synchronized (UpdateOptions.class) {
                 if (mappings == null) {
-                    mappings = new HashMap<>();
+                    mappings = new Int2ObjectOpenHashMap<>();
                 }
             }
         }

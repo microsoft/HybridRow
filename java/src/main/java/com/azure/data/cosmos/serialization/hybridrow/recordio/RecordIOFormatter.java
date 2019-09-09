@@ -13,8 +13,9 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.SystemSchema;
 
 public final class RecordIOFormatter {
-    public static final Layout RecordLayout = SystemSchema.LayoutResolver.resolve(SystemSchema.RecordSchemaId);
-    public static final Layout SegmentLayout = SystemSchema.LayoutResolver.resolve(SystemSchema.SegmentSchemaId);
+
+    public static final Layout RECORD_LAYOUT = SystemSchema.layoutResolver.resolve(SystemSchema.RECORD_SCHEMA_ID);
+    public static final Layout SEGMENT_LAYOUT = SystemSchema.layoutResolver.resolve(SystemSchema.SEGMENT_SCHEMA_ID);
 
     public static Result FormatRecord(ReadOnlyMemory<Byte> body, Out<RowBuffer> row) {
         return FormatRecord(body, row, null);
@@ -29,12 +30,12 @@ public final class RecordIOFormatter {
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
-        int estimatedSize = HybridRowHeader.BYTES + RecordIOFormatter.RecordLayout.getSize() + body.Length;
+        int estimatedSize = HybridRowHeader.BYTES + RecordIOFormatter.RECORD_LAYOUT.getSize() + body.Length;
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: uint crc32 = Crc32.Update(0, body.Span);
         int crc32 = Crc32.Update(0, body.Span);
         Record record = new Record(body.Length, crc32);
-        return RecordIOFormatter.FormatObject(resizer, estimatedSize, RecordIOFormatter.RecordLayout, record.clone(),
+        return RecordIOFormatter.FormatObject(resizer, estimatedSize, RecordIOFormatter.RECORD_LAYOUT, record.clone(),
             RecordSerializer.Write, row.clone());
     }
 
@@ -51,11 +52,11 @@ public final class RecordIOFormatter {
         //ORIGINAL LINE: resizer = resizer != null ? resizer : DefaultSpanResizer<byte>.Default;
         resizer = resizer != null ? resizer : DefaultSpanResizer < Byte >.Default;
         int estimatedSize =
-            HybridRowHeader.BYTES + RecordIOFormatter.SegmentLayout.getSize() + segment.Comment == null ? null :
-                segment.Comment.length() != null ? segment.Comment.length() : 0 + segment.SDL == null ? null :
-                    segment.SDL.length() != null ? segment.SDL.length() : 0 + 20;
+            HybridRowHeader.BYTES + RecordIOFormatter.SEGMENT_LAYOUT.getSize() + segment.comment() == null ? null :
+                segment.comment().length() != null ? segment.comment().length() : 0 + segment.sdl() == null ? null :
+                    segment.sdl().length() != null ? segment.sdl().length() : 0 + 20;
 
-        return RecordIOFormatter.FormatObject(resizer, estimatedSize, RecordIOFormatter.SegmentLayout,
+        return RecordIOFormatter.FormatObject(resizer, estimatedSize, RecordIOFormatter.SEGMENT_LAYOUT,
             segment.clone(), SegmentSerializer.Write, row.clone());
     }
 
@@ -65,7 +66,7 @@ public final class RecordIOFormatter {
     private static <T> Result FormatObject(ISpanResizer<Byte> resizer, int initialCapacity, Layout layout, T obj,
                                            RowWriter.WriterFunc<T> writer, Out<RowBuffer> row) {
         row.setAndGet(new RowBuffer(initialCapacity, resizer));
-        row.get().initLayout(HybridRowVersion.V1, layout, SystemSchema.LayoutResolver);
+        row.get().initLayout(HybridRowVersion.V1, layout, SystemSchema.layoutResolver);
         Result r = RowWriter.WriteBuffer(row.clone(), obj, writer);
         if (r != Result.SUCCESS) {
             row.setAndGet(null);

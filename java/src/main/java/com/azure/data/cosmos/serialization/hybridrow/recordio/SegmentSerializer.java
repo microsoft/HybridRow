@@ -43,7 +43,7 @@ public final class SegmentSerializer {
 
                     // If the RowBuffer isn't big enough to contain the rest of the header, then just
                     // return the length.
-                    if (reader.get().length() < obj.get().Length) {
+                    if (reader.get().length() < obj.get().length()) {
                         return Result.SUCCESS;
                     }
 
@@ -74,15 +74,15 @@ public final class SegmentSerializer {
 
     public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Segment obj) {
         Result r;
-        if (obj.Comment != null) {
-            r = writer.get().WriteString("comment", obj.Comment);
+        if (obj.comment() != null) {
+            r = writer.get().WriteString("comment", obj.comment());
             if (r != Result.SUCCESS) {
                 return r;
             }
         }
 
-        if (obj.SDL != null) {
-            r = writer.get().WriteString("sdl", obj.SDL);
+        if (obj.sdl() != null) {
+            r = writer.get().WriteString("sdl", obj.sdl());
             if (r != Result.SUCCESS) {
                 return r;
             }

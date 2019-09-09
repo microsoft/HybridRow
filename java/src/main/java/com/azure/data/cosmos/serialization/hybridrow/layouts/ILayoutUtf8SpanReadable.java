@@ -9,14 +9,19 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 /**
  * An optional interface that indicates a {@link LayoutType{T}} can also read using a {@link Utf8String}.
  */
 public interface ILayoutUtf8SpanReadable extends ILayoutType {
 
-    Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);
+    @Nonnull
+    Result readFixedSpan(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);
 
-    Result readSparse(RowBuffer buffer, RowCursor scope, Out<Utf8String> value);
+    @Nonnull
+    Result readSparseSpan(RowBuffer buffer, RowCursor scope, Out<Utf8String> value);
 
-    Result ReadVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);
+    @Nonnull
+    Result readVariableSpan(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);
 }

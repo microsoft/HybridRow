@@ -32,7 +32,7 @@ public class BenchmarkSuiteBase {
     //C# TO JAVA CONVERTER WARNING: Java has no equivalent to C# 'private protected' access:
     //ORIGINAL LINE: private protected LayoutResolverNamespace DefaultResolver = (LayoutResolverNamespace)
     // SystemSchema.LayoutResolver;
-    protected LayoutResolverNamespace DefaultResolver = (LayoutResolverNamespace)SystemSchema.LayoutResolver;
+    protected LayoutResolverNamespace DefaultResolver = (LayoutResolverNamespace)SystemSchema.layoutResolver;
 
     // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
     //	private protected async Task<(List<Dictionary<Utf8String, object>>, LayoutResolverNamespace)>

@@ -3,35 +3,35 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1051 // Do not declare visible instance fields
-
-
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: public struct Record
 public final class Record {
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public uint Crc32;
-    public int Crc32;
-    public int Length;
 
-    public Record() {
+    public static Record empty() {
+        return new Record(0, 0);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Record(int length, uint crc32)
+    private int crc32;
+    private int length;
+
     public Record(int length, int crc32) {
-        this.Length = length;
-        this.Crc32 = crc32;
+        this.length = length;
+        this.crc32 = crc32;
     }
 
-    public Record clone() {
-        Record varCopy = new Record();
+    public int crc32() {
+        return this.crc32;
+    }
 
-        varCopy.Length = this.Length;
-        varCopy.Crc32 = this.Crc32;
+    public Record crc32(int value) {
+        this.crc32 = value;
+        return this;
+    }
 
-        return varCopy;
+    public int length() {
+        return this.length;
+    }
+
+    public Record length(int value) {
+        this.length = value;
+        return this;
     }
 }

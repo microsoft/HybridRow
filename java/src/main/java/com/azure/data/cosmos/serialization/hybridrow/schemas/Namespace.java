@@ -6,6 +6,7 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
 import com.azure.data.cosmos.core.Json;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class Namespace {
@@ -38,8 +39,9 @@ public class Namespace {
      * Namespaces may consist of zero or more table schemas along with zero or more UDT schemas.
      * Table schemas can only reference UDT schemas defined in the same namespace.  UDT schemas can
      * contain nested UDTs whose schemas are defined within the same namespace.
+     * @return
      */
-    public final ArrayList<Schema> schemas() {
+    public final List<Schema> schemas() {
         return this.schemas;
     }
 

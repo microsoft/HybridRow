@@ -7,6 +7,10 @@ import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Schema;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.concurrent.ConcurrentHashMap;
+
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
@@ -19,55 +23,38 @@ import static com.google.common.base.Strings.lenientFormat;
  * All members of this class are multi-thread safe.
  */
 public final class LayoutResolverNamespace extends LayoutResolver {
-    private java.util.concurrent.ConcurrentHashMap<Integer, Layout> layoutCache;
-    private LayoutResolver parent;
-    private Namespace schemaNamespace;
 
+    private final ConcurrentHashMap<SchemaId, Layout> layoutCache;
+    private final LayoutResolver parent;
+    private final Namespace schemaNamespace;
 
-    public LayoutResolverNamespace(Namespace schemaNamespace) {
+    public LayoutResolverNamespace(@Nonnull final Namespace schemaNamespace) {
         this(schemaNamespace, null);
     }
 
-    public LayoutResolverNamespace(Namespace schemaNamespace, LayoutResolver parent) {
+    public LayoutResolverNamespace(@Nonnull final Namespace schemaNamespace, @Nullable final LayoutResolver parent) {
         this.schemaNamespace = schemaNamespace;
         this.parent = parent;
-        this.layoutCache = new java.util.concurrent.ConcurrentHashMap<Integer, Layout>();
+        this.layoutCache = new ConcurrentHashMap<>();
     }
 
-    public Namespace getNamespace() {
+    public Namespace namespace() {
         return this.schemaNamespace;
     }
 
     @Override
     public Layout resolve(SchemaId schemaId) {
-        Layout layout;
-        // TODO: C# TO JAVA CONVERTER: There is no Java ConcurrentHashMap equivalent to this .NET
-        // ConcurrentDictionary method:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (this.layoutCache.TryGetValue(schemaId.value(), out layout)) {
-            return layout;
-        }
 
-        for (Schema s : this.schemaNamespace.schemas()) {
-            if (SchemaId.opEquals(s.schemaId().clone(),
-                schemaId.clone())) {
-                layout = s.compile(this.schemaNamespace);
-                layout = this.layoutCache.putIfAbsent(schemaId.value(), layout);
-                return layout;
+        Layout layout = this.layoutCache.computeIfAbsent(schemaId, id -> {
+            for (Schema schema : this.namespace().schemas()) {
+                if (schema.schemaId().equals(id)) {
+                    return schema.compile(this.schemaNamespace);
+                }
             }
-        }
+            return this.parent == null ? null : this.parent.resolve(schemaId);
+        });
 
-        layout = this.parent == null ? null : this.parent.resolve(schemaId.clone());
-        if (layout != null) {
-            // TODO: C# TO JAVA CONVERTER: There is no Java ConcurrentHashMap equivalent to this .NET
-            // ConcurrentDictionary method:
-            boolean succeeded = this.layoutCache.TryAdd(schemaId.value(), layout);
-            checkState(succeeded);
-            return layout;
-        }
-
-        throw new IllegalStateException(lenientFormat("Failed to resolve schema %s", schemaId.clone()));
+        checkState(layout != null, "failed to resolve schema %s", schemaId);
         return null;
     }
 }

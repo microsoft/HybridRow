@@ -24,6 +24,7 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "decimal";
     }
@@ -86,6 +87,6 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, BigDecimal value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

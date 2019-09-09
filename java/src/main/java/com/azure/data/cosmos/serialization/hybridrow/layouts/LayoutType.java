@@ -11,6 +11,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.lenientFormat;
 
 /**
@@ -23,7 +24,7 @@ import static com.google.common.base.Strings.lenientFormat;
  */
 public abstract class LayoutType<T> implements ILayoutType {
 
-    private static final LayoutType[] CodeIndex = new LayoutType[LayoutCode.END_SCOPE.value() + 1];
+    private static final LayoutType[] codeIndex = new LayoutType[LayoutCode.END_SCOPE.value() + 1];
 
     private final boolean immutable;
     private final LayoutCode layoutCode;
@@ -33,12 +34,16 @@ public abstract class LayoutType<T> implements ILayoutType {
     /**
      * Initializes a new instance of the {@link LayoutType<T>} class.
      */
-    protected LayoutType(LayoutCode code, boolean immutable, int size) {
+    protected LayoutType(@Nonnull final LayoutCode code, final boolean immutable, final int size) {
+
+        checkNotNull(code, "expected non-null code");
+
         this.layoutCode = code;
         this.immutable = immutable;
         this.size = size;
         this.typeArg = new TypeArgument(this);
-        CodeIndex[code.value()] = this;
+
+        codeIndex[code.value()] = this;
     }
 
     /**
@@ -89,11 +94,12 @@ public abstract class LayoutType<T> implements ILayoutType {
         return !this.isFixed();
     }
 
-    public int countTypeArgument(TypeArgumentList value) {
+    public int countTypeArgument(@Nonnull TypeArgumentList value) {
         return LayoutCode.BYTES;
     }
 
-    public final Result deleteFixed(RowBuffer b, RowCursor scope, LayoutColumn column) {
+    @Nonnull
+    public final Result deleteFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -106,7 +112,7 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.TYPE_MISMATCH;
         }
 
-        b.unsetBit(scope.start(), column.nullBit());
+        buffer.unsetBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
@@ -115,18 +121,19 @@ public abstract class LayoutType<T> implements ILayoutType {
      * <p>
      * If a value exists, then it is removed.  The remainder of the row is resized to accomodate
      * a decrease in required space.  If no value exists this operation is a no-op.
-     * @param b
+     * @param buffer
      * @param edit
      */
-    public final Result deleteSparse(RowBuffer b, RowCursor edit) {
+    @Nonnull
+    public final Result deleteSparse(RowBuffer buffer, RowCursor edit) {
 
-        Result result = LayoutType.prepareSparseDelete(b, edit, this.layoutCode());
+        Result result = LayoutType.prepareSparseDelete(buffer, edit, this.layoutCode());
 
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.deleteSparse(edit);
+        buffer.deleteSparse(edit);
         return Result.SUCCESS;
     }
 
@@ -136,7 +143,8 @@ public abstract class LayoutType<T> implements ILayoutType {
      * If a value exists, then it is removed.  The remainder of the row is resized to accommodate a decrease in
      * required space.  If no value exists this operation is a no-op.
      */
-    public final Result deleteVariable(RowBuffer b, RowCursor scope, LayoutColumn column) {
+    @Nonnull
+    public final Result deleteVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -144,25 +152,27 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        boolean exists = b.readBit(scope.start(), column.nullBit());
+        boolean exists = buffer.readBit(scope.start(), column.nullBit());
 
         if (exists) {
-            int varOffset = b.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
-            b.deleteVariable(varOffset, this.isVarint());
-            b.unsetBit(scope.start(), column.nullBit());
+            int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+            buffer.deleteVariable(varOffset, this.isVarint());
+            buffer.unsetBit(scope.start(), column.nullBit());
         }
 
         return Result.SUCCESS;
     }
 
+    @Nonnull
     public static LayoutType fromCode(LayoutCode code) {
-        LayoutType type = LayoutType.CodeIndex[code.value()];
+        LayoutType type = LayoutType.codeIndex[code.value()];
         assert type != null : lenientFormat("Not Implemented: %s", code);
         return type;
     }
 
-    public final Result hasValue(RowBuffer b, RowCursor scope, LayoutColumn column) {
-        if (!b.readBit(scope.start(), column.nullBit())) {
+    @Nonnull
+    public final Result hasValue(RowBuffer buffer, RowCursor scope, LayoutColumn column) {
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
             return Result.NOT_FOUND;
         }
         return Result.SUCCESS;
@@ -171,6 +181,7 @@ public abstract class LayoutType<T> implements ILayoutType {
     /**
      * The physical layout code used to represent the type within the serialization.
      */
+    @Nonnull
     public LayoutCode layoutCode() {
         return this.layoutCode;
     }
@@ -178,17 +189,19 @@ public abstract class LayoutType<T> implements ILayoutType {
     /**
      * Human readable name of the type.
      */
+    @Nonnull
     public abstract String name();
 
     /**
      * Helper for preparing the delete of a sparse field.
      *
-     * @param b    The row to delete from.
+     * @param buffer    The row to delete from.
      * @param edit The parent edit containing the field to delete.
      * @param code The expected type of the field.
      * @return Success if the delete is permitted, the error code otherwise.
      */
-    public static Result prepareSparseDelete(RowBuffer b, RowCursor edit, LayoutCode code) {
+    @Nonnull
+    public static Result prepareSparseDelete(RowBuffer buffer, RowCursor edit, LayoutCode code) {
 
         if (edit.scopeType().isFixedArity()) {
             return Result.TYPE_CONSTRAINT;
@@ -226,8 +239,8 @@ public abstract class LayoutType<T> implements ILayoutType {
         TypeArgument elementType,
         RowCursor srcEdit,
         UpdateOptions options,
-        Out<RowCursor> dstEdit
-    ) {
+        Out<RowCursor> dstEdit) {
+
         checkArgument(destinationScope.scopeType() == destinationCode);
         checkArgument(destinationScope.index() == 0, "Can only insert into a edit at the root");
 
@@ -235,44 +248,45 @@ public abstract class LayoutType<T> implements ILayoutType {
         Result result = LayoutType.prepareSparseDelete(buffer, srcEdit, elementType.type().layoutCode());
 
         if (result != Result.SUCCESS) {
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return result;
         }
 
         if (!srcEdit.exists()) {
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return Result.NOT_FOUND;
         }
 
         if (destinationScope.immutable()) {
             buffer.deleteSparse(srcEdit);
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
         if (!srcEdit.cellTypeArgs().equals(elementType.typeArgs())) {
             buffer.deleteSparse(srcEdit);
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return Result.TYPE_CONSTRAINT;
         }
 
-        if (options == UpdateOptions.InsertAt) {
+        if (options == UpdateOptions.INSERT_AT) {
             buffer.deleteSparse(srcEdit);
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return Result.TYPE_CONSTRAINT;
         }
 
         // Prepare the insertion at the destination.
-        dstEdit.setAndGet(buffer.prepareSparseMove(destinationScope, srcEdit));
-        if ((options == UpdateOptions.Update) && (!dstEdit.get().exists())) {
+        dstEdit.set(buffer.prepareSparseMove(destinationScope, srcEdit));
+
+        if ((options == UpdateOptions.UPDATE) && (!dstEdit.get().exists())) {
             buffer.deleteSparse(srcEdit);
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return Result.NOT_FOUND;
         }
 
-        if ((options == UpdateOptions.Insert) && dstEdit.get().exists()) {
+        if ((options == UpdateOptions.INSERT) && dstEdit.get().exists()) {
             buffer.deleteSparse(srcEdit);
-            dstEdit.setAndGet(null);
+            dstEdit.set(null);
             return Result.EXISTS;
         }
 
@@ -334,19 +348,19 @@ public abstract class LayoutType<T> implements ILayoutType {
             return Result.TYPE_CONSTRAINT;
         }
 
-        if ((options == UpdateOptions.InsertAt) && edit.scopeType().isFixedArity()) {
+        if ((options == UpdateOptions.INSERT_AT) && edit.scopeType().isFixedArity()) {
             return Result.TYPE_CONSTRAINT;
         }
 
-        if ((options == UpdateOptions.InsertAt) && !edit.scopeType().isFixedArity()) {
+        if ((options == UpdateOptions.INSERT_AT) && !edit.scopeType().isFixedArity()) {
             edit.exists(false); // InsertAt never overwrites an existing item.
         }
 
-        if ((options == UpdateOptions.Update) && (!edit.exists())) {
+        if ((options == UpdateOptions.UPDATE) && (!edit.exists())) {
             return Result.NOT_FOUND;
         }
 
-        if ((options == UpdateOptions.Insert) && edit.exists()) {
+        if ((options == UpdateOptions.INSERT) && edit.exists()) {
             return Result.EXISTS;
         }
 
@@ -359,23 +373,45 @@ public abstract class LayoutType<T> implements ILayoutType {
     @Nonnull
     public abstract Result readSparse(RowBuffer buffer, RowCursor edit, Out<T> value);
 
-    public static TypeArgument readTypeArgument(RowBuffer row, int offset, Out<Integer> lenInBytes) {
-        LayoutType itemCode = row.readSparseTypeCode(offset);
-        int argsLenInBytes;
-        Out<Integer> tempOut_argsLenInBytes = new Out<>();
-        TypeArgumentList itemTypeArgs = itemCode.readTypeArgumentList(row, offset + LayoutCode.BYTES, tempOut_argsLenInBytes);
-        argsLenInBytes = tempOut_argsLenInBytes.get();
-        lenInBytes.setAndGet(LayoutCode.BYTES + argsLenInBytes);
-        return new TypeArgument(itemCode, itemTypeArgs);
+    @Nonnull
+    public static TypeArgument readTypeArgument(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(lengthInBytes, "expected non-null lengthInBytes");
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+
+        LayoutType type = buffer.readSparseTypeCode(offset);
+        TypeArgumentList typeArgs = type.readTypeArgumentList(buffer, offset + LayoutCode.BYTES, lengthInBytes);
+        lengthInBytes.set(LayoutCode.BYTES + lengthInBytes.get());
+
+        return new TypeArgument(type, typeArgs);
     }
 
-    public TypeArgumentList readTypeArgumentList(RowBuffer row, int offset, Out<Integer> lenInBytes) {
-        lenInBytes.setAndGet(0);
+    @Nonnull
+    public TypeArgumentList readTypeArgumentList(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(lengthInBytes, "expected non-null lengthInBytes");
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+
+        lengthInBytes.set(0);
         return TypeArgumentList.EMPTY;
     }
 
     @Nonnull
-    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<T> value) {
+    public Result readVariable(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Out<T> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(value, "expected non-null value");
+
         value.set(null);
         return Result.FAILURE;
     }
@@ -404,8 +440,8 @@ public abstract class LayoutType<T> implements ILayoutType {
     @Nonnull
     public abstract Result writeSparse(RowBuffer buffer, RowCursor edit, T value, UpdateOptions options);
 
-    public int writeTypeArgument(RowBuffer row, int offset, TypeArgumentList value) {
-        row.writeSparseTypeCode(offset, this.layoutCode());
+    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
+        buffer.writeSparseTypeCode(offset, this.layoutCode());
         return LayoutCode.BYTES;
     }
 

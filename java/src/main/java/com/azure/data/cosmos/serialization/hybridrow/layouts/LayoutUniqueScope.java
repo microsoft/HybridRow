@@ -21,6 +21,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
         super(code, immutable, isSizedScope, false, true, isTypedScope);
     }
 
+    @Nonnull
     public abstract TypeArgument fieldType(RowCursor scope);
 
     /**
@@ -35,10 +36,11 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
      * @return Success a matching field exists in the unique index, NotFound if no match is found, the error code
      * otherwise.
      */
+    @Nonnull
     public final Result find(RowBuffer buffer, RowCursor scope, RowCursor patternScope, Out<RowCursor> value) {
 
         Result result = LayoutType.prepareSparseMove(buffer, scope, this, this.fieldType(scope), patternScope,
-            UpdateOptions.Update, value);
+            UpdateOptions.UPDATE, value);
 
         if (result != Result.SUCCESS) {
             return result;
@@ -60,6 +62,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
      * @param options          The move options.
      * @return Success if the field is permitted within the unique index, the error code otherwise.
      */
+    @Nonnull
     public final Result moveField(
         RowBuffer buffer, RowCursor destinationScope, RowCursor sourceEdit, UpdateOptions options) {
 
@@ -94,8 +97,9 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
      * <para />
      * The source field is delete whether the move succeeds or fails.
      */
+    @Nonnull
     public final Result moveField(RowBuffer buffer, RowCursor destinationScope, RowCursor sourceEdit) {
-        return this.moveField(buffer, destinationScope, sourceEdit, UpdateOptions.Upsert);
+        return this.moveField(buffer, destinationScope, sourceEdit, UpdateOptions.UPSERT);
     }
 
     @Override
@@ -146,6 +150,6 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
     @Nonnull
     public <TContext> Result writeScope(
         RowBuffer buffer, RowCursor scope, TypeArgumentList typeArgs, TContext context, WriterFunc<TContext> func) {
-        return this.writeScope(buffer, scope, typeArgs, context, func, UpdateOptions.Upsert);
+        return this.writeScope(buffer, scope, typeArgs, context, func, UpdateOptions.UPSERT);
     }
 }

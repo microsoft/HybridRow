@@ -23,6 +23,7 @@ public final class LayoutFloat128 extends LayoutType<Float128> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "float128";
     }
@@ -89,6 +90,6 @@ public final class LayoutFloat128 extends LayoutType<Float128> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Float128 value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

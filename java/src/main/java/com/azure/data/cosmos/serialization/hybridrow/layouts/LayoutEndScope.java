@@ -16,21 +16,33 @@ public final class LayoutEndScope extends LayoutScope {
         super(LayoutCode.END_SCOPE, false, false, false, false, false, false);
     }
 
+    @Nonnull
     public String name() {
         return "end";
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor scope, TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return this.writeScope(buffer, scope, typeArgs, UpdateOptions.Upsert, value);
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final Out<RowCursor> value) {
+        return this.writeScope(buffer, scope, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor scope, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options,
+        @Nonnull final Out<RowCursor> value) {
+
         assert false : "cannot write an EndScope directly";
         value.set(null);
+
         return Result.FAILURE;
     }
 }

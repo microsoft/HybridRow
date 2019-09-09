@@ -24,6 +24,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "guid";
     }
@@ -90,6 +91,6 @@ public final class LayoutGuid extends LayoutType<UUID> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, UUID value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

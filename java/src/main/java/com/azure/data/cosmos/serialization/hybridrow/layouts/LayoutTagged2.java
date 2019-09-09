@@ -10,26 +10,25 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 import javax.annotation.Nonnull;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class LayoutTagged2 extends LayoutIndexedScope {
 
     public LayoutTagged2(boolean immutable) {
         super(
-            immutable ? LayoutCode.IMMUTABLE_TAGGED2_SCOPE : LayoutCode.TAGGED2_SCOPE,
-            immutable, true, true, false, true
+            immutable ? LayoutCode.IMMUTABLE_TAGGED2_SCOPE : LayoutCode.TAGGED2_SCOPE, immutable,
+            true, true, false, true
         );
     }
 
-    public int countTypeArgument(TypeArgumentList value) {
+    @Override
+    public int countTypeArgument(@Nonnull TypeArgumentList value) {
+        checkNotNull(value, "expected non-null value");
         checkState(value.count() == 3);
-        int lenInBytes = LayoutCode.BYTES;
-        for (int i = 1; i < value.count(); i++) {
-            TypeArgument arg = value.get(i);
-            lenInBytes += arg.type().countTypeArgument(arg.typeArgs());
-        }
-
-        return lenInBytes;
+        return value.stream()
+            .map(arg -> arg.type().countTypeArgument(arg.typeArgs()))
+            .reduce(LayoutCode.BYTES, Integer::sum);
     }
 
     @Override
@@ -39,6 +38,8 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
         return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.scopeTypeArgs().get(edit.index()).type().layoutCode());
     }
 
+    @Override
+    @Nonnull
     public String name() {
         return this.isImmutable() ? "im_tagged2_t" : "tagged2_t";
     }
@@ -69,11 +70,10 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     @Override
     @Nonnull
     public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
+        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
-    @Nonnull
     @Nonnull
     public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options,
                              Out<RowCursor> value) {
@@ -90,16 +90,16 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     }
 
     @Override
-    public int writeTypeArgument(RowBuffer row, int offset, TypeArgumentList value) {
+    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
 
         checkState(value.count() == 3);
 
-        row.writeSparseTypeCode(offset, this.layoutCode());
+        buffer.writeSparseTypeCode(offset, this.layoutCode());
         int lenInBytes = LayoutCode.BYTES;
 
         for (int i = 1; i < value.count(); i++) {
             TypeArgument arg = value.get(i);
-            lenInBytes += arg.type().writeTypeArgument(row, offset + lenInBytes, arg.typeArgs());
+            lenInBytes += arg.type().writeTypeArgument(buffer, offset + lenInBytes, arg.typeArgs());
         }
 
         return lenInBytes;

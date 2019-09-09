@@ -4,36 +4,52 @@
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
+import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
+import com.azure.data.cosmos.serialization.hybridrow.io.RowWriter;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
+
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public final class RecordSerializer {
-    public static Result Read(Reference<RowReader> reader, Out<Record> obj) {
-        obj.setAndGet(null);
-        while (reader.get().Read()) {
-            Result r;
 
-            // TODO: use Path tokens here.
-            switch (reader.get().getPath().toString()) {
+    @Nonnull
+    public static Result read(RowReader reader, Out<Record> record) {
+
+        Out<Integer> value = new Out<>();
+        record.set(Record.empty());
+
+        while (reader.read()) {
+
+            String path = reader.path().toUtf16();
+            checkState(path != null);
+            Result result;
+
+            // TODO: use Path tokens here
+
+            switch (path) {
+
                 case "length":
-                    Out<Integer> tempOut_Length = new Out<Integer>();
-                    r = reader.get().ReadInt32(tempOut_Length);
-                    obj.get().argValue.Length = tempOut_Length.get();
-                    if (r != Result.SUCCESS) {
-                        return r;
-                    }
 
+                    result = reader.readInt32(value);
+                    record.get().length(value.get());
+
+                    if (result != Result.SUCCESS) {
+                        return result;
+                    }
                     break;
-                case "crc32":
-                    Out<Integer> tempOut_Crc32 = new Out<Integer>();
-                    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-                    //ORIGINAL LINE: r = reader.ReadUInt32(out obj.Crc32);
-                    r = reader.get().ReadUInt32(tempOut_Crc32);
-                    obj.get().argValue.Crc32 = tempOut_Crc32.get();
-                    if (r != Result.SUCCESS) {
-                        return r;
-                    }
 
+                case "crc32":
+
+                    result = reader.readInt32(value);
+                    record.get().crc32(value.get());
+
+                    if (result != Result.SUCCESS) {
+                        return result;
+                    }
                     break;
             }
         }
@@ -41,14 +57,12 @@ public final class RecordSerializer {
         return Result.SUCCESS;
     }
 
-    public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, Record obj) {
-        Result r;
-        r = writer.get().WriteInt32("length", obj.Length);
-        if (r != Result.SUCCESS) {
-            return r;
+    @Nonnull
+    public static Result write(RowWriter writer, TypeArgument typeArg, Record record) {
+        Result result = writer.writeInt32(new UtfAnyString("length"), record.length());
+        if (result != Result.SUCCESS) {
+            return result;
         }
-
-        r = writer.get().WriteUInt32("crc32", obj.Crc32);
-        return r;
+        return writer.writeUInt32(new UtfAnyString("crc32"), record.crc32());
     }
 }

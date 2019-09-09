@@ -117,7 +117,7 @@ public final class RecordIOStream {
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: Result r = parser.Process(avail, out RecordIOParser.ProductionType prodType, out
                 // Memory<byte> record, out need, out int consumed);
-                Result r = parser.Process(avail, tempOut_prodType, tempOut_record, tempOut_need, tempOut_consumed);
+                Result r = parser.process(avail, tempOut_prodType, tempOut_record, tempOut_need, tempOut_consumed);
                 consumed = tempOut_consumed.get();
                 need = tempOut_need.get();
                 record = tempOut_record.get();
@@ -145,7 +145,7 @@ public final class RecordIOStream {
                 }
 
                 // Validate the Segment
-                if (prodType == RecordIOParser.ProductionType.Segment) {
+                if (prodType == RecordIOParser.ProductionType.SEGMENT) {
                     checkState(!record.IsEmpty);
                     r = visitSegment == null ? null : visitSegment.invoke(record) != null ?
                         visitSegment.invoke(record) : Result.SUCCESS;
@@ -155,7 +155,7 @@ public final class RecordIOStream {
                 }
 
                 // Consume the record.
-                if (prodType == RecordIOParser.ProductionType.Record) {
+                if (prodType == RecordIOParser.ProductionType.RECORD) {
                     checkState(!record.IsEmpty);
 
                     r = visitRecord.invoke(record);

@@ -132,10 +132,10 @@ public abstract class LayoutScope extends LayoutType {
         return Result.SUCCESS;
     }
 
-    public void readSparsePath(@Nonnull final RowBuffer row, @Nonnull final RowCursor edit) {
+    public void readSparsePath(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit) {
         Out<Integer> pathLenInBytes = new Out<>();
         Out<Integer> pathOffset = new Out<>();
-        edit.pathToken(row.readSparsePathLen(edit.layout(), edit.valueOffset(), pathLenInBytes, pathOffset));
+        edit.pathToken(buffer.readSparsePathLen(edit.layout(), edit.valueOffset(), pathLenInBytes, pathOffset));
         edit.pathOffset(pathOffset.get());
         edit.valueOffset(edit.valueOffset() + pathLenInBytes.get());
     }
@@ -163,7 +163,7 @@ public abstract class LayoutScope extends LayoutType {
         RowCursor scope,
         TypeArgumentList typeArgs,
         TContext context, WriterFunc<TContext> func) {
-        return this.writeScope(buffer, scope, typeArgs, context, func, UpdateOptions.Upsert);
+        return this.writeScope(buffer, scope, typeArgs, context, func, UpdateOptions.UPSERT);
     }
 
     @Nonnull

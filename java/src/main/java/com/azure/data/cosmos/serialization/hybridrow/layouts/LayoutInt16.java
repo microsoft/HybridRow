@@ -22,6 +22,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "int16";
     }
@@ -88,6 +89,6 @@ public final class LayoutInt16 extends LayoutType<Short> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Short value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

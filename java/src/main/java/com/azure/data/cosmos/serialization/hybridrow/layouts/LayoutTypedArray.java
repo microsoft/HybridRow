@@ -4,74 +4,96 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 public final class LayoutTypedArray extends LayoutIndexedScope {
+
     public LayoutTypedArray(boolean immutable) {
         super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_TYPED_ARRAY_SCOPE :
             com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TYPED_ARRAY_SCOPE, immutable, true, false, false, true);
     }
 
-    public String name() {
-        return this.Immutable ? "im_array_t" : "array_t";
-    }
-
-    public int countTypeArgument(TypeArgumentList value) {
+    @Override
+    public int countTypeArgument(@Nonnull TypeArgumentList value) {
+        checkNotNull(value, "expected non-null value");
         checkState(value.count() == 1);
-        return (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE) + value.get(0).type().CountTypeArgument(value.get(0).typeArgs().clone());
+        return LayoutCode.BYTES + value.get(0).type().countTypeArgument(value.get(0).typeArgs());
     }
 
     @Override
-    public boolean HasImplicitTypeCode(Reference<RowCursor> edit) {
-        checkState(edit.get().index() >= 0);
-        checkState(edit.get().scopeTypeArgs().count() == 1);
-        return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.get().scopeTypeArgs().get(0).type().LayoutCode);
+    public boolean hasImplicitTypeCode(RowCursor edit) {
+        checkState(edit.index() >= 0);
+        checkState(edit.scopeTypeArgs().count() == 1);
+        return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.scopeTypeArgs().get(0).type().layoutCode());
     }
 
     @Override
-    public TypeArgumentList readTypeArgumentList(Reference<RowBuffer> row, int offset,
-                                                 Out<Integer> lenInBytes) {
-        return new TypeArgumentList(new TypeArgument[] { LayoutType.readTypeArgument(row, offset, lenInBytes) });
+    @Nonnull
+    public String name() {
+        return this.isImmutable() ? "im_array_t" : "array_t";
     }
 
     @Override
-    public void setImplicitTypeCode(RowCursor edit) {
-        edit.get().cellType = edit.get().scopeTypeArgs().get(0).type();
-        edit.get().cellTypeArgs = edit.get().scopeTypeArgs().get(0).typeArgs().clone();
+    @Nonnull
+    public TypeArgumentList readTypeArgumentList(RowBuffer buffer, int offset, Out<Integer> lenInBytes) {
+        return new TypeArgumentList(LayoutType.readTypeArgument(buffer, offset, lenInBytes));
     }
 
     @Override
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, Out<RowCursor> value) {
-        return writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
+    public void setImplicitTypeCode(@Nonnull final RowCursor edit) {
+        edit.cellType(edit.scopeTypeArgs().get(0).type());
+        edit.cellTypeArgs(edit.scopeTypeArgs().get(0).typeArgs());
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteScope(ref RowBuffer b, ref RowCursor edit, TypeArgumentList
-    // typeArgs, out RowCursor value, UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
-        Result result = LayoutType.prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs.clone()), options);
+    @Nonnull
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final Out<RowCursor> value) {
+        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
+    }
+
+    @Override
+    @Nonnull
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options,
+        @Nonnull final Out<RowCursor> value) {
+
+        final TypeArgument typeArg = new TypeArgument(this, typeArgs);
+        final Result result = LayoutType.prepareSparseWrite(buffer, edit, typeArg, options);
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        buffer.get().WriteTypedArray(edit, this, typeArgs.clone(), options, value.clone());
+        value.set(buffer.writeTypedArray(edit, this, typeArgs, options));
         return Result.SUCCESS;
     }
 
     @Override
-    public int writeTypeArgument(Reference<RowBuffer> row, int offset, TypeArgumentList value) {
+    public int writeTypeArgument(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final TypeArgumentList value) {
+
         checkState(value.count() == 1);
-        row.get().writeSparseTypeCode(offset, this.LayoutCode);
-        int lenInBytes = (com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.SIZE / Byte.SIZE);
-        lenInBytes += value.get(0).type().writeTypeArgument(row, offset + lenInBytes,
-            value.get(0).typeArgs().clone());
-        return lenInBytes;
+
+        TypeArgument typeArg = value.get(0);
+        buffer.writeSparseTypeCode(offset, this.layoutCode());
+
+        return LayoutCode.BYTES + typeArg.type().writeTypeArgument(
+            buffer, offset + LayoutCode.BYTES, typeArg.typeArgs()
+        );
     }
 }

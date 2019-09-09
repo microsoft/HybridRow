@@ -3,34 +3,27 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
-// TODO: C# TO JAVA CONVERTER: There is no preprocessor in Java:
-///#pragma warning disable CA1051 // Do not declare visible instance fields
-
-
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: public struct Segment
 public final class Segment {
-    public String Comment;
-    public int Length;
-    public String SDL;
 
-    public Segment() {
-    }
+    private final String comment;
+    private final int length;
+    private final String sdl;
 
     public Segment(String comment, String sdl) {
-        this.Length = 0;
-        this.Comment = comment;
-        this.SDL = sdl;
+        this.comment = comment;
+        this.sdl = sdl;
+        this.length = 0;
     }
 
-    public Segment clone() {
-        Segment varCopy = new Segment();
+    public String comment() {
+        return this.comment;
+    }
 
-        varCopy.Length = this.Length;
-        varCopy.Comment = this.Comment;
-        varCopy.SDL = this.SDL;
+    public int length() {
+        return this.length;
+    }
 
-        return varCopy;
+    public String sdl() {
+        return this.sdl;
     }
 }

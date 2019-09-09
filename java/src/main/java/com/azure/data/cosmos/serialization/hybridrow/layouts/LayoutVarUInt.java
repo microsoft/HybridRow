@@ -4,18 +4,18 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public sealed class LayoutVarUInt : LayoutType<ulong>
 public final class LayoutVarUInt extends LayoutType<Long> {
+
     public LayoutVarUInt() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.VAR_UINT, 0);
+        super(LayoutCode.VAR_UINT, 0);
     }
 
     public boolean isFixed() {
@@ -26,104 +26,95 @@ public final class LayoutVarUInt extends LayoutType<Long> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "varuint";
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
-    // ulong value)
     @Override
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                            Out<Long> value) {
-        Contract.Fail("Not Implemented");
-        value.setAndGet(0);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
+        assert false : "not implemented";
+        value.set(0L);
         return Result.FAILURE;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out ulong value)
     @Override
+    @Nonnull
     public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Long> value) {
-        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
+
+        Result result = prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(0);
+            value.set(0L);
             return result;
         }
 
-        value.setAndGet(buffer.get().readSparseVarUInt(edit));
+        value.set(buffer.readSparseVarUInt(edit));
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
-    // ulong value)
     @Override
-    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(0);
+    @Nonnull
+    public Result readVariable(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Long> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(0L);
             return Result.NOT_FOUND;
         }
 
-        int varOffset = buffer.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            column.getOffset());
-        value.setAndGet(buffer.get().ReadVariableUInt(varOffset));
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+        value.set(buffer.readVariableUInt(varOffset));
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, ulong
-    // value)
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             long value) {
-        Contract.Fail("Not Implemented");
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Long value) {
+        assert false : "not implemented";
         return Result.FAILURE;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ulong value,
-    // UpdateOptions options = UpdateOptions.Upsert)
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value,
-                              UpdateOptions options) {
-        Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value, UpdateOptions options) {
+
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseVarUInt(edit, value, options);
+        buffer.writeSparseVarUInt(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
-    // ulong value)
     @Override
-    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
-                                LayoutColumn col, long value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn col, Long value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
-        int shift;
-        Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().writeVariableUInt(varOffset, value, exists, tempOut_shift);
-        shift = tempOut_shift.get();
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        scope.get().metaOffset(scope.get().metaOffset() + shift);
-        scope.get().valueOffset(scope.get().valueOffset() + shift);
+        final boolean exists = buffer.readBit(scope.start(), col.nullBit());
+        final int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), col.offset());
+        final int shift = buffer.writeVariableUInt(varOffset, value, exists);
+
+        buffer.setBit(scope.start(), col.nullBit());
+        scope.metaOffset(scope.metaOffset() + shift);
+        scope.valueOffset(scope.valueOffset() + shift);
+
         return Result.SUCCESS;
     }
 }

@@ -4,93 +4,92 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public sealed class LayoutUInt8 : LayoutType<byte>
-public final class LayoutUInt8 extends LayoutType<Byte> {
+public final class LayoutUInt8 extends LayoutType<Short> {
+
     public LayoutUInt8() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.UINT_8, 1);
+        super(LayoutCode.UINT_8, 1);
     }
 
     public boolean isFixed() {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "uint8";
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
-    // byte value)
     @Override
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                            Out<Byte> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(0);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Short> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set((short) 0);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(buffer.get().ReadUInt8(scope.get().start() + column.getOffset()));
+        value.set(buffer.readUInt8(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte value)
     @Override
-    public Result readSparse(RowBuffer buffer, RowCursor edit,
-                             Out<Byte> value) {
-        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Short> value) {
+
+        Result result = prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(0);
+            value.set((short) 0);
             return result;
         }
 
-        value.setAndGet(buffer.get().ReadSparseUInt8(edit));
+        value.set(buffer.readSparseUInt8(edit));
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, byte
-    // value)
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             byte value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Short value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        b.get().writeUInt8(scope.get().start() + col.getOffset(), value);
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
+        buffer.writeUInt8(scope.start() + column.offset(), value.byteValue());
+        buffer.setBit(scope.start(), column.nullBit());
+
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, byte value,
-    // UpdateOptions options = UpdateOptions.Upsert)
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte value,
-                              UpdateOptions options) {
-        Result result = prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Short value, UpdateOptions options) {
+
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseUInt8(edit, value, options);
+        buffer.writeSparseUInt8(edit, value.byteValue(), options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, byte value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Short value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

@@ -19,7 +19,7 @@ public final class Out<T> {
     private volatile T value;
 
     public T get() {
-        return value;
+        return this.value;
     }
 
     public void set(T value) {
@@ -38,7 +38,7 @@ public final class Out<T> {
      * @return {@code true} if there is a value present, otherwise {@code false}
      */
     public boolean isPresent() {
-        return value != null;
+        return this.value != null;
     }
 
     /**
@@ -63,7 +63,7 @@ public final class Out<T> {
             return false;
         }
 
-        return Objects.equals(value, ((Out)other).value);
+        return Objects.equals(this.value, ((Out)other).value);
     }
 
     /**
@@ -74,11 +74,11 @@ public final class Out<T> {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(value);
+        return Objects.hashCode(this.value);
     }
 
     @Override
     public String toString() {
-        return value == null ? "null" : value.toString();
+        return this.value == null ? "null" : this.value.toString();
     }
 }

@@ -115,7 +115,7 @@ public final class RowBuffer {
      */
     public RowBuffer(final int capacity, @Nonnull final ByteBufAllocator allocator) {
         checkArgument(capacity > 0, "capacity: %s", capacity);
-        checkNotNull(allocator, "allocator");
+        checkNotNull(allocator, "expected non-null allocator");
         this.buffer = allocator.buffer(capacity);
         this.resolver = null;
     }
@@ -308,9 +308,9 @@ public final class RowBuffer {
      */
     public void initLayout(HybridRowVersion version, Layout layout, LayoutResolver resolver) {
 
-        checkNotNull(version, "version");
-        checkNotNull(layout, "layout");
-        checkNotNull(resolver, "resolver");
+        checkNotNull(version, "expected non-null version");
+        checkNotNull(layout, "expected non-null layout");
+        checkNotNull(resolver, "expected non-null resolver");
 
         this.writeHeader(new HybridRowHeader(version, layout.schemaId()));
         this.buffer.writeZero(layout.size());
@@ -1336,7 +1336,7 @@ public final class RowBuffer {
         @Nonnull final RowCursor edit, @Nonnull final LayoutScope scope, @Nonnull final UpdateOptions options) {
 
         checkNotNull(edit, "expected non-null edit");
-        checkNotNull(scope, "expected non-null scopeType");
+        checkNotNull(scope, "expected non-null scope");
         checkNotNull(options, "expected non-null options");
 
         int length = LayoutCode.BYTES;
@@ -2185,11 +2185,10 @@ public final class RowBuffer {
         checkState(this.length() == priorLength + shift.get());
     }
 
-    public void writeVariableInt(int offset, long value, boolean exists, Out<Integer> shift) {
-
-        checkNotNull(shift, "expected non-null shift");
+    public int writeVariableInt(int offset, long value, boolean exists) {
 
         final int length = RowBuffer.count7BitEncodedInt(value);
+        final Out<Integer> shift = new Out<>();
         final Out<Integer> spaceNeeded = new Out<>();
 
         final int priorLength = this.length();
@@ -2200,35 +2199,38 @@ public final class RowBuffer {
         checkState(item.length == length);
         checkState(spaceNeeded.get() == length);
         checkState(this.length() == priorLength + shift.get());
+
+        return shift.get();
     }
 
-    public void writeVariableString(
-        final int offset, @Nonnull final Utf8String value, final boolean exists, @Nonnull final Out<Integer> shift) {
+    public int writeVariableString(
+        final int offset, @Nonnull final Utf8String value, final boolean exists) {
 
         checkNotNull(value, "expected non-null value");
-        checkNotNull(shift, "expected non-null shift");
         checkArgument(!value.isNull(), "expected non-null value content");
         checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
 
         final int length = value.encodedLength();
+        final Out<Integer> shift = new Out<>();
         final Out<Integer> spaceNeeded = new Out<>();
 
         final int priorLength = this.length();
 
         this.ensureVariable(offset, false, length, exists, spaceNeeded, shift);
-
         Item<Utf8String> item = this.write(this::writeVariableString, offset, value);
+
         checkState(spaceNeeded.get() == length + item.length());
         checkState(this.length() == priorLength + shift.get());
+
+        return shift.get();
     }
 
-    public void writeVariableUInt(
-        final int offset, final long value, final boolean exists, @Nonnull final Out<Integer> shift) {
+    public int writeVariableUInt(final int offset, final long value, final boolean exists) {
 
-        checkNotNull(shift, "expected non-null shift");
         checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
 
         final int length = RowBuffer.count7BitEncodedUInt(value);
+        final Out<Integer> shift = new Out<>();
         final Out<Integer> spaceNeeded = new Out<>();
 
         final int priorLength = this.length();
@@ -2239,6 +2241,8 @@ public final class RowBuffer {
         checkState(item.length == length);
         checkState(spaceNeeded.get() == length);
         checkState(this.length() == priorLength + shift.get());
+
+        return shift.get();
     }
 
     /**
@@ -2505,7 +2509,7 @@ public final class RowBuffer {
     ) {
 
         checkNotNull(edit, "expected non-null edit");
-        checkNotNull(type, "expected non-null cellType");
+        checkNotNull(type, "expected non-null type");
         checkNotNull(typeArgs, "expected non-null typeArgs");
         checkNotNull(options, "expected non-null options");
         checkNotNull(metaBytes, "expected non-null metaBytes");

@@ -22,6 +22,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "int32";
     }
@@ -87,7 +88,7 @@ public final class LayoutInt32 extends LayoutType<Integer> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer b, RowCursor edit, Integer value) {
-        return this.writeSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Integer value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

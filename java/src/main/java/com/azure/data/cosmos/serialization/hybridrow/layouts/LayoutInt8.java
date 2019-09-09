@@ -22,6 +22,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "int8";
     }
@@ -88,6 +89,6 @@ public final class LayoutInt8 extends LayoutType<Byte> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Byte value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

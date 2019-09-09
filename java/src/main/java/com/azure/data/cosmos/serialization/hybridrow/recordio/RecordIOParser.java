@@ -12,75 +12,73 @@ import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.SystemSchema;
+import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ
-// from the original:
-//ORIGINAL LINE: public struct RecordIOParser
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkState;
+
 public final class RecordIOParser {
-    private Record record = new Record();
-    private Segment segment = new Segment();
+
+    private Record record;
+    private Segment segment;
     private State state = State.values()[0];
 
     /**
-     * True if a valid segment has been parsed.
-     */
-    public boolean getHaveSegment() {
-        return this.state.getValue() >= State.NeedHeader.getValue();
-    }
-
-    /**
-     * If a valid segment has been parsed then current active segment, otherwise undefined.
-     */
-    public Segment getSegment() {
-        checkArgument(this.getHaveSegment());
-        return this.segment.clone();
-    }
-
-    /**
-     * Processes one buffers worth of data possibly advancing the parser state.
+     * Processes one buffers worth of data possibly advancing the parser state
      *
-     * @param buffer   The buffer to consume.
-     * @param type     Indicates the type of Hybrid Row produced in <paramref name="record" />.
-     * @param record   If non-empty, then the body of the next record in the sequence.
-     * @param need     The smallest number of bytes needed to advanced the parser state further. It is
-     *                 recommended that Process not be called again until at least this number of bytes are available.
-     * @param consumed The number of bytes consumed from the input buffer. This number may be less
-     *                 than the total buffer size if the parser moved to a new state.
-     * @return {@link azure.data.cosmos.serialization.hybridrow.Result.Success} if no error
-     * has occurred, otherwise a valid
-     * {@link azure.data.cosmos.serialization.hybridrow.Result} of the last error encountered
-     * during parsing.
+     * @param buffer1   The buffer to consume
+     * @param type     Indicates the type of Hybrid Row produced in {@code record}
+     * @param record   If non-empty, then the body of the next record in the sequence
+     * @param need     The smallest number of bytes needed to advanced the parser state further
+     *                 <p>
+     *                 It is recommended that this method not be called again until at least this number of bytes are
+     *                 available.
+     * @param consumed The number of bytes consumed from the input buffer
+     *                 <p>
+     *                 This number may be less than the total buffer size if the parser moved to a new state.
+     * @return {@link Result#SUCCESS} if no error has occurred;, otherwise the {@link Result} of the last error
+     * encountered during parsing.
      * <p>
      * >
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result Process(Memory<byte> buffer, out ProductionType type, out Memory<byte> record, out
-    // int need, out int consumed)
-    public Result Process(Memory<Byte> buffer, Out<ProductionType> type,
-                          Out<Memory<Byte>> record, Out<Integer> need,
-                          Out<Integer> consumed) {
-        Result r = Result.FAILURE;
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: Memory<byte> b = buffer;
-        Memory<Byte> b = buffer;
-        type.setAndGet(ProductionType.None);
-        record.setAndGet(null);
+    @Nonnull
+    public Result process(
+        @Nonnull final ByteBuf buffer,
+        @Nonnull final Out<ProductionType> type,
+        @Nonnull final Out<ByteBuf> record,
+        @Nonnull final Out<Integer> need,
+        @Nonnull final Out<Integer> consumed) {
+
+        Result result = Result.FAILURE;
+        type.set(ProductionType.NONE);
+        record.set(null);
+
+        final int start = buffer.readerIndex();
+
         switch (this.state) {
-            case Start:
-                this.state = State.NeedSegmentLength;
+
+            case STATE:
+                this.state = State.NEED_SEGMENT_LENGTH;
                 // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-            case NeedSegmentLength: {
-                int minimalSegmentRowSize = HybridRowHeader.BYTES + RecordIOFormatter.SegmentLayout.getSize();
-                if (b.Length < minimalSegmentRowSize) {
-                    need.setAndGet(minimalSegmentRowSize);
-                    consumed.setAndGet(buffer.Length - b.Length);
+                //  goto case State.NeedSegmentLength;
+
+            case NEED_SEGMENT_LENGTH: {
+
+                final int minimalSegmentRowSize = HybridRowHeader.BYTES + RecordIOFormatter.SEGMENT_LAYOUT.size();
+
+                if (buffer.readableBytes() < minimalSegmentRowSize) {
+                    consumed.set(buffer.readerIndex() - start);
+                    need.set(minimalSegmentRowSize);
                     return Result.INSUFFICIENT_BUFFER;
                 }
 
-                //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-                //ORIGINAL LINE: Span<byte> span = b.Span.Slice(0, minimalSegmentRowSize);
-                Span<Byte> span = b.Span.Slice(0, minimalSegmentRowSize);
-                RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
+                ByteBuf span = buffer.slice(buffer.readerIndex(), minimalSegmentRowSize);
+                RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.layoutResolver);
                 Reference<RowBuffer> tempReference_row =
                     new Reference<RowBuffer>(row);
                 RowReader reader = new RowReader(tempReference_row);
@@ -89,29 +87,29 @@ public final class RecordIOParser {
                     new Reference<RowReader>(reader);
                 Out<Segment> tempOut_segment =
                     new Out<Segment>();
-                r = SegmentSerializer.Read(tempReference_reader, tempOut_segment);
+                result = SegmentSerializer.Read(tempReference_reader, tempOut_segment);
                 this.segment = tempOut_segment.get();
                 reader = tempReference_reader.get();
-                if (r != Result.SUCCESS) {
+                if (result != Result.SUCCESS) {
                     break;
                 }
 
-                this.state = State.NeedSegment;
+                this.state = State.NEED_SEGMENT;
                 // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-				goto case State.NeedSegment
+				goto case State.NEED_SEGMENT
             }
 
-            case NeedSegment: {
-                if (b.Length < this.segment.Length) {
-                    need.setAndGet(this.segment.Length);
-                    consumed.setAndGet(buffer.Length - b.Length);
+            case NEED_SEGMENT: {
+                if (buffer.Length < this.segment.length()) {
+                    need.set(this.segment.length());
+                    consumed.set(buffer.Length - buffer.Length);
                     return Result.INSUFFICIENT_BUFFER;
                 }
 
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: Span<byte> span = b.Span.Slice(0, this.segment.Length);
-                Span<Byte> span = b.Span.Slice(0, this.segment.Length);
-                RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
+                Span<Byte> span = buffer.Span.Slice(0, this.segment.length());
+                RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.layoutResolver);
                 Reference<RowBuffer> tempReference_row2 =
                     new Reference<RowBuffer>(row);
                 RowReader reader = new RowReader(tempReference_row2);
@@ -120,26 +118,26 @@ public final class RecordIOParser {
                     new Reference<RowReader>(reader);
                 Out<Segment> tempOut_segment2
                     = new Out<Segment>();
-                r = SegmentSerializer.Read(tempReference_reader2, tempOut_segment2);
+                result = SegmentSerializer.Read(tempReference_reader2, tempOut_segment2);
                 this.segment = tempOut_segment2.get();
                 reader = tempReference_reader2.get();
-                if (r != Result.SUCCESS) {
+                if (result != Result.SUCCESS) {
                     break;
                 }
 
-                record.setAndGet(b.Slice(0, span.Length));
-                b = b.Slice(span.Length);
-                need.setAndGet(0);
-                this.state = State.NeedHeader;
-                consumed.setAndGet(buffer.Length - b.Length);
-                type.setAndGet(ProductionType.Segment);
+                record.set(buffer.Slice(0, span.Length));
+                buffer = buffer.Slice(span.Length);
+                need.set(0);
+                this.state = State.NEED_HEADER;
+                consumed.set(buffer.Length - buffer.Length);
+                type.set(ProductionType.SEGMENT);
                 return Result.SUCCESS;
             }
 
-            case NeedHeader: {
-                if (b.Length < HybridRowHeader.BYTES) {
-                    need.setAndGet(HybridRowHeader.BYTES);
-                    consumed.setAndGet(buffer.Length - b.Length);
+            case NEED_HEADER: {
+                if (buffer.Length < HybridRowHeader.BYTES) {
+                    need.set(HybridRowHeader.BYTES);
+                    consumed.set(buffer.Length - buffer.Length);
                     return Result.INSUFFICIENT_BUFFER;
                 }
 
@@ -147,100 +145,105 @@ public final class RecordIOParser {
                 // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword -
                 // these cannot be converted using the 'Out' helper class unless the method is within the code
                 // being modified:
-                MemoryMarshal.TryRead(b.Span, out header);
+                MemoryMarshal.TryRead(buffer.Span, out header);
                 if (header.Version != HybridRowVersion.V1) {
-                    r = Result.INVALID_ROW;
+                    result = Result.INVALID_ROW;
                     break;
                 }
 
                 if (SchemaId.opEquals(header.SchemaId,
-                    SystemSchema.SegmentSchemaId)) {
+                    SystemSchema.SEGMENT_SCHEMA_ID)) {
                     // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-					goto case State.NeedSegment
+					goto case State.NEED_SEGMENT
                 }
 
                 if (SchemaId.opEquals(header.SchemaId,
-                    SystemSchema.RecordSchemaId)) {
+                    SystemSchema.RECORD_SCHEMA_ID)) {
                     // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-					goto case State.NeedRecord
+					goto case State.NEED_RECORD
                 }
 
-                r = Result.INVALID_ROW;
+                result = Result.INVALID_ROW;
                 break;
             }
 
-            case NeedRecord: {
-                int minimalRecordRowSize = HybridRowHeader.BYTES + RecordIOFormatter.RecordLayout.getSize();
-                if (b.Length < minimalRecordRowSize) {
-                    need.setAndGet(minimalRecordRowSize);
-                    consumed.setAndGet(buffer.Length - b.Length);
+            case NEED_RECORD: {
+                int minimalRecordRowSize = HybridRowHeader.BYTES + RecordIOFormatter.RECORD_LAYOUT.size();
+                if (buffer.Length < minimalRecordRowSize) {
+                    need.set(minimalRecordRowSize);
+                    consumed.set(buffer.Length - buffer.Length);
                     return Result.INSUFFICIENT_BUFFER;
                 }
 
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: Span<byte> span = b.Span.Slice(0, minimalRecordRowSize);
-                Span<Byte> span = b.Span.Slice(0, minimalRecordRowSize);
-                RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.LayoutResolver);
+                Span<Byte> span = buffer.Span.Slice(0, minimalRecordRowSize);
+                RowBuffer row = new RowBuffer(span, HybridRowVersion.V1, SystemSchema.layoutResolver);
                 Reference<RowBuffer> tempReference_row3 =
                     new Reference<RowBuffer>(row);
                 RowReader reader = new RowReader(tempReference_row3);
                 row = tempReference_row3.get();
                 Reference<RowReader> tempReference_reader3 = new Reference<RowReader>(reader);
                 Out<Record> tempOut_record = new Out<Record>();
-                r = RecordSerializer.Read(tempReference_reader3, tempOut_record);
+                result = RecordSerializer.read(tempReference_reader3, tempOut_record);
                 this.record = tempOut_record.get();
                 reader = tempReference_reader3.get();
-                if (r != Result.SUCCESS) {
+                if (result != Result.SUCCESS) {
                     break;
                 }
 
-                b = b.Slice(span.Length);
-                this.state = State.NeedRow;
+                buffer = buffer.Slice(span.Length);
+                this.state = State.NEED_ROW;
                 // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-				goto case State.NeedRow
+				goto case State.NEED_ROW
             }
 
-            case NeedRow: {
-                if (b.Length < this.record.Length) {
-                    need.setAndGet(this.record.Length);
-                    consumed.setAndGet(buffer.Length - b.Length);
+            case NEED_ROW: {
+                if (buffer.Length < this.record.length()) {
+                    need.set(this.record.length());
+                    consumed.set(buffer.Length - buffer.Length);
                     return Result.INSUFFICIENT_BUFFER;
                 }
 
-                record.setAndGet(b.Slice(0, this.record.Length));
+                record.set(buffer.Slice(0, this.record.length()));
 
                 // Validate that the record has not been corrupted.
                 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
                 //ORIGINAL LINE: uint crc32 = Crc32.Update(0, record.Span);
                 int crc32 = Crc32.Update(0, record.get().Span);
-                if (crc32 != this.record.Crc32) {
-                    r = Result.INVALID_ROW;
+                if (crc32 != this.record.crc32()) {
+                    result = Result.INVALID_ROW;
                     break;
                 }
 
-                b = b.Slice(this.record.Length);
-                need.setAndGet(0);
-                this.state = State.NeedHeader;
-                consumed.setAndGet(buffer.Length - b.Length);
-                type.setAndGet(ProductionType.Record);
+                buffer = buffer.Slice(this.record.length());
+                need.set(0);
+                this.state = State.NEED_HEADER;
+                consumed.set(buffer.Length - buffer.Length);
+                type.set(ProductionType.RECORD);
                 return Result.SUCCESS;
             }
         }
 
-        this.state = State.Error;
-        need.setAndGet(0);
-        consumed.setAndGet(buffer.Length - b.Length);
-        return r;
+        this.state = State.ERROR;
+        need.set(0);
+        consumed.set(buffer.Length - buffer.Length);
+        return result;
     }
 
-    public RecordIOParser clone() {
-        RecordIOParser varCopy = new RecordIOParser();
+    /**
+     * True if a valid segment has been parsed.
+     */
+    public boolean haveSegment() {
+        return this.state.value() >= State.NEED_HEADER.value();
+    }
 
-        varCopy.state = this.state;
-        varCopy.segment = this.segment.clone();
-        varCopy.record = this.record.clone();
-
-        return varCopy;
+    /**
+     * If a valid segment has been parsed then current active segment, otherwise undefined.
+     */
+    public Segment segment() {
+        checkState(this.haveSegment());
+        return this.segment;
     }
 
     /**
@@ -250,40 +253,41 @@ public final class RecordIOParser {
         /**
          * No hybrid row was produced. The parser needs more data.
          */
-        None(0),
+        NONE(0),
 
         /**
          * A new segment row was produced.
          */
-        Segment(1),
+        SEGMENT(1),
 
         /**
          * A record in the current segment was produced.
          */
-        Record(2);
+        RECORD(2);
 
-        public static final int SIZE = java.lang.Integer.SIZE;
-        private static java.util.HashMap<Integer, ProductionType> mappings;
-        private int intValue;
+        public static final int BYTES = Integer.BYTES;
+
+        private static Int2ObjectMap<ProductionType> mappings;
+        private int value;
 
         ProductionType(int value) {
-            intValue = value;
-            getMappings().put(value, this);
+            this.value = value;
+            mappings().put(value, this);
         }
 
-        public int getValue() {
-            return intValue;
+        public int value() {
+            return this.value;
         }
 
-        public static ProductionType forValue(int value) {
-            return getMappings().get(value);
+        public static ProductionType from(int value) {
+            return mappings().get(value);
         }
 
-        private static java.util.HashMap<Integer, ProductionType> getMappings() {
+        private static Int2ObjectMap<ProductionType> mappings() {
             if (mappings == null) {
                 synchronized (ProductionType.class) {
                     if (mappings == null) {
-                        mappings = new java.util.HashMap<Integer, ProductionType>();
+                        mappings = new Int2ObjectOpenHashMap<>();
                     }
                 }
             }
@@ -295,39 +299,51 @@ public final class RecordIOParser {
      * The states for the internal state machine.
      * Note: numerical ordering of these states matters.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: private enum State : byte
     private enum State {
-        Start((byte)0), // Start: no buffers have yet been provided to the parser.
-        Error(((byte)0) + 1), // Unrecoverable parse error encountered.
-        NeedSegmentLength(((byte)0) + 2), // Parsing segment header length
-        NeedSegment(((byte)0) + 3), // Parsing segment header
-        NeedHeader(((byte)0) + 4), // Parsing HybridRow header
-        NeedRecord(((byte)0) + 5), // Parsing record header
-        NeedRow(((byte)0) + 6); // Parsing row body
+        STATE(
+            (byte) 0, "Start: no buffers have yet been provided to the parser"),
+        ERROR(
+            (byte) 1, "Unrecoverable parse error encountered"),
+        NEED_SEGMENT_LENGTH(
+            (byte) 2, "Parsing segment header length"),
+        NEED_SEGMENT(
+            (byte) 3, "Parsing segment header"),
+        NEED_HEADER(
+            (byte) 4, "Parsing HybridRow header"),
+        NEED_RECORD(
+            (byte) 5, "Parsing record header"),
+        NEED_ROW(
+            (byte) 6, "Parsing row body");
 
-        public static final int SIZE = java.lang.Byte.SIZE;
-        private static java.util.HashMap<Byte, State> mappings;
-        private byte byteValue;
+        public static final int BYTES = Byte.SIZE;
 
-        State(byte value) {
-            byteValue = value;
-            getMappings().put(value, this);
+        private static Byte2ObjectMap<State> mappings;
+        private final String description;
+        private final byte value;
+
+        State(byte value, String description) {
+            this.description = description;
+            this.value = value;
+            mappings().put(value, this);
         }
 
-        public byte getValue() {
-            return byteValue;
+        public String description() {
+            return this.description;
         }
 
-        public static State forValue(byte value) {
-            return getMappings().get(value);
+        public byte value() {
+            return this.value;
         }
 
-        private static java.util.HashMap<Byte, State> getMappings() {
+        public static State from(byte value) {
+            return mappings().get(value);
+        }
+
+        private static Byte2ObjectMap<State> mappings() {
             if (mappings == null) {
                 synchronized (State.class) {
                     if (mappings == null) {
-                        mappings = new java.util.HashMap<Byte, State>();
+                        mappings = new Byte2ObjectOpenHashMap<>();
                     }
                 }
             }

@@ -9,78 +9,86 @@ import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutUnixDateTime extends LayoutType<com.azure.data.cosmos.serialization.hybridrow.UnixDateTime> {
+public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
+
     public LayoutUnixDateTime() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.UNIX_DATE_TIME,
-            com.azure.data.cosmos.serialization.hybridrow.UnixDateTime.BYTES);
+        super(LayoutCode.UNIX_DATE_TIME, UnixDateTime.BYTES);
     }
 
     public boolean isFixed() {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "unixdatetime";
     }
 
     @Override
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                            Out<UnixDateTime> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(null);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<UnixDateTime> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(null);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(buffer.get().ReadUnixDateTime(scope.get().start() + column.getOffset()).clone());
+        value.set(buffer.readUnixDateTime(scope.start() + column.offset()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer buffer, RowCursor edit,
-                             Out<UnixDateTime> value) {
-        Result result = prepareSparseRead(buffer, edit, this.LayoutCode);
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<UnixDateTime> value) {
+        Result result = prepareSparseRead(buffer, edit, this.layoutCode());
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        value.setAndGet(buffer.get().ReadSparseUnixDateTime(edit).clone());
+        value.set(buffer.readSparseUnixDateTime(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                             UnixDateTime value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, UnixDateTime value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        buffer.get().WriteUnixDateTime(scope.get().start() + column.getOffset(), value.clone());
-        buffer.get().SetBit(scope.get().start(), column.getNullBit().clone());
+        buffer.writeUnixDateTime(scope.start() + column.offset(), value);
+        buffer.setBit(scope.start(), column.nullBit());
+
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, UnixDateTime value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value
-        , UpdateOptions options) {
-        Result result = prepareSparseWrite(buffer, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value, UpdateOptions options) {
+
+        Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        buffer.get().WriteSparseUnixDateTime(edit, value.clone(), options);
+        buffer.writeSparseUnixDateTime(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value) {
-        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

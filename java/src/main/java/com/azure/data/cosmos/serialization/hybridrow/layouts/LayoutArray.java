@@ -19,6 +19,7 @@ public final class LayoutArray extends LayoutIndexedScope {
         super(immutable ? IMMUTABLE_ARRAY_SCOPE : ARRAY_SCOPE, immutable, false, false, false, false);
     }
 
+    @Nonnull
     public String name() {
         return this.isImmutable() ? "im_array" : "array";
     }
@@ -30,7 +31,7 @@ public final class LayoutArray extends LayoutIndexedScope {
         @Nonnull final RowCursor edit,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull Out<RowCursor> value) {
-        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.Upsert, value);
+        return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override

@@ -22,6 +22,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "int64";
     }
@@ -86,7 +87,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer b, RowCursor edit, Long value) {
-        return this.writeSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

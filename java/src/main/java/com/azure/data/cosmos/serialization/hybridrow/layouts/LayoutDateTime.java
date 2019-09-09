@@ -4,14 +4,12 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.codecs.DateTimeCodec;
 
 import javax.annotation.Nonnull;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -26,6 +24,7 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "datetime";
     }
@@ -77,20 +76,21 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer b, RowCursor edit, OffsetDateTime value, UpdateOptions options) {
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, OffsetDateTime value, UpdateOptions options) {
 
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg(), options);
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.writeSparseDateTime(edit, value, options);
+        buffer.writeSparseDateTime(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, OffsetDateTime value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

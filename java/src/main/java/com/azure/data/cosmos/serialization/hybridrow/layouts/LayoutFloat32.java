@@ -4,7 +4,6 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -23,6 +22,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "float32";
     }
@@ -89,6 +89,6 @@ public final class LayoutFloat32 extends LayoutType<Float> {
     @Override
     @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Float value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

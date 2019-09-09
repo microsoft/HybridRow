@@ -54,7 +54,7 @@ public final class PostalCodeSerializer {
 
     public static Result Write(Reference<RowWriter> writer, TypeArgument typeArg, PostalCode obj) {
         Result r;
-        r = writer.get().WriteInt32("zip", obj.Zip);
+        r = writer.get().writeInt32("zip", obj.Zip);
         if (r != Result.SUCCESS) {
             return r;
         }

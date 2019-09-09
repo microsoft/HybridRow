@@ -4,16 +4,18 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutVarInt extends LayoutType<Long> {
+
     public LayoutVarInt() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.VAR_INT, 0);
+        super(LayoutCode.VAR_INT, 0);
     }
 
     public boolean isFixed() {
@@ -24,89 +26,95 @@ public final class LayoutVarInt extends LayoutType<Long> {
         return true;
     }
 
+    @Nonnull
     public String name() {
         return "varint";
     }
 
     @Override
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                            Out<Long> value) {
-        Contract.Fail("Not Implemented");
-        value.setAndGet(0);
+    @Nonnull
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
+        assert false : "not implemented";
+        value.set(0L);
         return Result.FAILURE;
     }
 
     @Override
+    @Nonnull
     public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Long> value) {
-        Result result = LayoutType.prepareSparseRead(buffer, edit, this.LayoutCode);
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(0);
+            value.set(0L);
             return result;
         }
 
-        value.setAndGet(buffer.get().ReadSparseVarInt(edit));
+        value.set(buffer.readSparseVarInt(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!buffer.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(0);
+    @Nonnull
+    public Result readVariable(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Long> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(0L);
             return Result.NOT_FOUND;
         }
 
-        int varOffset = buffer.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            column.getOffset());
-        value.setAndGet(buffer.get().ReadVariableInt(varOffset));
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+        value.set(buffer.readVariableInt(varOffset));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col,
-                             long value) {
-        Contract.Fail("Not Implemented");
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Long value) {
+        assert false : "not implemented";
         return Result.FAILURE;
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, long value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value,
-                              UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg().clone(), options);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.get().writeSparseVarInt(edit, value, options);
+        buffer.writeSparseVarInt(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result WriteSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, long value) {
-        return WriteSparse(b, edit, value, UpdateOptions.Upsert);
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value) {
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
     @Override
-    public Result WriteVariable(Reference<RowBuffer> b, Reference<RowCursor> scope,
-                                LayoutColumn col, long value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Nonnull
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Long value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        boolean exists = b.get().readBit(scope.get().start(), col.getNullBit().clone());
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
-        int shift;
-        Out<Integer> tempOut_shift = new Out<Integer>();
-        b.get().writeVariableInt(varOffset, value, exists, tempOut_shift);
-        shift = tempOut_shift.get();
-        b.get().setBit(scope.get().start(), col.getNullBit().clone());
-        scope.get().metaOffset(scope.get().metaOffset() + shift);
-        scope.get().valueOffset(scope.get().valueOffset() + shift);
+        boolean exists = buffer.readBit(scope.start(), column.nullBit());
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+        int shift = buffer.writeVariableInt(varOffset, value, exists);
+
+        buffer.setBit(scope.start(), column.nullBit());
+        scope.metaOffset(scope.metaOffset() + shift);
+        scope.valueOffset(scope.valueOffset() + shift);
+
         return Result.SUCCESS;
     }
 }

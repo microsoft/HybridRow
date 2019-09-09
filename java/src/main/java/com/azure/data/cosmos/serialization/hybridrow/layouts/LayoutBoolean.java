@@ -30,6 +30,7 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
     }
 
     @Override
+    @Nonnull
     public String name() {
         return "bool";
     }
@@ -133,7 +134,8 @@ public final class LayoutBoolean extends LayoutType<Boolean> {
     }
 
     @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Boolean value) {
-        return this.writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

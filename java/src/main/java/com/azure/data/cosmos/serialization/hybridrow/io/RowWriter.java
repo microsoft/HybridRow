@@ -81,7 +81,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.Binary, (ref RowWriter w, byte[] v) => w
         // .row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutTypes.BINARY,
-            (ref RowWriter w, byte[] v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, byte[] v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -102,7 +102,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.Binary, (ref RowWriter w,
         // ReadOnlySpan<byte> v) => w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.Binary,
-            (ref RowWriter w, ReadOnlySpan<Byte> v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, ReadOnlySpan<Byte> v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -124,7 +124,7 @@ public final class RowWriter {
         // ReadOnlySequence<byte> v) => w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.Binary,
             (ref RowWriter w, ReadOnlySequence<Byte> v) -> w.row.WriteSparseBinary(ref w.cursor, v,
-                UpdateOptions.Upsert));
+                UpdateOptions.UPSERT));
     }
 
     /**
@@ -140,7 +140,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Boolean,
-            (ref RowWriter w, boolean v) -> w.row.WriteSparseBool(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, boolean v) -> w.row.WriteSparseBool(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -183,7 +183,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.DateTime,
-            (ref RowWriter w, LocalDateTime v) -> w.row.WriteSparseDateTime(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, LocalDateTime v) -> w.row.WriteSparseDateTime(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -199,7 +199,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Decimal,
-            (ref RowWriter w, BigDecimal v) -> w.row.WriteSparseDecimal(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, BigDecimal v) -> w.row.WriteSparseDecimal(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -215,7 +215,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value.clone(), LayoutType.Float128,
-            (ref RowWriter w, Float128 v) -> w.row.WriteSparseFloat128(ref w.cursor, v.clone(), UpdateOptions.Upsert));
+            (ref RowWriter w, Float128 v) -> w.row.WriteSparseFloat128(ref w.cursor, v.clone(), UpdateOptions.UPSERT));
     }
 
     /**
@@ -231,7 +231,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Float32,
-            (ref RowWriter w, float v) -> w.row.WriteSparseFloat32(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, float v) -> w.row.WriteSparseFloat32(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -247,7 +247,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Float64,
-            (ref RowWriter w, double v) -> w.row.WriteSparseFloat64(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, double v) -> w.row.WriteSparseFloat64(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -263,7 +263,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Guid,
-            (ref RowWriter w, UUID v) -> w.row.WriteSparseGuid(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, UUID v) -> w.row.WriteSparseGuid(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -279,7 +279,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Int16,
-            (ref RowWriter w, short v) -> w.row.WriteSparseInt16(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, short v) -> w.row.WriteSparseInt16(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -289,13 +289,13 @@ public final class RowWriter {
      * @param value The value to write.
      * @return Success if the write is successful, an error code otherwise.
      */
-    public Result WriteInt32(UtfAnyString path, int value) {
+    public Result writeInt32(UtfAnyString path, int value) {
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Int32,
-            (ref RowWriter w, int v) -> w.row.WriteSparseInt32(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, int v) -> w.row.WriteSparseInt32(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -311,7 +311,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Int64,
-            (ref RowWriter w, long v) -> w.row.WriteSparseInt64(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, long v) -> w.row.WriteSparseInt64(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -327,7 +327,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Int8,
-            (ref RowWriter w, byte v) -> w.row.WriteSparseInt8(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, byte v) -> w.row.WriteSparseInt8(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -343,7 +343,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value.clone(), LayoutType.MongoDbObjectId, (ref RowWriter w,
-                                                                                     MongoDbObjectId v) -> w.row.WriteSparseMongoDbObjectId(ref w.cursor, v.clone(), UpdateOptions.Upsert));
+                                                                                     MongoDbObjectId v) -> w.row.WriteSparseMongoDbObjectId(ref w.cursor, v.clone(), UpdateOptions.UPSERT));
     }
 
     /**
@@ -358,7 +358,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, NullValue.Default, LayoutType.Null,
-            (ref RowWriter w, NullValue v) -> w.row.WriteSparseNull(ref w.cursor, v.clone(), UpdateOptions.Upsert));
+            (ref RowWriter w, NullValue v) -> w.row.WriteSparseNull(ref w.cursor, v.clone(), UpdateOptions.UPSERT));
     }
 
     public <TContext> Result WriteScope(UtfAnyString path, TypeArgument typeArg, TContext context,
@@ -379,7 +379,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope =
                     new Out<RowCursor>();
-                this.row.writeSparseObject(tempRef_cursor, scopeType, UpdateOptions.Upsert);
+                this.row.writeSparseObject(tempRef_cursor, scopeType, UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope.get();
                 this.cursor = tempRef_cursor.argValue;
                 break;
@@ -391,7 +391,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope2 =
                     new Out<RowCursor>();
-                this.row.writeSparseArray(tempRef_cursor2, scopeType, UpdateOptions.Upsert);
+                this.row.writeSparseArray(tempRef_cursor2, scopeType, UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope2.get();
                 this.cursor = tempRef_cursor2.argValue;
                 break;
@@ -404,7 +404,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope3 =
                     new Out<RowCursor>();
                 this.row.writeTypedArray(tempRef_cursor3, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope3);
+                    UpdateOptions.UPSERT, tempOut_nestedScope3);
                 nestedScope = tempOut_nestedScope3.get();
                 this.cursor = tempRef_cursor3.argValue;
 
@@ -418,7 +418,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope4 =
                     new Out<RowCursor>();
                 this.row.writeSparseTuple(tempRef_cursor4, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, tempOut_nestedScope4);
+                    UpdateOptions.UPSERT, tempOut_nestedScope4);
                 nestedScope = tempOut_nestedScope4.get();
                 this.cursor = tempRef_cursor4.argValue;
 
@@ -432,7 +432,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope5 =
                     new Out<RowCursor>();
                 this.row.writeTypedTuple(tempRef_cursor5, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert);
+                    UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope5.get();
                 this.cursor = tempRef_cursor5.argValue;
 
@@ -446,7 +446,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope6 =
                     new Out<RowCursor>();
                 this.row.writeTypedTuple(tempRef_cursor6, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert);
+                    UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope6.get();
                 this.cursor = tempRef_cursor6.argValue;
 
@@ -460,7 +460,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope7 =
                     new Out<RowCursor>();
                 this.row.writeTypedTuple(tempRef_cursor7, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert);
+                    UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope7.get();
                 this.cursor = tempRef_cursor7.argValue;
 
@@ -474,7 +474,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope8 =
                     new Out<RowCursor>();
                 this.row.writeNullable(tempRef_cursor8, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert, func != null);
+                    UpdateOptions.UPSERT, func != null);
                 nestedScope = tempOut_nestedScope8.get();
                 this.cursor = tempRef_cursor8.argValue;
 
@@ -488,7 +488,7 @@ public final class RowWriter {
                     new Reference<RowCursor>(this.cursor);
                 Out<RowCursor> tempOut_nestedScope9 =
                     new Out<RowCursor>();
-                this.row.writeSparseUDT(tempReference_cursor9, scopeType, udt, UpdateOptions.Upsert, tempOut_nestedScope9);
+                this.row.writeSparseUDT(tempReference_cursor9, scopeType, udt, UpdateOptions.UPSERT, tempOut_nestedScope9);
                 nestedScope = tempOut_nestedScope9.get();
                 this.cursor = tempReference_cursor9.get();
                 break;
@@ -502,7 +502,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope10 =
                     new Out<RowCursor>();
                 this.row.writeTypedSet(tempRef_cursor10, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert);
+                    UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope10.get();
                 this.cursor = tempRef_cursor10.argValue;
 
@@ -516,7 +516,7 @@ public final class RowWriter {
                 Out<RowCursor> tempOut_nestedScope11 =
                     new Out<RowCursor>();
                 this.row.writeTypedMap(tempRef_cursor11, scopeType, typeArg.typeArgs().clone(),
-                    UpdateOptions.Upsert);
+                    UpdateOptions.UPSERT);
                 nestedScope = tempOut_nestedScope11.get();
                 this.cursor = tempRef_cursor11.argValue;
 
@@ -582,7 +582,7 @@ public final class RowWriter {
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Utf8,
             (ref RowWriter w, String v) -> w.row.WriteSparseString(ref w.cursor, Utf8Span.TranscodeUtf16(v),
-                UpdateOptions.Upsert));
+                UpdateOptions.UPSERT));
     }
 
     /**
@@ -598,7 +598,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.Utf8,
-            (ref RowWriter w, Utf8Span v) -> w.row.WriteSparseString(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, Utf8Span v) -> w.row.WriteSparseString(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -619,7 +619,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.UInt16, (ref RowWriter w, ushort v) => w
         // .row.WriteSparseUInt16(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.UInt16,
-            (ref RowWriter w, short v) -> w.row.WriteSparseUInt16(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, short v) -> w.row.WriteSparseUInt16(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -631,7 +631,7 @@ public final class RowWriter {
      */
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     //ORIGINAL LINE: public Result WriteUInt32(UtfAnyString path, uint value)
-    public Result WriteUInt32(UtfAnyString path, int value) {
+    public Result writeUInt32(UtfAnyString path, int value) {
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
@@ -640,7 +640,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.UInt32, (ref RowWriter w, uint v) => w
         // .row.WriteSparseUInt32(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.UInt32,
-            (ref RowWriter w, int v) -> w.row.WriteSparseUInt32(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, int v) -> w.row.WriteSparseUInt32(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -661,7 +661,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.UInt64, (ref RowWriter w, ulong v) => w
         // .row.WriteSparseUInt64(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.UInt64,
-            (ref RowWriter w, long v) -> w.row.WriteSparseUInt64(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, long v) -> w.row.WriteSparseUInt64(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -682,7 +682,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.UInt8, (ref RowWriter w, byte v) => w.row
         // .WriteSparseUInt8(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.UInt8,
-            (ref RowWriter w, byte v) -> w.row.WriteSparseUInt8(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, byte v) -> w.row.WriteSparseUInt8(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -699,7 +699,7 @@ public final class RowWriter {
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value.clone(), LayoutType.UnixDateTime,
             (ref RowWriter w, UnixDateTime v) -> w.row.WriteSparseUnixDateTime(ref w.cursor, v.clone(),
-                UpdateOptions.Upsert));
+                UpdateOptions.UPSERT));
     }
 
     /**
@@ -715,7 +715,7 @@ public final class RowWriter {
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
         // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
         return this.WritePrimitive(path, value, LayoutType.VarInt,
-            (ref RowWriter w, long v) -> w.row.WriteSparseVarInt(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, long v) -> w.row.WriteSparseVarInt(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -736,7 +736,7 @@ public final class RowWriter {
         //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.VarUInt, (ref RowWriter w, ulong v) => w
         // .row.WriteSparseVarUInt(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.VarUInt,
-            (ref RowWriter w, long v) -> w.row.WriteSparseVarUInt(ref w.cursor, v, UpdateOptions.Upsert));
+            (ref RowWriter w, long v) -> w.row.WriteSparseVarUInt(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
     public RowWriter clone() {

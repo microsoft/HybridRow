@@ -4,184 +4,236 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8SpanWritable, ILayoutUtf8SpanReadable {
+
     public LayoutUtf8() {
-        super(com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.UTF_8, 0);
+        super(LayoutCode.UTF_8, 0);
     }
 
     public boolean isFixed() {
         return false;
     }
 
+    @Nonnull
     public String name() {
         return "utf8";
     }
 
     @Override
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<String> value) {
-        Utf8Span span;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Result r = this.ReadFixed(buffer, scope, column, out span);
-        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
-        default
-        return r;
+    @Nonnull
+    public Result readFixed(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Out<String> value) {
+
+        Out<Utf8String> span = new Out<>();
+        Result result = this.readFixedSpan(buffer, scope, column, span);
+        value.set(result == Result.SUCCESS ? span.get().toUtf16() : null);
+        return result;
     }
 
-    public Result ReadFixed(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn column,
-                            Out<Utf8Span> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        checkArgument(column.getSize() >= 0);
-        if (!b.get().readBit(scope.get().start(), column.getNullBit().clone())) {
-            value.setAndGet(null);
+    @Override
+    @Nonnull
+    public Result readFixedSpan(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Out<Utf8String> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        checkArgument(column.size() >= 0);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(null);
             return Result.NOT_FOUND;
         }
 
-        value.setAndGet(b.get().readFixedString(scope.get().start() + column.getOffset(), column.getSize()));
+        value.set(buffer.readFixedString(scope.start() + column.offset(), column.size()));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readSparse(RowBuffer buffer, RowCursor edit,
-                             Out<String> value) {
-        Utf8Span span;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Result r = this.ReadSparse(buffer, edit, out span);
-        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
-        default
-        return r;
+    @Nonnull
+    public Result readSparse(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final Out<String> value) {
+
+        Out<Utf8String> span = new Out<>();
+        Result result = this.readSparseSpan(buffer, edit, span);
+        value.set((result == Result.SUCCESS) ? span.get().toUtf16() : null);
+        return result;
     }
 
-    public Result ReadSparse(Reference<RowBuffer> b, Reference<RowCursor> edit, Out<Utf8Span> value) {
-        Result result = LayoutType.prepareSparseRead(b, edit, this.LayoutCode);
+    @Override
+    @Nonnull
+    public Result readSparseSpan(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final Out<Utf8String> value) {
+
+        Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
+
         if (result != Result.SUCCESS) {
-            value.setAndGet(null);
+            value.set(null);
             return result;
         }
 
-        value.setAndGet(b.get().readSparseString(edit));
+        value.set(buffer.readSparseString(edit));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column
-        , Out<String> value) {
-        Utf8Span span;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        Result r = this.ReadVariable(buffer, scope, column, out span);
-        value.setAndGet((r == Result.SUCCESS) ? span.toString() :)
-        default
-        return r;
+    @Nonnull
+    public Result readVariable(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Out<String> value) {
+
+        Out<Utf8String> span = new Out<>();
+        Result result = this.readVariableSpan(buffer, scope, column, span);
+        value.set(result == Result.SUCCESS ? span.get().toUtf16() : null);
+        return result;
     }
 
-    public Result ReadVariable(Reference<RowBuffer> b, Reference<RowCursor> scope, LayoutColumn col
-        , Out<Utf8Span> value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (!b.get().readBit(scope.get().start(), col.getNullBit().clone())) {
-            value.setAndGet(null);
+    @Override
+    @Nonnull
+    public Result readVariableSpan(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Out<Utf8String> value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (!buffer.readBit(scope.start(), column.nullBit())) {
+            value.set(null);
             return Result.NOT_FOUND;
         }
 
-        int varOffset = b.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            col.getOffset());
-        value.setAndGet(b.get().readVariableString(varOffset));
+        int varOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+        value.set(buffer.readVariableString(varOffset));
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                             String value) {
-        checkArgument(value != null);
-        return this.writeFixed(buffer, scope, column, Utf8Span.TranscodeUtf16(value));
+    @Nonnull
+    public Result writeFixed(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final String value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(value, "expected non-null value");
+
+        return this.writeFixed(buffer, scope, column, Utf8String.transcodeUtf16(value));
     }
 
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                             Utf8String value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        checkArgument(column.getSize() >= 0);
-        checkArgument(value.Length == column.getSize());
-        if (scope.get().immutable()) {
+    @Override
+    @Nonnull
+    public Result writeFixed(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor scope,
+        @Nonnull final LayoutColumn column,
+        @Nonnull final Utf8String value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(value, "expected non-null value");
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+        checkArgument(column.size() >= 0);
+        checkArgument(value.encodedLength() == column.size());
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        buffer.get().writeFixedString(scope.get().start() + column.getOffset(), value);
-        buffer.get().setBit(scope.get().start(), column.getNullBit().clone());
+        buffer.writeFixedString(scope.start() + column.offset(), value);
+        buffer.setBit(scope.start(), column.nullBit());
         return Result.SUCCESS;
     }
 
     @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, String value) {
-        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public override Result WriteSparse(ref RowBuffer b, ref RowCursor edit, string value,
-    // UpdateOptions options = UpdateOptions.Upsert)
     @Override
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, String value,
-                              UpdateOptions options) {
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, String value, UpdateOptions options) {
         checkArgument(value != null);
-        return this.writeSparse(buffer, edit, Utf8Span.TranscodeUtf16(value), options);
+        return this.writeSparse(buffer, edit, Utf8String.transcodeUtf16(value), options);
     }
 
-
+    @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, Utf8String value) {
-        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public Result WriteSparse(ref RowBuffer b, ref RowCursor edit, Utf8Span value, UpdateOptions
-    // options = UpdateOptions.Upsert)
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Utf8String value,
-                              UpdateOptions options) {
-        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg().clone(), options);
+    @Override
+    @Nonnull
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Utf8String value, UpdateOptions options) {
+
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        buffer.get().writeSparseString(edit, value, options);
+        buffer.writeSparseString(edit, value, options);
         return Result.SUCCESS;
     }
 
     @Override
-    public Result writeVariable(RowBuffer buffer, RowCursor scope,
-                                LayoutColumn column, String value) {
+    @Nonnull
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, String value) {
         checkArgument(value != null);
-        return this.writeVariable(buffer, scope, column, Utf8Span.TranscodeUtf16(value));
+        return this.writeVariable(buffer, scope, column, Utf8String.transcodeUtf16(value));
     }
 
-    public Result writeVariable(RowBuffer buffer, RowCursor scope,
-                                LayoutColumn column, Utf8String value) {
-        checkArgument(scope.get().scopeType() instanceof LayoutUDT);
-        if (scope.get().immutable()) {
+    @Override
+    @Nonnull
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Utf8String value) {
+
+        checkArgument(scope.scopeType() instanceof LayoutUDT);
+
+        if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        int length = value.Length;
-        if ((column.getSize() > 0) && (length > column.getSize())) {
+        int length = value.encodedLength();
+
+        if ((column.size() > 0) && (length > column.size())) {
             return Result.TOO_BIG;
         }
 
-        boolean exists = buffer.get().readBit(scope.get().start(), column.getNullBit().clone());
-        int varOffset = buffer.get().computeVariableValueOffset(scope.get().layout(), scope.get().start(),
-            column.getOffset());
-        int shift;
-        Out<Integer> tempOut_shift = new Out<Integer>();
-        buffer.get().writeVariableString(varOffset, value, exists, tempOut_shift);
-        shift = tempOut_shift.get();
-        buffer.get().setBit(scope.get().start(), column.getNullBit().clone());
-        scope.get().metaOffset(scope.get().metaOffset() + shift);
-        scope.get().valueOffset(scope.get().valueOffset() + shift);
+        int offset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
+        boolean exists = buffer.readBit(scope.start(), column.nullBit());
+        int shift = buffer.writeVariableString(offset, value, exists);
+
+        buffer.setBit(scope.start(), column.nullBit());
+        scope.metaOffset(scope.metaOffset() + shift);
+        scope.valueOffset(scope.valueOffset() + shift);
+
         return Result.SUCCESS;
     }
 }

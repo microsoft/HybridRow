@@ -136,8 +136,8 @@ public class RecordIOUnitTests {
                 r = this.ReadSegment(segment, tempOut_obj);
                 obj = tempOut_obj.get();
                 ResultAssert.IsSuccess(r);
-                assert obj.Comment == sampleComment;
-                assert obj.SDL == sampleSDL;
+                assert obj.comment() == sampleComment;
+                assert obj.sdl() == sampleSDL;
                 return Result.SUCCESS;
             }, resizer);
 

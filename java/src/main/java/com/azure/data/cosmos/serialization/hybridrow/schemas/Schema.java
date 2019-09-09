@@ -73,7 +73,7 @@ public class Schema {
         checkNotNull(ns, "expected non-null ns");
         checkArgument(ns.schemas().contains(this));
 
-        return LayoutCompiler.Compile(ns, this);
+        return LayoutCompiler.compile(ns, this);
     }
 
     /**

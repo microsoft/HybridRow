@@ -4,11 +4,11 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -23,11 +23,17 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return false;
     }
 
+    public Result WriteSparse(RowBuffer buffer, RowCursor edit, ReadOnlySequence<Byte> value) {
+        return writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
+    }
+
+    @Nonnull
     public String name() {
         return "binary";
     }
 
     @Override
+    @Nonnull
     public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
         // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
@@ -40,7 +46,7 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return result;
     }
 
-    public Result ReadFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<ReadOnlySpan<Byte>> value) {
+    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<ReadOnlySpan<Byte>> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
         checkArgument(column.size() >= 0);
@@ -52,20 +58,6 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
 
         value.set(buffer.readFixedBinary(scope.start() + column.offset(), column.size()));
         return Result.SUCCESS;
-    }
-
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte[] value)
-    @Override
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<byte[]> value) {
-        ReadOnlySpan<Byte> span;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: Result r = this.ReadSparse(ref b, ref edit, out ReadOnlySpan<byte> span);
-        Result r = this.ReadSparse(buffer, edit, out span);
-        value.set((r == Result.SUCCESS) ? span.ToArray() :)
-        default
-        return r;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -84,16 +76,15 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
-    // byte[] value)
+    //ORIGINAL LINE: public override Result ReadSparse(ref RowBuffer b, ref RowCursor edit, out byte[] value)
     @Override
-    public Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<byte[]> value) {
+    @Nonnull
+    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<byte[]> value) {
         ReadOnlySpan<Byte> span;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: Result r = this.ReadVariable(ref b, ref scope, col, out ReadOnlySpan<byte> span);
-        Result r = this.ReadVariable(buffer, scope, column, out span);
+        //ORIGINAL LINE: Result r = this.ReadSparse(ref b, ref edit, out ReadOnlySpan<byte> span);
+        Result r = this.ReadSparse(buffer, edit, out span);
         value.set((r == Result.SUCCESS) ? span.ToArray() :)
         default
         return r;
@@ -115,12 +106,20 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, byte[]
-    // value)
+    //ORIGINAL LINE: public override Result ReadVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, out
+    // byte[] value)
     @Override
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, byte[] value) {
-        checkArgument(value != null);
-        return this.writeFixed(buffer, scope, column, new ReadOnlySpan<Byte>(value));
+    @Nonnull
+    public Result readVariable(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<byte[]> value) {
+        ReadOnlySpan<Byte> span;
+        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
+        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
+        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+        //ORIGINAL LINE: Result r = this.ReadVariable(ref b, ref scope, col, out ReadOnlySpan<byte> span);
+        Result r = this.ReadVariable(buffer, scope, column, out span);
+        value.set((r == Result.SUCCESS) ? span.ToArray() :)
+        default
+        return r;
     }
 
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
@@ -159,9 +158,20 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return Result.SUCCESS;
     }
 
+    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    //ORIGINAL LINE: public override Result WriteFixed(ref RowBuffer b, ref RowCursor scope, LayoutColumn col, byte[]
+    // value)
     @Override
+    @Nonnull
+    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, byte[] value) {
+        checkArgument(value != null);
+        return this.writeFixed(buffer, scope, column, new ReadOnlySpan<Byte>(value));
+    }
+
+    @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, byte[] value) {
-        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
+        return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -169,16 +179,13 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
     // UpdateOptions options = UpdateOptions.Upsert)
     //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     @Override
+    @Nonnull
     public Result writeSparse(RowBuffer buffer, RowCursor edit, byte[] value,
                               UpdateOptions options) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.WriteSparse(ref b, ref edit, new ReadOnlySpan<byte>(value), options);
         return this.WriteSparse(buffer, edit, new ReadOnlySpan<Byte>(value), options);
-    }
-
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Byte value) {
-        return writeSparse(buffer, edit, value, UpdateOptions.Upsert);
     }
 
     //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
@@ -197,32 +204,25 @@ public final class LayoutBinary extends LayoutType<byte[]> implements ILayoutSpa
         return Result.SUCCESS;
     }
 
-    public Result WriteSparse(RowBuffer b, RowCursor edit, ReadOnlySequence<Byte> value) {
-        return writeSparse(b, edit, value, UpdateOptions.Upsert);
+    public Result writeSparse(RowBuffer buffer, RowCursor edit, Byte value) {
+        return writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-    //ORIGINAL LINE: public Result WriteSparse(ref RowBuffer b, ref RowCursor edit, ReadOnlySequence<byte> value,
-    // UpdateOptions options = UpdateOptions.Upsert)
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    public Result WriteSparse(RowBuffer b, RowCursor edit, ReadOnlySequence<Byte> value, UpdateOptions options) {
+    public Result WriteSparse(RowBuffer buffer, RowCursor edit, ReadOnlySequence<Byte> value, UpdateOptions options) {
 
-        Result result = LayoutType.prepareSparseWrite(b, edit, this.typeArg(), options);
+        Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        b.writeSparseBinary(edit, value, options);
+        buffer.writeSparseBinary(edit, value, options);
         return Result.SUCCESS;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public override Result WriteVariable(ref RowBuffer b, ref RowCursor scope, LayoutColumn col,
-    // byte[] value)
     @Override
-    public Result writeVariable(RowBuffer buffer, RowCursor scope,
-                                LayoutColumn column, byte[] value) {
+    @Nonnull
+    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, byte[] value) {
         checkArgument(value != null);
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
         //ORIGINAL LINE: return this.WriteVariable(ref b, ref scope, col, new ReadOnlySpan<byte>(value));
