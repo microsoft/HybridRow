@@ -278,7 +278,7 @@ public final class SerializerUnitTest {
 
             java.util.ArrayList<BatchOperation> operations;
             Out<ArrayList<TItem>> tempOut_operations = new Out<ArrayList<TItem>>();
-            Result r = RowReaderExtensions.ReadList(reader.get().clone(), BatchOperationSerializer.Read, tempOut_operations);
+            Result r = RowReaderExtensions.readList(reader.get().clone(), BatchOperationSerializer.Read, tempOut_operations);
             operations = tempOut_operations.get();
             if (r != Result.SUCCESS) {
                 request.setAndGet(null);

@@ -1041,8 +1041,8 @@ public final class RowReader {
     /**
      * Reads a generic schematized field value via the scope's layout
      *
-     * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @param value On success, receives the value, undefined otherwise
+     * @return {@link Result#SUCCESS} if the read is successful; an error {@link Result} otherwise
      */
     private Result readPrimitiveValue(Out<Utf8String> value) {
 

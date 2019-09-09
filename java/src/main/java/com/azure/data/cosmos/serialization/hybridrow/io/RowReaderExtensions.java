@@ -4,10 +4,11 @@
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.List;
 
 public final class RowReaderExtensions {
     /**
@@ -20,80 +21,75 @@ public final class RowReaderExtensions {
      * @param list         On success, the collection of materialized items.
      * @return The result.
      */
-    public static <TItem> Result ReadList(Reference<RowReader> reader, DeserializerFunc<TItem> deserializer,
-                                          Out<ArrayList<TItem>> list) {
-        // Pass the context as a struct by value to avoid allocations.
-        ListContext<TItem> ctx = new ListContext<TItem>();
-        ctx.List = new ArrayList<>();
-        ctx.Deserializer =
-            (Reference<RowReader> reader.argValue, Out<TItem> item) -> deserializer.invoke(reader.get().clone(), item);
+    @Nonnull
+    public static <TItem> Result readList(RowReader reader, DeserializerFunc<TItem> deserializer, Out<List<TItem>> list) {
 
-        // All lambda's here are static.
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        Result r = reader.get().readScope(ctx.clone(), (RowReader RowReader arrayReader, ListContext<TItem> ctx1) ->
-        {
-            while (arrayReader.Read()) {
-                Result r2 = arrayReader.ReadScope(ctx1.clone(), (ref RowReader itemReader, ListContext<TItem> ctx2) ->
-                {
-                    Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowReader> tempReference_itemReader = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowReader>(itemReader);
-                    TItem op;
-                    Out<TItem> tempOut_op = new Out<TItem>();
-                    Result r3 = ctx2.Deserializer.invoke(tempReference_itemReader, tempOut_op);
-                    op = tempOut_op.get();
-                    itemReader = tempReference_itemReader.get();
-                    if (r3 != Result.SUCCESS) {
-                        return r3;
+        // Pass the context as a struct by value to avoid allocations
+
+        final ListContext<TItem> context = new ListContext<TItem>(deserializer, new ArrayList<TItem>());
+        final Out<TItem> item = new Out<>();
+
+        Result result = reader.readScope(context, (arrayReader, arrayContext) -> {
+            while (arrayReader.read()) {
+                Result arrayResult = arrayReader.readScope(arrayContext, (itemReader, itemContext) -> {
+                    Result itemResult = itemContext.deserializer().invoke(itemReader, item);
+                    if (itemResult != Result.SUCCESS) {
+                        return itemResult;
                     }
-
-                    ctx2.List.add(op);
+                    itemContext.items().add(item.get());
                     return Result.SUCCESS;
                 });
-
-                if (r2 != Result.SUCCESS) {
-                    return r2;
+                if (arrayResult != Result.SUCCESS) {
+                    return arrayResult;
                 }
             }
-
             return Result.SUCCESS;
         });
 
-        if (r != Result.SUCCESS) {
-            list.setAndGet(null);
-            return r;
+        if (result != Result.SUCCESS) {
+            list.set(null);
+            return result;
         }
 
-        list.setAndGet(ctx.List);
+        list.set(context.items());
         return Result.SUCCESS;
     }
 
     /**
-     * A function to read content from a {@link RowReader}.
-     * <typeparam name="TItem">The type of the item to read.</typeparam>
+     * A functional interface to read content from a {@link RowReader}
      *
-     * @param reader A forward-only cursor for reading the item.
-     * @param item   On success, the item read.
-     * @return The result.
+     * @param <TItem> The type of item to read
+     *
      */
     @FunctionalInterface
     public interface DeserializerFunc<TItem> {
-        Result invoke(Reference<RowReader> reader, Out<TItem> item);
+        /**
+         * Read a row from a {@link RowReader}
+         *
+         * @param reader A forward-only cursor for reading the item
+         * @param item   On success, the item read
+         * @return The result
+         */
+        @Nonnull
+        Result invoke(@Nonnull RowReader reader, @Nonnull Out<TItem> item);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may
-    // differ from the original:
-    //ORIGINAL LINE: private struct ListContext<TItem>
     private final static class ListContext<TItem> {
-        public DeserializerFunc<TItem> Deserializer;
-        public ArrayList<TItem> List;
 
-        public ListContext clone() {
-            ListContext varCopy = new ListContext();
+        private final DeserializerFunc<TItem> deserializer;
+        private final List<TItem> items;
 
-            varCopy.List = this.List;
-            varCopy.Deserializer = this.Deserializer;
+        ListContext(DeserializerFunc<TItem> deserializer, List<TItem> items) {
+            this.deserializer = deserializer;
+            this.items = items;
+        }
 
-            return varCopy;
+        public DeserializerFunc<TItem> deserializer() {
+            return this.deserializer;
+        }
+
+        public List<TItem> items() {
+            return this.items;
         }
     }
 }
