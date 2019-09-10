@@ -5,9 +5,9 @@ package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
 public final class Segment {
 
-    private final String comment;
-    private final int length;
-    private final String sdl;
+    private String comment;
+    private int length;
+    private String sdl;
 
     public Segment(String comment, String sdl) {
         this.comment = comment;
@@ -19,11 +19,25 @@ public final class Segment {
         return this.comment;
     }
 
+    public Segment comment(String value) {
+        this.comment = value;
+        return this;
+    }
+
     public int length() {
         return this.length;
     }
 
+    public Segment length(int value) {
+        this.length = value;
+        return this;
+    }
     public String sdl() {
         return this.sdl;
+    }
+
+    public Segment sdl(String value) {
+        this.sdl = value;
+        return this;
     }
 }

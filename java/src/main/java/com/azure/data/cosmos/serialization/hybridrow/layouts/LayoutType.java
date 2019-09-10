@@ -335,6 +335,10 @@ public abstract class LayoutType /*implements ILayoutType*/ {
         return this.size;
     }
 
+    public TypeArgument typeArg() {
+        return this.typeArg;
+    }
+
     /**
      * The physical layout type of the field cast to the specified type.
      */
@@ -346,8 +350,5 @@ public abstract class LayoutType /*implements ILayoutType*/ {
     public int writeTypeArgument(@Nonnull final RowBuffer buffer, int offset, @Nonnull final TypeArgumentList value) {
         buffer.writeSparseTypeCode(offset, this.layoutCode());
         return LayoutCode.BYTES;
-    }
-    TypeArgument typeArg() {
-        return this.typeArg;
     }
 }

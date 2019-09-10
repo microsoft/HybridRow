@@ -130,7 +130,8 @@ public final class RowBuffer {
      * @param resolver The resolver for UDTs.
      */
     public RowBuffer(
-        @Nonnull final ByteBuf buffer, @Nonnull final HybridRowVersion version,
+        @Nonnull final ByteBuf buffer,
+        @Nonnull final HybridRowVersion version,
         @Nonnull final LayoutResolver resolver) {
 
         checkNotNull(buffer, "expected non-null buffer");

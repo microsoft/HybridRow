@@ -4,7 +4,8 @@
 package com.azure.data.cosmos.serialization.hybridrow.recordio;
 
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Reference;
+import com.azure.data.cosmos.core.Utf8String;
+import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.HybridRowVersion;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
@@ -14,61 +15,71 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 import io.netty.buffer.ByteBuf;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public final class SegmentSerializer {
 
+    private static final UtfAnyString COMMENT = new UtfAnyString("comment");
+    private static final UtfAnyString LENGTH = new UtfAnyString("length");
+    private static final UtfAnyString SDL = new UtfAnyString("sdl");
+
     public static Result read(ByteBuf buffer, LayoutResolver resolver, Out<Segment> segment) {
-        RowBuffer row = new RowBuffer(buffer, HybridRowVersion.V1, resolver);
-        Reference<RowBuffer> tempReference_row =
-            new Reference<RowBuffer>(row);
-        RowReader reader = new RowReader(tempReference_row);
-        row = tempReference_row.get();
-        Reference<RowReader> tempReference_reader =
-            new Reference<RowReader>(reader);
-        Result tempVar = SegmentSerializer.read(tempReference_reader, segment.clone());
-        reader = tempReference_reader.get();
-        return tempVar;
+        RowReader reader = new RowReader(new RowBuffer(buffer, HybridRowVersion.V1, resolver));
+        return SegmentSerializer.read(reader, segment);
     }
 
     public static Result read(RowReader reader, Out<Segment> segment) {
-        segment.setAndGet(null);
-        while (reader.read()) {
-            Result r;
 
-            // TODO: use Path tokens here.
+        segment.set(new Segment(null, null));
+
+        final Out<Utf8String> comment = new Out<>();
+        final Out<Integer> length = new Out<>();
+        final Out<Utf8String> sdl = new Out<>();
+
+        while (reader.read()) {
+
+            // TODO: Use Path tokens here.
+
             switch (reader.path().toString()) {
-                case "length":
-                    Out<Integer> tempOut_Length = new Out<Integer>();
-                    r = reader.readInt32(tempOut_Length);
-                    segment.get().argValue.Length = tempOut_Length.get();
-                    if (r != Result.SUCCESS) {
-                        return r;
+
+                case "length": {
+
+                    Result result = reader.readInt32(length);
+                    segment.get().length(length.get());
+
+                    if (result != Result.SUCCESS) {
+                        return result;
                     }
 
-                    // If the RowBuffer isn't big enough to contain the rest of the header, then just
-                    // return the length.
                     if (reader.length() < segment.get().length()) {
+                        // RowBuffer isn't big enough to contain the rest of the header so just return the length
                         return Result.SUCCESS;
                     }
 
                     break;
-                case "comment":
-                    Out<String> tempOut_Comment = new Out<String>();
-                    r = reader.readString(tempOut_Comment);
-                    segment.get().argValue.Comment = tempOut_Comment.get();
-                    if (r != Result.SUCCESS) {
-                        return r;
+                }
+                case "comment": {
+
+                    Result result = reader.readString(comment);
+                    segment.get().comment(comment.get().toUtf16());
+
+                    if (result != Result.SUCCESS) {
+                        return result;
                     }
 
                     break;
-                case "sdl":
-                    Out<String> tempOut_SDL = new Out<String>();
-                    r = reader.readString(tempOut_SDL);
-                    segment.get().argValue.SDL = tempOut_SDL.get();
-                    if (r != Result.SUCCESS) {
-                        return r;
+                }
+                case "sdl": {
+
+                    Result result = reader.readString(sdl);
+                    segment.get().sdl(sdl.get().toUtf16());
+
+                    if (result != Result.SUCCESS) {
+                        return result;
                     }
 
                     break;
+                }
             }
         }
 
@@ -76,31 +87,34 @@ public final class SegmentSerializer {
     }
 
     public static Result write(RowWriter writer, TypeArgument typeArg, Segment segment) {
-        Result r;
+
+        Result result;
+
         if (segment.comment() != null) {
-            r = writer.WriteString("comment", segment.comment());
-            if (r != Result.SUCCESS) {
-                return r;
+            result = writer.writeString(COMMENT, segment.comment());
+            if (result != Result.SUCCESS) {
+                return result;
             }
         }
 
         if (segment.sdl() != null) {
-            r = writer.WriteString("sdl", segment.sdl());
-            if (r != Result.SUCCESS) {
-                return r;
+            result = writer.writeString(SDL, segment.sdl());
+            if (result != Result.SUCCESS) {
+                return result;
             }
         }
 
         // Defer writing the length until all other fields of the segment header are written.
         // The length is then computed based on the current size of the underlying RowBuffer.
         // Because the length field is itself fixed, writing the length can never change the length.
-        int length = writer.getLength();
-        r = writer.WriteInt32("length", length);
-        if (r != Result.SUCCESS) {
-            return r;
+
+        int length = writer.length();
+        result = writer.writeInt32(LENGTH, length);
+        if (result != Result.SUCCESS) {
+            return result;
         }
 
-        checkState(length == writer.getLength());
+        checkState(length == writer.length());
         return Result.SUCCESS;
     }
 }
