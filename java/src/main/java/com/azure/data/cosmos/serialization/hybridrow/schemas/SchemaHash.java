@@ -3,55 +3,78 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
+import com.azure.data.cosmos.serialization.hybridrow.internal.Murmur3Hash;
+
 public final class SchemaHash {
-    /** Computes the logical hash for a logical schema.
-     @param ns The namespace within which <paramref name="schema" /> is defined.
-     @param schema The logical schema to compute the hash of.
-     @param seed The seed to initialized the hash function.
-     @return The logical 128-bit hash as a two-tuple (low, high).
+
+    public static class Code {
+
+        private final long low;
+        private final long high;
+
+        private Code(long low, long high) {
+            this.low = low;
+            this.high = high;
+        }
+
+        public long high() {
+            return this.high;
+        }
+
+        public long low() {
+            return this.low;
+        }
+    }
+
+    /**
+     * Computes the logical hash for a logical schema.
+     *  @param ns The namespace within which <paramref name="schema" /> is defined.
+     * @param schema The logical schema to compute the hash of.
+     * @param seed The seed to initialized the hash function.
+     * @return The logical 128-bit hash as a two-tuple (low, high).
      */
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	public static(ulong low, ulong high) ComputeHash(Namespace ns, Schema schema, (ulong low, ulong high) seed =
-    //	default)
-    //		{
-    //			(ulong low, ulong high) hash = seed;
-    //			hash = Murmur3Hash.Hash128(schema.SchemaId, hash);
-    //			hash = Murmur3Hash.Hash128(schema.Type, hash);
-    //			hash = SchemaHash.ComputeHash(ns, schema.Options, hash);
-    //			if (schema.PartitionKeys != null)
-    //			{
-    //				foreach (PartitionKey p in schema.PartitionKeys)
-    //				{
-    //					hash = SchemaHash.ComputeHash(ns, p, hash);
-    //				}
-    //			}
-    //
-    //			if (schema.PrimarySortKeys != null)
-    //			{
-    //				foreach (PrimarySortKey p in schema.PrimarySortKeys)
-    //				{
-    //					hash = SchemaHash.ComputeHash(ns, p, hash);
-    //				}
-    //			}
-    //
-    //			if (schema.StaticKeys != null)
-    //			{
-    //				foreach (StaticKey p in schema.StaticKeys)
-    //				{
-    //					hash = SchemaHash.ComputeHash(ns, p, hash);
-    //				}
-    //			}
-    //
-    //			if (schema.Properties != null)
-    //			{
-    //				foreach (Property p in schema.Properties)
-    //				{
-    //					hash = SchemaHash.ComputeHash(ns, p, hash);
-    //				}
-    //			}
-    //
-    //			return hash;
-    //		}
+    	public static Code ComputeHash(Namespace ns, Schema schema, Code seed)
+    		{
+    			Code hash = seed;
+
+    			hash = Murmur3Hash.Hash128(schema.schemaId(), hash);
+    			hash = Murmur3Hash.Hash128(schema.type(), hash);
+    			hash = SchemaHash.ComputeHash(ns, schema.options(), hash);
+
+    			if (schema.partitionKeys() != null)
+    			{
+    				foreach (PartitionKey p in schema.PartitionKeys)
+    				{
+    					hash = SchemaHash.ComputeHash(ns, p, hash);
+    				}
+    			}
+
+    			if (schema.PrimarySortKeys != null)
+    			{
+    				foreach (PrimarySortKey p in schema.PrimarySortKeys)
+    				{
+    					hash = SchemaHash.ComputeHash(ns, p, hash);
+    				}
+    			}
+
+    			if (schema.StaticKeys != null)
+    			{
+    				foreach (StaticKey p in schema.StaticKeys)
+    				{
+    					hash = SchemaHash.ComputeHash(ns, p, hash);
+    				}
+    			}
+
+    			if (schema.Properties != null)
+    			{
+    				foreach (Property p in schema.Properties)
+    				{
+    					hash = SchemaHash.ComputeHash(ns, p, hash);
+    				}
+    			}
+
+    			return hash;
+    		}
 
     // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
     //	private static(ulong low, ulong high) ComputeHash(Namespace ns, SchemaOptions options, (ulong low, ulong high)

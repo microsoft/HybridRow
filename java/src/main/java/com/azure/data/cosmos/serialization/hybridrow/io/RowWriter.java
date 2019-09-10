@@ -24,7 +24,7 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypedMap;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUDT;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUniqueScope;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUtf8SpanWritable;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUtf8Writable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.UpdateOptions;
@@ -748,7 +748,7 @@ public final class RowWriter {
      * @param sparse The {@link RowBuffer} access method for <paramref name="type" />.
      * @return Success if the write is successful, an error code otherwise.
      */
-    private <TLayoutType extends LayoutType<String> & LayoutUtf8SpanWritable> Result writePrimitive(UtfAnyString path, Utf8String value, TLayoutType type, AccessUtf8SpanMethod sparse) {
+    private <TLayoutType extends LayoutType<String> & LayoutUtf8Writable> Result writePrimitive(UtfAnyString path, Utf8String value, TLayoutType type, AccessUtf8SpanMethod sparse) {
         Result result = Result.NOT_FOUND;
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.writeSchematizedValue(path, value);

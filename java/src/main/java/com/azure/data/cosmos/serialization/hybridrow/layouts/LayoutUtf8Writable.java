@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 /**
  * An optional interface that indicates a {@link LayoutType{T}} can also write using a {@link Utf8String}
  */
-public interface LayoutUtf8SpanWritable extends ILayoutType {
+public interface LayoutUtf8Writable extends ILayoutType {
 
     @Nonnull
     Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Utf8String value);

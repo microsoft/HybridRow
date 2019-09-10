@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 /**
  * An optional interface that indicates a {@link LayoutType{T}} can also read using a {@link Utf8String}.
  */
-public interface LayoutUtf8SpanReadable extends ILayoutType {
+public interface LayoutUtf8Readable extends ILayoutType {
 
     @Nonnull
     Result readFixedSpan(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Utf8String> value);

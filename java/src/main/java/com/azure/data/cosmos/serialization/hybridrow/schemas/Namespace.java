@@ -19,7 +19,7 @@ public class Namespace {
      * Initializes a new instance of the {@link Namespace} class.
      */
     public Namespace() {
-        this.setSchemas(new ArrayList<Schema>());
+        this.schemas(new ArrayList<Schema>());
     }
 
     /**
@@ -37,28 +37,31 @@ public class Namespace {
     /**
      * The set of schemas that make up the {@link Namespace}.
      * <p>
-     * Namespaces may consist of zero or more table schemas along with zero or more UDT schemas.
-     * Table schemas can only reference UDT schemas defined in the same namespace.  UDT schemas can
-     * contain nested UDTs whose schemas are defined within the same namespace.
-     * @return
+     * Namespaces may consist of zero or more table schemas along with zero or more UDT schemas. Table schemas can only
+     * reference UDT schemas defined in the same namespace. UDT schemas can contain nested UDTs whose schemas are
+     * defined within the same namespace.
+     *
+     * @return list of schemas in the current {@link Namespace}.
      */
     public final List<Schema> schemas() {
         return this.schemas;
     }
 
-    public final void setSchemas(ArrayList<Schema> value) {
+    public final Namespace schemas(ArrayList<Schema> value) {
         this.schemas = value != null ? value : new ArrayList<Schema>();
+        return this;
     }
 
     /**
      * The version of the HybridRow Schema Definition Language used to encode this namespace.
      */
-    public final SchemaLanguageVersion getVersion() {
+    public final SchemaLanguageVersion version() {
         return this.version;
     }
 
-    public final void setVersion(SchemaLanguageVersion value) {
+    public final Namespace version(SchemaLanguageVersion value) {
         this.version = value;
+        return this;
     }
 
     /**

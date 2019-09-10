@@ -3,6 +3,9 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 /**
  * Describes the sort order direction.
  */
@@ -10,15 +13,16 @@ public enum SortDirection {
     /**
      * Sorts from the lowest to the highest value.
      */
-    Ascending(0),
+    ASCENDING(0),
 
     /**
      * Sorts from the highests to the lowest value.
      */
-    Descending(1);
+    DESCENDING(1);
 
-    public static final int SIZE = java.lang.Integer.SIZE;
-    private static java.util.HashMap<Integer, SortDirection> mappings;
+    public static final int BYTEST = Integer.BYTES;
+
+    private static Int2ObjectMap<SortDirection> mappings;
     private int value;
 
     SortDirection(int value) {
@@ -30,15 +34,15 @@ public enum SortDirection {
         return this.value;
     }
 
-    public static SortDirection forValue(int value) {
+    public static SortDirection from(int value) {
         return mappings().get(value);
     }
 
-    private static java.util.HashMap<Integer, SortDirection> mappings() {
+    private static Int2ObjectMap<SortDirection> mappings() {
         if (mappings == null) {
             synchronized (SortDirection.class) {
                 if (mappings == null) {
-                    mappings = new java.util.HashMap<>();
+                    mappings = new Int2ObjectOpenHashMap<>();
                 }
             }
         }

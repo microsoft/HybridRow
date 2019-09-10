@@ -688,8 +688,8 @@ class AnonymousType3 {
 
     pulic String Path
     pubblct[] expectedSchemas = new Object[] { AnonymousType("{'path': 'a'}", "{'path': 'b', 'direction': 'desc'}, " +
-        "{'path': 'c'}", new String[] { "a" }, new Object[] { AnonymousType2("b", SortDirection.Descending),
-        AnonymousType3("c", SortDirection.Ascending) }) };
+        "{'path': 'c'}", new String[] { "a" }, new Object[] { AnonymousType2("b", SortDirection.DESCENDING),
+        AnonymousType3("c", SortDirection.ASCENDING) }) };
 
 		for(bjeic AnonymousType3(String _Path, SortDirection _Dir) {
         Path = _Path;
