@@ -3,6 +3,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.internal;
 
+import com.azure.data.cosmos.core.Utf8String;
+import com.azure.data.cosmos.serialization.hybridrow.HashCode128;
 import com.google.common.base.Utf8;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
@@ -40,69 +42,50 @@ public final class Murmur3Hash {
      *
      * @param item The data to hash
      * @param seed The seed with which to initialize
-     * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link Code} instance
+     * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link HashCode128} instance
      */
-    public static Code Hash128(@Nonnull final String item, @Nonnull final Code seed) {
+    @SuppressWarnings("ConstantConditions")
+    public static HashCode128 Hash128(@Nonnull final String item, @Nonnull final HashCode128 seed) {
 
         checkNotNull(item, "value: null, seed: %s", seed);
         checkNotNull(seed, "value: %s, seed: null", item);
 
         if (item.isEmpty()) {
-            Hash128(EMPTY_STRING, seed);
+            return Hash128(EMPTY_STRING, seed);
         }
 
-        final int encodedLength = Utf8.encodedLength(item);
-        ByteBuf buffer = allocator.buffer(encodedLength, encodedLength);
+        Utf8String value = Utf8String.transcodeUtf16(item);
 
         try {
-            final int count = buffer.writeCharSequence(item, UTF_8);
-            assert count == encodedLength : lenientFormat("count: %s, encodedLength: %s");
-            return Hash128(buffer, seed);
+            return Hash128(value.content(), seed);
         } finally {
-            buffer.release();
+            value.release();
         }
     }
 
     /**
-     * Computes a 128-bit Murmur3Hash 128-bit value for a {@link boolean} data item
+     * Computes a 128-bit Murmur3Hash 128-bit value for a {@link boolean} data item.
      *
-     * @param item The data to hash
-     * @param seed The seed with which to initialize
-     * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link Code} instance
+     * @param item The data to hash.
+     * @param seed The seed with which to initialize.
+     * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link HashCode128} instance.
      */
-    public static Code Hash128(boolean item, Code seed) {
+    public static HashCode128 Hash128(boolean item, HashCode128 seed) {
         return Murmur3Hash.Hash128(item ? TRUE : FALSE, seed);
     }
 
     /**
-     * Computes a 128-bit Murmur3Hash 128-bit value for a {@link ByteBuf} data item
+     * Computes a 128-bit Murmur3Hash 128-bit value for a {@link ByteBuf} data item.
      *
      * @param item The data to hash
      * @param seed The seed with which to initialize
-     * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link Code} instance
+     * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link HashCode128} instance.
      */
-    public static Code Hash128(ByteBuf item, Code seed) {
-        // TODO: DANOBLE: Fork and update or hack murmur3_128 to support a 128-bit seed value or push for a 32-bit seed
-        HashFunction hashFunction = Hashing.murmur3_128(Long.valueOf(seed.high | 0xFFFFFFFFL).intValue());
+    public static HashCode128 Hash128(ByteBuf item, HashCode128 seed) {
+        // TODO: DANOBLE: Support 128-bit hash code seeds by bringing in the murmur3 hash code from the Cosmos Java SDK
+        HashFunction hashFunction = Hashing.murmur3_128(Long.valueOf(seed.high() | 0xFFFFFFFFL).intValue());
         HashCode hashCode = hashFunction.hashBytes(item.array());
-        return new Code(hashCode);
-    }
-
-    @Immutable
-    public static final class Code {
-
-        public final long low, high;
-
-        public Code(long low, long high) {
-            this.low = low;
-            this.high = high;
-        }
-
-        private Code(HashCode hashCode) {
-            ByteBuf buffer = Unpooled.wrappedBuffer(hashCode.asBytes());
-            this.low = buffer.readLongLE();
-            this.high = buffer.readLongLE();
-        }
+        return HashCode128.from(hashCode.asBytes());
     }
 
     private static final class Constant {

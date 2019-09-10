@@ -123,7 +123,7 @@ public class Schema {
      *
      * @return list of zero or more logical paths that form the partition key
      */
-    @Nonnull
+    @Nullable
     public final List<PartitionKey> partitionKeys() {
         return this.partitionKeys;
     }
@@ -140,6 +140,7 @@ public class Schema {
      *
      * @return list of zero or more logical paths that form the partition key
      */
+    @Nullable
     public final List<PrimarySortKey> primarySortKeys() {
         return this.primaryKeys;
     }
@@ -156,6 +157,7 @@ public class Schema {
      *
      * @return list of zero or more property definitions that define the columns within the schema
      */
+    @Nonnull
     public final List<Property> properties() {
         return this.properties;
     }

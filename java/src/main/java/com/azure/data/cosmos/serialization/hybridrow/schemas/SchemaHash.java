@@ -3,218 +3,190 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
+import com.azure.data.cosmos.serialization.hybridrow.HashCode128;
+import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.internal.Murmur3Hash;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.lenientFormat;
 
 public final class SchemaHash {
 
-    public static class Code {
+	/**
+	 * Computes the logical hash for a logical schema.
+	 *
+	 * @param namespace The namespace within which <paramref name="schema" /> is defined.
+	 * @param schema    The logical schema to compute the hash of.
+	 * @param seed      The seed to initialized the hash function.
+	 * @return The logical 128-bit hash as a two-tuple (low, high).
+	 */
+	public static HashCode128 ComputeHash(Namespace namespace, Schema schema, HashCode128 seed) {
+		HashCode128 hash = seed;
 
-        private final long low;
-        private final long high;
+		hash = Murmur3Hash.Hash128(schema.schemaId().value(), hash);
+		hash = Murmur3Hash.Hash128(schema.type().value(), hash);
+		hash = SchemaHash.ComputeHash(namespace, schema.options(), hash);
 
-        private Code(long low, long high) {
-            this.low = low;
-            this.high = high;
-        }
+		if (schema.partitionKeys() != null) {
+			for (PartitionKey partitionKey : schema.partitionKeys()) {
+				hash = SchemaHash.ComputeHash(namespace, partitionKey, hash);
+			}
+		}
 
-        public long high() {
-            return this.high;
-        }
+		if (schema.primarySortKeys() != null) {
+			for (PrimarySortKey p : schema.primarySortKeys()) {
+				hash = SchemaHash.ComputeHash(namespace, p, hash);
+			}
+		}
 
-        public long low() {
-            return this.low;
-        }
-    }
+		if (schema.staticKeys() != null) {
+			for (StaticKey p : schema.staticKeys()) {
+				hash = SchemaHash.ComputeHash(namespace, p, hash);
+			}
+		}
 
-    /**
-     * Computes the logical hash for a logical schema.
-     *  @param ns The namespace within which <paramref name="schema" /> is defined.
-     * @param schema The logical schema to compute the hash of.
-     * @param seed The seed to initialized the hash function.
-     * @return The logical 128-bit hash as a two-tuple (low, high).
-     */
-    	public static Code ComputeHash(Namespace ns, Schema schema, Code seed)
-    		{
-    			Code hash = seed;
+		if (schema.properties() != null) {
+			for (Property p : schema.properties()) {
+				hash = SchemaHash.ComputeHash(namespace, p, hash);
+			}
+		}
 
-    			hash = Murmur3Hash.Hash128(schema.schemaId(), hash);
-    			hash = Murmur3Hash.Hash128(schema.type(), hash);
-    			hash = SchemaHash.ComputeHash(ns, schema.options(), hash);
+		return hash;
+	}
 
-    			if (schema.partitionKeys() != null)
-    			{
-    				foreach (PartitionKey p in schema.PartitionKeys)
-    				{
-    					hash = SchemaHash.ComputeHash(ns, p, hash);
-    				}
-    			}
+	private static HashCode128 ComputeHash(Namespace namespace, SchemaOptions options, HashCode128 seed) {
 
-    			if (schema.PrimarySortKeys != null)
-    			{
-    				foreach (PrimarySortKey p in schema.PrimarySortKeys)
-    				{
-    					hash = SchemaHash.ComputeHash(ns, p, hash);
-    				}
-    			}
+		HashCode128 hash = seed;
 
-    			if (schema.StaticKeys != null)
-    			{
-    				foreach (StaticKey p in schema.StaticKeys)
-    				{
-    					hash = SchemaHash.ComputeHash(ns, p, hash);
-    				}
-    			}
+		hash = Murmur3Hash.Hash128(options != null && options.disallowUnschematized(), hash);
+		hash = Murmur3Hash.Hash128(options != null && options.enablePropertyLevelTimestamp(), hash);
+		hash = Murmur3Hash.Hash128(options != null && options.disableSystemPrefix(), hash);
 
-    			if (schema.Properties != null)
-    			{
-    				foreach (Property p in schema.Properties)
-    				{
-    					hash = SchemaHash.ComputeHash(ns, p, hash);
-    				}
-    			}
+		return hash;
+	}
 
-    			return hash;
-    		}
+	private static HashCode128 ComputeHash(Namespace ns, Property p, HashCode128 seed) {
 
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	private static(ulong low, ulong high) ComputeHash(Namespace ns, SchemaOptions options, (ulong low, ulong high)
-    //	seed = default)
-    //		{
-    //			(ulong low, ulong high) hash = seed;
-    //			hash = Murmur3Hash.Hash128(options == null ? null : options.DisallowUnschematized ?? false, hash);
-    //			hash = Murmur3Hash.Hash128(options == null ? null : options.EnablePropertyLevelTimestamp ?? false,
-    //			hash);
-    //			if (options == null ? null : options.DisableSystemPrefix ?? false)
-    //			{
-    //				hash = Murmur3Hash.Hash128(true, hash);
-    //			}
-    //
-    //			return hash;
-    //		}
+		HashCode128 hash = seed;
 
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	private static(ulong low, ulong high) ComputeHash(Namespace ns, Property p, (ulong low, ulong high) seed =
-    //	default)
-    //		{
-    //			Contract.Requires(p != null);
-    //			(ulong low, ulong high) hash = seed;
-    //			hash = Murmur3Hash.Hash128(p.Path, hash);
-    //			hash = SchemaHash.ComputeHash(ns, p.PropertyType, hash);
-    //			return hash;
-    //		}
+		hash = Murmur3Hash.Hash128(p.path(), hash);
+		hash = SchemaHash.ComputeHash(ns, p.propertyType(), hash);
 
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	private static(ulong low, ulong high) ComputeHash(Namespace ns, PropertyType p, (ulong low, ulong high) seed =
-    //	default)
-    //		{
-    //			Contract.Requires(p != null);
-    //			(ulong low, ulong high) hash = seed;
-    //			hash = Murmur3Hash.Hash128(p.Type, hash);
-    //			hash = Murmur3Hash.Hash128(p.Nullable, hash);
-    //			if (p.ApiType != null)
-    //			{
-    //				hash = Murmur3Hash.Hash128(p.ApiType, hash);
-    //			}
-    //
-    //			switch (p)
-    //			{
-    //				case PrimitivePropertyType pp:
-    //					hash = Murmur3Hash.Hash128(pp.Storage, hash);
-    //					hash = Murmur3Hash.Hash128(pp.Length, hash);
-    //					break;
-    //				case ScopePropertyType pp:
-    //					hash = Murmur3Hash.Hash128(pp.Immutable, hash);
-    //					switch (p)
-    //					{
-    //						case ArrayPropertyType spp:
-    //							if (spp.Items != null)
-    //							{
-    //								hash = SchemaHash.ComputeHash(ns, spp.Items, hash);
-    //							}
-    //
-    //							break;
-    //						case ObjectPropertyType spp:
-    //							if (spp.Properties != null)
-    //							{
-    //								foreach (Property opp in spp.Properties)
-    //								{
-    //									hash = SchemaHash.ComputeHash(ns, opp, hash);
-    //								}
-    //							}
-    //
-    //							break;
-    //						case MapPropertyType spp:
-    //							if (spp.Keys != null)
-    //							{
-    //								hash = SchemaHash.ComputeHash(ns, spp.Keys, hash);
-    //							}
-    //
-    //							if (spp.Values != null)
-    //							{
-    //								hash = SchemaHash.ComputeHash(ns, spp.Values, hash);
-    //							}
-    //
-    //							break;
-    //						case SetPropertyType spp:
-    //							if (spp.Items != null)
-    //							{
-    //								hash = SchemaHash.ComputeHash(ns, spp.Items, hash);
-    //							}
-    //
-    //							break;
-    //						case TaggedPropertyType spp:
-    //							if (spp.Items != null)
-    //							{
-    //								foreach (PropertyType pt in spp.Items)
-    //								{
-    //									hash = SchemaHash.ComputeHash(ns, pt, hash);
-    //								}
-    //							}
-    //
-    //							break;
-    //						case TuplePropertyType spp:
-    //							if (spp.Items != null)
-    //							{
-    //								foreach (PropertyType pt in spp.Items)
-    //								{
-    //									hash = SchemaHash.ComputeHash(ns, pt, hash);
-    //								}
-    //							}
-    //
-    //							break;
-    //						case UdtPropertyType spp:
-    //							Schema udtSchema;
-    //							if (spp.SchemaId == SchemaId.Invalid)
-    //							{
-    //								udtSchema = ns.Schemas.Find(s => s.Name == spp.Name);
-    //							}
-    //							else
-    //							{
-    //								udtSchema = ns.Schemas.Find(s => s.SchemaId == spp.SchemaId);
-    //								if (udtSchema.Name != spp.Name)
-    //								{
-    //									throw new Exception(string.Format("Ambiguous schema reference: '{0}:{1}'", spp
-    //									.Name, spp.SchemaId));
-    //								}
-    //							}
-    //
-    //							if (udtSchema == null)
-    //							{
-    //								throw new Exception(string.Format("Cannot resolve schema reference '{0}:{1}'", spp
-    //								.Name, spp.SchemaId));
-    //							}
-    //
-    //							hash = SchemaHash.ComputeHash(ns, udtSchema, hash);
-    //							break;
-    //					}
-    //
-    //					break;
-    //			}
-    //
-    //			return hash;
-    //		}
+		return hash;
+	}
 
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
+	private static HashCode128 ComputeHash(Namespace namespace, PropertyType p, HashCode128 seed) {
+
+		HashCode128 hash = seed;
+
+		hash = Murmur3Hash.Hash128(p.type(), hash);
+		hash = Murmur3Hash.Hash128(p.nullable(), hash);
+
+		if (p.apiType() != null) {
+			hash = Murmur3Hash.Hash128(p.apiType(), hash);
+		}
+
+		if (p instanceof PrimitivePropertyType) {
+			PrimitivePropertyType pp = (PrimitivePropertyType) p;
+			hash = Murmur3Hash.Hash128(pp.storage(), hash);
+			hash = Murmur3Hash.Hash128(pp.length(), hash);
+			return hash;
+		}
+
+		checkState(p instanceof ScopePropertyType);
+		ScopePropertyType pp = (ScopePropertyType) p;
+		hash = Murmur3Hash.Hash128(pp.immutable(), hash);
+
+		if (p instanceof ArrayPropertyType) {
+			ArrayPropertyType spp = (ArrayPropertyType) p;
+			if (spp.items() != null) {
+				hash = SchemaHash.ComputeHash(namespace, spp.items(), hash);
+			}
+			return hash;
+		}
+
+		if (p instanceof ObjectPropertyType) {
+			ObjectPropertyType spp = (ObjectPropertyType) p;
+			if (spp.properties() != null) {
+				for (Property opp : spp.properties()) {
+					hash = SchemaHash.ComputeHash(namespace, opp, hash);
+				}
+			}
+			return hash;
+		}
+
+		if (p instanceof MapPropertyType) {
+
+			MapPropertyType spp = (MapPropertyType) p;
+
+			if (spp.keys() != null) {
+				hash = SchemaHash.ComputeHash(namespace, spp.keys(), hash);
+			}
+
+			if (spp.values() != null) {
+				hash = SchemaHash.ComputeHash(namespace, spp.values(), hash);
+			}
+
+			return hash;
+		}
+
+		if (p instanceof SetPropertyType) {
+
+			SetPropertyType spp = (SetPropertyType) p;
+
+			if (spp.items() != null) {
+				hash = SchemaHash.ComputeHash(namespace, spp.items(), hash);
+			}
+
+			return hash;
+		}
+
+		if (p instanceof TaggedPropertyType) {
+
+			TaggedPropertyType spp = (TaggedPropertyType) p;
+
+			if (spp.items() != null) {
+				for (PropertyType pt : spp.items()) {
+					hash = SchemaHash.ComputeHash(namespace, pt, hash);
+				}
+			}
+
+			return hash;
+		}
+
+		if (p instanceof TuplePropertyType) {
+
+			TuplePropertyType spp = (TuplePropertyType) p;
+
+			if (spp.items() != null) {
+				for (PropertyType pt : spp.items()) {
+					hash = SchemaHash.ComputeHash(namespace, pt, hash);
+				}
+			}
+
+			return hash;
+		}
+
+		if (p instanceof UdtPropertyType) {
+
+			UdtPropertyType spp = (UdtPropertyType) p;
+			Schema udtSchema;
+
+			if (spp.schemaId() == SchemaId.INVALID) {
+				udtSchema = namespace.schemas().Find(s = > s.name() == spp.name());
+			} else {
+				udtSchema = namespace.schemas().Find(s = > s.schemaId() == spp.schemaId());
+				checkState(udtSchema.name().equals(spp.name()), "Ambiguous schema reference: '%s:%s'", spp.name(), spp.schemaId());
+			}
+
+			checkState(udtSchema != null, "Cannot resolve schema reference '{0}:{1}'", spp.name(), spp.schemaId());
+			return SchemaHash.ComputeHash(namespace, udtSchema, hash);
+		}
+
+		throw new IllegalStateException(lenientFormat("unrecognized property type: %s", p.getClass()));
+	}
+
+	// TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
     //	private static(ulong low, ulong high) ComputeHash(Namespace ns, PartitionKey key, (ulong low, ulong high) seed
     //	= default)
     //		{
