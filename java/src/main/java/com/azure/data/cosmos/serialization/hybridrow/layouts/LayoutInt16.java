@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutInt16 extends LayoutType<Short> {
+public final class LayoutInt16 extends LayoutTypePrimitive<Short> {
 
     public LayoutInt16() {
         super(LayoutCode.INT_16, Short.BYTES);
@@ -29,7 +29,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Short> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Short> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -44,7 +44,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Short> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Short> value) {
 
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -59,7 +59,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Short value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Short value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -74,7 +74,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Short value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Short value, @Nonnull UpdateOptions options) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -88,7 +88,7 @@ public final class LayoutInt16 extends LayoutType<Short> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Short value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Short value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

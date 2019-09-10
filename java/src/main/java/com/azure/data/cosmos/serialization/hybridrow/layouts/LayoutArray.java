@@ -37,7 +37,7 @@ public final class LayoutArray extends LayoutIndexedScope {
     @Override
     @Nonnull
     public Result writeScope(
-        RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+        @Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull TypeArgumentList typeArgs, @Nonnull UpdateOptions options, @Nonnull Out<RowCursor> value) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 

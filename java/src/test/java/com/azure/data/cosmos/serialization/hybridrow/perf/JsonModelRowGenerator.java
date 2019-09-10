@@ -118,7 +118,7 @@ public final class JsonModelRowGenerator {
             //ORIGINAL LINE: case bool x:
             case
                 boolean x:
-                return writer.get().WriteBool(path, x);
+                return writer.get().WriteBoolean(path, x);
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case long x:
             case

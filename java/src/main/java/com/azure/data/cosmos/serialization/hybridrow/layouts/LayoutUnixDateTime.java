@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
+public final class LayoutUnixDateTime extends LayoutTypePrimitive<UnixDateTime> {
 
     public LayoutUnixDateTime() {
         super(LayoutCode.UNIX_DATE_TIME, UnixDateTime.BYTES);
@@ -30,7 +30,7 @@ public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<UnixDateTime> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<UnixDateTime> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -45,7 +45,7 @@ public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<UnixDateTime> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<UnixDateTime> value) {
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
         if (result != Result.SUCCESS) {
             value.set(null);
@@ -58,7 +58,7 @@ public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, UnixDateTime value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull UnixDateTime value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -74,7 +74,7 @@ public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull UnixDateTime value, @Nonnull UpdateOptions options) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -88,7 +88,7 @@ public final class LayoutUnixDateTime extends LayoutType<UnixDateTime> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, UnixDateTime value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull UnixDateTime value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

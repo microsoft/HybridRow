@@ -10,7 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 import javax.annotation.Nonnull;
 
-public final class LayoutEndScope extends LayoutScope {
+public final class LayoutEndScope extends LayoutTypeScope {
 
     public LayoutEndScope() {
         super(LayoutCode.END_SCOPE, false, false, false, false, false, false);

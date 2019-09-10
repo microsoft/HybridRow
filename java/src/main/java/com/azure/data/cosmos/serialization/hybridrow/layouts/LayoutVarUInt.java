@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutVarUInt extends LayoutType<Long> {
+public final class LayoutVarUInt extends LayoutTypePrimitive<Long> {
 
     public LayoutVarUInt() {
         super(LayoutCode.VAR_UINT, 0);
@@ -33,7 +33,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Long> value) {
         assert false : "not implemented";
         value.set(0L);
         return Result.FAILURE;
@@ -41,7 +41,7 @@ public final class LayoutVarUInt extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Long> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Long> value) {
 
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -72,14 +72,14 @@ public final class LayoutVarUInt extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Long value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Long value) {
         assert false : "not implemented";
         return Result.FAILURE;
     }
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Long value, @Nonnull UpdateOptions options) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -93,13 +93,13 @@ public final class LayoutVarUInt extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Long value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
     @Override
     @Nonnull
-    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn col, Long value) {
+    public Result writeVariable(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn col, @Nonnull Long value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 

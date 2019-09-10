@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutGuid extends LayoutType<UUID> {
+public final class LayoutGuid extends LayoutTypePrimitive<UUID> {
 
     public LayoutGuid() {
         super(LayoutCode.GUID, GuidCodec.BYTES);
@@ -31,7 +31,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<UUID> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<UUID> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -46,7 +46,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<UUID> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<UUID> value) {
 
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -61,7 +61,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, UUID value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull UUID value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -76,7 +76,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, UUID value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull UUID value, @Nonnull UpdateOptions options) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -90,7 +90,7 @@ public final class LayoutGuid extends LayoutType<UUID> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, UUID value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull UUID value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

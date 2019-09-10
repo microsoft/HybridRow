@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutInt64 extends LayoutType<Long> {
+public final class LayoutInt64 extends LayoutTypePrimitive<Long> {
 
     public LayoutInt64() {
         super(LayoutCode.INT_64, Long.BYTES / Byte.SIZE);
@@ -29,7 +29,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Long> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Long> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -44,7 +44,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Long> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Long> value) {
 
         Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -59,7 +59,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Long value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Long value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -75,7 +75,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Long value, @Nonnull UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
         if (result != Result.SUCCESS) {
             return result;
@@ -87,7 +87,7 @@ public final class LayoutInt64 extends LayoutType<Long> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Long value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Long value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

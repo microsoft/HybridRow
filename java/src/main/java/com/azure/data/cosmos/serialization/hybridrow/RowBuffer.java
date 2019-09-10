@@ -35,7 +35,7 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutNull;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutNullable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutObject;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutScope;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypeScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTagged;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTagged2;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTuple;
@@ -754,13 +754,19 @@ public final class RowBuffer {
         return item.value();
     }
 
-    public Utf8String readVariableString(int offset) {
+    public Utf8String readVariableString(final int offset) {
         Item<Utf8String> item = this.read(this::readUtf8String, offset);
         return item.value();
     }
 
-    public long readVariableUInt(int offset) {
+    public long readVariableUInt(final int offset) {
         Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        return item.value();
+    }
+
+    public long readVariableUInt(final int offset, @Nonnull final Out<Integer> length) {
+        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        length.set(item.length());
         return item.value();
     }
 
@@ -905,7 +911,7 @@ public final class RowBuffer {
      */
     public RowCursor sparseIteratorReadScope(@Nonnull final RowCursor edit, boolean immutable) {
 
-        LayoutScope scopeType = edit.cellType() instanceof LayoutScope ? (LayoutScope) edit.cellType() : null;
+        LayoutTypeScope scopeType = edit.cellType() instanceof LayoutTypeScope ? (LayoutTypeScope) edit.cellType() : null;
 
         if (scopeType instanceof LayoutObject || scopeType instanceof LayoutArray) {
             return new RowCursor()
@@ -1195,6 +1201,7 @@ public final class RowBuffer {
     }
 
     public void writeFixedBinary(final int offset, @Nonnull final ByteBuf value, final int length) {
+
         checkNotNull(value, "expected non-null value");
         checkArgument(offset >= 0, "expected offset >= 0, not %s", offset);
         checkArgument(length >= 0, "expected length >= 0, not %s", length);
@@ -1279,7 +1286,7 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor writeNullable(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull final UpdateOptions options,
         boolean hasValue) {
@@ -1333,7 +1340,7 @@ public final class RowBuffer {
 
     @Nonnull
     public RowCursor writeSparseArray(
-        @Nonnull final RowCursor edit, @Nonnull final LayoutScope scope, @Nonnull final UpdateOptions options) {
+        @Nonnull final RowCursor edit, @Nonnull final LayoutTypeScope scope, @Nonnull final UpdateOptions options) {
 
         checkNotNull(edit, "expected non-null edit");
         checkNotNull(scope, "expected non-null scope");
@@ -1691,7 +1698,7 @@ public final class RowBuffer {
 
     public RowCursor writeSparseObject(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final UpdateOptions options) {
 
         checkNotNull(edit, "expected non-null edit");
@@ -1749,7 +1756,7 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor writeSparseTuple(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull final UpdateOptions options) {
 
@@ -1793,7 +1800,7 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor writeSparseUDT(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final Layout udt,
         @Nonnull final UpdateOptions options) {
 
@@ -2016,7 +2023,7 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor writeTypedArray(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull final UpdateOptions options) {
 
@@ -2048,7 +2055,7 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor writeTypedMap(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull final UpdateOptions options) {
 
@@ -2081,7 +2088,7 @@ public final class RowBuffer {
     @Nonnull
     public RowCursor writeTypedSet(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull final UpdateOptions options) {
 
@@ -2113,7 +2120,7 @@ public final class RowBuffer {
 
     public RowCursor writeTypedTuple(
         @Nonnull final RowCursor edit,
-        @Nonnull final LayoutScope scope,
+        @Nonnull final LayoutTypeScope scope,
         @Nonnull final TypeArgumentList typeArgs,
         @Nonnull final UpdateOptions options) {
 
@@ -2223,6 +2230,12 @@ public final class RowBuffer {
         checkState(this.length() == priorLength + shift.get());
 
         return shift.get();
+    }
+
+    public int writeVariableUInt(final int offset, final long value) {
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+        Item<Long> item = this.write(this::write7BitEncodedUInt, offset, value);
+        return item.length();
     }
 
     public int writeVariableUInt(final int offset, final long value, final boolean exists) {
@@ -3032,7 +3045,7 @@ public final class RowBuffer {
      */
     private int sparseComputeSize(RowCursor edit) {
 
-        if (!(edit.cellType() instanceof LayoutScope)) {
+        if (!(edit.cellType() instanceof LayoutTypeScope)) {
             return this.sparseComputePrimitiveSize(edit.cellType(), edit.metaOffset(), edit.valueOffset());
         }
 

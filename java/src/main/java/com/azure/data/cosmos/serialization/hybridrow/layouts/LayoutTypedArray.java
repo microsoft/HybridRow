@@ -16,8 +16,10 @@ import static com.google.common.base.Preconditions.checkState;
 public final class LayoutTypedArray extends LayoutIndexedScope {
 
     public LayoutTypedArray(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_TYPED_ARRAY_SCOPE :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TYPED_ARRAY_SCOPE, immutable, true, false, false, true);
+        super(
+            immutable ? LayoutCode.IMMUTABLE_TYPED_ARRAY_SCOPE : LayoutCode.TYPED_ARRAY_SCOPE, immutable,
+            true, false, false, true
+        );
     }
 
     @Override
@@ -28,7 +30,7 @@ public final class LayoutTypedArray extends LayoutIndexedScope {
     }
 
     @Override
-    public boolean hasImplicitTypeCode(RowCursor edit) {
+    public boolean hasImplicitTypeCode(@Nonnull RowCursor edit) {
         checkState(edit.index() >= 0);
         checkState(edit.scopeTypeArgs().count() == 1);
         return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.scopeTypeArgs().get(0).type().layoutCode());
@@ -42,7 +44,7 @@ public final class LayoutTypedArray extends LayoutIndexedScope {
 
     @Override
     @Nonnull
-    public TypeArgumentList readTypeArgumentList(RowBuffer buffer, int offset, Out<Integer> lenInBytes) {
+    public TypeArgumentList readTypeArgumentList(@Nonnull RowBuffer buffer, int offset, @Nonnull Out<Integer> lenInBytes) {
         return new TypeArgumentList(LayoutType.readTypeArgument(buffer, offset, lenInBytes));
     }
 

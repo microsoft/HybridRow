@@ -31,7 +31,8 @@ public final class LayoutTypedTuple extends LayoutIndexedScope {
     }
 
     @Override
-    public boolean hasImplicitTypeCode(RowCursor edit) {
+    public boolean hasImplicitTypeCode(@Nonnull final RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         checkArgument(edit.index() >= 0);
         checkArgument(edit.scopeTypeArgs().count() > edit.index());
         return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.scopeTypeArgs().get(edit.index()).type().layoutCode());
@@ -43,40 +44,61 @@ public final class LayoutTypedTuple extends LayoutIndexedScope {
         return this.isImmutable() ? "im_tuple_t" : "tuple_t";
     }
 
+    @Nonnull
     @Override
-    public TypeArgumentList readTypeArgumentList(RowBuffer row, int offset, Out<Integer> lenInBytes) {
+    public TypeArgumentList readTypeArgumentList(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
 
-        int numTypeArgs = row.read7BitEncodedUInt(offset, lenInBytes);
-        TypeArgument[] typeArgs = new TypeArgument[numTypeArgs];
+        checkNotNull(buffer, "expected non-null buffer");
+        lengthInBytes
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+
+        final int numTypeArgs = (int) buffer.readVariableUInt(offset, lengthInBytes);
+        final TypeArgument[] typeArgs = new TypeArgument[numTypeArgs];
+        final Out<Integer> len = new Out<>();
+
+        int sum = lengthInBytes.get();
 
         for (int i = 0; i < numTypeArgs; i++) {
-            int itemLenInBytes;
-            Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
-            typeArgs[i] = LayoutType.readTypeArgument(row, offset + lenInBytes, tempOut_itemLenInBytes);
-            itemLenInBytes = tempOut_itemLenInBytes;
-            lenInBytes.setAndGet(lenInBytes + itemLenInBytes);
+            typeArgs[i] = LayoutType.readTypeArgument(buffer, offset + sum, len);
+            sum += len.get();
         }
 
+        lengthInBytes.set(sum);
         return new TypeArgumentList(typeArgs);
     }
 
     @Override
-    public void setImplicitTypeCode(RowCursor edit) {
+    public void setImplicitTypeCode(@Nonnull final RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         edit.cellType(edit.scopeTypeArgs().get(edit.index()).type());
         edit.cellTypeArgs(edit.scopeTypeArgs().get(edit.index()).typeArgs());
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit,
-                             TypeArgumentList typeArgs, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final Out<RowCursor> value) {
         return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
     @Nonnull
     public Result writeScope(
-        RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options,
+        @Nonnull final Out<RowCursor> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(typeArgs, "expected non-null typeArgs");
+        checkNotNull(options, "expected non-null options");
+        checkNotNull(value, "expected non-null value");
 
         Result result = LayoutType.prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
 
@@ -90,16 +112,21 @@ public final class LayoutTypedTuple extends LayoutIndexedScope {
     }
 
     @Override
-    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
+    public int writeTypeArgument(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final TypeArgumentList value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(value, "expected non-null value");
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+
         buffer.writeSparseTypeCode(offset, this.layoutCode());
-        int lenInBytes = LayoutCode.BYTES;
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: lenInBytes += row.Write7BitEncodedUInt(offset + lenInBytes, (ulong)value.Count);
-        lenInBytes += buffer.write7BitEncodedUInt(offset + lenInBytes, value.count());
-        for (TypeArgument arg : value) {
-            lenInBytes += arg.type().writeTypeArgument(buffer, offset + lenInBytes, arg.typeArgs());
+        int lengthInBytes = LayoutCode.BYTES;
+        lengthInBytes += buffer.writeVariableUInt(offset + lengthInBytes, value.count());
+
+        for (TypeArgument arg : value.list()) {
+            lengthInBytes += arg.type().writeTypeArgument(buffer, offset + lengthInBytes, arg.typeArgs());
         }
 
-        return lenInBytes;
+        return lengthInBytes;
     }
 }

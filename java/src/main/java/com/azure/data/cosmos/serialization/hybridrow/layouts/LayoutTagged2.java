@@ -10,6 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 import javax.annotation.Nonnull;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -32,7 +33,8 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     }
 
     @Override
-    public boolean hasImplicitTypeCode(RowCursor edit) {
+    public boolean hasImplicitTypeCode(@Nonnull RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         checkState(edit.index() >= 0);
         checkState(edit.scopeTypeArgs().count() > edit.index());
         return !LayoutCodeTraits.alwaysRequiresTypeCode(edit.scopeTypeArgs().get(edit.index()).type().layoutCode());
@@ -46,37 +48,59 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
 
     @Override
     @Nonnull
-    public TypeArgumentList readTypeArgumentList(RowBuffer buffer, int offset, Out<Integer> lenInBytes) {
-        lenInBytes.set(0);
-        TypeArgument[] retval = new TypeArgument[3];
-        retval[0] = new TypeArgument(LayoutTypes.UINT_8, TypeArgumentList.EMPTY);
+    public TypeArgumentList readTypeArgumentList(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(lengthInBytes, "expected non-null lengthInBytes");
+        checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
+
+        final TypeArgument[] typeArgs = new TypeArgument[] {
+            new TypeArgument(LayoutTypes.UINT_8, TypeArgumentList.EMPTY),
+            null,
+            null };
+
+        final Out<Integer> len = new Out<>();
+        int sum = 0;
+
         for (int i = 1; i < 3; i++) {
-            int itemLenInBytes;
-            Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
-            retval[i] = readTypeArgument(buffer, offset + lenInBytes.get(), tempOut_itemLenInBytes);
-            itemLenInBytes = tempOut_itemLenInBytes.get();
-            lenInBytes.set(lenInBytes.get() + itemLenInBytes);
+            typeArgs[i] = readTypeArgument(buffer, offset + sum, len);
+            sum += len.get();
         }
 
-        return new TypeArgumentList(retval);
+        lengthInBytes.set(sum);
+        return new TypeArgumentList(typeArgs);
     }
 
     @Override
-    public void setImplicitTypeCode(RowCursor edit) {
+    public void setImplicitTypeCode(@Nonnull RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         edit.cellType(edit.scopeTypeArgs().get(edit.index()).type());
         edit.cellTypeArgs(edit.scopeTypeArgs().get(edit.index()).typeArgs());
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor edit,
+        @Nonnull TypeArgumentList typeArgs, @Nonnull Out<RowCursor> value) {
         return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options,
-                             Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor edit,
+        @Nonnull TypeArgumentList typeArgs,
+        @Nonnull UpdateOptions options, @Nonnull Out<RowCursor> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(typeArgs, "expected non-null typeArgs");
+        checkNotNull(options, "expected non-null options");
+        checkNotNull(value, "expected non-null value");
 
         Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
 
@@ -90,18 +114,18 @@ public final class LayoutTagged2 extends LayoutIndexedScope {
     }
 
     @Override
-    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
+    public int writeTypeArgument(@Nonnull RowBuffer buffer, int offset, @Nonnull TypeArgumentList value) {
 
         checkState(value.count() == 3);
 
         buffer.writeSparseTypeCode(offset, this.layoutCode());
-        int lenInBytes = LayoutCode.BYTES;
+        int lengthInBytes = LayoutCode.BYTES;
 
         for (int i = 1; i < value.count(); i++) {
             TypeArgument arg = value.get(i);
-            lenInBytes += arg.type().writeTypeArgument(buffer, offset + lenInBytes, arg.typeArgs());
+            lengthInBytes += arg.type().writeTypeArgument(buffer, offset + lengthInBytes, arg.typeArgs());
         }
 
-        return lenInBytes;
+        return lengthInBytes;
     }
 }

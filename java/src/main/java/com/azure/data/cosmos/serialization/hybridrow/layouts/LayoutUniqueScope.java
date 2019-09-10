@@ -22,7 +22,7 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
     }
 
     @Nonnull
-    public abstract TypeArgument fieldType(RowCursor scope);
+    public abstract TypeArgument fieldType(@Nonnull RowCursor scope);
 
     /**
      * Search for a matching field within a unique index.
@@ -144,12 +144,5 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope {
 
         RowCursors.skip(scope, buffer, childScope);
         return Result.SUCCESS;
-    }
-
-    @Override
-    @Nonnull
-    public <TContext> Result writeScope(
-        RowBuffer buffer, RowCursor scope, TypeArgumentList typeArgs, TContext context, WriterFunc<TContext> func) {
-        return this.writeScope(buffer, scope, typeArgs, context, func, UpdateOptions.UPSERT);
     }
 }

@@ -10,6 +10,8 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 import javax.annotation.Nonnull;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class LayoutObject extends LayoutPropertyScope {
 
     private TypeArgument typeArg;
@@ -32,13 +34,26 @@ public final class LayoutObject extends LayoutPropertyScope {
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor edit,
+        @Nonnull TypeArgumentList typeArgs, @Nonnull Out<RowCursor> value) {
         return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor edit,
+        @Nonnull TypeArgumentList typeArgs,
+        @Nonnull UpdateOptions options, @Nonnull Out<RowCursor> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(typeArgs, "expected non-null typeArgs");
+        checkNotNull(options, "expected non-null options");
+        checkNotNull(value, "expected non-null value");
 
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 

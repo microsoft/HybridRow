@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutFloat32 extends LayoutType<Float> {
+public final class LayoutFloat32 extends LayoutTypePrimitive<Float> {
 
     public LayoutFloat32() {
         super(LayoutCode.FLOAT_32, Float.BYTES);
@@ -29,7 +29,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Float> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Float> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -44,7 +44,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Float> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Float> value) {
 
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -59,7 +59,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Float value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Float value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -74,7 +74,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Float value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Float value, @Nonnull UpdateOptions options) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -88,7 +88,7 @@ public final class LayoutFloat32 extends LayoutType<Float> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Float value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Float value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

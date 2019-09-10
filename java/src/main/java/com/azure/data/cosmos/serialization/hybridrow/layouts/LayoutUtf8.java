@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8SpanWritable, ILayoutUtf8SpanReadable {
+public final class LayoutUtf8 extends LayoutTypePrimitive<String> implements LayoutUtf8SpanWritable, LayoutUtf8SpanReadable {
 
     public LayoutUtf8() {
         super(LayoutCode.UTF_8, 0);
@@ -172,13 +172,13 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, String value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull String value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, String value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull String value, @Nonnull UpdateOptions options) {
         checkArgument(value != null);
         return this.writeSparse(buffer, edit, Utf8String.transcodeUtf16(value), options);
     }
@@ -205,7 +205,7 @@ public final class LayoutUtf8 extends LayoutType<String> implements ILayoutUtf8S
 
     @Override
     @Nonnull
-    public Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, String value) {
+    public Result writeVariable(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull String value) {
         checkArgument(value != null);
         return this.writeVariable(buffer, scope, column, Utf8String.transcodeUtf16(value));
     }

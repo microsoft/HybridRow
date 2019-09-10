@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutFloat64 extends LayoutType<Double> {
+public final class LayoutFloat64 extends LayoutTypePrimitive<Double> {
 
     public LayoutFloat64() {
         super(LayoutCode.FLOAT_64, Double.BYTES / Byte.SIZE);
@@ -29,7 +29,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Double> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Double> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -44,7 +44,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Double> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Double> value) {
 
         Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -59,7 +59,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn col, Double value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn col, @Nonnull Double value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -77,7 +77,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
     // UpdateOptions options = UpdateOptions.Upsert)
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Double value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Double value, @Nonnull UpdateOptions options) {
 
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -91,7 +91,7 @@ public final class LayoutFloat64 extends LayoutType<Double> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Double value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Double value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

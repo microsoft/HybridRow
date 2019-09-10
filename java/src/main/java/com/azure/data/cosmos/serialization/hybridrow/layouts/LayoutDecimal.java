@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutDecimal extends LayoutType<BigDecimal> {
+public final class LayoutDecimal extends LayoutTypePrimitive<BigDecimal> {
 
     public LayoutDecimal() {
         super(LayoutCode.DECIMAL, DecimalCodec.BYTES);
@@ -31,7 +31,7 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<BigDecimal> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<BigDecimal> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -46,8 +46,8 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit,
-                             Out<BigDecimal> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit,
+                             @Nonnull Out<BigDecimal> value) {
         Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
         if (result != Result.SUCCESS) {
             value.setAndGet(new BigDecimal(0));
@@ -60,8 +60,8 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column,
-                             BigDecimal value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column,
+                             @Nonnull BigDecimal value) {
         checkArgument(scope.scopeType() instanceof LayoutUDT);
         if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
@@ -74,7 +74,7 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, BigDecimal value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull BigDecimal value, @Nonnull UpdateOptions options) {
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
         if (result != Result.SUCCESS) {
             return result;
@@ -86,7 +86,7 @@ public final class LayoutDecimal extends LayoutType<BigDecimal> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, BigDecimal value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull BigDecimal value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

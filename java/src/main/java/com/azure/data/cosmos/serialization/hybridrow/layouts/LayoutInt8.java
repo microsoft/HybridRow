@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutInt8 extends LayoutType<Byte> {
+public final class LayoutInt8 extends LayoutTypePrimitive<Byte> {
 
     public LayoutInt8() {
         super(LayoutCode.INT_8, Byte.BYTES);
@@ -29,7 +29,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Byte> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Byte> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -44,7 +44,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Byte> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Byte> value) {
 
         Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -59,7 +59,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Byte value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Byte value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -74,7 +74,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Byte value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Byte value, @Nonnull UpdateOptions options) {
 
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -88,7 +88,7 @@ public final class LayoutInt8 extends LayoutType<Byte> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Byte value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Byte value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

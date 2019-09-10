@@ -31,7 +31,7 @@ public final class RowWriter {
     private RowBuffer row;
 
     /**
-     * Initializes a new instance of the {@link RowWriter} struct
+     * Initializes a new instance of the {@link RowWriter} class
      *
      * @param row   The row to be read.
      * @param scope The scope into which items should be written.
@@ -73,13 +73,6 @@ public final class RowWriter {
      * @return Success if the write is successful, an error code otherwise.
      */
     public Result WriteBinary(UtfAnyString path, byte[] value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.Binary, (ref RowWriter w, byte[] v) => w
-        // .row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutTypes.BINARY,
             (ref RowWriter w, byte[] v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.UPSERT));
     }
@@ -91,16 +84,7 @@ public final class RowWriter {
      * @param value The value to write.
      * @return Success if the write is successful, an error code otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteBinary(UtfAnyString path, ReadOnlySpan<byte> value)
     public Result WriteBinary(UtfAnyString path, ReadOnlySpan<Byte> value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.Binary, (ref RowWriter w,
-        // ReadOnlySpan<byte> v) => w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.Binary,
             (ref RowWriter w, ReadOnlySpan<Byte> v) -> w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.UPSERT));
     }
@@ -112,34 +96,21 @@ public final class RowWriter {
      * @param value The value to write.
      * @return Success if the write is successful, an error code otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteBinary(UtfAnyString path, ReadOnlySequence<byte> value)
     public Result WriteBinary(UtfAnyString path, ReadOnlySequence<Byte> value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.WritePrimitive(path, value, LayoutType.Binary, (ref RowWriter w,
-        // ReadOnlySequence<byte> v) => w.row.WriteSparseBinary(ref w.cursor, v, UpdateOptions.Upsert));
         return this.WritePrimitive(path, value, LayoutType.Binary,
             (ref RowWriter w, ReadOnlySequence<Byte> v) -> w.row.WriteSparseBinary(ref w.cursor, v,
                 UpdateOptions.UPSERT));
     }
 
     /**
-     * Write a field as a {@link bool}.
+     * Write a field as a {@link Boolean}.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
      * @return Success if the write is successful, an error code otherwise.
      */
-    public Result WriteBool(UtfAnyString path, boolean value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.WritePrimitive(path, value, LayoutType.Boolean,
+    public Result WriteBoolean(UtfAnyString path, boolean value) {
+        return this.WritePrimitive(path, value, LayoutTypes.BOOLEAN,
             (ref RowWriter w, boolean v) -> w.row.WriteSparseBool(ref w.cursor, v, UpdateOptions.UPSERT));
     }
 
@@ -152,8 +123,8 @@ public final class RowWriter {
      * @param func    A function to write the entire row.
      * @return Success if the write is successful, an error code otherwise.
      */
-    public static <TContext> Result WriteBuffer(Reference<RowBuffer> row, TContext context,
-                                                WriterFunc<TContext> func) {
+    public static <TContext> Result WriteBuffer(
+        Reference<RowBuffer> row, TContext context, WriterFunc<TContext> func) {
         RowCursor scope = RowCursor.create(row);
         Reference<RowCursor> tempReference_scope =
             new Reference<RowCursor>(scope);

@@ -5,6 +5,9 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
+import javax.annotation.Nonnull;
+
 public abstract class LayoutResolver {
-    public abstract Layout resolve(SchemaId schemaId);
+    @Nonnull
+    public abstract Layout resolve(@Nonnull SchemaId schemaId);
 }

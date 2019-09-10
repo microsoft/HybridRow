@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutUInt16 extends LayoutType<Integer> {
+public final class LayoutUInt16 extends LayoutTypePrimitive<Integer> {
 
     public LayoutUInt16() {
         super(LayoutCode.UINT_16, Short.BYTES);
@@ -29,7 +29,7 @@ public final class LayoutUInt16 extends LayoutType<Integer> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<Integer> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Integer> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -44,7 +44,7 @@ public final class LayoutUInt16 extends LayoutType<Integer> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<Integer> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<Integer> value) {
 
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -59,7 +59,7 @@ public final class LayoutUInt16 extends LayoutType<Integer> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Integer value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Integer value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -74,7 +74,7 @@ public final class LayoutUInt16 extends LayoutType<Integer> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Integer value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Integer value, @Nonnull UpdateOptions options) {
 
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -88,7 +88,7 @@ public final class LayoutUInt16 extends LayoutType<Integer> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Integer value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Integer value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

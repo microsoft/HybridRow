@@ -46,8 +46,8 @@ public final class LayoutNullable extends LayoutIndexedScope {
     }
 
     public static Result hasValue(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor scope) {
-        checkNotNull(buffer);
-        checkNotNull(scope);
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
         checkArgument(scope.scopeType() instanceof LayoutNullable);
         checkArgument(scope.index() == 1 || scope.index() == 2);
         checkArgument(scope.scopeTypeArgs().count() == 1);
@@ -55,28 +55,34 @@ public final class LayoutNullable extends LayoutIndexedScope {
         return hasValue ? Result.SUCCESS : Result.NOT_FOUND;
     }
 
+    @Nonnull
     @Override
     public TypeArgumentList readTypeArgumentList(
         @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(lengthInBytes, "expected non-null lengthInBytes");
         return new TypeArgumentList(LayoutType.readTypeArgument(buffer, offset, lengthInBytes));
     }
 
     @Override
-    public void setImplicitTypeCode(RowCursor edit) {
+    public void setImplicitTypeCode(@Nonnull RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         checkState(edit.index() == 1);
         edit.cellType(edit.scopeTypeArgs().get(0).type());
         edit.cellTypeArgs(edit.scopeTypeArgs().get(0).typeArgs());
     }
 
+    @Nonnull
     public Result writeScope(
-        RowBuffer buffer,
-        RowCursor edit,
-        TypeArgumentList typeArgs,
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
         boolean hasValue,
-        Out<RowCursor> value) {
+        @Nonnull final Out<RowCursor> value) {
         return this.writeScope(buffer, edit, typeArgs, hasValue, UpdateOptions.UPSERT, value);
     }
 
+    @Nonnull
     public Result writeScope(
         @Nonnull final RowBuffer buffer,
         @Nonnull final RowCursor edit,
@@ -126,8 +132,8 @@ public final class LayoutNullable extends LayoutIndexedScope {
     @Override
     public int writeTypeArgument(@Nonnull final RowBuffer buffer, int offset, @Nonnull final TypeArgumentList value) {
 
-        checkNotNull(buffer);
-        checkNotNull(value);
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(value, "expected non-null value");
         checkArgument(offset >= 0);
         checkArgument(value.count() == 1);
 

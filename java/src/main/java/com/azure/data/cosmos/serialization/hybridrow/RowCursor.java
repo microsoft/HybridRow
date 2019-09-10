@@ -6,7 +6,7 @@ package com.azure.data.cosmos.serialization.hybridrow;
 import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutEndScope;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutScope;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypeScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTuple;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes;
@@ -30,7 +30,7 @@ public final class RowCursor implements Cloneable {
     private int metaOffset;
     private int pathOffset;
     private int pathToken;
-    private LayoutScope scopeType;
+    private LayoutTypeScope scopeType;
     private TypeArgumentList scopeTypeArgs;
     private int start;
     private int valueOffset;
@@ -228,11 +228,11 @@ public final class RowCursor implements Cloneable {
     /**
      * The kind of scope within which this edit was prepared
      */
-    public LayoutScope scopeType() {
+    public LayoutTypeScope scopeType() {
         return this.scopeType;
     }
 
-    public RowCursor scopeType(LayoutScope scopeType) {
+    public RowCursor scopeType(LayoutTypeScope scopeType) {
         this.scopeType = scopeType;
         return this;
     }

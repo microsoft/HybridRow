@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
+public final class LayoutDateTime extends LayoutTypePrimitive<OffsetDateTime> {
 
     public LayoutDateTime() {
         super(LayoutCode.DATE_TIME, DateTimeCodec.BYTES);
@@ -31,7 +31,7 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<OffsetDateTime> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<OffsetDateTime> value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -46,7 +46,7 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<OffsetDateTime> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<OffsetDateTime> value) {
 
         Result result = LayoutType.prepareSparseRead(buffer, edit, this.layoutCode());
 
@@ -61,7 +61,7 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, OffsetDateTime value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull OffsetDateTime value) {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -76,7 +76,7 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, OffsetDateTime value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull OffsetDateTime value, @Nonnull UpdateOptions options) {
 
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -90,7 +90,7 @@ public final class LayoutDateTime extends LayoutType<OffsetDateTime> {
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, OffsetDateTime value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull OffsetDateTime value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

@@ -5,16 +5,24 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
+import javax.annotation.Nonnull;
+
+import java.util.function.Function;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class LayoutResolverSimple extends LayoutResolver {
 
-    private tangible.Func1Param<SchemaId, Layout> resolver;
+    private Function<SchemaId, Layout> resolver;
 
-    public LayoutResolverSimple(tangible.Func1Param<SchemaId, Layout> resolver) {
-        this.resolver = (SchemaId arg) -> resolver.invoke(arg);
+    public LayoutResolverSimple(Function<SchemaId, Layout> resolver) {
+        this.resolver = resolver;
     }
 
+    @Nonnull
     @Override
-    public Layout resolve(SchemaId schemaId) {
-        return this.resolver.invoke(schemaId);
+    public Layout resolve(@Nonnull SchemaId schemaId) {
+        checkNotNull(schemaId, "expected non-null schemaId");
+        return this.resolver.apply(schemaId);
     }
 }

@@ -14,7 +14,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutScope;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypeScope;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.StringToken;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
@@ -294,7 +294,7 @@ public final class CodeGenRowGenerator {
         private static final Utf8String PhoneNumbersName = Utf8String.TranscodeUtf16("phone_numbers");
         private static final Utf8String TitleName = Utf8String.TranscodeUtf16("title");
         private AddressHybridRowSerializer addressSerializer;
-        private LayoutScope.WriterFunc<HashMap<Utf8String, Object>> addressSerializerWriter;
+        private LayoutTypeScope.WriterFunc<HashMap<Utf8String, Object>> addressSerializerWriter;
         private LayoutColumn addresses;
         private TypeArgumentList addressesFieldType = new TypeArgumentList();
         private StringToken addressesToken = new StringToken();

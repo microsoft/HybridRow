@@ -14,6 +14,8 @@ import com.google.common.base.Strings;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,6 +104,10 @@ public final class TypeArgumentList {
         }
 
         return hash;
+    }
+
+    public List<TypeArgument> list() {
+        return Collections.unmodifiableList(Arrays.asList(this.args));
     }
 
     /**

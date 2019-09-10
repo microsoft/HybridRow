@@ -4,6 +4,7 @@
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 public class SamplingStringComparer implements IEqualityComparer<String> {
+
     public static final SamplingStringComparer Default = new SamplingStringComparer();
 
     public final boolean equals(String x, String y) {

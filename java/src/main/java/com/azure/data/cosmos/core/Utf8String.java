@@ -98,6 +98,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return StreamSupport.intStream(new CodePointIterable(this.buffer, this.length), false);
     }
 
+
     public final int compareTo(@Nonnull final Utf8String other) {
 
         checkNotNull(other, "expected non-null other");
@@ -349,11 +350,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     @Override
     public String toString() {
-        return this.buffer.getCharSequence(0, this.buffer.capacity(), UTF_8).toString();
+        return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
     }
 
     public String toUtf16() {
-        return this.buffer.getCharSequence(0, this.buffer.capacity(), UTF_8).toString();
+        return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
     }
 
     @Override

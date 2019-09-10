@@ -39,15 +39,18 @@ public final class LayoutTuple extends LayoutIndexedScope {
 
     @Override
     @Nonnull
-    public TypeArgumentList readTypeArgumentList(RowBuffer buffer, int offset, Out<Integer> lenInBytes) {
+    public TypeArgumentList readTypeArgumentList(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
 
-        final int numTypeArgs = buffer.read7BitEncodedUInt(offset, lenInBytes);
+        final int numTypeArgs = (int) buffer.readVariableUInt(offset, lengthInBytes);
         final TypeArgument[] typeArgs = new TypeArgument[numTypeArgs];
-        final Out<Integer> itemLength = new Out<>();
+        final Out<Integer> len = new Out<>();
+
+        int sum = lengthInBytes.get();
 
         for (int i = 0; i < numTypeArgs; i++) {
-            typeArgs[i] = readTypeArgument(buffer, offset + lenInBytes.get(), itemLength);
-            lenInBytes.set(lenInBytes.get() + itemLength.get());
+            typeArgs[i] = readTypeArgument(buffer, offset + sum, len);
+            sum += len.get();
         }
 
         return new TypeArgumentList(typeArgs);
@@ -55,14 +58,28 @@ public final class LayoutTuple extends LayoutIndexedScope {
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final Out<RowCursor> value) {
         return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options,
-                             Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options,
+        @Nonnull final Out<RowCursor> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(typeArgs, "expected non-null typeArgs");
+        checkNotNull(options, "expected non-null options");
+        checkNotNull(value, "expected non-null value");
 
         Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
 
@@ -76,16 +93,14 @@ public final class LayoutTuple extends LayoutIndexedScope {
     }
 
     @Override
-    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
+    public int writeTypeArgument(@Nonnull RowBuffer buffer, int offset, @Nonnull TypeArgumentList value) {
         buffer.writeSparseTypeCode(offset, this.layoutCode());
-        int lenInBytes = LayoutCode.BYTES;
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: lenInBytes += buffer.Write7BitEncodedUInt(offset + lenInBytes, (ulong)value.Count);
-        lenInBytes += buffer.write7BitEncodedUInt(offset + lenInBytes, (long) value.count());
-        for (TypeArgument arg : value) {
-            lenInBytes += arg.type().writeTypeArgument(buffer, offset + lenInBytes, arg.typeArgs());
+        int lengthInBytes = LayoutCode.BYTES;
+        lengthInBytes += buffer.writeVariableUInt(offset + lengthInBytes, value.count());
+        for (TypeArgument arg : value.list()) {
+            lengthInBytes += arg.type().writeTypeArgument(buffer, offset + lengthInBytes, arg.typeArgs());
         }
 
-        return lenInBytes;
+        return lengthInBytes;
     }
 }

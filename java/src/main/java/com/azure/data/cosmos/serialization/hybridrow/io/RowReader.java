@@ -13,8 +13,8 @@ import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.ILayoutSpanReadable;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.ILayoutUtf8SpanReadable;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutSpanReadable;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUtf8SpanReadable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBinary;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBoolean;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
@@ -1049,7 +1049,7 @@ public final class RowReader {
         LayoutColumn column = this.columns.get(this.columnIndex);
         LayoutType type = this.columns.get(this.columnIndex).type();
 
-        if (!(type instanceof ILayoutUtf8SpanReadable)) {
+        if (!(type instanceof LayoutUtf8SpanReadable)) {
             value.set(null);
             return Result.TYPE_MISMATCH;
         }
@@ -1059,10 +1059,10 @@ public final class RowReader {
         switch (storage) {
 
             case FIXED:
-                return type.<ILayoutUtf8SpanReadable>typeAs().readFixed(this.row, this.cursor, column, value);
+                return type.<LayoutUtf8SpanReadable>typeAs().readFixed(this.row, this.cursor, column, value);
 
             case VARIABLE:
-                return type.<ILayoutUtf8SpanReadable>typeAs().readVariable(this.row, this.cursor, column, value);
+                return type.<LayoutUtf8SpanReadable>typeAs().readVariable(this.row, this.cursor, column, value);
 
             default:
                 assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
@@ -1083,7 +1083,7 @@ public final class RowReader {
         LayoutColumn column = this.columns.get(this.columnIndex);
         LayoutType type = this.columns.get(this.columnIndex).type();
 
-        if (!(type instanceof ILayoutSpanReadable<?>)) {
+        if (!(type instanceof LayoutSpanReadable<?>)) {
             value.set(null);
             return Result.TYPE_MISMATCH;
         }
@@ -1093,10 +1093,10 @@ public final class RowReader {
         switch (storage) {
 
             case FIXED:
-                return type.<ILayoutSpanReadable<TElement>>typeAs().readFixed(this.row, this.cursor, column, value);
+                return type.<LayoutSpanReadable<TElement>>typeAs().readFixed(this.row, this.cursor, column, value);
 
             case VARIABLE:
-                return type.<ILayoutSpanReadable<TElement>>typeAs().readVariable(this.row, this.cursor, column, value);
+                return type.<LayoutSpanReadable<TElement>>typeAs().readVariable(this.row, this.cursor, column, value);
 
             default:
                 assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);

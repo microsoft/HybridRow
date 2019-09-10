@@ -87,7 +87,7 @@ public final class RecordIOParser {
                     new Reference<RowReader>(reader);
                 Out<Segment> tempOut_segment =
                     new Out<Segment>();
-                result = SegmentSerializer.Read(tempReference_reader, tempOut_segment);
+                result = SegmentSerializer.read(tempReference_reader, tempOut_segment);
                 this.segment = tempOut_segment.get();
                 reader = tempReference_reader.get();
                 if (result != Result.SUCCESS) {
@@ -118,7 +118,7 @@ public final class RecordIOParser {
                     new Reference<RowReader>(reader);
                 Out<Segment> tempOut_segment2
                     = new Out<Segment>();
-                result = SegmentSerializer.Read(tempReference_reader2, tempOut_segment2);
+                result = SegmentSerializer.read(tempReference_reader2, tempOut_segment2);
                 this.segment = tempOut_segment2.get();
                 reader = tempReference_reader2.get();
                 if (result != Result.SUCCESS) {

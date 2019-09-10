@@ -10,18 +10,20 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 
 import javax.annotation.Nonnull;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class LayoutTypedMap extends LayoutUniqueScope {
+
     public LayoutTypedMap(boolean immutable) {
-        super(immutable ? com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.IMMUTABLE_TYPED_MAP_SCOPE :
-            com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCode.TYPED_MAP_SCOPE, immutable, isSizedScope():
-        true, isTypedScope():true)
+        super(
+            immutable ? LayoutCode.IMMUTABLE_TYPED_MAP_SCOPE : LayoutCode.TYPED_MAP_SCOPE, immutable,
+            true, true);
     }
 
     @Override
-    public int countTypeArgument(@Nonnull TypeArgumentList value) {
+    public int countTypeArgument(@Nonnull final TypeArgumentList value) {
         checkNotNull(value, "expected non-null value");
         checkState(value.count() == 2);
         return value.stream()
@@ -31,14 +33,16 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
 
     @Nonnull
     @Override
-    public TypeArgument fieldType(RowCursor scope) {
+    public TypeArgument fieldType(@Nonnull final RowCursor scope) {
+        checkNotNull(scope, "expected non-null scope");
         return new TypeArgument(
             scope.scopeType().isImmutable() ? LayoutTypes.IMMUTABLE_TYPED_TUPLE : LayoutTypes.TYPED_TUPLE,
             scope.scopeTypeArgs());
     }
 
     @Override
-    public boolean hasImplicitTypeCode(RowCursor edit) {
+    public boolean hasImplicitTypeCode(@Nonnull final RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         return true;
     }
 
@@ -48,39 +52,59 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     }
 
     @Override
-    public TypeArgumentList readTypeArgumentList(RowBuffer row, int offset,
-                                                 Out<Integer> lenInBytes) {
-        lenInBytes.setAndGet(0);
-        TypeArgument[] retval = new TypeArgument[2];
+    @Nonnull
+    public TypeArgumentList readTypeArgumentList(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(lengthInBytes, "expected non-null lengthInBytes");
+
+        TypeArgument[] typeArguments = new TypeArgument[2];
+        Out<Integer> length = new Out<>();
+        int index = 0;
+
         for (int i = 0; i < 2; i++) {
-            int itemLenInBytes;
-            Out<Integer> tempOut_itemLenInBytes = new Out<Integer>();
-            retval[i] = readTypeArgument(row, offset + lenInBytes, tempOut_itemLenInBytes);
-            itemLenInBytes = tempOut_itemLenInBytes;
-            lenInBytes.setAndGet(lenInBytes + itemLenInBytes);
+            typeArguments[i] = readTypeArgument(buffer, offset + index, length);
+            index += length.get();
         }
 
-        return new TypeArgumentList(retval);
+        lengthInBytes.set(index);
+        return new TypeArgumentList(typeArguments);
     }
 
     @Override
-    public void setImplicitTypeCode(RowCursor edit) {
+    public void setImplicitTypeCode(@Nonnull final RowCursor edit) {
+        checkNotNull(edit, "expected non-null edit");
         edit.cellType(edit.scopeType().isImmutable() ? LayoutTypes.IMMUTABLE_TYPED_TUPLE : LayoutTypes.TYPED_TUPLE);
         edit.cellTypeArgs(edit.scopeTypeArgs());
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final Out<RowCursor> value) {
         return this.writeScope(buffer, edit, typeArgs, UpdateOptions.UPSERT, value);
     }
 
     @Override
     @Nonnull
-    public Result writeScope(RowBuffer buffer, RowCursor edit, TypeArgumentList typeArgs, UpdateOptions options,
-                             Out<RowCursor> value) {
+    public Result writeScope(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor edit,
+        @Nonnull final TypeArgumentList typeArgs,
+        @Nonnull final UpdateOptions options,
+        @Nonnull final Out<RowCursor> value) {
 
-        Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(typeArgs, "expected non-null typeArgs");
+        checkNotNull(options, "expected non-null options");
+        checkNotNull(value, "expected non-null value");
+
+        final Result result = prepareSparseWrite(buffer, edit, new TypeArgument(this, typeArgs), options);
 
         if (result != Result.SUCCESS) {
             value.setAndGet(null);
@@ -92,14 +116,20 @@ public final class LayoutTypedMap extends LayoutUniqueScope {
     }
 
     @Override
-    public int writeTypeArgument(RowBuffer buffer, int offset, TypeArgumentList value) {
-        checkState(value.count() == 2);
+    public int writeTypeArgument(
+        @Nonnull final RowBuffer buffer, final int offset, @Nonnull final TypeArgumentList value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(value, "expected non-null value");
+        checkArgument(value.count() == 2, "expected value count of 2, not %s", value.count());
+
         buffer.writeSparseTypeCode(offset, this.layoutCode());
-        int lenInBytes = LayoutCode.BYTES;
-        for (TypeArgument arg : value) {
-            lenInBytes += arg.type().writeTypeArgument(buffer, offset + lenInBytes, arg.typeArgs());
+        int lengthInBytes = LayoutCode.BYTES;
+
+        for (TypeArgument arg : value.list()) {
+            lengthInBytes += arg.type().writeTypeArgument(buffer, offset + lengthInBytes, arg.typeArgs());
         }
 
-        return lenInBytes;
+        return lengthInBytes;
     }
 }

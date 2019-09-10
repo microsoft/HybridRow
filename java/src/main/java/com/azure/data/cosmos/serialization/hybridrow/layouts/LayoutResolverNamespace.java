@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
@@ -28,11 +29,12 @@ public final class LayoutResolverNamespace extends LayoutResolver {
     private final LayoutResolver parent;
     private final Namespace schemaNamespace;
 
-    public LayoutResolverNamespace(@Nonnull final Namespace schemaNamespace) {
-        this(schemaNamespace, null);
+    public LayoutResolverNamespace(@Nonnull final Namespace namespace) {
+        this(namespace, null);
     }
 
     public LayoutResolverNamespace(@Nonnull final Namespace schemaNamespace, @Nullable final LayoutResolver parent) {
+        checkNotNull(schemaNamespace, "expected non-null schemaNamespace");
         this.schemaNamespace = schemaNamespace;
         this.parent = parent;
         this.layoutCache = new ConcurrentHashMap<>();
@@ -42,8 +44,11 @@ public final class LayoutResolverNamespace extends LayoutResolver {
         return this.schemaNamespace;
     }
 
+    @Nonnull
     @Override
-    public Layout resolve(SchemaId schemaId) {
+    public Layout resolve(@Nonnull SchemaId schemaId) {
+
+        checkNotNull(schemaId, "expected non-null schemaId");
 
         Layout layout = this.layoutCache.computeIfAbsent(schemaId, id -> {
             for (Schema schema : this.namespace().schemas()) {
@@ -55,6 +60,6 @@ public final class LayoutResolverNamespace extends LayoutResolver {
         });
 
         checkState(layout != null, "failed to resolve schema %s", schemaId);
-        return null;
+        return layout;
     }
 }
