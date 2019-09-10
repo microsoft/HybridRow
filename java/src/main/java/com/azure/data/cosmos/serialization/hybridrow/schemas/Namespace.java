@@ -25,12 +25,13 @@ public class Namespace {
     /**
      * The fully qualified identifier of the namespace.
      */
-    public final String getName() {
+    public final String name() {
         return this.name;
     }
 
-    public final void setName(String value) {
+    public final Namespace name(String value) {
         this.name = value;
+        return this;
     }
 
     /**

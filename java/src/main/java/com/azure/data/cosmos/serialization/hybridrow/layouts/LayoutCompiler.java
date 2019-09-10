@@ -20,7 +20,6 @@ import com.azure.data.cosmos.serialization.hybridrow.schemas.TuplePropertyType;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.TypeKind;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.UdtPropertyType;
 import com.google.common.base.Strings;
-import tangible.ListHelper;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -46,7 +45,7 @@ public final class LayoutCompiler {
 
         checkNotNull(ns, "expected non-null ns");
         checkNotNull(schema, "expected non-null schema");
-        checkArgument(schema.type() == TypeKind.Schema);
+        checkArgument(schema.type() == TypeKind.SCHEMA);
         checkArgument(!Strings.isNullOrEmpty(schema.name()));
         checkArgument(ns.schemas().contains(schema));
 
@@ -162,82 +161,82 @@ public final class LayoutCompiler {
 
         switch (logicalType.type()) {
 
-            case Null:
+            case NULL:
                 return LayoutTypes.NULL;
 
-            case Boolean:
+            case BOOLEAN:
                 return LayoutTypes.BOOLEAN;
 
-            case Int8:
+            case INT_8:
                 return LayoutTypes.INT_8;
 
-            case Int16:
+            case INT_16:
                 return LayoutTypes.INT_16;
 
-            case Int32:
+            case INT_32:
                 return LayoutTypes.INT_32;
 
-            case Int64:
+            case INT_64:
                 return LayoutTypes.INT_64;
 
-            case UInt8:
+            case UINT_8:
                 return LayoutTypes.UINT_8;
 
-            case UInt16:
+            case UINT_16:
                 return LayoutTypes.UINT_16;
 
-            case UInt32:
+            case UINT_32:
                 return LayoutTypes.UINT_32;
 
-            case UInt64:
+            case UINT_64:
                 return LayoutTypes.UINT_64;
 
-            case Float32:
+            case FLOAT_32:
                 return LayoutTypes.FLOAT_32;
 
-            case Float64:
+            case FLOAT_64:
                 return LayoutTypes.FLOAT_64;
 
-            case Float128:
+            case FLOAT_128:
                 return LayoutTypes.FLOAT_128;
 
-            case Decimal:
+            case DECIMAL:
                 return LayoutTypes.DECIMAL;
 
-            case DateTime:
+            case DATE_TIME:
                 return LayoutTypes.DATE_TIME;
 
-            case UnixDateTime:
+            case UNIX_DATE_TIME:
                 return LayoutTypes.UNIX_DATE_TIME;
 
-            case Guid:
+            case GUID:
                 return LayoutTypes.GUID;
 
-            case MongoDbObjectId:
+            case MONGODB_OBJECT_ID:
                 throw new UnsupportedOperationException();
                 // return LayoutTypes.MONGO_DB_OBJECT_ID;
 
-            case Utf8:
+            case UTF_8:
                 return LayoutTypes.UTF_8;
 
-            case Binary:
+            case BINARY:
                 return LayoutTypes.BINARY;
 
-            case VarInt:
+            case VAR_INT:
                 return LayoutTypes.VAR_INT;
 
-            case VarUInt:
+            case VAR_UINT:
                 return LayoutTypes.VAR_UINT;
 
-            case Object:
+            case OBJECT:
                 return immutable ? LayoutTypes.IMMUTABLE_OBJECT : LayoutTypes.OBJECT;
 
-            case Array: {
+            case ARRAY: {
 
                 assert logicalType instanceof ArrayPropertyType;
                 ArrayPropertyType ap = (ArrayPropertyType) logicalType;
 
-                if (ap.items() != null && (ap.items().type() != TypeKind.Any)) {
+                if (ap.items() != null && (ap.items().type() != TypeKind.ANY)) {
 
                     final Out<TypeArgumentList> out = new Out<>();
 
@@ -260,7 +259,7 @@ public final class LayoutCompiler {
                 assert logicalType instanceof SetPropertyType;
                 SetPropertyType sp = (SetPropertyType) logicalType;
 
-                if ((sp.items() != null) && (sp.items().type() != TypeKind.Any)) {
+                if ((sp.items() != null) && (sp.items().type() != TypeKind.ANY)) {
 
                     final Out<TypeArgumentList> out = new Out<>();
 
@@ -288,7 +287,7 @@ public final class LayoutCompiler {
                 assert logicalType instanceof MapPropertyType;
                 MapPropertyType mp = (MapPropertyType) logicalType;
 
-                if (mp.keys() != null && (mp.keys().type() != TypeKind.Any) && (mp.values() != null) && (mp.values().type() != TypeKind.Any)) {
+                if (mp.keys() != null && (mp.keys().type() != TypeKind.ANY) && (mp.values() != null) && (mp.values().type() != TypeKind.ANY)) {
 
                     final Out<TypeArgumentList> out = new Out<>();
 
@@ -322,7 +321,7 @@ public final class LayoutCompiler {
                     "Unknown property type: %s", logicalType.type())
                 );
             }
-            case Tuple: {
+            case TUPLE: {
 
                 assert logicalType instanceof TuplePropertyType;
                 final TuplePropertyType tp = (TuplePropertyType) logicalType;
@@ -389,7 +388,7 @@ public final class LayoutCompiler {
                         throw new LayoutCompilationException("Unexpected tagged arity");
                 }
             }
-            case Schema: {
+            case SCHEMA: {
 
                 assert logicalType instanceof UdtPropertyType;
                 UdtPropertyType up = (UdtPropertyType) logicalType;

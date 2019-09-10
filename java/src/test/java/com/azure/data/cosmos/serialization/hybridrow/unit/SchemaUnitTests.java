@@ -84,7 +84,7 @@ public class SchemaUnitTests {
             Assert.AreEqual(1, n1.getSchemas().size(), "Json: {0}", json);
             Assert.AreEqual("emptyTable", n1.getSchemas().get(0).getName(), "Json: {0}", json);
             Assert.AreEqual(new SchemaId(-1), n1.getSchemas().get(0).getSchemaId().clone(), "Json: {0}", json);
-            Assert.AreEqual(TypeKind.Schema, n1.getSchemas().get(0).getType(), "Json: {0}", json);
+            Assert.AreEqual(TypeKind.SCHEMA, n1.getSchemas().get(0).getType(), "Json: {0}", json);
             Assert.AreEqual(true, n1.getSchemas().get(0).getOptions().getDisallowUnschematized(), "Json: {0}", json);
             Assert.IsNotNull(n1.getSchemas().get(0).getProperties().size(), "Json: {0}", json);
             Assert.AreEqual(0, n1.getSchemas().get(0).getProperties().size(), "Json: {0}", json);
@@ -106,7 +106,7 @@ public class SchemaUnitTests {
             Assert.AreEqual(1, n1.getSchemas().size(), "Json: {0}", json);
             Assert.AreEqual("myUDT", n1.getSchemas().get(0).getName(), "Json: {0}", json);
             Assert.AreEqual(new SchemaId(1), n1.getSchemas().get(0).getSchemaId().clone(), "Json: {0}", json);
-            Assert.AreEqual(TypeKind.Schema, n1.getSchemas().get(0).getType(), "Json: {0}", json);
+            Assert.AreEqual(TypeKind.SCHEMA, n1.getSchemas().get(0).getType(), "Json: {0}", json);
             Assert.AreEqual(false, n1.getSchemas().get(0).getOptions().getDisallowUnschematized(), "Json: {0}", json);
             Assert.AreEqual(2, n1.getSchemas().get(0).getProperties().size(), "Json: {0}", json);
 
@@ -136,8 +136,8 @@ public class SchemaUnitTests {
                     Storage = _Storage;
                 }
             }
-            Object[] expectedProps = new Object[] { AnonymousType("a", TypeKind.Int8, StorageKind.FIXED),
-                AnonymousType2("b", TypeKind.Utf8, StorageKind.VARIABLE) };
+            Object[] expectedProps = new Object[] { AnonymousType("a", TypeKind.INT_8, StorageKind.FIXED),
+                AnonymousType2("b", TypeKind.UTF_8, StorageKind.VARIABLE) };
 
             for (int i = 0; i < n1.getSchemas().get(0).getProperties().size(); i++) {
                 Property p = n1.getSchemas().get(0).getProperties().get(i);
@@ -448,27 +448,27 @@ public class SchemaUnitTests {
             }
         }
         // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to the C# 'dynamic' keyword:
-        dynamic[] expectedSchemas = { AnonymousType("{'type': 'bool', 'storage': 'fixed'}", TypeKind.Boolean),
-            AnonymousType2("{'type': 'int8', 'storage': 'fixed'}", TypeKind.Int8), AnonymousType3("{'type': 'int16', " +
-            "'storage': 'fixed'}", TypeKind.Int16), AnonymousType4("{'type': 'int32', 'storage': 'fixed'}",
-            TypeKind.Int32), AnonymousType5("{'type': 'int64', 'storage': 'fixed'}", TypeKind.Int64), AnonymousType6(
-                "{'type': 'uint8', 'storage': 'fixed'}", TypeKind.UInt8), AnonymousType7("{'type': 'uint16', " +
-            "'storage': 'fixed'}", TypeKind.UInt16), AnonymousType8("{'type': 'uint32', 'storage': 'fixed'}",
-            TypeKind.UInt32), AnonymousType9("{'type': 'uint64', 'storage': 'fixed'}", TypeKind.UInt64),
-            AnonymousType10("{'type': 'float32', 'storage': 'fixed'}", TypeKind.Float32), AnonymousType11("{'type': " +
-            "'float64', 'storage': 'fixed'}", TypeKind.Float64), AnonymousType12("{'type': 'float128', 'storage': " +
-            "'fixed'}", TypeKind.Float128), AnonymousType13("{'type': 'decimal', 'storage': 'fixed'}",
-            TypeKind.Decimal), AnonymousType14("{'type': 'datetime', 'storage': 'fixed'}", TypeKind.DateTime),
-            AnonymousType15("{'type': 'unixdatetime', 'storage': 'fixed'}", TypeKind.UnixDateTime), AnonymousType16(
-                "{'type': 'guid', 'storage': 'fixed'}", TypeKind.Guid), AnonymousType17("{'type': 'mongodbobjectid', " +
-            "'storage': 'fixed'}", TypeKind.MongoDbObjectId), AnonymousType18("{'type': 'varint', 'storage': " +
-            "'variable'}", TypeKind.VarInt), AnonymousType19("{'type': 'varuint', 'storage': 'variable'}",
-            TypeKind.VarUInt), AnonymousType20("{'type': 'utf8', 'storage': 'fixed', 'length': 2}", TypeKind.Utf8, 2)
-            , AnonymousType21("{'type': 'binary', 'storage': 'fixed', 'length': 2}", TypeKind.Binary, 2),
-            AnonymousType22("{'type': 'utf8', 'storage': 'variable', 'length': 100}", TypeKind.Utf8, 100),
-            AnonymousType23("{'type': 'binary', 'storage': 'variable', 'length': 100}", TypeKind.Binary, 100),
-            AnonymousType24("{'type': 'utf8', 'sparse': 'variable', 'length': 1000}", TypeKind.Utf8, 1000),
-            AnonymousType25("{'type': 'binary', 'sparse': 'variable', 'length': 1000}", TypeKind.Binary, 1000) };
+        dynamic[] expectedSchemas = { AnonymousType("{'type': 'bool', 'storage': 'fixed'}", TypeKind.BOOLEAN),
+            AnonymousType2("{'type': 'int8', 'storage': 'fixed'}", TypeKind.INT_8), AnonymousType3("{'type': 'int16', " +
+            "'storage': 'fixed'}", TypeKind.INT_16), AnonymousType4("{'type': 'int32', 'storage': 'fixed'}",
+            TypeKind.INT_32), AnonymousType5("{'type': 'int64', 'storage': 'fixed'}", TypeKind.INT_64), AnonymousType6(
+                "{'type': 'uint8', 'storage': 'fixed'}", TypeKind.UINT_8), AnonymousType7("{'type': 'uint16', " +
+            "'storage': 'fixed'}", TypeKind.UINT_16), AnonymousType8("{'type': 'uint32', 'storage': 'fixed'}",
+            TypeKind.UINT_32), AnonymousType9("{'type': 'uint64', 'storage': 'fixed'}", TypeKind.UINT_64),
+            AnonymousType10("{'type': 'float32', 'storage': 'fixed'}", TypeKind.FLOAT_32), AnonymousType11("{'type': " +
+            "'float64', 'storage': 'fixed'}", TypeKind.FLOAT_64), AnonymousType12("{'type': 'float128', 'storage': " +
+            "'fixed'}", TypeKind.FLOAT_128), AnonymousType13("{'type': 'decimal', 'storage': 'fixed'}",
+            TypeKind.DECIMAL), AnonymousType14("{'type': 'datetime', 'storage': 'fixed'}", TypeKind.DATE_TIME),
+            AnonymousType15("{'type': 'unixdatetime', 'storage': 'fixed'}", TypeKind.UNIX_DATE_TIME), AnonymousType16(
+                "{'type': 'guid', 'storage': 'fixed'}", TypeKind.GUID), AnonymousType17("{'type': 'mongodbobjectid', " +
+            "'storage': 'fixed'}", TypeKind.MONGODB_OBJECT_ID), AnonymousType18("{'type': 'varint', 'storage': " +
+            "'variable'}", TypeKind.VAR_INT), AnonymousType19("{'type': 'varuint', 'storage': 'variable'}",
+            TypeKind.VAR_UINT), AnonymousType20("{'type': 'utf8', 'storage': 'fixed', 'length': 2}", TypeKind.UTF_8, 2)
+            , AnonymousType21("{'type': 'binary', 'storage': 'fixed', 'length': 2}", TypeKind.BINARY, 2),
+            AnonymousType22("{'type': 'utf8', 'storage': 'variable', 'length': 100}", TypeKind.UTF_8, 100),
+            AnonymousType23("{'type': 'binary', 'storage': 'variable', 'length': 100}", TypeKind.BINARY, 100),
+            AnonymousType24("{'type': 'utf8', 'sparse': 'variable', 'length': 1000}", TypeKind.UTF_8, 1000),
+            AnonymousType25("{'type': 'binary', 'sparse': 'variable', 'length': 1000}", TypeKind.BINARY, 1000) };
 
         for (dynamic expected : expectedSchemas) {
             String columnSchema = String.format("{'path': 'a', 'type': %1$s", expected.Json
@@ -517,8 +517,8 @@ class AnonymousType4 {
     public String Json;
     public String Name;
 // TODO: C# TO JAVA CONVERTER: There is no Java equivalent to the C# 'dynamic' keyword:
-    dynamic[] expectedSchemas = { AnonymousType("{'type': 'int8' }", TypeKind.Int8), AnonymousType2("{'type': " +
-        "'array', 'items': {'type': 'int32'}}", TypeKind.Int32), AnonymousType3("{'type': 'object', 'properties': " +
+    dynamic[] expectedSchemas = { AnonymousType("{'type': 'int8' }", TypeKind.INT_8), AnonymousType2("{'type': " +
+        "'array', 'items': {'type': 'int32'}}", TypeKind.INT_32), AnonymousType3("{'type': 'object', 'properties': " +
         "null}", 0), AnonymousType4("{'type': 'schema', 'name': 'myUDT'}", "myUDT") };
 
 		   public AnonymousType4(String _Json, String _Name) {
@@ -601,8 +601,8 @@ class AnonymousType4 {
 
     publ TO JAVA CONVERTER TODO TASK: There is no Java equivalent to the C# 'dynamic' keyword:
     dynamic[] expectedSchemas = { AnonymousType("{'path': 'b', 'type': {'type': 'int8', 'storage': 'fixed'}}",
-        TypeKind.Int8), AnonymousType2("{'path': 'b', 'type': {'type': 'array', 'items': {'type': 'int32'}}}",
-        TypeKind.Int32), AnonymousType3("{'path': 'b', 'type': {'type': 'object', 'properties': [{'path': 'c', " +
+        TypeKind.INT_8), AnonymousType2("{'path': 'b', 'type': {'type': 'array', 'items': {'type': 'int32'}}}",
+        TypeKind.INT_32), AnonymousType3("{'path': 'b', 'type': {'type': 'object', 'properties': [{'path': 'c', " +
         "'type': {'type': 'bool'}}]}}", 1), AnonymousType4("{'path': 'b', 'type': {'type': 'schema', 'name': " +
         "'myUDT'}}", "myUDT") };
 

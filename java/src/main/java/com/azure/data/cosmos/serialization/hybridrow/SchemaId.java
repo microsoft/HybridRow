@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 import static com.google.common.base.Strings.lenientFormat;
@@ -26,7 +27,7 @@ import static com.google.common.base.Strings.lenientFormat;
  */
 @JsonDeserialize(using = SchemaId.JsonDeserializer.class)
 @JsonSerialize(using = SchemaId.JsonSerializer.class)
-public final class SchemaId {
+public final class SchemaId implements Comparable<SchemaId> {
 
     public static final int BYTES = Integer.BYTES;
     public static final SchemaId INVALID = null;
@@ -47,8 +48,20 @@ public final class SchemaId {
     }
 
     @Override
+    public int compareTo(@Nonnull SchemaId other) {
+        return Integer.compare(this.value, other.value);
+    }
+
+    @Override
     public boolean equals(Object other) {
-        return other instanceof SchemaId && this.equals((SchemaId) other);
+        if (this == other) {
+            return true;
+        }
+        if (other == null || this.getClass() != other.getClass()) {
+            return false;
+        }
+        SchemaId schemaId = (SchemaId) other;
+        return this.value == schemaId.value;
     }
 
     /**

@@ -9,7 +9,7 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
  * Maps are typed or untyped.  Within typed maps, all key MUST be the same type, and all values MUST be the same type.
  * The type of both key and values is specified via {@link #keys} and {@link #values} respectively. Typed maps may be
  * stored more efficiently than untyped maps. When {@link #keys} or {@link #values} is unspecified or marked
- * {@link TypeKind#Any}, the map is untyped and its key and/or values may be heterogeneous.
+ * {@link TypeKind#ANY}, the map is untyped and its key and/or values may be heterogeneous.
  */
 public class MapPropertyType extends ScopePropertyType {
 

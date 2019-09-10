@@ -42,7 +42,7 @@ public class Schema {
      * Initializes a new instance of the {@link Schema} class.
      */
     public Schema() {
-        this.type(TypeKind.Schema);
+        this.type(TypeKind.SCHEMA);
         this.properties = Collections.emptyList();
         this.partitionKeys = Collections.emptyList();
         this.primaryKeys = Collections.emptyList();
@@ -209,7 +209,7 @@ public class Schema {
     /**
      * The type of this schema
      * <p>
-     * This value MUST be {@link TypeKind#Schema}.
+     * This value MUST be {@link TypeKind#SCHEMA}.
      */
     public final TypeKind type() {
         return this.type;
