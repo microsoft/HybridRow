@@ -6,15 +6,15 @@ package com.azure.data.cosmos.serialization.hybridrow;
 /**
  * The literal null value.
  * <p>
- * May be stored hybrid row to indicate the literal null value. Typically this value should
- * not be used and the corresponding column should be absent from the row.
+ * May be stored hybrid row to indicate the literal null value. Typically this value should not be used and the
+ * corresponding column should be absent from the row.
  */
 public final class NullValue {
     /**
      * The default null literal.
      * This is the same value as default({@link NullValue}).
      */
-    public static final NullValue Default = new NullValue();
+    public static final NullValue DEFAULT = new NullValue();
 
     /**
      * Returns true if this is the same value as {@code other}.

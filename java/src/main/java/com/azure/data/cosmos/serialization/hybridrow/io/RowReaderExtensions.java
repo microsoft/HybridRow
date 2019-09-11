@@ -14,7 +14,7 @@ public final class RowReaderExtensions {
     /**
      * Read the current field as a nested, structured, sparse scope containing a linear collection of zero or more
      * items.
-     * <typeparam name="TItem">The type of the items within the collection.</typeparam>
+     * @param <TItem> The type of the items within the collection.
      *
      * @param reader       A forward-only cursor for reading the collection.
      * @param deserializer A function that reads one item from the collection.

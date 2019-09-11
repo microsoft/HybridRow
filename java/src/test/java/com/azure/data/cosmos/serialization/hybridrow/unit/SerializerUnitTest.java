@@ -175,7 +175,7 @@ public final class SerializerUnitTest {
                         break;
                     case "resourcePath":
                         Out<String> tempOut_ResourcePath = new Out<String>();
-                        r = reader.get().readString(tempOut_ResourcePath);
+                        r = reader.get().readUtf8String(tempOut_ResourcePath);
                         retval.ResourcePath = tempOut_ResourcePath.get();
                         if (r != Result.SUCCESS) {
                             return r;

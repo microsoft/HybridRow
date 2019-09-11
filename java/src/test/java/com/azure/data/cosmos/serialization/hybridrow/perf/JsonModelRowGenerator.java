@@ -80,7 +80,7 @@ public final class JsonModelRowGenerator {
             new Reference<RowBuffer>(this.row);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        Result tempVar = RowWriter.WriteBuffer(tempReference_row, value, (ref RowWriter writer, TypeArgument typeArg,
+        Result tempVar = RowWriter.WriteBuffer(tempReference_row, value, (RowWriter RowWriter writer, TypeArgument typeArg,
                                                                           HashMap<Utf8String, Object> dict) ->
         {
             for ((Utf8String propPath,Object propValue) :dict)
@@ -113,7 +113,7 @@ public final class JsonModelRowGenerator {
     private static Result JsonModelSwitch(Reference<RowWriter> writer, Utf8String path, Object value) {
         switch (value) {
             case null:
-                return writer.get().WriteNull(path);
+                return writer.get().writeNull(path);
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case bool x:
             case
@@ -123,12 +123,12 @@ public final class JsonModelRowGenerator {
             //ORIGINAL LINE: case long x:
             case
                 long x:
-                return writer.get().WriteInt64(path, x);
+                return writer.get().writeInt64(path, x);
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case double x:
             case
                 double x:
-                return writer.get().WriteFloat64(path, x);
+                return writer.get().writeFloat64(path, x);
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case string x:
             case String
@@ -156,7 +156,7 @@ public final class JsonModelRowGenerator {
                 // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these
                 // are not converted by C# to Java Converter:
                 return writer.get().WriteScope(path, new TypeArgument(LayoutType.Object), x,
-                    (ref RowWriter writer2, TypeArgument typeArg, HashMap<Utf8String, Object> dict) ->
+                    (RowWriter RowWriter writer2, TypeArgument typeArg, HashMap<Utf8String, Object> dict) ->
                 {
                     for ((Utf8String propPath,Object propValue) :dict)
                     {
@@ -172,7 +172,7 @@ public final class JsonModelRowGenerator {
             //ORIGINAL LINE: case List<object> x:
             case ArrayList < Object > x:
                 // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
-                return writer.get().WriteScope(path, new TypeArgument(LayoutType.Array), x, (ref RowWriter writer2, TypeArgument typeArg, ArrayList<Object> list) ->
+                return writer.get().WriteScope(path, new TypeArgument(LayoutType.Array), x, (RowWriter RowWriter writer2, TypeArgument typeArg, ArrayList<Object> list) ->
                 {
                     for (Object elm : list) {
                         Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer2 = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);

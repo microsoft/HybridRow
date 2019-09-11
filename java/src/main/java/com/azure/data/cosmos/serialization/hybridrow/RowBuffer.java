@@ -625,7 +625,7 @@ public final class RowBuffer {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.NULL);
         edit.endOffset(edit.valueOffset());
 
-        return NullValue.Default;
+        return NullValue.DEFAULT;
     }
 
     public Utf8String readSparsePath(@Nonnull final RowCursor edit) {
@@ -843,22 +843,22 @@ public final class RowBuffer {
      *
      * @param edit The iterator to advance.
      *
-     *             <paramref name="edit.Path">
+     *             {@code edit.Path}
      *             On success, the path of the field at the given offset, otherwise
      *             undefined.
-     *             </paramref>
-     *             <paramref name="edit.MetaOffset">
+     *
+     *             {@code edit.MetaOffset}
      *             If found, the offset to the metadata of the field, otherwise a
      *             location to insert the field.
-     *             </paramref>
-     *             <paramref name="edit.cellType">
+     *
+     *             {@code edit.cellType}
      *             If found, the layout code of the matching field found, otherwise
      *             undefined.
-     *             </paramref>
-     *             <paramref name="edit.ValueOffset">
+     *
+     *             {@code edit.ValueOffset}
      *             If found, the offset to the value of the field, otherwise
      *             undefined.
-     *             </paramref>.
+     *.
      *
      * @return {@code true} if there is another field; {@code false} if there is not.
      */
@@ -2814,26 +2814,26 @@ public final class RowBuffer {
      *
      * @param edit The edit structure to fill in.
      *
-     *             <paramref name="edit.Path">
+     *             {@code edit.Path}
      *             On success, the path of the field at the given offset, otherwise
      *             undefined.
-     *             </paramref>
-     *             <paramref name="edit.MetaOffset">
+     *
+     *             {@code edit.MetaOffset}
      *             On success, the offset to the metadata of the field, otherwise a
      *             location to insert the field.
-     *             </paramref>
-     *             <paramref name="edit.cellType">
+     *
+     *             {@code edit.cellType}
      *             On success, the layout code of the existing field, otherwise
      *             undefined.
-     *             </paramref>
-     *             <paramref name="edit.TypeArgs">
+     *
+     *             {@code edit.TypeArgs}
      *             On success, the type args of the existing field, otherwise
      *             undefined.
-     *             </paramref>
-     *             <paramref name="edit.ValueOffset">
+     *
+     *             {@code edit.ValueOffset}
      *             On success, the offset to the value of the field, otherwise
      *             undefined.
-     *             </paramref>.
+     *.
      */
     private void readSparseMetadata(@Nonnull final RowCursor edit) {
 

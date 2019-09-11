@@ -14,13 +14,13 @@ import java.util.List;
  *
  * @param <TElement> The sub-element type to be written
  */
-public interface LayoutSpanWritable<TElement> extends ILayoutType {
+public interface LayoutListWritable<TElement> extends ILayoutType {
 
-    Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<TElement> value);
+    Result writeFixedList(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<TElement> value);
 
-    Result writeSparse(RowBuffer buffer, RowCursor edit, TElement value);
+    Result writeSparseList(RowBuffer buffer, RowCursor edit, TElement value);
 
-    Result writeSparse(RowBuffer buffer, RowCursor edit, List<TElement> value, UpdateOptions options);
+    Result writeSparseList(RowBuffer buffer, RowCursor edit, List<TElement> value, UpdateOptions options);
 
-    Result writeVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<TElement> value);
+    Result writeVariableList(RowBuffer buffer, RowCursor scope, LayoutColumn column, List<TElement> value);
 }

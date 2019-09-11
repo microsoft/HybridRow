@@ -71,7 +71,7 @@ public class LayoutCompilerUnitTests {
         RoundTripFixed.Expected tempVar = new RoundTripFixed.Expected();
         tempVar.TypeName = "null";
         tempVar.Default = new NullValue();
-        tempVar.Value = NullValue.Default;
+        tempVar.Value = NullValue.DEFAULT;
         RoundTripFixed.Expected tempVar2 = new RoundTripFixed.Expected();
         tempVar2.TypeName = "bool";
         tempVar2.Default = false;
@@ -1858,7 +1858,7 @@ private final static class RoundTripSparseArray extends TestActionDispatcher<Rou
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field3 =
             new Reference<RowCursor>(field);
-        r = LayoutType.Null.writeSparse(row, tempReference_field3, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_field3, NullValue.DEFAULT);
         field = tempReference_field3.get();
         ResultAssert.IsSuccess(r, tag);
         Reference<RowCursor> tempReference_field4 =
@@ -2049,7 +2049,7 @@ private final static class RoundTripSparseObject extends TestActionDispatcher<Ro
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field4 =
             new Reference<RowCursor>(field);
-        r = LayoutType.Null.writeSparse(row, tempReference_field4, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_field4, NullValue.DEFAULT);
         field = tempReference_field4.get();
         ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
         Reference<RowCursor> tempReference_field5 =
@@ -2187,7 +2187,7 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
         } else {
             Reference<RowCursor> tempReference_nestedField2 =
                 new Reference<RowCursor>(nestedField);
-            r = LayoutType.Null.writeSparse(row, tempReference_nestedField2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_nestedField2, NullValue.DEFAULT);
             nestedField = tempReference_nestedField2.get();
             ResultAssert.IsSuccess(r, tag);
         }
@@ -2260,7 +2260,7 @@ private final static class RoundTripSparseObjectMulti extends TestActionDispatch
         // Overwrite the nested field.
         Reference<RowCursor> tempReference_nestedField4 =
             new Reference<RowCursor>(nestedField);
-        r = LayoutType.Null.writeSparse(row, tempReference_nestedField4, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_nestedField4, NullValue.DEFAULT);
         nestedField = tempReference_nestedField4.get();
         ResultAssert.IsSuccess(r, tag);
 
@@ -2381,7 +2381,7 @@ private final static class RoundTripSparseObjectNested extends TestActionDispatc
         } else {
             Reference<RowCursor> tempReference_field2 =
                 new Reference<RowCursor>(field);
-            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.DEFAULT);
             field = tempReference_field2.get();
             ResultAssert.IsSuccess(r, tag);
         }
@@ -2517,7 +2517,7 @@ private final static class RoundTripSparseOrdering extends TestActionDispatcher<
         } else {
             Reference<RowCursor> tempReference_field2 =
                 new Reference<RowCursor>(field);
-            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.DEFAULT);
             field = tempReference_field2.get();
             ResultAssert.IsSuccess(r, "Json: {0}", json);
             Out<TValue> tempOut_value3 = new Out<TValue>();
@@ -2835,7 +2835,7 @@ private final static class RoundTripSparseSet extends TestActionDispatcher<Round
 
         // Overwrite the whole scope.
         Reference<RowCursor> tempReference_field9 = new Reference<RowCursor>(field);
-        r = LayoutType.Null.writeSparse(row, tempReference_field9, NullValue.Default);
+        r = LayoutType.Null.writeSparse(row, tempReference_field9, NullValue.DEFAULT);
         field = tempReference_field9.get();
         ResultAssert.IsSuccess(r, tag);
         Reference<RowCursor> tempReference_field10 = new Reference<RowCursor>(field);
@@ -2982,7 +2982,7 @@ private final static class RoundTripSparseSimple extends TestActionDispatcher<Ro
         } else {
             Reference<RowCursor> tempReference_field2 =
                 new Reference<RowCursor>(field);
-            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.Default);
+            r = LayoutType.Null.writeSparse(row, tempReference_field2, NullValue.DEFAULT);
             field = tempReference_field2.get();
             ResultAssert.IsSuccess(r, "Json: {0}", expected.Json);
             // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these

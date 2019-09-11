@@ -15,7 +15,7 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolverNamespace;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.SystemSchema;
 import com.azure.data.cosmos.serialization.hybridrow.recordio.RecordIOStream;
-import com.azure.data.cosmos.serialization.hybridrow.recordio.Segment;
+import com.azure.data.cosmos.serialization.hybridrow.io.Segment;
 
 import java.util.ArrayList;
 import java.util.HashMap;

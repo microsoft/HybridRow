@@ -37,9 +37,15 @@ public final class LayoutUtf8 extends LayoutTypePrimitive<String> implements Lay
         @Nonnull final LayoutColumn column,
         @Nonnull final Out<String> value) {
 
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(value, "expected non-null value");
+
         Out<Utf8String> span = new Out<>();
         Result result = this.readFixedSpan(buffer, scope, column, span);
         value.set(result == Result.SUCCESS ? span.get().toUtf16() : null);
+
         return result;
     }
 

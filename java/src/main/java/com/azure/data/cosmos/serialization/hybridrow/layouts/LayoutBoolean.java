@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class LayoutBoolean extends LayoutType<Boolean> {
+public final class LayoutBoolean extends LayoutTypePrimitive<Boolean> implements ILayoutType {
 
     public LayoutBoolean(boolean value) {
         super(value ? LayoutCode.BOOLEAN : LayoutCode.BOOLEAN_FALSE, 0);

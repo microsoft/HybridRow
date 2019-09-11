@@ -10,7 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.MemorySpanResizer;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.recordio.RecordIOStream;
-import com.azure.data.cosmos.serialization.hybridrow.recordio.Segment;
+import com.azure.data.cosmos.serialization.hybridrow.io.Segment;
 
 import java.io.Closeable;
 import java.io.File;

@@ -5,7 +5,6 @@ package com.azure.data.cosmos.serialization.hybridrow.unit;
 
 import Newtonsoft.Json.*;
 import com.azure.data.cosmos.core.Reference;
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
@@ -80,7 +79,7 @@ public final class CrossVersioningUnitTests {
         d.LayoutCodeSwitch("array_t<utf8>", value:new String[] { "abc", "def", "hij" })
         d.LayoutCodeSwitch("tuple<varint,int64>", value:Tuple.Create(-6148914691236517206L, -6148914691236517206L))
         d.LayoutCodeSwitch("tuple<null,tuple<int8,int8>>", value:
-        Tuple.Create(NullValue.Default, Tuple.Create((byte)-86, (byte)-86)))
+        Tuple.Create(NullValue.DEFAULT, Tuple.Create((byte)-86, (byte)-86)))
         d.LayoutCodeSwitch("tuple<bool,udt>", value:Tuple.Create(false, new Point(1, 2)))
         d.LayoutCodeSwitch("set_t<utf8>", value:new String[] { "abc", "efg", "xzy" })
         d.LayoutCodeSwitch("set_t<array_t<int8>>", value:new byte[][]
@@ -276,7 +275,7 @@ public final class CrossVersioningUnitTests {
         d.LayoutCodeSwitch("array_t<utf8>", value:new String[] { "abc", "def", "hij" })
         d.LayoutCodeSwitch("tuple<varint,int64>", value:Tuple.Create(-6148914691236517206L, -6148914691236517206L))
         d.LayoutCodeSwitch("tuple<null,tuple<int8,int8>>", value:
-        Tuple.Create(NullValue.Default, Tuple.Create((byte)-86, (byte)-86)))
+        Tuple.Create(NullValue.DEFAULT, Tuple.Create((byte)-86, (byte)-86)))
         d.LayoutCodeSwitch("tuple<bool,udt>", value:Tuple.Create(false, new Point(1, 2)))
         d.LayoutCodeSwitch("set_t<utf8>", value:new String[] { "abc", "efg", "xzy" })
         d.LayoutCodeSwitch("set_t<array_t<int8>>", value:new byte[][]
@@ -443,7 +442,7 @@ public final class CrossVersioningUnitTests {
         d.LayoutCodeSwitch("array_t<utf8>", value:new String[] { "abc", "def", "hij" })
         d.LayoutCodeSwitch("tuple<varint,int64>", value:Tuple.Create(-6148914691236517206L, -6148914691236517206L))
         d.LayoutCodeSwitch("tuple<null,tuple<int8,int8>>", value:
-        Tuple.Create(NullValue.Default, Tuple.Create((byte)-86, (byte)-86)))
+        Tuple.Create(NullValue.DEFAULT, Tuple.Create((byte)-86, (byte)-86)))
         d.LayoutCodeSwitch("tuple<bool,udt>", value:Tuple.Create(false, new Point(1, 2)))
         d.LayoutCodeSwitch("set_t<utf8>", value:new String[] { "abc", "efg", "xzy" })
         d.LayoutCodeSwitch("set_t<array_t<int8>>", value:new byte[][]

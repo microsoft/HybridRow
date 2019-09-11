@@ -136,7 +136,7 @@ public final class RowReaderUnitTests {
         d.LayoutCodeSwitch("array_t<utf8>", value:new String[] { "abc", "def", "hij" })
         d.LayoutCodeSwitch("tuple<varint,int64>", value:Tuple.Create(-6148914691236517206L, -6148914691236517206L))
         d.LayoutCodeSwitch("tuple<null,tuple<int8,int8>>", value:
-        Tuple.Create(NullValue.Default, Tuple.Create((byte)-86, (byte)-86)))
+        Tuple.Create(NullValue.DEFAULT, Tuple.Create((byte)-86, (byte)-86)))
         d.LayoutCodeSwitch("tuple<bool,udt>", value:Tuple.Create(false, new Point(1, 2)))
         d.LayoutCodeSwitch("nullable<int32,int64>", value:Tuple.Create(null, (Long)123L))
         //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:

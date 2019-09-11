@@ -13,8 +13,6 @@ import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutSpanReadable;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUtf8Readable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBinary;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutBoolean;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
@@ -30,7 +28,9 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutInt64;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutInt8;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutNull;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutNullable;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutListReadable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypePrimitive;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUDT;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUInt16;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUInt32;
@@ -126,7 +126,7 @@ public final class RowReader {
      * Read the current field as a fixed length {@code MongoDbObjectId} value
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result ReadMongoDbObjectId(Out<?/* MongoDbObjectID */> value) {
         // TODO: DANOBLE: Resurrect this method
@@ -148,22 +148,6 @@ public final class RowReader {
         //                return Result.FAILURE;
         //        }
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Read the current field as a variable length, UTF-8 encoded string value
-     *
-     * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
-     */
-    public Result ReadString(Out<String> value) {
-
-        Out<Utf8String> string = new Out<>();
-        Result result = this.readString(string);
-        value.set((result == Result.SUCCESS) ? string.get().toUtf16() : null);
-        string.get().release();
-
-        return result;
     }
 
     /**
@@ -264,64 +248,54 @@ public final class RowReader {
      */
     public boolean read() {
 
-        switch (this.state) {
+        for (; ; ) {
 
-            case NONE: {
-                if (this.cursor.scopeType() instanceof LayoutUDT) {
-                    this.state = States.SCHEMATIZED;
-                    // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-                    //   goto case States.Schematized;
-                } else {
-                    this.state = States.SPARSE;
-                    // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-                    //   goto case States.Sparse;
+            switch (this.state) {
+
+                case NONE: {
+                    this.state = this.cursor.scopeType() instanceof LayoutUDT ? States.SCHEMATIZED : States.SPARSE;
+                    break;
                 }
-            }
-            case SCHEMATIZED: {
+                case SCHEMATIZED: {
 
-                this.columnIndex++;
+                    this.columnIndex++;
 
-                if (this.columnIndex >= this.schematizedCount) {
-                    this.state = States.SPARSE;
-                    // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-                    //   goto case States.Sparse;
+                    if (this.columnIndex >= this.schematizedCount) {
+
+                        this.state = States.SPARSE;
+
+                    } else {
+
+                        checkState(this.cursor.scopeType() instanceof LayoutUDT);
+                        LayoutColumn column = this.columns.get(this.columnIndex);
+
+                        if (!this.row.readBit(this.cursor.start(), column.nullBit())) {
+                            break; // to skip schematized values if they aren't present
+                        }
+
+                        return true;
+                    }
                 }
+                case SPARSE: {
 
-                checkState(this.cursor.scopeType() instanceof LayoutUDT);
-                LayoutColumn column = this.columns.get(this.columnIndex);
-
-                if (!this.row.readBit(this.cursor.start(), column.nullBit())) {
-                    // Skip schematized values if they aren't present
-                    // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-                    //   goto case States.Schematized;
+                    if (!RowCursors.moveNext(this.cursor, this.row)) {
+                        this.state = States.DONE;
+                        break;
+                    }
+                    return true;
                 }
-
-                return true;
-            }
-
-            case SPARSE: {
-
-                if (!RowCursors.moveNext(this.cursor, this.row)) {
-                    this.state = States.DONE;
-                    // TODO: C# TO JAVA CONVERTER: There is no 'goto' in Java:
-                    //   goto case States.Done;
+                case DONE: {
+                    return false;
                 }
-                return true;
-            }
-
-            case DONE: {
-                return false;
             }
         }
-
-        return false;
     }
 
     /**
      * Read the current field as a variable length, sequence of bytes
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readBinary(Out<ByteBuf> value) {
 
@@ -336,6 +310,7 @@ public final class RowReader {
                     value.set(null);
                     return Result.TYPE_MISMATCH;
                 }
+
                 value.set(this.row.readSparseBinary(this.cursor));
                 return Result.SUCCESS;
 
@@ -349,7 +324,7 @@ public final class RowReader {
      * Read the current field as a variable length, sequence of bytes
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readBinaryArray(Out<byte[]> value) {
 
@@ -369,7 +344,7 @@ public final class RowReader {
      * Read the current field as a {@link Boolean}
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readBoolean(Out<Boolean> value) {
 
@@ -397,7 +372,7 @@ public final class RowReader {
      * Read the current field as a fixed length {@code DateTime} value
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readDateTime(Out<OffsetDateTime> value) {
 
@@ -425,7 +400,7 @@ public final class RowReader {
      * Read the current field as a fixed length decimal value
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readDecimal(Out<BigDecimal> value) {
 
@@ -452,7 +427,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 128-bit, IEEE-encoded floating point value
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readFloat128(Out<Float128> value) {
 
@@ -479,7 +454,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 32-bit, IEEE-encoded floating point value
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readFloat32(Out<Float> value) {
 
@@ -506,7 +481,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 64-bit, IEEE-encoded floating point value
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readFloat64(Out<Double> value) {
 
@@ -533,7 +508,7 @@ public final class RowReader {
      * Read the current field as a fixed length GUID value
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readGuid(Out<UUID> value) {
 
@@ -561,7 +536,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 16-bit, signed integer
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readInt16(Out<Short> value) {
 
@@ -588,7 +563,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 32-bit, signed integer
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readInt32(Out<Integer> value) {
 
@@ -615,7 +590,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 64-bit, signed integer
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readInt64(Out<Long> value) {
 
@@ -642,7 +617,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 8-bit, signed integer
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readInt8(Out<Byte> value) {
 
@@ -669,7 +644,7 @@ public final class RowReader {
      * Read the current field as a null
      *
      * @param value On success, receives the value, undefined otherwise.
-     * @return Success if the read is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readNull(Out<NullValue> value) {
 
@@ -693,7 +668,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a nested, structured, sparse scope
+     * Read the current field as a nested, structured, sparse scope.
      * <p>
      * Child readers can be used to read all sparse scope types including typed and untyped objects, arrays, tuples,
      * set, and maps.
@@ -717,9 +692,7 @@ public final class RowReader {
      * Read the current field as a nested, structured, sparse scope
      * <p>
      * Child readers can be used to read all sparse scope types including typed and untyped objects, arrays, tuples,
-     * set, and maps.
-     * <p>
-     * Nested child readers are independent of their parent.
+     * set, and maps. Nested child readers are independent of their parent.
      */
     public @Nonnull RowReader readScope() {
         RowCursor newScope = this.row.sparseIteratorReadScope(this.cursor, true);
@@ -727,12 +700,28 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a variable length, UTF-8 encoded, string value
+     * Read the current field as a variable length, UTF-8 encoded string value
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
-    public Result readString(Out<Utf8String> value) {
+    public Result readString(Out<String> value) {
+
+        Out<Utf8String> string = new Out<>();
+        Result result = this.readUtf8String(string);
+        value.set((result == Result.SUCCESS) ? string.get().toUtf16() : null);
+        string.get().release();
+
+        return result;
+    }
+
+    /**
+     * Read the current field as a variable length, UTF-8 encoded, string value.
+     *
+     * @param value On success, receives the value, undefined otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
+     */
+    public Result readUtf8String(Out<Utf8String> value) {
 
         switch (this.state) {
 
@@ -754,10 +743,10 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 16-bit, unsigned integer
+     * Read the current field as a fixed length, 16-bit, unsigned integer.
      *
-     * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @param value On success, receives the value, undefined otherwise.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt16(Out<Integer> value) {
 
@@ -784,7 +773,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 32-bit, unsigned integer
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt32(Out<Long> value) {
 
@@ -812,7 +801,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 64-bit, unsigned integer
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt64(Out<Long> value) {
 
@@ -839,7 +828,7 @@ public final class RowReader {
      * Read the current field as a fixed length, 8-bit, unsigned integer
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt8(Out<Short> value) {
 
@@ -866,7 +855,7 @@ public final class RowReader {
      * Read the current field as a fixed length {@link UnixDateTime} value
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUnixDateTime(Out<UnixDateTime> value) {
 
@@ -893,7 +882,7 @@ public final class RowReader {
      * Read the current field as a variable length, 7-bit encoded, signed integer
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readVarInt(Out<Long> value) {
 
@@ -920,7 +909,7 @@ public final class RowReader {
      * Read the current field as a variable length, 7-bit encoded, unsigned integer
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readVarUInt(Out<Long> value) {
 
@@ -1012,14 +1001,14 @@ public final class RowReader {
      * Reads a generic schematized field value via the scope's layout
      *
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     private <TValue> Result readPrimitiveValue(Out<TValue> value) {
 
         final LayoutColumn column = this.columns.get(this.columnIndex);
         final LayoutType type = this.columns.get(this.columnIndex).type();
 
-        if (!(type instanceof LayoutType<TValue>)) {
+        if (!(type instanceof LayoutTypePrimitive)) {
             value.set(null);
             return Result.TYPE_MISMATCH;
         }
@@ -1028,9 +1017,9 @@ public final class RowReader {
 
         switch (storage) {
             case FIXED:
-                return type.<LayoutType<TValue>>typeAs().readFixed(this.row, this.cursor, column, value);
+                return type.<LayoutTypePrimitive<TValue>>typeAs().readFixed(this.row, this.cursor, column, value);
             case VARIABLE:
-                return type.<LayoutType<TValue>>typeAs().readVariable(this.row, this.cursor, column, value);
+                return type.<LayoutTypePrimitive<TValue>>typeAs().readVariable(this.row, this.cursor, column, value);
             default:
                 assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
                 value.set(null);
@@ -1038,52 +1027,52 @@ public final class RowReader {
         }
     }
 
-    /**
-     * Reads a generic schematized field value via the scope's layout
-     *
-     * @param value On success, receives the value, undefined otherwise
-     * @return {@link Result#SUCCESS} if the read is successful; an error {@link Result} otherwise
-     */
-    private Result readPrimitiveValue(Out<Utf8String> value) {
-
-        LayoutColumn column = this.columns.get(this.columnIndex);
-        LayoutType type = this.columns.get(this.columnIndex).type();
-
-        if (!(type instanceof LayoutUtf8Readable)) {
-            value.set(null);
-            return Result.TYPE_MISMATCH;
-        }
-
-        StorageKind storage = column == null ? StorageKind.NONE : column.storage();
-
-        switch (storage) {
-
-            case FIXED:
-                return type.<LayoutUtf8Readable>typeAs().readFixed(this.row, this.cursor, column, value);
-
-            case VARIABLE:
-                return type.<LayoutUtf8Readable>typeAs().readVariable(this.row, this.cursor, column, value);
-
-            default:
-                assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
-                value.set(null);
-                return Result.FAILURE;
-        }
-    }
-
+//    /**
+//     * Reads a generic schematized field value via the scope's layout
+//     *
+//     * @param value On success, receives the value, undefined otherwise
+//     * @return {@link Result#SUCCESS} if the read is successful; an error {@link Result} otherwise
+//     */
+//    private Result readPrimitiveValue(Out<Utf8String> value) {
+//
+//        LayoutColumn column = this.columns.get(this.columnIndex);
+//        LayoutType type = this.columns.get(this.columnIndex).type();
+//
+//        if (!(type instanceof LayoutUtf8Readable)) {
+//            value.set(null);
+//            return Result.TYPE_MISMATCH;
+//        }
+//
+//        StorageKind storage = column == null ? StorageKind.NONE : column.storage();
+//
+//        switch (storage) {
+//
+//            case FIXED:
+//                return type.<LayoutUtf8Readable>typeAs().readFixed(this.row, this.cursor, column, value);
+//
+//            case VARIABLE:
+//                return type.<LayoutUtf8Readable>typeAs().readVariable(this.row, this.cursor, column, value);
+//
+//            default:
+//                assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
+//                value.set(null);
+//                return Result.FAILURE;
+//        }
+//    }
+//
     /**
      * Reads a generic schematized field value via the scope's layout
      *
      * @param <TElement> The sub-element type of the field
      * @param value On success, receives the value, undefined otherwise
-     * @return Success if the read is successful, an error code otherwise
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
-    private <TElement> Result readPrimitiveValue(Out<List<TElement>> value) {
+    private <TElement> Result readPrimitiveValueList(Out<List<TElement>> value) {
 
         LayoutColumn column = this.columns.get(this.columnIndex);
         LayoutType type = this.columns.get(this.columnIndex).type();
 
-        if (!(type instanceof LayoutSpanReadable<?>)) {
+        if (!(type instanceof LayoutListReadable<?>)) {
             value.set(null);
             return Result.TYPE_MISMATCH;
         }
@@ -1093,10 +1082,10 @@ public final class RowReader {
         switch (storage) {
 
             case FIXED:
-                return type.<LayoutSpanReadable<TElement>>typeAs().readFixed(this.row, this.cursor, column, value);
+                return type.<LayoutListReadable<TElement>>typeAs().readFixedList(this.row, this.cursor, column, value);
 
             case VARIABLE:
-                return type.<LayoutSpanReadable<TElement>>typeAs().readVariable(this.row, this.cursor, column, value);
+                return type.<LayoutListReadable<TElement>>typeAs().readVariableList(this.row, this.cursor, column, value);
 
             default:
                 assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);

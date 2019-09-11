@@ -60,7 +60,7 @@ public final class PostalCodeSerializer {
         }
 
         if (obj.Plus4.HasValue) {
-            r = writer.get().WriteInt16("plus4", obj.Plus4.Value);
+            r = writer.get().writeInt16("plus4", obj.Plus4.Value);
             return r;
         }
 

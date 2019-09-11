@@ -57,7 +57,7 @@ public final class RowWriterUnitTests {
             new Reference<RowBuffer>(row);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        ResultAssert.IsSuccess(RowWriter.WriteBuffer(tempReference_row, null, (ref RowWriter writer,
+        ResultAssert.IsSuccess(RowWriter.WriteBuffer(tempReference_row, null, (RowWriter RowWriter writer,
                                                                                TypeArgument rootTypeArg, Object ignored) ->
         {
             ResultAssert.IsSuccess(writer.WriteNull("null"));
@@ -198,7 +198,7 @@ public final class RowWriterUnitTests {
             assert layout.TryFind("tuple<null,tuple<int8,int8>>", tempOut_col5);
             col = tempOut_col5.get();
             ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(),
-                Tuple.Create(NullValue.Default, Tuple.Create((byte)-86, (byte)-86)), (ref RowWriter writer2,
+                Tuple.Create(NullValue.DEFAULT, Tuple.Create((byte)-86, (byte)-86)), (ref RowWriter writer2,
                                                                                       TypeArgument typeArg,
                                                                                       Tuple<NullValue, Tuple<Byte,
                                                                                           Byte>> values) ->
@@ -240,20 +240,20 @@ public final class RowWriterUnitTests {
             ResultAssert.IsSuccess(writer.WriteScope(col.path(), col.typeArg().clone(), Tuple.Create(null,
                 (Long)123L), (ref RowWriter writer2, TypeArgument typeArg, Tuple<Integer, Long> values) ->
             {
-                RowWriter.WriterFunc<Integer> f0 = (Reference<RowWriter> writer, TypeArgument typeArg,
+                RowWriter.WriterFunc<Integer> f0 = (com.azure.data.cosmos.serialization.hybridrow.io.RowWriter writer, TypeArgument typeArg,
                                                     Integer context) -> null.invoke(writer, typeArg.clone(), context);
                 if (values.Item1 != null) {
-                    f0 = (ref RowWriter writer3, TypeArgument typeArg2, Integer value) -> writer3.WriteInt32(null,
+                    f0 = (com.azure.data.cosmos.serialization.hybridrow.io.RowWriter RowWriter writer3, TypeArgument typeArg2, Integer value) -> writer3.WriteInt32(null,
                         value.intValue());
                 }
 
                 ResultAssert.IsSuccess(writer2.WriteScope(null, typeArg.getTypeArgs().get(0).clone(), values.Item1,
                     f0));
 
-                RowWriter.WriterFunc<Long> f1 = (Reference<RowWriter> writer, TypeArgument typeArg,
+                RowWriter.WriterFunc<Long> f1 = (com.azure.data.cosmos.serialization.hybridrow.io.RowWriter writer, TypeArgument typeArg,
                                                  Long context) -> null.invoke(writer, typeArg.clone(), context);
                 if (values.Item2 != null) {
-                    f1 = (ref RowWriter writer3, TypeArgument typeArg2, Long value) -> writer3.WriteInt64(null,
+                    f1 = (com.azure.data.cosmos.serialization.hybridrow.io.RowWriter RowWriter writer3, TypeArgument typeArg2, Long value) -> writer3.WriteInt64(null,
                         value.longValue());
                 }
 

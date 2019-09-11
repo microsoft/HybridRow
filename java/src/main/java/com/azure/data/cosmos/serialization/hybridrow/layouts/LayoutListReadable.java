@@ -15,11 +15,11 @@ import java.util.List;
  *
  * @param <TElement> The sub-element type to be written
  */
-public interface LayoutSpanReadable<TElement> extends ILayoutType {
+public interface LayoutListReadable<TElement> extends ILayoutType {
 
-    Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<List<TElement>> value);
+    Result readFixedList(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<List<TElement>> value);
 
-    Result readSparse(RowBuffer buffer, RowCursor scope, Out<List<TElement>> value);
+    Result readSparseList(RowBuffer buffer, RowCursor scope, Out<List<TElement>> value);
 
-    Result readVariable(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<List<TElement>> value);
+    Result readVariableList(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<List<TElement>> value);
 }

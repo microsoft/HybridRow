@@ -174,7 +174,7 @@ public final class RowOperationDispatcher {
         switch (type.LayoutCode) {
             case Null:
                 Reference<RowOperationDispatcher> tempReference_this = new Reference<RowOperationDispatcher>(this);
-                this.dispatcher.<LayoutNull, NullValue>Dispatch(tempReference_this, scope, col, type, NullValue.Default);
+                this.dispatcher.<LayoutNull, NullValue>Dispatch(tempReference_this, scope, col, type, NullValue.DEFAULT);
                 this = tempReference_this.get();
                 break;
             case Boolean:

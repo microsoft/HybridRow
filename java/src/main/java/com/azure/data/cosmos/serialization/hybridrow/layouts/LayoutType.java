@@ -343,7 +343,7 @@ public abstract class LayoutType /*implements ILayoutType*/ {
      * The physical layout type of the field cast to the specified type.
      */
     @SuppressWarnings("unchecked")
-    public final <T extends LayoutType> T typeAs() {
+    public final <T extends ILayoutType> T typeAs() {
         return (T)this;
     }
 

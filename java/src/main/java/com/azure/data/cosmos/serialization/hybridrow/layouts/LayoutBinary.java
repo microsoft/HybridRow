@@ -18,8 +18,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
     // implements
-    // LayoutSpanWritable<Byte>,
-    // LayoutSpanReadable<Byte>,
+    // LayoutListWritable<Byte>,
+    // LayoutListReadable<Byte>,
     // ILayoutSequenceWritable<Byte> {
 
     public LayoutBinary() {

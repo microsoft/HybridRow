@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class LayoutNull extends LayoutType<NullValue> {
+public final class LayoutNull extends LayoutTypePrimitive<NullValue> implements ILayoutType {
 
     public LayoutNull() {
         super(LayoutCode.NULL, 0);
@@ -36,7 +36,7 @@ public final class LayoutNull extends LayoutType<NullValue> {
     @Nonnull
     public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<NullValue> value) {
         checkArgument(scope.scopeType() instanceof LayoutUDT);
-        value.set(NullValue.Default);
+        value.set(NullValue.DEFAULT);
         if (!buffer.readBit(scope.start(), column.nullBit())) {
             return Result.NOT_FOUND;
         }

@@ -16,10 +16,11 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutListWritable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutNullable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
-import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutSpanWritable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypePrimitive;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypedMap;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUDT;
@@ -30,10 +31,12 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.UpdateOptions;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class RowWriter {
 
@@ -80,11 +83,10 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result WriteBinary(UtfAnyString path, byte[] value) {
-        return this.writePrimitive(path, value, LayoutTypes.BINARY,
-            (ref RowWriter w, byte[] v) -> w.row.writeSparseBinary(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.WriteBinary(path, Unpooled.wrappedBuffer(value));
     }
 
     /**
@@ -92,24 +94,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result WriteBinary(UtfAnyString path, ByteBuf value) {
-        return this.writePrimitive(path, value, LayoutTypes.BINARY,
-            (ref RowWriter w, ByteBuf v) -> w.row.writeSparseBinary(ref w.cursor, v, UpdateOptions.UPSERT));
-    }
-
-    /**
-     * Write a field as a variable length, sequence of bytes.
-     *
-     * @param path  The scope-relative path of the field to write.
-     * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
-     */
-    public Result WriteBinary(UtfAnyString path, ReadOnlySequence<Byte> value) {
-        return this.writePrimitive(path, value, LayoutTypes.BINARY,
-            (ref RowWriter w, ReadOnlySequence<Byte> v) -> w.row.writeSparseBinary(ref w.cursor, v,
-                UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.BINARY, (ByteBuf v) ->
+            this.row.writeSparseBinary(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -117,21 +106,21 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result WriteBoolean(UtfAnyString path, boolean value) {
-        return this.writePrimitive(path, value, LayoutTypes.BOOLEAN,
-            (ref RowWriter w, boolean v) -> w.row.writeSparseBool(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.BOOLEAN, (Boolean v) ->
+            this.row.writeSparseBoolean(this.cursor, value, UpdateOptions.UPSERT));
     }
 
     /**
      * Write an entire row in a streaming left-to-right way.
-     * <typeparam name="TContext">The type of the context value to pass to <paramref name="func" />.</typeparam>
      *
-     * @param row     The row to write.
-     * @param context A context value to pass to <paramref name="func" />.
-     * @param func    A function to write the entire row.
-     * @return Success if the write is successful, an error code otherwise.
+     * @param <TContext> The type of the context value to pass to {@code func}.
+     * @param row        The row to write.
+     * @param context    A context value to pass to {@code func}.
+     * @param func       A function to write the entire row.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public static <TContext> Result WriteBuffer(
         Reference<RowBuffer> row, TContext context, WriterFunc<TContext> func) {
@@ -152,35 +141,27 @@ public final class RowWriter {
     }
 
     /**
-     * Write a field as a fixed length {@link DateTime} value.
+     * Write a field as a fixed length {@code DateTime} value.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteDateTime(UtfAnyString path, LocalDateTime value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.DATE_TIME,
-            (ref RowWriter w, LocalDateTime v) -> w.row.writeSparseDateTime(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeDateTime(UtfAnyString path, OffsetDateTime value) {
+        return this.writePrimitive(path, value, LayoutTypes.DATE_TIME, (OffsetDateTime v) ->
+            this.row.writeSparseDateTime(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
-     * Write a field as a fixed length {@link decimal} value.
+     * Write a field as a fixed length {@code Decimal} value.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteDecimal(UtfAnyString path, BigDecimal value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.DECIMAL,
-            (ref RowWriter w, BigDecimal v) -> w.row.writeSparseDecimal(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeDecimal(UtfAnyString path, BigDecimal value) {
+        return this.writePrimitive(path, value, LayoutTypes.DECIMAL, (BigDecimal v) ->
+            this.row.writeSparseDecimal(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -188,15 +169,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteFloat128(UtfAnyString path, Float128 value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.FLOAT_128,
-            (ref RowWriter w, Float128 v) -> w.row.writeSparseFloat128(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeFloat128(UtfAnyString path, Float128 value) {
+        return this.writePrimitive(path, value, LayoutTypes.FLOAT_128, (Float128 v) ->
+            this.row.writeSparseFloat128(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -204,15 +181,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteFloat32(UtfAnyString path, float value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.FLOAT_32,
-            (ref RowWriter w, float v) -> w.row.writeSparseFloat32(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeFloat32(UtfAnyString path, float value) {
+        return this.writePrimitive(path, value, LayoutTypes.FLOAT_32, (Float v) ->
+            this.row.writeSparseFloat32(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -220,31 +193,23 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteFloat64(UtfAnyString path, double value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.FLOAT_64,
-            (ref RowWriter w, double v) -> w.row.writeSparseFloat64(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeFloat64(UtfAnyString path, double value) {
+        return this.writePrimitive(path, value, LayoutTypes.FLOAT_64, (Double v) ->
+            this.row.writeSparseFloat64(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
-     * Write a field as a fixed length {@link Guid} value.
+     * Write a field as a fixed length {@code Guid} value.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteGuid(UtfAnyString path, UUID value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.GUID,
-            (ref RowWriter w, UUID v) -> w.row.writeSparseGuid(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeGuid(UtfAnyString path, UUID value) {
+        return this.writePrimitive(path, value, LayoutTypes.GUID, (UUID v) ->
+            this.row.writeSparseGuid(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -252,31 +217,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteInt16(UtfAnyString path, short value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.INT_16,
-            (ref RowWriter w, short v) -> w.row.writeSparseInt16(ref w.cursor, v, UpdateOptions.UPSERT));
-    }
-
-    /**
-     * Write a field as a fixed length, 32-bit, signed integer.
-     *
-     * @param path  The scope-relative path of the field to write.
-     * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
-     */
-    public Result writeInt32(UtfAnyString path, int value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.INT_32,
-            (ref RowWriter w, int v) -> w.row.writeSparseInt32(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeInt16(UtfAnyString path, short value) {
+        return this.writePrimitive(path, value, LayoutTypes.INT_16, (Short v) ->
+            this.row.writeSparseInt16(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -284,15 +229,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteInt64(UtfAnyString path, long value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.INT_64,
-            (ref RowWriter w, long v) -> w.row.writeSparseInt64(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeInt64(UtfAnyString path, long value) {
+        return this.writePrimitive(path, value, LayoutTypes.INT_64, (Long v) ->
+            this.row.writeSparseInt64(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -300,15 +241,22 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteInt8(UtfAnyString path, byte value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.INT_8,
-            (ref RowWriter w, byte v) -> w.row.writeSparseInt8(ref w.cursor, v, UpdateOptions.UPSERT));
+    public Result writeInt8(UtfAnyString path, byte value) {
+        return this.writePrimitive(path, value, LayoutTypes.INT_8, (Byte v) ->
+            this.row.writeSparseInt8(this.cursor, v, UpdateOptions.UPSERT));
+    }
+
+    /**
+     * Write a field as a {@code null}.
+     *
+     * @param path The scope-relative path of the field to write.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
+     */
+    public Result writeNull(UtfAnyString path) {
+        return this.writePrimitive(path, NullValue.DEFAULT, LayoutTypes.NULL, (NullValue v) ->
+            this.row.writeSparseNull(this.cursor, v, UpdateOptions.UPSERT));
     }
 
     // TODO: DANOBLE: Resurrect this method
@@ -317,27 +265,18 @@ public final class RowWriter {
     //     *
     //     * @param path  The scope-relative path of the field to write.
     //     * @param value The value to write.
-    //     * @return Success if the write is successful, an error code otherwise.
+    //     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
     //     */
     //    public Result WriteMongoDbObjectId(UtfAnyString path, MongoDbObjectId value) {
     //        throw new UnsupportedOperationException();
     //        // return this.writePrimitive(path, value, LayoutTypes.MongoDbObjectId, (ref RowWriter w, MongoDbObjectId v) -> w.row.writeSparseMongoDbObjectId(ref w.cursor, v, UpdateOptions.UPSERT));
     //    }
 
-    /**
-     * Write a field as a {@link t:null}.
-     *
-     * @param path The scope-relative path of the field to write.
-     * @return Success if the write is successful, an error code otherwise.
-     */
-    public Result WriteNull(UtfAnyString path) {
-        return this.writePrimitive(path, NullValue.Default, LayoutTypes.NULL,
-            (ref RowWriter w, NullValue v) -> w.row.writeSparseNull(ref w.cursor, v, UpdateOptions.UPSERT));
-    }
+    public <TContext> Result WriteScope(
+        UtfAnyString path, TypeArgument typeArg, TContext context, WriterFunc<TContext> func) {
 
-    public <TContext> Result WriteScope(UtfAnyString path, TypeArgument typeArg, TContext context,
-                                        WriterFunc<TContext> func) {
         LayoutType type = typeArg.type();
+
         Result result = this.prepareSparseWrite(path, typeArg);
         if (result != Result.SUCCESS) {
             return result;
@@ -543,16 +482,15 @@ public final class RowWriter {
     }
 
     /**
-     * Write a field as a variable length, UTF8 encoded, string value.
+     * Write a field as a fixed length, 32-bit, signed integer.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result writeString(UtfAnyString path, String value) {
-        return this.writePrimitive(path, value, LayoutTypes.UTF_8,
-            (ref RowWriter w, String v) -> w.row.writeSparseString(ref w.cursor, Utf8Span.TranscodeUtf16(v),
-                UpdateOptions.UPSERT));
+    public Result writeInt32(UtfAnyString path, int value) {
+        return this.writePrimitive(path, value, LayoutTypes.INT_32, (RowWriter writer, int v) ->
+            writer.row.writeSparseInt32(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -560,15 +498,30 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
+     */
+    public Result writeString(UtfAnyString path, String value) {
+        // TODO: DANOBLE: RowBuffer should support writing String values directly (without conversion to Utf8String)
+        Utf8String string = Utf8String.transcodeUtf16(value);
+        assert string != null;
+        try {
+            return this.writePrimitive(path, value, LayoutTypes.UTF_8, (RowWriter writer, String v) ->
+                writer.row.writeSparseString(writer.cursor, string, UpdateOptions.UPSERT));
+        } finally {
+            string.release();
+        }
+    }
+
+    /**
+     * Write a field as a variable length, UTF8 encoded, string value.
+     *
+     * @param path  The scope-relative path of the field to write.
+     * @param value The value to write.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeString(UtfAnyString path, Utf8String value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.UTF_8,
-            (ref RowWriter w, Utf8Span v) -> w.row.writeSparseString(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UTF_8, (RowWriter writer, Utf8String v) ->
+            writer.row.writeSparseString(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -576,20 +529,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteUInt16(UtfAnyString path, ushort value)
     public Result writeUInt16(UtfAnyString path, short value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.writePrimitive(path, value, LayoutTypes.UInt16, (ref RowWriter w, ushort v) => w
-        // .row.writeSparseUInt16(ref w.cursor, v, UpdateOptions.Upsert));
-        return this.writePrimitive(path, value, LayoutTypes.UINT_16,
-            (ref RowWriter w, short v) -> w.row.writeSparseUInt16(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UINT_16, (RowWriter writer, short v) ->
+            writer.row.writeSparseUInt16(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -597,20 +541,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteUInt32(UtfAnyString path, uint value)
     public Result writeUInt32(UtfAnyString path, int value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.writePrimitive(path, value, LayoutTypes.UInt32, (ref RowWriter w, uint v) => w
-        // .row.writeSparseUInt32(ref w.cursor, v, UpdateOptions.Upsert));
-        return this.writePrimitive(path, value, LayoutTypes.UINT_32,
-            (ref RowWriter w, int v) -> w.row.writeSparseUInt32(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UINT_32, (RowWriter writer, int v) ->
+            writer.row.writeSparseUInt32(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -618,20 +553,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteUInt64(UtfAnyString path, ulong value)
     public Result writeUInt64(UtfAnyString path, long value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.writePrimitive(path, value, LayoutTypes.UInt64, (ref RowWriter w, ulong v) => w
-        // .row.writeSparseUInt64(ref w.cursor, v, UpdateOptions.Upsert));
-        return this.writePrimitive(path, value, LayoutTypes.UINT_64,
-            (ref RowWriter w, long v) -> w.row.writeSparseUInt64(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UINT_64, (RowWriter writer, long v) ->
+            writer.row.writeSparseUInt64(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -639,20 +565,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteUInt8(UtfAnyString path, byte value)
     public Result writeUInt8(UtfAnyString path, byte value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.writePrimitive(path, value, LayoutTypes.UInt8, (ref RowWriter w, byte v) => w.row
-        // .writeSparseUInt8(ref w.cursor, v, UpdateOptions.Upsert));
-        return this.writePrimitive(path, value, LayoutTypes.UINT_8,
-            (ref RowWriter w, byte v) -> w.row.writeSparseUInt8(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UINT_8, (RowWriter writer, byte v) ->
+            writer.row.writeSparseUInt8(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -660,16 +577,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeUnixDateTime(UtfAnyString path, UnixDateTime value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.UNIX_DATE_TIME,
-            (ref RowWriter w, UnixDateTime v) -> w.row.writeSparseUnixDateTime(ref w.cursor, v,
-                UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UNIX_DATE_TIME, (RowWriter writer, UnixDateTime v) ->
+            writer.row.writeSparseUnixDateTime(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -677,15 +589,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeVarInt(UtfAnyString path, long value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        return this.writePrimitive(path, value, LayoutTypes.VAR_INT,
-            (ref RowWriter w, long v) -> w.row.writeSparseVarInt(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.VAR_INT, (RowWriter writer, long v) ->
+            writer.row.writeSparseVarInt(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -693,20 +601,11 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-    //ORIGINAL LINE: public Result WriteVarUInt(UtfAnyString path, ulong value)
     public Result writeVarUInt(UtfAnyString path, long value) {
-        // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
-        // converted by C# to Java Converter:
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'ref' keyword - these
-        // cannot be converted using the 'Ref' helper class unless the method is within the code being modified:
-        //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-        //ORIGINAL LINE: return this.writePrimitive(path, value, LayoutTypes.VarUInt, (ref RowWriter w, ulong v) => w
-        // .row.writeSparseVarUInt(ref w.cursor, v, UpdateOptions.Upsert));
-        return this.writePrimitive(path, value, LayoutTypes.VAR_UINT,
-            (ref RowWriter w, long v) -> w.row.writeSparseVarUInt(ref w.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.VAR_UINT, (RowWriter writer, long v) ->
+            writer.row.writeSparseVarUInt(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -740,15 +639,57 @@ public final class RowWriter {
 
     /**
      * Helper for writing a primitive value.
-     * <typeparam name="TLayoutType">The type of layout type.</typeparam>
      *
-     * @param path   The scope-relative path of the field to write.
-     * @param value  The value to write.
-     * @param type   The layout type.
-     * @param sparse The {@link RowBuffer} access method for <paramref name="type" />.
-     * @return Success if the write is successful, an error code otherwise.
+     * @param <TLayoutType> The type of layout type.
+     * @param path          The scope-relative path of the field to write.
+     * @param value         The value to write.
+     * @param type          The layout type.
+     * @param sparse        The {@link RowBuffer} access method for {@code type}.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    private <TLayoutType extends LayoutType<String> & LayoutUtf8Writable> Result writePrimitive(UtfAnyString path, Utf8String value, TLayoutType type, AccessUtf8SpanMethod sparse) {
+    private <TLayoutType extends LayoutTypePrimitive<String> & LayoutUtf8Writable>
+    Result writePrimitive(UtfAnyString path, Utf8String value, TLayoutType type, AccessUtf8SpanMethod sparse) {
+
+        Result result = Result.NOT_FOUND;
+
+        if (this.cursor.scopeType() instanceof LayoutUDT) {
+            result = this.writeSchematizedValue(path, value);
+        }
+
+        if (result == Result.NOT_FOUND) {
+            // Write sparse value.
+            result = this.prepareSparseWrite(path, type.typeArg());
+            if (result != Result.SUCCESS) {
+                return result;
+            }
+
+            Reference<RowWriter> tempReference_this =
+                new Reference<RowWriter>(this);
+            // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
+            sparse(ref this, value)
+            this = tempReference_this.get();
+            Reference<RowBuffer> tempReference_row =
+                new Reference<RowBuffer>(this.row);
+            RowCursors.moveNext(this.cursor,
+                tempReference_row);
+            this.row = tempReference_row.get();
+        }
+
+        return result;
+    }
+
+    /**
+     * Helper for writing a primitive value.
+     *
+     * @param <TLayoutType> The type of layout type.
+     * @param <TElement>    The sub-element type of the field.
+     * @param path          The scope-relative path of the field to write.
+     * @param value         The value to write.
+     * @param type          The layout type.
+     * @param sparse        The {@link RowBuffer} access method for {@code type}.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
+     */
+    private <TLayoutType extends LayoutType<TElement[]> & LayoutListWritable<TElement>, TElement> Result writePrimitive(UtfAnyString path, ReadOnlySpan<TElement> value, TLayoutType type, AccessReadOnlySpanMethod<TElement> sparse) {
         Result result = Result.NOT_FOUND;
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.writeSchematizedValue(path, value);
@@ -778,117 +719,33 @@ public final class RowWriter {
 
     /**
      * Helper for writing a primitive value.
-     * <typeparam name="TLayoutType">The type of layout type.</typeparam>
-     * <typeparam name="TElement">The sub-element type of the field.</typeparam>
      *
-     * @param path   The scope-relative path of the field to write.
-     * @param value  The value to write.
-     * @param type   The layout type.
-     * @param sparse The {@link RowBuffer} access method for <paramref name="type" />.
-     * @return Success if the write is successful, an error code otherwise.
+     * @param <TValue> The type of the primitive value.
+     * @param path     The scope-relative path of the field to write.
+     * @param value    The value to write.
+     * @param type     The layout type.
+     * @param sparse   The {@link RowBuffer} access method for {@code type}.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    private <TLayoutType extends LayoutType<TElement[]> & LayoutSpanWritable<TElement>, TElement> Result writePrimitive(UtfAnyString path, ReadOnlySpan<TElement> value, TLayoutType type, AccessReadOnlySpanMethod<TElement> sparse) {
+    private <TValue> Result writePrimitive(
+        UtfAnyString path, TValue value, LayoutTypePrimitive<TValue> type, Consumer<TValue> sparse) {
+
         Result result = Result.NOT_FOUND;
+
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.writeSchematizedValue(path, value);
         }
 
         if (result == Result.NOT_FOUND) {
-            // Write sparse value.
+
             result = this.prepareSparseWrite(path, type.typeArg());
+
             if (result != Result.SUCCESS) {
                 return result;
             }
 
-            Reference<RowWriter> tempReference_this =
-                new Reference<RowWriter>(this);
-            // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-            sparse(ref this, value)
-            this = tempReference_this.get();
-            Reference<RowBuffer> tempReference_row =
-                new Reference<RowBuffer>(this.row);
-            RowCursors.moveNext(this.cursor,
-                tempReference_row);
-            this.row = tempReference_row.get();
-        }
-
-        return result;
-    }
-
-    /**
-     * Helper for writing a primitive value.
-     * <typeparam name="TLayoutType">The type of layout type.</typeparam>
-     * <typeparam name="TElement">The sub-element type of the field.</typeparam>
-     *
-     * @param path   The scope-relative path of the field to write.
-     * @param value  The value to write.
-     * @param type   The layout type.
-     * @param sparse The {@link RowBuffer} access method for <paramref name="type" />.
-     * @return Success if the write is successful, an error code otherwise.
-     */
-    private <TLayoutType extends LayoutType<TElement[]> & ILayoutSequenceWritable<TElement>, TElement> Result writePrimitive(UtfAnyString path, ReadOnlySequence<TElement> value, TLayoutType type, AccessMethod<ReadOnlySequence<TElement>> sparse) {
-        Result result = Result.NOT_FOUND;
-        if (this.cursor.scopeType() instanceof LayoutUDT) {
-            result = this.writeSchematizedValue(path, value);
-        }
-
-        if (result == Result.NOT_FOUND) {
-            // Write sparse value.
-            result = this.prepareSparseWrite(path, type.typeArg());
-            if (result != Result.SUCCESS) {
-                return result;
-            }
-
-            Reference<RowWriter> tempReference_this =
-                new Reference<RowWriter>(this);
-            // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-            sparse(ref this, value)
-            this = tempReference_this.get();
-            Reference<RowBuffer> tempReference_row =
-                new Reference<RowBuffer>(this.row);
-            RowCursors.moveNext(this.cursor,
-                tempReference_row);
-            this.row = tempReference_row.get();
-        }
-
-        return result;
-    }
-
-    /**
-     * Helper for writing a primitive value.
-     * <typeparam name="TValue">The type of the primitive value.</typeparam>
-     *
-     * @param path   The scope-relative path of the field to write.
-     * @param value  The value to write.
-     * @param type   The layout type.
-     * @param sparse The {@link RowBuffer} access method for <paramref name="type" />.
-     * @return Success if the write is successful, an error code otherwise.
-     */
-    private <TValue> Result writePrimitive(UtfAnyString path, TValue value, LayoutType<TValue> type,
-                                           AccessMethod<TValue> sparse) {
-        Result result = Result.NOT_FOUND;
-        if (this.cursor.scopeType() instanceof LayoutUDT) {
-            result = this.writeSchematizedValue(path, value);
-        }
-
-        if (result == Result.NOT_FOUND) {
-            // Write sparse value.
-
-            result = this.prepareSparseWrite(path, type.typeArg());
-            if (result != Result.SUCCESS) {
-                return result;
-            }
-
-            Reference<RowWriter> tempReference_this =
-                new Reference<RowWriter>(this);
-            // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-            sparse(ref this, value)
-            this = tempReference_this.get();
-            Reference<RowBuffer> tempReference_row =
-                new Reference<RowBuffer>(this.row);
-            RowCursors.moveNext(this.cursor,
-                tempReference_row);
-            this.row = tempReference_row.get();
+            sparse.accept(this, value);
+            RowCursors.moveNext(this.cursor, this.row);
         }
 
         return result;
@@ -896,11 +753,11 @@ public final class RowWriter {
 
     /**
      * Write a generic schematized field value via the scope's layout.
-     * <typeparam name="TValue">The expected type of the field.</typeparam>
      *
-     * @param path  The scope-relative path of the field to write.
-     * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @param <TValue> The expected type of the field.
+     * @param path     The scope-relative path of the field to write.
+     * @param value    The value to write.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     private <TValue> Result writeSchematizedValue(UtfAnyString path, TValue value) {
         LayoutColumn col;
@@ -943,7 +800,7 @@ public final class RowWriter {
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     private Result writeSchematizedValue(UtfAnyString path, Utf8String value) {
         LayoutColumn col;
@@ -987,11 +844,11 @@ public final class RowWriter {
 
     /**
      * Write a generic schematized field value via the scope's layout.
-     * <typeparam name="TElement">The sub-element type of the field.</typeparam>
+     * @param <TElement> The sub-element type of the field.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     private <TElement> Result writeSchematizedValue(UtfAnyString path, ReadOnlySpan<TElement> value) {
         LayoutColumn col;
@@ -1027,11 +884,11 @@ public final class RowWriter {
 
     /**
      * Write a generic schematized field value via the scope's layout.
-     * <typeparam name="TElement">The sub-element type of the field.</typeparam>
+     * @param <TElement> The sub-element type of the field.
      *
      * @param path  The scope-relative path of the field to write.
      * @param value The value to write.
-     * @return Success if the write is successful, an error code otherwise.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     private <TElement> Result writeSchematizedValue(UtfAnyString path, ReadOnlySequence<TElement> value) {
         LayoutColumn col;
@@ -1066,23 +923,22 @@ public final class RowWriter {
     }
 
     @FunctionalInterface
-    private interface AccessMethod<TValue> {
-        void invoke(Reference<RowWriter> writer, TValue value);
+    private interface AccessMethod<TValue> extends Consumer<TValue> {
     }
 
     @FunctionalInterface
     private interface AccessReadOnlySpanMethod<T> {
-        void invoke(Reference<RowWriter> writer, ReadOnlySpan value);
+        void invoke(RowWriter writer, ReadOnlySpan value);
     }
 
     @FunctionalInterface
     private interface AccessUtf8SpanMethod {
-        void invoke(Reference<RowWriter> writer, Utf8String value);
+        void invoke(RowWriter writer, Utf8String value);
     }
 
     /**
      * A function to write content into a {@link RowBuffer}.
-     * <typeparam name="TContext">The type of the context value passed by the caller.</typeparam>
+     * @param <TContext> The type of the context value passed by the caller.
      *
      * @param writer  A forward-only cursor for writing content.
      * @param typeArg The type of the current scope.
@@ -1091,6 +947,6 @@ public final class RowWriter {
      */
     @FunctionalInterface
     public interface WriterFunc<TContext> {
-        Result invoke(Reference<RowWriter> writer, TypeArgument typeArg, TContext context);
+        Result invoke(RowWriter writer, TypeArgument typeArg, TContext context);
     }
 }
