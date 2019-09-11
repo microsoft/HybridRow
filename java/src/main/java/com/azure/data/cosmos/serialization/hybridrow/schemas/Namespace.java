@@ -72,7 +72,7 @@ public class Namespace {
      */
     public static Optional<Namespace> parse(String value) {
         Optional<Namespace> ns = Json.<Namespace>parse(value);
-        ns.ifPresent(SchemaValidator::Validate);
+        ns.ifPresent(SchemaValidator::validate);
         return ns;
     }
 }

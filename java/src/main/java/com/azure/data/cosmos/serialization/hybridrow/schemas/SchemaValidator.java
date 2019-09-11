@@ -18,6 +18,259 @@ import static com.google.common.base.Strings.lenientFormat;
 
 public final class SchemaValidator {
 
+    public static void validate(@NonNull final Namespace namespace) {
+
+        checkNotNull(namespace, "expected non-null namespace");
+
+        final int initialCapacity = namespace.schemas().size();
+
+        final Map<SchemaIdentification, Schema> nameDupCheck = new HashMap<>(initialCapacity);
+        final Map<String, Integer> nameVersioningCheck = new HashMap<>(initialCapacity);
+        final Map<SchemaId, Schema> idDupCheck = new HashMap<>(initialCapacity);
+
+        for (Schema schema : namespace.schemas()) {
+
+            SchemaIdentification identification = SchemaIdentification.of(schema.name(), schema.schemaId());
+
+            Assert.isValidIdentifier(identification.name(), "Schema name");
+            Assert.isValidSchemaId(identification.id(), "Schema id");
+            Assert.duplicateCheck(identification.id(), schema, idDupCheck, "Schema id", "Namespace");
+            Assert.duplicateCheck(identification, schema, nameDupCheck, "Schema reference", "Namespace");
+
+            // Count the versions of each schema by name.
+
+            final int count = nameVersioningCheck.get(schema.name());
+            nameVersioningCheck.put(schema.name(), count + 1);
+        }
+
+        // Enable id-less Schema references for all types with a unique version in the namespace
+
+        for (Schema schema : namespace.schemas()) {
+            if (nameVersioningCheck.get(schema.name()) == 1) {
+                Assert.duplicateCheck(SchemaIdentification.of(schema.name(), SchemaId.INVALID), schema, nameDupCheck,
+                    "Schema reference", "Namespace");
+            }
+        }
+
+        SchemaValidator.visit(namespace, nameDupCheck, idDupCheck);
+    }
+
+    /**
+     * Visit an entire namespace and validate its constraints.
+     *
+     * @param namespace The {@link Namespace} to validate.
+     * @param schemas   A map from schema names within the namespace to their schemas.
+     * @param ids       A map from schema ids within the namespace to their schemas.
+     */
+    private static void visit(
+        Namespace namespace, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
+        for (Schema schema : namespace.schemas()) {
+            SchemaValidator.visit(schema, schemas, ids);
+        }
+    }
+
+    /**
+     * Visit a single schema and validate its constraints.
+     *
+     * @param schema  The {@link Schema} to validate.
+     * @param schemas A map from schema names within the namespace to their schemas.
+     * @param ids     A map from schema ids within the namespace to their schemas.
+     */
+    private static void visit(Schema schema, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
+
+        Assert.areEqual(
+            schema.type(), TypeKind.SCHEMA, lenientFormat("The type of a schema MUST be %s: %s", TypeKind.SCHEMA,
+                schema.type())
+        );
+
+        HashMap<String, Property> pathDupCheck = new HashMap<>(schema.properties().size());
+
+        for (Property p : schema.properties()) {
+            Assert.duplicateCheck(p.path(), p, pathDupCheck, "Property path", "Schema");
+        }
+
+        for (PartitionKey pk : schema.partitionKeys()) {
+            Assert.exists(pk.path(), pathDupCheck, "Partition key column", "Schema");
+        }
+
+        for (PrimarySortKey ps : schema.primarySortKeys()) {
+            Assert.exists(ps.path(), pathDupCheck, "Primary sort key column", "Schema");
+        }
+
+        for (StaticKey sk : schema.staticKeys()) {
+            Assert.exists(sk.path(), pathDupCheck, "Static key column", "Schema");
+        }
+
+        for (Property p : schema.properties()) {
+            SchemaValidator.visit(p, schema, schemas, ids);
+        }
+    }
+
+    private static void visit(
+        Property p, Schema s, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
+
+        Assert.isValidIdentifier(p.path(), "Property path");
+        SchemaValidator.visit(p.propertyType(), null, schemas, ids);
+    }
+
+    private static void visit(
+        PropertyType p,
+        PropertyType parent,
+        Map<SchemaIdentification, Schema> schemas,
+        Map<SchemaId, Schema> ids) {
+
+        if (p instanceof PrimitivePropertyType) {
+            PrimitivePropertyType pp = (PrimitivePropertyType) p;
+            Assert.isTrue(pp.length() >= 0, "Length MUST be positive");
+            if (parent != null) {
+                Assert.areEqual(pp.storage(), StorageKind.SPARSE, "Nested fields MUST have storage kind SPARSE");
+            }
+            return;
+        }
+        if (p instanceof ArrayPropertyType) {
+            ArrayPropertyType ap = (ArrayPropertyType) p;
+            if (ap.items() != null) {
+                SchemaValidator.visit(ap.items(), p, schemas, ids);
+            }
+            return;
+        }
+        if (p instanceof MapPropertyType) {
+            MapPropertyType mp = (MapPropertyType) p;
+            SchemaValidator.visit(mp.keys(), p, schemas, ids);
+            SchemaValidator.visit(mp.values(), p, schemas, ids);
+            return;
+        }
+        if (p instanceof SetPropertyType) {
+            SetPropertyType sp = (SetPropertyType) p;
+            SchemaValidator.visit(sp.items(), p, schemas, ids);
+            return;
+        }
+        if (p instanceof TaggedPropertyType) {
+            TaggedPropertyType gp = (TaggedPropertyType) p;
+            for (PropertyType item : gp.items()) {
+                SchemaValidator.visit(item, p, schemas, ids);
+            }
+            return;
+        }
+        if (p instanceof TuplePropertyType) {
+            TuplePropertyType tp = (TuplePropertyType) p;
+            for (PropertyType item : tp.items()) {
+                SchemaValidator.visit(item, p, schemas, ids);
+            }
+            return;
+        }
+        if (p instanceof ObjectPropertyType) {
+            ObjectPropertyType op = (ObjectPropertyType) p;
+            Map<String, Property> pathDupCheck = new HashMap<>(op.properties().size());
+            for (Property nested : op.properties()) {
+                Assert.duplicateCheck(nested.path(), nested, pathDupCheck, "Property path", "Object");
+                SchemaValidator.visit(nested.propertyType(), p, schemas, ids);
+            }
+            return;
+        }
+        if (p instanceof UdtPropertyType) {
+            UdtPropertyType up = (UdtPropertyType) p;
+            Assert.exists(SchemaIdentification.of(up.name(), up.schemaId()), schemas, "Schema reference", "Namespace");
+            if (up.schemaId() != SchemaId.INVALID) {
+                Schema s = Assert.exists(up.schemaId(), ids, "Schema id", "Namespace");
+                Assert.areEqual(up.name(), s.name(), lenientFormat("Schema name '%s' does not match the name of " +
+                    "schema with id '%s': %s", up.name(), up.schemaId(), s.name()));
+            }
+            return;
+        }
+        throw new IllegalStateException(lenientFormat("Unknown property type: %s", p.getClass()));
+    }
+
+    private static class Assert {
+
+        /**
+         * Validate two values are equal.
+         *
+         * @param <T>     Type of the values to compare.
+         * @param left    The left value to compare.
+         * @param right   The right value to compare.
+         * @param message Diagnostic message if the comparison fails.
+         */
+        static <T> void areEqual(T left, T right, String message) {
+            if (!left.equals(right)) {
+                throw new SchemaException(message);
+            }
+        }
+
+        /**
+         * Validate {@code key} does not already appear within the given scope.
+         *
+         * @param <TKey>     The type of the keys within the scope.
+         * @param <TValue>   The type of the values within the scope.
+         * @param key        The key to check.
+         * @param value      The value to add to the scope if there is no duplicate.
+         * @param scope      The set of existing values within the scope.
+         * @param label      Diagnostic label describing {@code key}.
+         * @param scopeLabel Diagnostic label describing {@code scope}.
+         */
+        static <TKey, TValue> void duplicateCheck(
+            TKey key, TValue value, Map<TKey, TValue> scope, String label, String scopeLabel) {
+            if (scope.containsKey(key)) {
+                throw new SchemaException(lenientFormat("%s must be unique within a %s: %s", label, scopeLabel, key));
+            }
+            scope.put(key, value);
+        }
+
+        /**
+         * Validate {@code key} does appear within the given scope.
+         *
+         * @param <TKey>     The type of the keys within the scope.
+         * @param <TValue>   The type of the values within the scope.
+         * @param key        The key to check.
+         * @param scope      The set of existing values within the scope.
+         * @param label      Diagnostic label describing {@code key}.
+         * @param scopeLabel Diagnostic label describing {@code scope}.
+         */
+        static <TKey, TValue> TValue exists(TKey key, Map<TKey, TValue> scope, String label, String scopeLabel) {
+            TValue value = scope.get(key);
+            if (value == null) {
+                throw new SchemaException(lenientFormat("%s must exist within a %s: %s", label, scopeLabel, key));
+            }
+            return value;
+        }
+
+        /**
+         * Validate a predicate is true.
+         *
+         * @param predicate The predicate to check.
+         * @param message   Diagnostic message if the comparison fails.
+         */
+        static void isTrue(boolean predicate, String message) {
+            if (!predicate) {
+                throw new SchemaException(message);
+            }
+        }
+
+        /**
+         * Validate {@code identifier} contains only characters valid in a schema identifier.
+         *
+         * @param identifier The identifier to check.
+         * @param label      Diagnostic label describing {@code identifier}.
+         */
+        static void isValidIdentifier(String identifier, String label) {
+            if (Strings.isNullOrEmpty(identifier)) {
+                throw new SchemaException(lenientFormat("%s must be a valid identifier: %s", label, identifier));
+            }
+        }
+
+        /**
+         * Validate a {@link SchemaId}.
+         *
+         * @param id    The id to check.
+         * @param label Diagnostic label describing {@code id}.
+         */
+        static void isValidSchemaId(SchemaId id, String label) {
+            if (id == SchemaId.INVALID) {
+                throw new SchemaException(lenientFormat("%s cannot be 0", label));
+            }
+        }
+    }
+
     private static class SchemaIdentification implements Comparable<SchemaIdentification> {
 
         private final SchemaId id;
@@ -62,244 +315,13 @@ public final class SchemaValidator {
             return this.name;
         }
 
-        @Override
-        public String toString() {
-            return Json.toString(this);
-        }
-
         public static SchemaIdentification of(@NonNull String name, @NonNull SchemaId id) {
             return new SchemaIdentification(name, id);
         }
-    }
 
-    public static void Validate(@NonNull final Namespace namespace) {
-
-        checkNotNull(namespace, "expected non-null namespace");
-
-        final int initialCapacity = namespace.schemas().size();
-
-        final Map<SchemaIdentification, Schema> nameDupCheck = new HashMap<>(initialCapacity);
-        final Map<String, Integer> nameVersioningCheck = new HashMap<>(initialCapacity);
-        final Map<SchemaId, Schema> idDupCheck = new HashMap<>(initialCapacity);
-
-        for (Schema schema : namespace.schemas()) {
-
-            SchemaIdentification identification = SchemaIdentification.of(schema.name(), schema.schemaId());
-
-            Assert.isValidIdentifier(identification.name(), "Schema name");
-            Assert.isValidSchemaId(identification.id(), "Schema id");
-            Assert.duplicateCheck(identification.id(), schema, idDupCheck, "Schema id", "Namespace");
-            Assert.duplicateCheck(identification, schema, nameDupCheck, "Schema reference", "Namespace");
-
-            // Count the versions of each schema by name.
-            nameVersioningCheck.TryGetValue(schema.name(), out int count);
-            nameVersioningCheck.put(schema.name(), count + 1);
-        }
-
-        // Enable id-less Schema references for all types with a unique version in the namespace
-
-        for (Schema schema : namespace.schemas()) {
-            if (nameVersioningCheck.get(schema.name()) == 1) {
-                Assert.duplicateCheck(SchemaIdentification.of(schema.name(), SchemaId.INVALID), schema, nameDupCheck, "Schema reference", "Namespace");
-            }
-        }
-
-        SchemaValidator.visit(namespace, nameDupCheck, idDupCheck);
-    }
-
-    /// <summary>Visit an entire namespace and validate its constraints.</summary>
-    /// <param name="ns">The <see cref="Namespace" /> to validate.</param>
-    /// <param name="schemas">A map from schema names within the namespace to their schemas.</param>
-    /// <param name="ids">A map from schema ids within the namespace to their schemas.</param>
-    private static void visit(Namespace ns, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
-        for (Schema schema : ns.schemas()) {
-            SchemaValidator.visit(schema, schemas, ids);
-        }
-    }
-
-    /// <summary>Visit a single schema and validate its constraints.</summary>
-    /// <param name="schema">The <see cref="Schema" /> to validate.</param>
-    /// <param name="schemas">A map from schema names within the namespace to their schemas.</param>
-    /// <param name="ids">A map from schema ids within the namespace to their schemas.</param>
-    private static void visit(Schema schema, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
-
-        Assert.areEqual(
-            schema.type(), TypeKind.SCHEMA, lenientFormat("The type of a schema MUST be %s: %s", TypeKind.SCHEMA, schema.type())
-        );
-
-        HashMap<String, Property> pathDupCheck = new HashMap<>(schema.properties().size());
-
-        for (Property p : schema.properties()) {
-            Assert.duplicateCheck(p.path(), p, pathDupCheck, "Property path", "Schema");
-        }
-
-        for (PartitionKey pk : schema.partitionKeys()) {
-            Assert.exists(pk.path(), pathDupCheck, "Partition key column", "Schema");
-        }
-
-        for (PrimarySortKey ps : schema.primarySortKeys()) {
-            Assert.exists(ps.path(), pathDupCheck, "Primary sort key column", "Schema");
-        }
-
-        for (StaticKey sk : schema.staticKeys()) {
-            Assert.exists(sk.path(), pathDupCheck, "Static key column", "Schema");
-        }
-
-        for (Property p : schema.properties()) {
-            SchemaValidator.visit(p, schema, schemas, ids);
-        }
-    }
-
-    private static void visit(
-        Property p, Schema s, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
-
-        Assert.isValidIdentifier(p.path(), "Property path");
-        SchemaValidator.visit(p.propertyType(), null, schemas, ids);
-    }
-
-    private static void visit(
-        PropertyType p,
-        PropertyType parent,
-        Map<SchemaIdentification, Schema> schemas,
-        Map<SchemaId, Schema> ids)
-    {
-        switch (p)
-        {
-            case PrimitivePropertyType pp:
-            Assert.isTrue(pp.Length >= 0, "Length MUST be positive");
-                if (parent != null)
-                {
-                    Assert.areEqual(pp.Storage, StorageKind.Sparse, $"Nested fields MUST have storage {StorageKind.Sparse}");
-                }
-
-                break;
-            case ArrayPropertyType ap:
-            if (ap.Items != null)
-            {
-                SchemaValidator.visit(ap.Items, p, schemas, ids);
-            }
-
-                break;
-            case MapPropertyType mp:
-            SchemaValidator.visit(mp.Keys, p, schemas, ids);
-                SchemaValidator.visit(mp.Values, p, schemas, ids);
-                break;
-            case SetPropertyType sp:
-            SchemaValidator.visit(sp.Items, p, schemas, ids);
-                break;
-            case TaggedPropertyType gp:
-            for (PropertyType item : gp.Items)
-            {
-                SchemaValidator.visit(item, p, schemas, ids);
-            }
-
-            break;
-            case TuplePropertyType tp:
-            for (PropertyType item : tp.Items)
-            {
-                SchemaValidator.visit(item, p, schemas, ids);
-            }
-
-            break;
-            case ObjectPropertyType op:
-            Map<String, Property> pathDupCheck = new HashMap<>(op.Properties.Count);
-                for (Property nested : op.Properties)
-            {
-                Assert.duplicateCheck(nested.path(), nested, pathDupCheck, "Property path", "Object");
-                SchemaValidator.visit(nested.propertyType(), p, schemas, ids);
-            }
-
-            break;
-            case UdtPropertyType up:
-            Assert.exists((up.Name, up.SchemaId), schemas, "Schema reference", "Namespace");
-                if (up.SchemaId != SchemaId.Invalid)
-                {
-                    Schema s = Assert.exists(up.SchemaId, ids, "Schema id", "Namespace");
-                    Assert.areEqual(
-                        up.Name,
-                        s.Name,
-                        $"Schema name '{up.Name}' does not match the name of schema with id '{up.SchemaId}': {s.Name}");
-                }
-
-                break;
-            default:
-                Contract.Fail("Unknown property type");
-                break;
-        }
-    }
-
-    private static class Assert {
-
-        /// <summary>Validate <paramref name="key" /> does not already appear within the given scope.</summary>
-        /// <typeparam name="TKey">The type of the keys within the scope.</typeparam>
-        /// <typeparam name="TValue">The type of the values within the scope.</typeparam>
-        /// <param name="key">The key to check.</param>
-        /// <param name="value">The value to add to the scope if there is no duplicate.</param>
-        /// <param name="scope">The set of existing values within the scope.</param>
-        /// <param name="label">Diagnostic label describing <paramref name="key" />.</param>
-        /// <param name="scopeLabel">Diagnostic label describing <paramref name="scope" />.</param>
-        static <TKey, TValue> void duplicateCheck(
-            TKey key, TValue value, Map<TKey, TValue> scope, String label, String scopeLabel) {
-            if (scope.containsKey(key)) {
-                throw new SchemaException(lenientFormat("%s must be unique within a %s: %s", label, scopeLabel, key));
-            }
-            scope.put(key, value);
-        }
-
-        /// <summary>Validate <paramref name="key" /> does appear within the given scope.</summary>
-        /// <typeparam name="TKey">The type of the keys within the scope.</typeparam>
-        /// <typeparam name="TValue">The type of the values within the scope.</typeparam>
-        /// <param name="key">The key to check.</param>
-        /// <param name="scope">The set of existing values within the scope.</param>
-        /// <param name="label">Diagnostic label describing <paramref name="key" />.</param>
-        /// <param name="scopeLabel">Diagnostic label describing <paramref name="scope" />.</param>
-        static <TKey, TValue> TValue exists(TKey key, Map<TKey, TValue> scope, String label, String scopeLabel) {
-            TValue value = scope.get(key);
-            if (value == null) {
-                throw new SchemaException(lenientFormat("%s must exist within a %s: %s", label, scopeLabel, key));
-            }
-            return value;
-        }
-
-        /// <summary>Validate two values are equal.</summary>
-        /// <typeparam name="T">Type of the values to compare.</typeparam>
-        /// <param name="left">The left value to compare.</param>
-        /// <param name="right">The right value to compare.</param>
-        /// <param name="message">Diagnostic message if the comparison fails.</param>
-        static <T> void areEqual(T left, T right, String message) {
-            if (!left.equals(right)) {
-                throw new SchemaException(message);
-            }
-        }
-
-        /// <summary>Validate a predicate is true.</summary>
-        /// <param name="predicate">The predicate to check.</param>
-        /// <param name="message">Diagnostic message if the comparison fails.</param>
-        static void isTrue(boolean predicate, String message) {
-            if (!predicate) {
-                throw new SchemaException(message);
-            }
-        }
-
-        /// <summary>
-        /// Validate <paramref name="identifier" /> contains only characters valid in a schema
-        /// identifier.
-        /// </summary>
-        /// <param name="identifier">The identifier to check.</param>
-        /// <param name="label">Diagnostic label describing <paramref name="identifier" />.</param>
-        static void isValidIdentifier(String identifier, String label) {
-            if (Strings.isNullOrEmpty(identifier)) {
-                throw new SchemaException(lenientFormat("%s must be a valid identifier: %s", label, identifier));
-            }
-        }
-
-        /// <summary>Validate <paramref name="id" /> is a valid <see cref="SchemaId" />.</summary>
-        /// <param name="id">The id to check.</param>
-        /// <param name="label">Diagnostic label describing <paramref name="id" />.</param>
-        static void isValidSchemaId(SchemaId id, String label) {
-            if (id == SchemaId.INVALID) {
-                throw new SchemaException(lenientFormat("%s cannot be 0", label));
-            }
+        @Override
+        public String toString() {
+            return Json.toString(this);
         }
     }
 }

@@ -21,20 +21,18 @@ import static com.google.common.base.Strings.lenientFormat;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Murmur3Hash for x64 (Little Endian).
- * <p>Reference: https: //en.wikipedia.org/wiki/MurmurHash <br /></p>
+ * Murmur3Hash for x86_64 (little endian).
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/MurmurHash">MurmurHash</a>
  * <p>
- * This implementation provides span-based access for hashing content not available in a
- * {@link T:byte[]}
- * </p>
  */
 @SuppressWarnings("UnstableApiUsage")
 @Immutable
 public final class Murmur3Hash {
 
-    private static final ByteBufAllocator allocator = ByteBufAllocator.DEFAULT;
     private static final ByteBuf FALSE = Constant.add(false);
     private static final ByteBuf TRUE = Constant.add(true);
+    private static final ByteBufAllocator allocator = ByteBufAllocator.DEFAULT;
     private static final ByteBuf EMPTY_STRING = Constant.add("");
 
     /**
@@ -47,8 +45,8 @@ public final class Murmur3Hash {
     @SuppressWarnings("ConstantConditions")
     public static HashCode128 Hash128(@Nonnull final String item, @Nonnull final HashCode128 seed) {
 
-        checkNotNull(item, "value: null, seed: %s", seed);
-        checkNotNull(seed, "value: %s, seed: null", item);
+        checkNotNull(item, "expected non-null item");
+        checkNotNull(seed, "expected non-null seed");
 
         if (item.isEmpty()) {
             return Hash128(EMPTY_STRING, seed);
@@ -70,8 +68,23 @@ public final class Murmur3Hash {
      * @param seed The seed with which to initialize.
      * @return The 128-bit hash represented as two 64-bit words encapsulated by a {@link HashCode128} instance.
      */
-    public static HashCode128 Hash128(boolean item, HashCode128 seed) {
+    public static HashCode128 Hash128(final boolean item, final HashCode128 seed) {
         return Murmur3Hash.Hash128(item ? TRUE : FALSE, seed);
+    }
+
+    public static HashCode128 Hash128(short item, HashCode128 seed) {
+        ByteBuf buffer = Unpooled.wrappedBuffer(new byte[Integer.BYTES]).writeShortLE(item);
+        return Murmur3Hash.Hash128(buffer, seed);
+    }
+
+    public static HashCode128 Hash128(byte item, HashCode128 seed) {
+        ByteBuf buffer = Unpooled.wrappedBuffer(new byte[Integer.BYTES]).writeByte(item);
+        return Murmur3Hash.Hash128(buffer, seed);
+    }
+
+    public static HashCode128 Hash128(int item, HashCode128 seed) {
+        ByteBuf buffer = Unpooled.wrappedBuffer(new byte[Integer.BYTES]).writeIntLE(item);
+        return Murmur3Hash.Hash128(buffer, seed);
     }
 
     /**

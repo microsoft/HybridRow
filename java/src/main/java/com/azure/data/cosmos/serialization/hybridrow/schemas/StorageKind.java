@@ -3,6 +3,13 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
+import com.google.common.base.Suppliers;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
+
 /**
  * Describes the storage placement for primitive properties.
  */
@@ -41,31 +48,26 @@ public enum StorageKind {
      */
     VARIABLE(2);
 
-    public static final int SIZE = java.lang.Integer.SIZE;
-    private static java.util.HashMap<Integer, StorageKind> mappings;
+    public static final int BYTES = Integer.BYTES;
+
+    private static final Supplier<Int2ObjectMap<StorageKind>> mappings = Suppliers.memoize(() -> {
+        StorageKind[] storageKinds = StorageKind.class.getEnumConstants();
+        int[] values = new int[storageKinds.length];
+        Arrays.setAll(values, index -> storageKinds[index].value);
+        return new Int2ObjectArrayMap<StorageKind>(values, storageKinds);
+    });
+
     private int value;
 
     StorageKind(int value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
     public int value() {
         return this.value;
     }
 
-    public static StorageKind forValue(int value) {
-        return mappings().get(value);
-    }
-
-    private static java.util.HashMap<Integer, StorageKind> mappings() {
-        if (mappings == null) {
-            synchronized (StorageKind.class) {
-                if (mappings == null) {
-                    mappings = new java.util.HashMap<>();
-                }
-            }
-        }
-        return mappings;
+    public static StorageKind from(int value) {
+        return mappings.get().get(value);
     }
 }

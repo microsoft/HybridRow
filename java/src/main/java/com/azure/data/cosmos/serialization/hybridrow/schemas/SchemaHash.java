@@ -7,6 +7,9 @@ import com.azure.data.cosmos.serialization.hybridrow.HashCode128;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.internal.Murmur3Hash;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
@@ -20,41 +23,41 @@ public final class SchemaHash {
 	 * @param seed      The seed to initialized the hash function.
 	 * @return The logical 128-bit hash as a two-tuple (low, high).
 	 */
-	public static HashCode128 ComputeHash(Namespace namespace, Schema schema, HashCode128 seed) {
+	public static HashCode128 computeHash(Namespace namespace, Schema schema, HashCode128 seed) {
 		HashCode128 hash = seed;
 
 		hash = Murmur3Hash.Hash128(schema.schemaId().value(), hash);
 		hash = Murmur3Hash.Hash128(schema.type().value(), hash);
-		hash = SchemaHash.ComputeHash(namespace, schema.options(), hash);
+		hash = SchemaHash.computeHash(namespace, schema.options(), hash);
 
 		if (schema.partitionKeys() != null) {
 			for (PartitionKey partitionKey : schema.partitionKeys()) {
-				hash = SchemaHash.ComputeHash(namespace, partitionKey, hash);
+				hash = SchemaHash.computeHash(namespace, partitionKey, hash);
 			}
 		}
 
 		if (schema.primarySortKeys() != null) {
 			for (PrimarySortKey p : schema.primarySortKeys()) {
-				hash = SchemaHash.ComputeHash(namespace, p, hash);
+				hash = SchemaHash.computeHash(namespace, p, hash);
 			}
 		}
 
 		if (schema.staticKeys() != null) {
 			for (StaticKey p : schema.staticKeys()) {
-				hash = SchemaHash.ComputeHash(namespace, p, hash);
+				hash = SchemaHash.computeHash(namespace, p, hash);
 			}
 		}
 
 		if (schema.properties() != null) {
 			for (Property p : schema.properties()) {
-				hash = SchemaHash.ComputeHash(namespace, p, hash);
+				hash = SchemaHash.computeHash(namespace, p, hash);
 			}
 		}
 
 		return hash;
 	}
 
-	private static HashCode128 ComputeHash(Namespace namespace, SchemaOptions options, HashCode128 seed) {
+	private static HashCode128 computeHash(Namespace namespace, SchemaOptions options, HashCode128 seed) {
 
 		HashCode128 hash = seed;
 
@@ -65,21 +68,21 @@ public final class SchemaHash {
 		return hash;
 	}
 
-	private static HashCode128 ComputeHash(Namespace ns, Property p, HashCode128 seed) {
+	private static HashCode128 computeHash(Namespace ns, Property p, HashCode128 seed) {
 
 		HashCode128 hash = seed;
 
 		hash = Murmur3Hash.Hash128(p.path(), hash);
-		hash = SchemaHash.ComputeHash(ns, p.propertyType(), hash);
+		hash = SchemaHash.computeHash(ns, p.propertyType(), hash);
 
 		return hash;
 	}
 
-	private static HashCode128 ComputeHash(Namespace namespace, PropertyType p, HashCode128 seed) {
+	private static HashCode128 computeHash(Namespace namespace, PropertyType p, HashCode128 seed) {
 
 		HashCode128 hash = seed;
 
-		hash = Murmur3Hash.Hash128(p.type(), hash);
+		hash = Murmur3Hash.Hash128(p.type().value(), hash);
 		hash = Murmur3Hash.Hash128(p.nullable(), hash);
 
 		if (p.apiType() != null) {
@@ -87,9 +90,12 @@ public final class SchemaHash {
 		}
 
 		if (p instanceof PrimitivePropertyType) {
+
 			PrimitivePropertyType pp = (PrimitivePropertyType) p;
-			hash = Murmur3Hash.Hash128(pp.storage(), hash);
+
+			hash = Murmur3Hash.Hash128(pp.storage().value(), hash);
 			hash = Murmur3Hash.Hash128(pp.length(), hash);
+
 			return hash;
 		}
 
@@ -100,7 +106,7 @@ public final class SchemaHash {
 		if (p instanceof ArrayPropertyType) {
 			ArrayPropertyType spp = (ArrayPropertyType) p;
 			if (spp.items() != null) {
-				hash = SchemaHash.ComputeHash(namespace, spp.items(), hash);
+				hash = SchemaHash.computeHash(namespace, spp.items(), hash);
 			}
 			return hash;
 		}
@@ -109,7 +115,7 @@ public final class SchemaHash {
 			ObjectPropertyType spp = (ObjectPropertyType) p;
 			if (spp.properties() != null) {
 				for (Property opp : spp.properties()) {
-					hash = SchemaHash.ComputeHash(namespace, opp, hash);
+					hash = SchemaHash.computeHash(namespace, opp, hash);
 				}
 			}
 			return hash;
@@ -120,11 +126,11 @@ public final class SchemaHash {
 			MapPropertyType spp = (MapPropertyType) p;
 
 			if (spp.keys() != null) {
-				hash = SchemaHash.ComputeHash(namespace, spp.keys(), hash);
+				hash = SchemaHash.computeHash(namespace, spp.keys(), hash);
 			}
 
 			if (spp.values() != null) {
-				hash = SchemaHash.ComputeHash(namespace, spp.values(), hash);
+				hash = SchemaHash.computeHash(namespace, spp.values(), hash);
 			}
 
 			return hash;
@@ -135,7 +141,7 @@ public final class SchemaHash {
 			SetPropertyType spp = (SetPropertyType) p;
 
 			if (spp.items() != null) {
-				hash = SchemaHash.ComputeHash(namespace, spp.items(), hash);
+				hash = SchemaHash.computeHash(namespace, spp.items(), hash);
 			}
 
 			return hash;
@@ -147,7 +153,7 @@ public final class SchemaHash {
 
 			if (spp.items() != null) {
 				for (PropertyType pt : spp.items()) {
-					hash = SchemaHash.ComputeHash(namespace, pt, hash);
+					hash = SchemaHash.computeHash(namespace, pt, hash);
 				}
 			}
 
@@ -160,7 +166,7 @@ public final class SchemaHash {
 
 			if (spp.items() != null) {
 				for (PropertyType pt : spp.items()) {
-					hash = SchemaHash.ComputeHash(namespace, pt, hash);
+					hash = SchemaHash.computeHash(namespace, pt, hash);
 				}
 			}
 
@@ -169,58 +175,39 @@ public final class SchemaHash {
 
 		if (p instanceof UdtPropertyType) {
 
+			Stream<Schema> schemaStream = namespace.schemas().stream();
 			UdtPropertyType spp = (UdtPropertyType) p;
-			Schema udtSchema;
+			Optional<Schema> udtSchema;
 
 			if (spp.schemaId() == SchemaId.INVALID) {
-				udtSchema = namespace.schemas().Find(s = > s.name() == spp.name());
+				udtSchema = schemaStream.filter(schema -> schema.name().equals(spp.name())).findFirst();
 			} else {
-				udtSchema = namespace.schemas().Find(s = > s.schemaId() == spp.schemaId());
-				checkState(udtSchema.name().equals(spp.name()), "Ambiguous schema reference: '%s:%s'", spp.name(), spp.schemaId());
+				udtSchema = schemaStream.filter(schema -> schema.schemaId().equals(spp.schemaId())).findFirst();
+				udtSchema.ifPresent(schema -> checkState(schema.name().equals(spp.name()),
+					"Ambiguous schema reference: '%s:%s'", spp.name(), spp.schemaId()));
 			}
 
-			checkState(udtSchema != null, "Cannot resolve schema reference '{0}:{1}'", spp.name(), spp.schemaId());
-			return SchemaHash.ComputeHash(namespace, udtSchema, hash);
+			checkState(udtSchema.isPresent(), "Cannot resolve schema reference '{0}:{1}'", spp.name(), spp.schemaId());
+			return SchemaHash.computeHash(namespace, udtSchema.get(), hash);
 		}
 
 		throw new IllegalStateException(lenientFormat("unrecognized property type: %s", p.getClass()));
 	}
 
-	// TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	private static(ulong low, ulong high) ComputeHash(Namespace ns, PartitionKey key, (ulong low, ulong high) seed
-    //	= default)
-    //		{
-    //			(ulong low, ulong high) hash = seed;
-    //			if (key != null)
-    //			{
-    //				hash = Murmur3Hash.Hash128(key.Path, hash);
-    //			}
-    //
-    //			return hash;
-    //		}
+	private static HashCode128 computeHash(Namespace namespace, PartitionKey key, HashCode128 seed) {
+		return key == null ? seed : Murmur3Hash.Hash128(key.path(), seed);
+	}
 
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	private static(ulong low, ulong high) ComputeHash(Namespace ns, PrimarySortKey key, (ulong low, ulong high) seed = default)
-    //		{
-    //			(ulong low, ulong high) hash = seed;
-    //			if (key != null)
-    //			{
-    //				hash = Murmur3Hash.Hash128(key.Path, hash);
-    //				hash = Murmur3Hash.Hash128(key.Direction, hash);
-    //			}
-    //
-    //			return hash;
-    //		}
+	private static HashCode128 computeHash(Namespace namespace, PrimarySortKey key, HashCode128 seed) {
+		HashCode128 hash = seed;
+		if (key != null) {
+			hash = Murmur3Hash.Hash128(key.path(), hash);
+			hash = Murmur3Hash.Hash128(key.direction().value(), hash);
+		}
+		return hash;
+	}
 
-    // TODO: C# TO JAVA CONVERTER: Methods returning tuples are not converted by C# to Java Converter:
-    //	private static(ulong low, ulong high) ComputeHash(Namespace ns, StaticKey key, (ulong low, ulong high) seed = default)
-    //		{
-    //			(ulong low, ulong high) hash = seed;
-    //			if (key != null)
-    //			{
-    //				hash = Murmur3Hash.Hash128(key.Path, hash);
-    //			}
-    //
-    //			return hash;
-    //		}
+	private static HashCode128 computeHash(Namespace ns, StaticKey key, HashCode128 seed) {
+		return key == null ? seed : Murmur3Hash.Hash128(key.path(), seed);
+	}
 }

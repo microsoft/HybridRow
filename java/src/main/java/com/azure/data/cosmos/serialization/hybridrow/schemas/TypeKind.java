@@ -5,8 +5,12 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 // TODO: DANOBLE: Fixup JSON-serialized naming for agreement with the dotnet code
 
+import com.google.common.base.Suppliers;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Describes the logical type of a property.
@@ -185,12 +189,18 @@ public enum TypeKind {
     ANY(30);
 
     public static final int BYTES = Integer.BYTES;
-    private static Int2ObjectMap<TypeKind> mappings;
+
+    private static Supplier<Int2ObjectMap<TypeKind>> mappings = Suppliers.memoize(() -> {
+        TypeKind[] typeKinds = TypeKind.class.getEnumConstants();
+        int[] values = new int[typeKinds.length];
+        Arrays.setAll(values, index -> typeKinds[index].value);
+        return new Int2ObjectOpenHashMap<>(values, typeKinds);
+    });
+
     private int value;
 
     TypeKind(int value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
     public int value() {
@@ -198,17 +208,6 @@ public enum TypeKind {
     }
 
     public static TypeKind from(int value) {
-        return mappings().get(value);
-    }
-
-    private static Int2ObjectMap<TypeKind> mappings() {
-        if (mappings == null) {
-            synchronized (TypeKind.class) {
-                if (mappings == null) {
-                    mappings = new Int2ObjectOpenHashMap<>();
-                }
-            }
-        }
-        return mappings;
+        return mappings.get().get(value);
     }
 }
