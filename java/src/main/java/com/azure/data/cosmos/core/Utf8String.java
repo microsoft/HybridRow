@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.base.Objects;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Utf8;
+import com.google.common.collect.Streams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
@@ -145,30 +146,14 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return other == null ? 0 : -1;
         }
 
-        final int length = this.length();
-        final int otherLength = other.length();
-        final int limit = Math.min(length, otherLength);
+        // TODO: DANOBLE: Consider optimizing this method based on the cost of zipping boxed int streams
 
-        if (limit > 0) {
+        Optional<Integer> compare = Streams
+            .zip(this.codePoints().boxed(), other.codePoints().boxed(), (x, y) -> x - y)
+            .filter(delta -> delta != 0)
+            .findFirst();
 
-            final CodePointIterable iterable = new CodePointIterable(this.buffer, this.utf16CodeUnitCount.get());
-            int index = 0;
-
-            for (int codePoint : iterable) {
-
-                final int otherCodePoint = other.codePointAt(index++);
-
-                if (codePoint != otherCodePoint) {
-                    return codePoint - otherCodePoint;
-                }
-
-                if (index >= limit) {
-                    break;
-                }
-            }
-        }
-
-        return length - otherLength;
+        return compare.orElse(this.length() - other.length());
     }
 
     /**
@@ -547,7 +532,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         private int skip = 0;
 
         @Override
-        public boolean process(byte value) throws Exception {
+        public boolean process(byte value) {
 
             if (this.skip > 0) {
                 this.skip--;
@@ -678,7 +663,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
                     if (!Character.isDefined(this.codePoint)) {
                         this.codePoint = REPLACEMENT_CHARACTER;
-                    };
+                    }
 
                     return false;
                 }
