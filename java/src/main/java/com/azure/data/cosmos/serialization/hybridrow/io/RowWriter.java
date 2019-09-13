@@ -3,7 +3,6 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
-import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.core.UtfAnyString;
@@ -15,13 +14,22 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutArray;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutColumn;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutListWritable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutNullable;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutObject;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolver;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTagged;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTagged2;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTuple;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypePrimitive;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypeScope;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypedArray;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypedMap;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypedSet;
+import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypedTuple;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUDT;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUniqueScope;
@@ -33,10 +41,17 @@ import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.lenientFormat;
 
 public final class RowWriter {
 
@@ -85,8 +100,8 @@ public final class RowWriter {
      * @param value The value to write.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteBinary(UtfAnyString path, byte[] value) {
-        return this.WriteBinary(path, Unpooled.wrappedBuffer(value));
+    public Result writeBinary(UtfAnyString path, byte[] value) {
+        return this.writeBinary(path, Unpooled.wrappedBuffer(value));
     }
 
     /**
@@ -96,9 +111,10 @@ public final class RowWriter {
      * @param value The value to write.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteBinary(UtfAnyString path, ByteBuf value) {
-        return this.writePrimitive(path, value, LayoutTypes.BINARY, (ByteBuf v) ->
-            this.row.writeSparseBinary(this.cursor, v, UpdateOptions.UPSERT));
+    public Result writeBinary(UtfAnyString path, ByteBuf value) {
+        return this.writePrimitive(path, value, LayoutTypes.BINARY,
+            field -> this.row.writeSparseBinary(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -108,36 +124,33 @@ public final class RowWriter {
      * @param value The value to write.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result WriteBoolean(UtfAnyString path, boolean value) {
-        return this.writePrimitive(path, value, LayoutTypes.BOOLEAN, (Boolean v) ->
-            this.row.writeSparseBoolean(this.cursor, value, UpdateOptions.UPSERT));
+    public Result writeBoolean(UtfAnyString path, boolean value) {
+        return this.writePrimitive(path, value, LayoutTypes.BOOLEAN,
+            field -> this.row.writeSparseBoolean(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
-     * Write an entire row in a streaming left-to-right way.
+     * Write an entire buffer in a streaming left-to-right way.
      *
      * @param <TContext> The type of the context value to pass to {@code func}.
-     * @param row        The row to write.
+     * @param buffer        The buffer to write.
      * @param context    A context value to pass to {@code func}.
-     * @param func       A function to write the entire row.
+     * @param func       A function to write the entire buffer.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public static <TContext> Result WriteBuffer(
-        Reference<RowBuffer> row, TContext context, WriterFunc<TContext> func) {
-        RowCursor scope = RowCursor.create(row);
-        Reference<RowCursor> tempReference_scope =
-            new Reference<RowCursor>(scope);
-        RowWriter writer = new RowWriter(row, tempReference_scope);
-        scope = tempReference_scope.get();
-        TypeArgument typeArg = new TypeArgument(LayoutTypes.UDT,
-            new TypeArgumentList(scope.layout().schemaId()));
-        Reference<RowWriter> tempReference_writer =
-            new Reference<RowWriter>(writer);
-        // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-        Result result = func(ref writer, typeArg, context);
-        writer = tempReference_writer.get();
-        row.setAndGet(writer.row);
-        return result;
+    public static <TContext> Result writeBuffer(
+        @Nonnull final RowBuffer buffer, final @Nonnull TContext context, @Nonnull final WriterFunc<TContext> func) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(context, "expected non-null context");
+        checkNotNull(func, "expected non-null func");
+
+        RowCursor scope = RowCursor.create(buffer);
+        RowWriter writer = new RowWriter(buffer, scope);
+        TypeArgument typeArg = new TypeArgument(LayoutTypes.UDT, new TypeArgumentList(scope.layout().schemaId()));
+
+        return func.invoke(writer, typeArg, context);
     }
 
     /**
@@ -148,8 +161,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeDateTime(UtfAnyString path, OffsetDateTime value) {
-        return this.writePrimitive(path, value, LayoutTypes.DATE_TIME, (OffsetDateTime v) ->
-            this.row.writeSparseDateTime(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.DATE_TIME,
+            field -> this.row.writeSparseDateTime(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -160,8 +174,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeDecimal(UtfAnyString path, BigDecimal value) {
-        return this.writePrimitive(path, value, LayoutTypes.DECIMAL, (BigDecimal v) ->
-            this.row.writeSparseDecimal(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.DECIMAL,
+            field -> this.row.writeSparseDecimal(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -172,8 +187,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeFloat128(UtfAnyString path, Float128 value) {
-        return this.writePrimitive(path, value, LayoutTypes.FLOAT_128, (Float128 v) ->
-            this.row.writeSparseFloat128(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.FLOAT_128,
+            field -> this.row.writeSparseFloat128(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -184,8 +200,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeFloat32(UtfAnyString path, float value) {
-        return this.writePrimitive(path, value, LayoutTypes.FLOAT_32, (Float v) ->
-            this.row.writeSparseFloat32(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.FLOAT_32,
+            field -> this.row.writeSparseFloat32(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -196,8 +213,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeFloat64(UtfAnyString path, double value) {
-        return this.writePrimitive(path, value, LayoutTypes.FLOAT_64, (Double v) ->
-            this.row.writeSparseFloat64(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.FLOAT_64,
+            field -> this.row.writeSparseFloat64(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -208,8 +226,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeGuid(UtfAnyString path, UUID value) {
-        return this.writePrimitive(path, value, LayoutTypes.GUID, (UUID v) ->
-            this.row.writeSparseGuid(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.GUID,
+            field -> this.row.writeSparseGuid(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -220,8 +239,21 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeInt16(UtfAnyString path, short value) {
-        return this.writePrimitive(path, value, LayoutTypes.INT_16, (Short v) ->
-            this.row.writeSparseInt16(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.INT_16,
+            field -> this.row.writeSparseInt16(this.cursor, field, UpdateOptions.UPSERT)
+        );
+    }
+
+    /**
+     * Write a field as a fixed length, 32-bit, signed integer.
+     *
+     * @param path  The scope-relative path of the field to write.
+     * @param value The value to write.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
+     */
+    public Result writeInt32(UtfAnyString path, int value) {
+        return this.writePrimitive(path, value, LayoutTypes.INT_32,
+            field -> this.row.writeSparseInt32(this.cursor, field, UpdateOptions.UPSERT));
     }
 
     /**
@@ -232,8 +264,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeInt64(UtfAnyString path, long value) {
-        return this.writePrimitive(path, value, LayoutTypes.INT_64, (Long v) ->
-            this.row.writeSparseInt64(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.INT_64,
+            field -> this.row.writeSparseInt64(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -244,19 +277,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeInt8(UtfAnyString path, byte value) {
-        return this.writePrimitive(path, value, LayoutTypes.INT_8, (Byte v) ->
-            this.row.writeSparseInt8(this.cursor, v, UpdateOptions.UPSERT));
-    }
-
-    /**
-     * Write a field as a {@code null}.
-     *
-     * @param path The scope-relative path of the field to write.
-     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
-     */
-    public Result writeNull(UtfAnyString path) {
-        return this.writePrimitive(path, NullValue.DEFAULT, LayoutTypes.NULL, (NullValue v) ->
-            this.row.writeSparseNull(this.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.INT_8,
+            field -> this.row.writeSparseInt8(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     // TODO: DANOBLE: Resurrect this method
@@ -272,185 +295,100 @@ public final class RowWriter {
     //        // return this.writePrimitive(path, value, LayoutTypes.MongoDbObjectId, (ref RowWriter w, MongoDbObjectId v) -> w.row.writeSparseMongoDbObjectId(ref w.cursor, v, UpdateOptions.UPSERT));
     //    }
 
-    public <TContext> Result WriteScope(
-        UtfAnyString path, TypeArgument typeArg, TContext context, WriterFunc<TContext> func) {
+    /**
+     * Write a field as a {@code null}.
+     *
+     * @param path The scope-relative path of the field to write.
+     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
+     */
+    public Result writeNull(UtfAnyString path) {
+        return this.writePrimitive(path, NullValue.DEFAULT, LayoutTypes.NULL,
+            field -> this.row.writeSparseNull(this.cursor, field, UpdateOptions.UPSERT)
+        );
+    }
 
-        LayoutType type = typeArg.type();
+    public <TContext> Result writeScope(
+        @Nonnull final UtfAnyString path,
+        @Nonnull final TypeArgument typeArg,
+        @Nullable final TContext context,
+        @Nullable final WriterFunc<TContext> func) {
+
+        checkNotNull(path, "expected non-null path");
+        checkNotNull(typeArg, "expected non-null typeArg");
 
         Result result = this.prepareSparseWrite(path, typeArg);
+
         if (result != Result.SUCCESS) {
             return result;
         }
 
-        RowCursor nestedScope = new RowCursor();
-        switch (type) {
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutObject scopeType:
-            case LayoutObject
-                scopeType:
-                Reference<RowCursor> tempReference_cursor =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope =
-                    new Out<RowCursor>();
-                this.row.writeSparseObject(tempRef_cursor, scopeType, UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope.get();
-                this.cursor = tempRef_cursor.argValue;
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutArray scopeType:
-            case LayoutArray
-                scopeType:
-                Reference<RowCursor> tempReference_cursor2 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope2 =
-                    new Out<RowCursor>();
-                this.row.writeSparseArray(tempRef_cursor2, scopeType, UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope2.get();
-                this.cursor = tempRef_cursor2.argValue;
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTypedArray scopeType:
-            case LayoutTypedArray
-                scopeType:
-                Reference<RowCursor> tempReference_cursor3 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope3 =
-                    new Out<RowCursor>();
-                this.row.writeTypedArray(tempRef_cursor3, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT, tempOut_nestedScope3);
-                nestedScope = tempOut_nestedScope3.get();
-                this.cursor = tempRef_cursor3.argValue;
+        final UpdateOptions options = UpdateOptions.UPSERT;
+        final LayoutType type = typeArg.type();
+        final RowCursor nestedScope;
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTuple scopeType:
-            case LayoutTuple
-                scopeType:
-                Reference<RowCursor> tempReference_cursor4 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope4 =
-                    new Out<RowCursor>();
-                this.row.writeSparseTuple(tempRef_cursor4, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT, tempOut_nestedScope4);
-                nestedScope = tempOut_nestedScope4.get();
-                this.cursor = tempRef_cursor4.argValue;
+        if (type instanceof LayoutObject) {
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTypedTuple scopeType:
-            case LayoutTypedTuple
-                scopeType:
-                Reference<RowCursor> tempReference_cursor5 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope5 =
-                    new Out<RowCursor>();
-                this.row.writeTypedTuple(tempRef_cursor5, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope5.get();
-                this.cursor = tempRef_cursor5.argValue;
+            nestedScope = this.row.writeSparseObject(this.cursor, (LayoutObject) type, options);
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTagged scopeType:
-            case LayoutTagged
-                scopeType:
-                Reference<RowCursor> tempReference_cursor6 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope6 =
-                    new Out<RowCursor>();
-                this.row.writeTypedTuple(tempRef_cursor6, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope6.get();
-                this.cursor = tempRef_cursor6.argValue;
+        } else if (type instanceof LayoutArray) {
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTagged2 scopeType:
-            case LayoutTagged2
-                scopeType:
-                Reference<RowCursor> tempReference_cursor7 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope7 =
-                    new Out<RowCursor>();
-                this.row.writeTypedTuple(tempRef_cursor7, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope7.get();
-                this.cursor = tempRef_cursor7.argValue;
+            nestedScope = this.row.writeSparseArray(this.cursor, (LayoutArray) type, options);
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutNullable scopeType:
-            case LayoutNullable
-                scopeType:
-                Reference<RowCursor> tempReference_cursor8 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope8 =
-                    new Out<RowCursor>();
-                this.row.writeNullable(tempRef_cursor8, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT, func != null);
-                nestedScope = tempOut_nestedScope8.get();
-                this.cursor = tempRef_cursor8.argValue;
+        } else if (type instanceof LayoutTypedArray) {
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutUDT scopeType:
-            case LayoutUDT
-                scopeType:
-                Layout udt = this.row.resolver().resolve(typeArg.typeArgs().schemaId());
-                Reference<RowCursor> tempReference_cursor9 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope9 =
-                    new Out<RowCursor>();
-                this.row.writeSparseUDT(tempReference_cursor9, scopeType, udt, UpdateOptions.UPSERT, tempOut_nestedScope9);
-                nestedScope = tempOut_nestedScope9.get();
-                this.cursor = tempReference_cursor9.get();
-                break;
+            nestedScope = this.row.writeTypedArray(this.cursor, (LayoutTypedArray) type, typeArg.typeArgs(), options);
 
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTypedSet scopeType:
-            case LayoutTypedSet
-                scopeType:
-                Reference<RowCursor> tempReference_cursor10 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope10 =
-                    new Out<RowCursor>();
-                this.row.writeTypedSet(tempRef_cursor10, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope10.get();
-                this.cursor = tempRef_cursor10.argValue;
+        } else if (type instanceof LayoutTuple) {
 
-                break;
-            // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
-            //ORIGINAL LINE: case LayoutTypedMap scopeType:
-            case LayoutTypedMap
-                scopeType:
-                Reference<RowCursor> tempReference_cursor11 =
-                    new Reference<RowCursor>(this.cursor);
-                Out<RowCursor> tempOut_nestedScope11 =
-                    new Out<RowCursor>();
-                this.row.writeTypedMap(tempRef_cursor11, scopeType, typeArg.typeArgs(),
-                    UpdateOptions.UPSERT);
-                nestedScope = tempOut_nestedScope11.get();
-                this.cursor = tempRef_cursor11.argValue;
+            nestedScope = this.row.writeSparseTuple(this.cursor, (LayoutTuple) type, typeArg.typeArgs(), options);
 
-                break;
+        } else if (type instanceof LayoutTypedTuple) {
 
-            default:
-                return Result.FAILURE;
+            nestedScope = this.row.writeTypedTuple(this.cursor, (LayoutTypedTuple) type, typeArg.typeArgs(), options);
+
+        } else if (type instanceof LayoutTagged) {
+
+            nestedScope = this.row.writeTypedTuple(this.cursor, (LayoutTagged) type, typeArg.typeArgs(), options);
+
+        } else if (type instanceof LayoutTagged2) {
+
+            nestedScope = this.row.writeTypedTuple(this.cursor, (LayoutTagged2) type, typeArg.typeArgs(), options);
+
+        } else if (type instanceof LayoutNullable) {
+
+            nestedScope = this.row.writeNullable(this.cursor, (LayoutNullable) type, typeArg.typeArgs(), options,
+                func != null);
+
+        } else if (type instanceof LayoutUDT) {
+
+            LayoutUDT scopeType = (LayoutUDT) type;
+            Layout udt = this.row.resolver().resolve(typeArg.typeArgs().schemaId());
+            nestedScope = this.row.writeSparseUDT(this.cursor, scopeType, udt, options);
+
+        } else if (type instanceof LayoutTypedSet) {
+
+            LayoutTypedSet scopeType = (LayoutTypedSet) type;
+            nestedScope = this.row.writeTypedSet(this.cursor, scopeType, typeArg.typeArgs(), options);
+
+        } else if (type instanceof LayoutTypedMap) {
+
+            LayoutTypedMap scopeType = (LayoutTypedMap) type;
+            nestedScope = this.row.writeTypedMap(this.cursor, scopeType, typeArg.typeArgs(), options);
+
+        } else {
+
+            throw new IllegalStateException(lenientFormat("expected type argument of %s, not %s",
+                LayoutTypeScope.class,
+                type.getClass()));
         }
 
-        Reference<RowBuffer> tempReference_row =
-            new Reference<RowBuffer>(this.row);
-        Reference<RowCursor> tempReference_nestedScope =
-            new Reference<RowCursor>(nestedScope);
-        RowWriter nestedWriter = new RowWriter(tempReference_row, tempReference_nestedScope);
-        nestedScope = tempReference_nestedScope.get();
-        this.row = tempReference_row.get();
-        Reference<RowWriter> tempReference_nestedWriter =
-            new Reference<RowWriter>(nestedWriter);
-        // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-        result = func == null ? null : func.Invoke(ref nestedWriter, typeArg, context) ??Result.SUCCESS;
-        nestedWriter = tempReference_nestedWriter.get();
+        RowWriter nestedWriter = new RowWriter(this.row, nestedScope);
+        result = func == null ? null : func.invoke(nestedWriter, typeArg, context);
+
+        if (result == null) {
+            result = Result.SUCCESS;
+        }
+
         this.row = nestedWriter.row;
         nestedScope.count(nestedWriter.cursor.count());
 
@@ -460,37 +398,15 @@ public final class RowWriter {
         }
 
         if (type instanceof LayoutUniqueScope) {
-            Reference<RowCursor> tempReference_nestedScope2 =
-                new Reference<RowCursor>(nestedScope);
-            result = this.row.typedCollectionUniqueIndexRebuild(tempReference_nestedScope2);
-            nestedScope = tempReference_nestedScope2.get();
+            result = this.row.typedCollectionUniqueIndexRebuild(nestedScope);
             if (result != Result.SUCCESS) {
                 // TODO: If the index rebuild fails then the row is corrupted.  Should we automatically clean up here?
                 return result;
             }
         }
 
-        Reference<RowBuffer> tempReference_row2 =
-            new Reference<RowBuffer>(this.row);
-        Reference<RowCursor> tempReference_cursor12 =
-            new Reference<RowCursor>(nestedWriter.cursor);
-        RowCursors.moveNext(this.cursor, tempReference_row2
-            , tempReference_cursor12);
-        nestedWriter.cursor = tempReference_cursor12.get();
-        this.row = tempReference_row2.get();
+        RowCursors.moveNext(this.cursor, this.row, nestedWriter.cursor);
         return Result.SUCCESS;
-    }
-
-    /**
-     * Write a field as a fixed length, 32-bit, signed integer.
-     *
-     * @param path  The scope-relative path of the field to write.
-     * @param value The value to write.
-     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
-     */
-    public Result writeInt32(UtfAnyString path, int value) {
-        return this.writePrimitive(path, value, LayoutTypes.INT_32, (RowWriter writer, int v) ->
-            writer.row.writeSparseInt32(writer.cursor, v, UpdateOptions.UPSERT));
     }
 
     /**
@@ -501,12 +417,16 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeString(UtfAnyString path, String value) {
+
         // TODO: DANOBLE: RowBuffer should support writing String values directly (without conversion to Utf8String)
+
         Utf8String string = Utf8String.transcodeUtf16(value);
         assert string != null;
+
         try {
-            return this.writePrimitive(path, value, LayoutTypes.UTF_8, (RowWriter writer, String v) ->
-                writer.row.writeSparseString(writer.cursor, string, UpdateOptions.UPSERT));
+            return this.writePrimitive(path, value, LayoutTypes.UTF_8,
+                field -> this.row.writeSparseString(this.cursor, string, UpdateOptions.UPSERT)
+            );
         } finally {
             string.release();
         }
@@ -520,8 +440,11 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeString(UtfAnyString path, Utf8String value) {
-        return this.writePrimitive(path, value, LayoutTypes.UTF_8, (RowWriter writer, Utf8String v) ->
-            writer.row.writeSparseString(writer.cursor, v, UpdateOptions.UPSERT));
+        // TODO: DANOBLE: BUG FIX: this.writePrimitive should write Utf8String as well as String
+        //   note incorrect use of string "value" as the value argument
+        return this.writePrimitive(path, "value", LayoutTypes.UTF_8,
+            field -> this.row.writeSparseString(this.cursor, value, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -532,8 +455,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeUInt16(UtfAnyString path, short value) {
-        return this.writePrimitive(path, value, LayoutTypes.UINT_16, (RowWriter writer, short v) ->
-            writer.row.writeSparseUInt16(writer.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, (int) value, LayoutTypes.UINT_16,
+            field -> this.row.writeSparseUInt16(this.cursor, field.shortValue(), UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -543,9 +467,10 @@ public final class RowWriter {
      * @param value The value to write.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    public Result writeUInt32(UtfAnyString path, int value) {
-        return this.writePrimitive(path, value, LayoutTypes.UINT_32, (RowWriter writer, int v) ->
-            writer.row.writeSparseUInt32(writer.cursor, v, UpdateOptions.UPSERT));
+    public Result writeUInt32(UtfAnyString path, long value) {
+        return this.writePrimitive(path, value, LayoutTypes.UINT_32, field ->
+            this.row.writeSparseUInt32(this.cursor, field.intValue(), UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -556,8 +481,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeUInt64(UtfAnyString path, long value) {
-        return this.writePrimitive(path, value, LayoutTypes.UINT_64, (RowWriter writer, long v) ->
-            writer.row.writeSparseUInt64(writer.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UINT_64, field ->
+            this.row.writeSparseUInt64(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -568,8 +494,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeUInt8(UtfAnyString path, byte value) {
-        return this.writePrimitive(path, value, LayoutTypes.UINT_8, (RowWriter writer, byte v) ->
-            writer.row.writeSparseUInt8(writer.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, (short) value, LayoutTypes.UINT_8,
+            field -> this.row.writeSparseUInt8(this.cursor, field.byteValue(), UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -580,8 +507,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeUnixDateTime(UtfAnyString path, UnixDateTime value) {
-        return this.writePrimitive(path, value, LayoutTypes.UNIX_DATE_TIME, (RowWriter writer, UnixDateTime v) ->
-            writer.row.writeSparseUnixDateTime(writer.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.UNIX_DATE_TIME,
+            field -> this.row.writeSparseUnixDateTime(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -592,8 +520,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeVarInt(UtfAnyString path, long value) {
-        return this.writePrimitive(path, value, LayoutTypes.VAR_INT, (RowWriter writer, long v) ->
-            writer.row.writeSparseVarInt(writer.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.VAR_INT,
+            field -> this.row.writeSparseVarInt(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -604,8 +533,9 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     public Result writeVarUInt(UtfAnyString path, long value) {
-        return this.writePrimitive(path, value, LayoutTypes.VAR_UINT, (RowWriter writer, long v) ->
-            writer.row.writeSparseVarUInt(writer.cursor, v, UpdateOptions.UPSERT));
+        return this.writePrimitive(path, value, LayoutTypes.VAR_UINT,
+            field -> this.row.writeSparseVarUInt(this.cursor, field, UpdateOptions.UPSERT)
+        );
     }
 
     /**
@@ -616,18 +546,14 @@ public final class RowWriter {
      * @return Success if the write is permitted, the error code otherwise.
      */
     private Result prepareSparseWrite(UtfAnyString path, TypeArgument typeArg) {
+
         if (this.cursor.scopeType().isFixedArity() && !(this.cursor.scopeType() instanceof LayoutNullable)) {
             if ((this.cursor.index() < this.cursor.scopeTypeArgs().count()) && !typeArg.equals(this.cursor.scopeTypeArgs().get(this.cursor.index()))) {
                 return Result.TYPE_CONSTRAINT;
             }
         } else if (this.cursor.scopeType() instanceof LayoutTypedMap) {
-            Reference<RowCursor> tempReference_cursor =
-                new Reference<RowCursor>(this.cursor);
-            if (!typeArg.equals(this.cursor.scopeType().<LayoutUniqueScope>typeAs().fieldType(tempReference_cursor))) {
-                this.cursor = tempReference_cursor.get();
+            if (!typeArg.equals(this.cursor.scopeType().<LayoutUniqueScope>typeAs().fieldType(this.cursor))) {
                 return Result.TYPE_CONSTRAINT;
-            } else {
-                this.cursor = tempReference_cursor.get();
             }
         } else if (this.cursor.scopeType().isTypedScope() && !typeArg.equals(this.cursor.scopeTypeArgs().get(0))) {
             return Result.TYPE_CONSTRAINT;
@@ -637,6 +563,7 @@ public final class RowWriter {
         return Result.SUCCESS;
     }
 
+    // TODO: DANOBLE: Does Java implementation need this method?
     /**
      * Helper for writing a primitive value.
      *
@@ -647,8 +574,8 @@ public final class RowWriter {
      * @param sparse        The {@link RowBuffer} access method for {@code type}.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    private <TLayoutType extends LayoutTypePrimitive<String> & LayoutUtf8Writable>
-    Result writePrimitive(UtfAnyString path, Utf8String value, TLayoutType type, AccessUtf8SpanMethod sparse) {
+    private <TLayoutType extends LayoutType & LayoutUtf8Writable>
+    Result writePrimitive(UtfAnyString path, Utf8String value, TLayoutType type, Consumer<Utf8String> sparse) {
 
         Result result = Result.NOT_FOUND;
 
@@ -657,61 +584,51 @@ public final class RowWriter {
         }
 
         if (result == Result.NOT_FOUND) {
-            // Write sparse value.
+
             result = this.prepareSparseWrite(path, type.typeArg());
+
             if (result != Result.SUCCESS) {
                 return result;
             }
 
-            Reference<RowWriter> tempReference_this =
-                new Reference<RowWriter>(this);
-            // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-            sparse(ref this, value)
-            this = tempReference_this.get();
-            Reference<RowBuffer> tempReference_row =
-                new Reference<RowBuffer>(this.row);
-            RowCursors.moveNext(this.cursor,
-                tempReference_row);
-            this.row = tempReference_row.get();
+            sparse.accept(value);
+            RowCursors.moveNext(this.cursor, this.row);
         }
 
         return result;
     }
 
+    // TODO: DANOBLE: Does Java implementation need this method?
     /**
      * Helper for writing a primitive value.
      *
      * @param <TLayoutType> The type of layout type.
-     * @param <TElement>    The sub-element type of the field.
+     * @param <TValue>      The sub-element type of the field.
      * @param path          The scope-relative path of the field to write.
      * @param value         The value to write.
      * @param type          The layout type.
      * @param sparse        The {@link RowBuffer} access method for {@code type}.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    private <TLayoutType extends LayoutType<TElement[]> & LayoutListWritable<TElement>, TElement> Result writePrimitive(UtfAnyString path, ReadOnlySpan<TElement> value, TLayoutType type, AccessReadOnlySpanMethod<TElement> sparse) {
+    private <TLayoutType extends LayoutType & LayoutListWritable<TValue>, TValue>
+    Result writePrimitiveList(UtfAnyString path, List<TValue> value, TLayoutType type, Consumer<List<TValue>> sparse) {
+
         Result result = Result.NOT_FOUND;
+
         if (this.cursor.scopeType() instanceof LayoutUDT) {
             result = this.writeSchematizedValue(path, value);
         }
 
         if (result == Result.NOT_FOUND) {
-            // Write sparse value.
+
             result = this.prepareSparseWrite(path, type.typeArg());
+
             if (result != Result.SUCCESS) {
                 return result;
             }
 
-            Reference<RowWriter> tempReference_this =
-                new Reference<RowWriter>(this);
-            // TODO: C# TO JAVA CONVERTER: The following line could not be converted:
-            sparse(ref this, value)
-            this = tempReference_this.get();
-            Reference<RowBuffer> tempReference_row =
-                new Reference<RowBuffer>(this.row);
-            RowCursors.moveNext(this.cursor,
-                tempReference_row);
-            this.row = tempReference_row.get();
+            sparse.accept(value);
+            RowCursors.moveNext(this.cursor, this.row);
         }
 
         return result;
@@ -744,7 +661,7 @@ public final class RowWriter {
                 return result;
             }
 
-            sparse.accept(this, value);
+            sparse.accept(value);
             RowCursors.moveNext(this.cursor, this.row);
         }
 
@@ -760,36 +677,33 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     private <TValue> Result writeSchematizedValue(UtfAnyString path, TValue value) {
-        LayoutColumn col;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout().tryFind(path, out col)) {
+
+        final Optional<LayoutColumn> column = this.cursor.layout().tryFind(path);
+
+        if (!column.isPresent()) {
             return Result.NOT_FOUND;
         }
 
-        boolean tempVar = col.type() instanceof LayoutType<TValue>;
-        LayoutType<TValue> t = tempVar ? (LayoutType<TValue>)col.type() : null;
-        if (!(tempVar)) {
+        // TODO: DANOBLE: Add a mechanism for performing the equivalent of this type check
+        //   if (!(column.Type is LayoutTypePrimitive<TValue> t)) {
+        //       return Result.NotFound;
+        //   }
+        //   Type erasure prevents this test:
+        //     column.type instanceof LayoutTypePrimitive<TValue>
+        //   Reason: Runtime does not instantiate or otherwise represent or identify instances of a generic type.
+
+        if (!(column.get().type() instanceof LayoutTypePrimitive)) {
             return Result.NOT_FOUND;
         }
 
-        switch (col.storage()) {
-            case StorageKind.FIXED:
-                Reference<RowBuffer> tempReference_row =
-                    new Reference<RowBuffer>(this.row);
-                Result tempVar2 = t.writeFixed(ref this.row, ref this.cursor, col, value)
-                this.row = tempReference_row.get();
-                return tempVar2;
+        @SuppressWarnings("unchecked")
+        LayoutTypePrimitive<TValue> type = (LayoutTypePrimitive<TValue>)column.get().type();
 
-            case StorageKind.VARIABLE:
-                Reference<RowBuffer> tempReference_row2 =
-                    new Reference<RowBuffer>(this.row);
-                Result tempVar3 = t.writeVariable(ref this.row, ref this.cursor, col, value)
-                this.row = tempReference_row2.get();
-                return tempVar3;
-
-            default:
-                return Result.NOT_FOUND;
+        switch (column.get().storage()) {
+            case FIXED:
+                return type.writeFixed(this.row, this.cursor, column.get(), value);
+            case VARIABLE:
+                return type.writeVariable(this.row, this.cursor, column.get(), value);
         }
 
         return Result.NOT_FOUND;
@@ -803,150 +717,74 @@ public final class RowWriter {
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
     private Result writeSchematizedValue(UtfAnyString path, Utf8String value) {
-        LayoutColumn col;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these
-        // cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout().tryFind(path, out col)) {
+
+        final Optional<LayoutColumn> column = this.cursor.layout().tryFind(path);
+
+        if (!column.isPresent()) {
             return Result.NOT_FOUND;
         }
 
-        LayoutType t = col.type();
-        if (!(t instanceof ILayoutUtf8SpanWritable)) {
+        final LayoutType type = column.get().type();
+
+        if (!(type instanceof LayoutUtf8Writable)) {
             return Result.NOT_FOUND;
         }
 
-        switch (col.storage()) {
-            case StorageKind.FIXED:
-                Reference<RowBuffer> tempReference_row =
-                    new Reference<RowBuffer>(this.row);
-                Reference<RowCursor> tempReference_cursor =
-                    new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutUtf8SpanWritable>typeAs().writeFixed(tempReference_row, tempReference_cursor, col,
-                    value);
-                this.cursor = tempReference_cursor.get();
-                this.row = tempReference_row.get();
-                return tempVar;
-            case StorageKind.VARIABLE:
-                Reference<RowBuffer> tempReference_row2 =
-                    new Reference<RowBuffer>(this.row);
-                Reference<RowCursor> tempReference_cursor2 =
-                    new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutUtf8SpanWritable>typeAs().writeVariable(tempReference_row2,
-                    tempReference_cursor2,
-                    col, value);
-                this.cursor = tempReference_cursor2.get();
-                this.row = tempReference_row2.get();
-                return tempVar2;
-            default:
-                return Result.NOT_FOUND;
+        switch (column.get().storage()) {
+            case FIXED:
+                return type.<LayoutUtf8Writable>typeAs().writeFixed(this.row, this.cursor, column.get(), value);
+            case VARIABLE:
+                return type.<LayoutUtf8Writable>typeAs().writeVariable(this.row, this.cursor, column.get(), value);
         }
+
+        return Result.NOT_FOUND;
     }
 
     /**
      * Write a generic schematized field value via the scope's layout.
-     * @param <TElement> The sub-element type of the field.
      *
-     * @param path  The scope-relative path of the field to write.
-     * @param value The value to write.
+     * @param <TValue> The sub-element type of the field.
+     * @param path     The scope-relative path of the field to write.
+     * @param value    The value to write.
      * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
      */
-    private <TElement> Result writeSchematizedValue(UtfAnyString path, ReadOnlySpan<TElement> value) {
-        LayoutColumn col;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout().tryFind(path, out col)) {
+    private <TValue> Result writeSchematizedValue(UtfAnyString path, List<TValue> value) {
+
+        final Optional<LayoutColumn> column = this.cursor.layout().tryFind(path);
+
+        if (!column.isPresent()) {
             return Result.NOT_FOUND;
         }
 
-        LayoutType t = col.type();
-        if (!(t instanceof ILayoutSpanWritable<TElement>)) {
+        final LayoutType type = column.get().type();
+
+        if (!(type instanceof LayoutListWritable)) {
             return Result.NOT_FOUND;
         }
 
-        switch (col.storage()) {
-            case StorageKind.FIXED:
-                Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
-                Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutSpanWritable<TElement>>typeAs().writeFixed(tempReference_row, tempReference_cursor, col, value);
-                this.cursor = tempReference_cursor.get();
-                this.row = tempReference_row.get();
-                return tempVar;
-            case StorageKind.VARIABLE:
-                Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
-                Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutSpanWritable<TElement>>typeAs().writeVariable(tempReference_row2, tempReference_cursor2, col, value);
-                this.cursor = tempReference_cursor2.get();
-                this.row = tempReference_row2.get();
-                return tempVar2;
-            default:
-                return Result.NOT_FOUND;
+        switch (column.get().storage()) {
+            case FIXED:
+                return type.<LayoutListWritable<TValue>>typeAs().writeFixedList(this.row, this.cursor, column.get(), value);
+            case VARIABLE:
+                return type.<LayoutListWritable<TValue>>typeAs().writeVariableList(this.row, this.cursor, column.get(), value);
         }
+
+        return Result.NOT_FOUND;
     }
 
     /**
-     * Write a generic schematized field value via the scope's layout.
-     * @param <TElement> The sub-element type of the field.
-     *
-     * @param path  The scope-relative path of the field to write.
-     * @param value The value to write.
-     * @return {@link Result#SUCCESS} if the write is successful, an error {@link Result} otherwise.
-     */
-    private <TElement> Result writeSchematizedValue(UtfAnyString path, ReadOnlySequence<TElement> value) {
-        LayoutColumn col;
-        // TODO: C# TO JAVA CONVERTER: The following method call contained an unresolved 'out' keyword - these cannot be converted using the 'Out' helper class unless the method is within the code being modified:
-        if (!this.cursor.layout().tryFind(path, out col)) {
-            return Result.NOT_FOUND;
-        }
-
-        LayoutType t = col.type();
-        if (!(t instanceof ILayoutSequenceWritable<TElement>)) {
-            return Result.NOT_FOUND;
-        }
-
-        switch (col.storage()) {
-            case StorageKind.FIXED:
-                Reference<RowBuffer> tempReference_row = new Reference<RowBuffer>(this.row);
-                Reference<RowCursor> tempReference_cursor = new Reference<RowCursor>(this.cursor);
-                Result tempVar = t.<ILayoutSequenceWritable<TElement>>typeAs().writeFixed(tempReference_row, tempReference_cursor, col, value);
-                this.cursor = tempReference_cursor.get();
-                this.row = tempReference_row.get();
-                return tempVar;
-            case StorageKind.VARIABLE:
-                Reference<RowBuffer> tempReference_row2 = new Reference<RowBuffer>(this.row);
-                Reference<RowCursor> tempReference_cursor2 = new Reference<RowCursor>(this.cursor);
-                Result tempVar2 = t.<ILayoutSequenceWritable<TElement>>typeAs().writeVariable(tempReference_row2, tempReference_cursor2, col, value);
-                this.cursor = tempReference_cursor2.get();
-                this.row = tempReference_row2.get();
-                return tempVar2;
-            default:
-                return Result.NOT_FOUND;
-        }
-    }
-
-    @FunctionalInterface
-    private interface AccessMethod<TValue> extends Consumer<TValue> {
-    }
-
-    @FunctionalInterface
-    private interface AccessReadOnlySpanMethod<T> {
-        void invoke(RowWriter writer, ReadOnlySpan value);
-    }
-
-    @FunctionalInterface
-    private interface AccessUtf8SpanMethod {
-        void invoke(RowWriter writer, Utf8String value);
-    }
-
-    /**
-     * A function to write content into a {@link RowBuffer}.
-     * @param <TContext> The type of the context value passed by the caller.
-     *
-     * @param writer  A forward-only cursor for writing content.
-     * @param typeArg The type of the current scope.
-     * @param context A context value provided by the caller.
-     * @return The result.
+     * Functional interface for writing content to a {@link RowBuffer}.
      */
     @FunctionalInterface
     public interface WriterFunc<TContext> {
+        /**
+         * Write content using the specified writer, type argument, and context.
+         *
+         * @param writer  writes content.
+         * @param typeArg specifies a type argument.
+         * @param context provides context for the write operation.
+         * @return a result code
+         */
         Result invoke(RowWriter writer, TypeArgument typeArg, TContext context);
     }
 }

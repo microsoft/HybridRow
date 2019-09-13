@@ -17,274 +17,278 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString> {
 
-	private static final UtfAnyString EMPTY = new UtfAnyString("");
-	private static final int NULL_HASHCODE = reduceHashCode(5_381, 5_381);
+    public static final UtfAnyString EMPTY = new UtfAnyString("");
+    public static final UtfAnyString NULL = new UtfAnyString();
 
-	private CharSequence buffer;
+    private static final int NULL_HASHCODE = reduceHashCode(5_381, 5_381);
 
-	public UtfAnyString(final String string) {
-		this.buffer = string;
-	}
+    private CharSequence buffer;
 
-	public UtfAnyString(final Utf8String utf8String) {
-		this.buffer = utf8String;
-	}
+    public UtfAnyString(final String value) {
+        this.buffer = value;
+    }
 
-	private UtfAnyString(final CharSequence sequence) {
-		this.buffer = sequence;
-	}
+    public UtfAnyString(final Utf8String value) {
+        this.buffer = value;
+    }
 
-	/**
-	 * {@code true} if the {@link UtfAnyString} is empty
-	 */
-	public boolean isEmpty() {
-		return this.buffer != null && this.buffer.length() == 0;
-	}
+    private UtfAnyString() {
+    }
 
-	/**
-	 * {@code true} if the {@link UtfAnyString} is {@code null}
-	 */
-	public boolean isNull() {
-		return null == this.buffer;
-	}
+    private UtfAnyString(final CharSequence sequence) {
+        this.buffer = sequence;
+    }
 
-	public boolean isUtf16() {
-		return this.buffer instanceof String;
-	}
+    /**
+     * {@code true} if the {@link UtfAnyString} is empty
+     */
+    public boolean isEmpty() {
+        return this.buffer != null && this.buffer.length() == 0;
+    }
 
-	public boolean isUtf8() {
-		return this.buffer instanceof Utf8String;
-	}
+    /**
+     * {@code true} if the {@link UtfAnyString} is {@code null}
+     */
+    public boolean isNull() {
+        return null == this.buffer;
+    }
 
-	/**
-	 * Returns the {@code char} value at the specified {@code index}
-	 * <p>
-	 * An index ranges from zero to {@link UtfAnyString#length()} minus one. The first {@code char} value of the
-	 * sequence is at index zero, the next at index one, and so on, as for array indexing. If the {@code char}
-	 * value specified by the {@code index} is a surrogate, the surrogate (not the surrogate pair) is returned.
-	 *
-	 * @param index the index of the {@code char} value to be returned
-	 * @return the specified {@code char} value
-	 * @throws IndexOutOfBoundsException if the {@code index} argument is negative or not less than
-	 * {@link UtfAnyString#length()}
-	 * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}.
-	 */
-	@Override
-	public char charAt(final int index) {
-		if (this.buffer == null) {
-			throw new UnsupportedOperationException("String is null");
-		}
-		return this.buffer.charAt(index);
-	}
+    public boolean isUtf16() {
+        return this.buffer instanceof String;
+    }
 
-	public int compareTo(@Nonnull final String other) {
+    public boolean isUtf8() {
+        return this.buffer instanceof Utf8String;
+    }
 
-		checkNotNull(other);
+    /**
+     * Returns the {@code char} value at the specified {@code index}
+     * <p>
+     * An index ranges from zero to {@link UtfAnyString#length()} minus one. The first {@code char} value of the
+     * sequence is at index zero, the next at index one, and so on, as for array indexing. If the {@code char}
+     * value specified by the {@code index} is a surrogate, the surrogate (not the surrogate pair) is returned.
+     *
+     * @param index the index of the {@code char} value to be returned.
+     * @return the specified {@code char} value
+     * @throws IndexOutOfBoundsException     if the {@code index} argument is negative or not less than
+     *                                       {@link UtfAnyString#length()}
+     * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}.
+     */
+    @Override
+    public char charAt(final int index) {
+        if (this.buffer == null) {
+            throw new UnsupportedOperationException("String is null");
+        }
+        return this.buffer.charAt(index);
+    }
 
-		if (other == this.buffer) {
-			return 0;
-		}
+    public int compareTo(@Nonnull final String other) {
 
-		if (this.buffer == null) {
-			return -1;
-		}
+        checkNotNull(other, "expected non-null other");
 
-		return this.buffer instanceof String
-			? ((String) this.buffer).compareTo(other)
-			: ((Utf8String) this.buffer).compareTo(other);
-	}
+        if (other == this.buffer) {
+            return 0;
+        }
 
-	public int compareTo(@Nonnull final Utf8String other) {
+        if (this.buffer == null) {
+            return -1;
+        }
 
-		checkNotNull(other);
+        return this.buffer instanceof String
+            ? ((String) this.buffer).compareTo(other)
+            : ((Utf8String) this.buffer).compareTo(other);
+    }
 
-		if (other == this.buffer) {
-			return 0;
-		}
+    public int compareTo(@Nonnull final Utf8String other) {
 
-		if (this.buffer == null) {
-			return -1;
-		}
+        checkNotNull(other, "expected non-null other");
 
-		return this.buffer instanceof String
-			? -other.compareTo((String) this.buffer)
-			: ((Utf8String) this.buffer).compareTo(other);
-	}
+        if (other == this.buffer) {
+            return 0;
+        }
 
-	@Override
-	public int compareTo(@Nonnull final UtfAnyString other) {
+        if (this.buffer == null) {
+            return -1;
+        }
 
-		checkNotNull(other);
+        return this.buffer instanceof String
+            ? -other.compareTo((String) this.buffer)
+            : ((Utf8String) this.buffer).compareTo(other);
+    }
 
-		if (other.buffer == this.buffer) {
-			return 0;
-		}
+    @Override
+    public int compareTo(@Nonnull final UtfAnyString other) {
 
-		if (other.buffer == null) {
-			return 1;
-		}
+        checkNotNull(other, "expected non-null other");
 
-		if (this.buffer == null) {
-			return -1;
-		}
+        if (other.buffer == this.buffer) {
+            return 0;
+        }
 
-		if (this.buffer instanceof String) {
-			return other.buffer instanceof String
-				? ((String) this.buffer).compareTo((String) other.buffer)
-				: -((Utf8String) other.buffer).compareTo((String) this.buffer);
-		}
+        if (other.buffer == null) {
+            return 1;
+        }
 
-		return ((Utf8String) this.buffer).compareTo((Utf8String) other.buffer);
-	}
+        if (this.buffer == null) {
+            return -1;
+        }
 
-	public static UtfAnyString empty() {
-		return EMPTY;
-	}
+        if (this.buffer instanceof String) {
+            return other.buffer instanceof String
+                ? ((String) this.buffer).compareTo((String) other.buffer)
+                : -((Utf8String) other.buffer).compareTo((String) this.buffer);
+        }
 
-	@Override
-	public boolean equals(final Object other) {
+        return ((Utf8String) this.buffer).compareTo((Utf8String) other.buffer);
+    }
 
-		if (other == null) {
-			return false;
-		}
+    public static UtfAnyString empty() {
+        return EMPTY;
+    }
 
-		if (other instanceof String) {
-			return this.equals((String) other);
-		}
+    @Override
+    public boolean equals(final Object other) {
 
-		if (other instanceof Utf8String) {
-			return this.equals((Utf8String) other);
-		}
+        if (other == null) {
+            return false;
+        }
 
-		if (other instanceof UtfAnyString) {
-			return this.equals((UtfAnyString) other);
-		}
+        if (other instanceof String) {
+            return this.equals((String) other);
+        }
 
-		return false;
-	}
+        if (other instanceof Utf8String) {
+            return this.equals((Utf8String) other);
+        }
 
-	public boolean equals(final String other) {
+        if (other instanceof UtfAnyString) {
+            return this.equals((UtfAnyString) other);
+        }
 
-		if (null == this.buffer) {
-			return null == other;
-		}
+        return false;
+    }
 
-		if (this.buffer instanceof String) {
-			return other.contentEquals(this.buffer);  // skips the type check that String.equals performs
-		}
+    public boolean equals(final String other) {
 
-		return ((Utf8String) this.buffer).equals(other);
-	}
+        if (null == this.buffer) {
+            return null == other;
+        }
 
-	public boolean equals(final Utf8String other) {
+        if (this.buffer instanceof String) {
+            return other.contentEquals(this.buffer);  // skips the type check that String.equals performs
+        }
 
-		if (null == other) {
-			return null == this.buffer;
-		}
+        return ((Utf8String) this.buffer).equals(other);
+    }
 
-		return other.equals(this.buffer);
-	}
+    public boolean equals(final Utf8String other) {
 
-	public boolean equals(final UtfAnyString other) {
+        if (null == other) {
+            return null == this.buffer;
+        }
 
-		if (null == other) {
-			return false;
-		}
+        return other.equals(this.buffer);
+    }
 
-		if (null == this.buffer) {
-			return null == other.buffer;
-		}
+    public boolean equals(final UtfAnyString other) {
 
-		return this.buffer instanceof String ? other.buffer.equals(this.buffer) : this.buffer.equals(other.buffer);
-	}
+        if (null == other) {
+            return false;
+        }
 
-	@Override
-	public int hashCode() {
+        if (null == this.buffer) {
+            return null == other.buffer;
+        }
 
-		final long[] hash = { 5_381, 5_381 };
+        return this.buffer instanceof String ? other.buffer.equals(this.buffer) : this.buffer.equals(other.buffer);
+    }
 
-		if (this.buffer == null) {
-			return NULL_HASHCODE;
-		}
+    @Override
+    public int hashCode() {
 
-		if (this.buffer instanceof String) {
+        final long[] hash = { 5_381, 5_381 };
 
-			final int ignored = ((String) this.buffer).codePoints().reduce(0, (index, codePoint) -> {
-				if (index % 2 == 0) {
-					hash[0] = ((hash[0] << 5) + hash[0]) ^ codePoint;
-				} else {
-					hash[1] = ((hash[1] << 5) + hash[1]) ^ codePoint;
-				}
-				return index;
-			});
+        if (this.buffer == null) {
+            return NULL_HASHCODE;
+        }
 
-			return reduceHashCode(hash[0], hash[1]);
-		}
+        if (this.buffer instanceof String) {
 
-		return this.buffer.hashCode();
-	}
+            final int ignored = ((String) this.buffer).codePoints().reduce(0, (index, codePoint) -> {
+                if (index % 2 == 0) {
+                    hash[0] = ((hash[0] << 5) + hash[0]) ^ codePoint;
+                } else {
+                    hash[1] = ((hash[1] << 5) + hash[1]) ^ codePoint;
+                }
+                return index;
+            });
 
-	/**
-	 * Returns the length of this character sequence.  The length is the number
-	 * of 16-bit {@code char}s in the sequence.
-	 *
-	 * @return the number of {@code char}s in this sequence
-	 *
-	 * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}
-	 */
-	@Override
-	public int length() {
-		if (this.buffer == null) {
-			throw new UnsupportedOperationException("String is null");
-		}
-		return this.buffer.length();
-	}
+            return reduceHashCode(hash[0], hash[1]);
+        }
 
-	/**
-	 * Returns a {@code CharSequence} that is a subsequence of this sequence
-	 * <p>
-	 * The subsequence starts with the {@code char} value at the specified index and ends with the{@code char} value at
-	 * index {@code end - 1}. The length (in {@code char}s) of the returned sequence is {@code end - start}, so if
-	 * {@code start == end}, an empty sequence is returned.
-	 *
-	 * @param start the start index, inclusive
-	 * @param end   the end index, exclusive
-	 * @return the specified subsequence
-	 * @throws IndexOutOfBoundsException     if {@code start} or {@code end} are negative, {@code end} is greater than
-	 *                                       {@link UtfAnyString#length()}, or {@code start} is greater than {@code
-	 *                                       end}.
-	 * @throws UnsupportedOperationException if string is {@code null}
-	 */
-	@Override
-	@Nonnull
-	public CharSequence subSequence(final int start, final int end) {
-		if (this.buffer == null) {
-			throw new UnsupportedOperationException("String is null");
-		}
-		return this.buffer.subSequence(start, end);
-	}
+        return this.buffer.hashCode();
+    }
 
-	@Override
-	@Nonnull
-	public String toString() {
-		return String.valueOf(this.buffer);
-	}
+    /**
+     * Returns the length of this character sequence.  The length is the number
+     * of 16-bit {@code char}s in the sequence.
+     *
+     * @return the number of {@code char}s in this sequence
+     * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}
+     */
+    @Override
+    public int length() {
+        if (this.buffer == null) {
+            throw new UnsupportedOperationException("String is null");
+        }
+        return this.buffer.length();
+    }
 
-	public String toUtf16() {
-		if (null == this.buffer) {
-			return null;
-		}
-		return this.buffer instanceof String ? (String) this.buffer : this.buffer.toString();
-	}
+    /**
+     * Returns a {@code CharSequence} that is a subsequence of this sequence
+     * <p>
+     * The subsequence starts with the {@code char} value at the specified index and ends with the{@code char} value at
+     * index {@code end - 1}. The length (in {@code char}s) of the returned sequence is {@code end - start}, so if
+     * {@code start == end}, an empty sequence is returned.
+     *
+     * @param start the start index, inclusive
+     * @param end   the end index, exclusive
+     * @return the specified subsequence
+     * @throws IndexOutOfBoundsException     if {@code start} or {@code end} are negative, {@code end} is greater than
+     *                                       {@link UtfAnyString#length()}, or {@code start} is greater than {@code
+     *                                       end}.
+     * @throws UnsupportedOperationException if string is {@code null}
+     */
+    @Override
+    @Nonnull
+    public CharSequence subSequence(final int start, final int end) {
+        if (this.buffer == null) {
+            throw new UnsupportedOperationException("String is null");
+        }
+        return this.buffer.subSequence(start, end);
+    }
 
-	public Utf8String toUtf8() {
-		if (null == this.buffer) {
-			return null;
-		}
-		return this.buffer instanceof String ? transcodeUtf16((String) this.buffer) : (Utf8String) this.buffer;
-	}
+    @Override
+    @Nonnull
+    public String toString() {
+        return String.valueOf(this.buffer);
+    }
 
-	private static int reduceHashCode(final long h1, final long h2) {
-		return Long.valueOf(h1 + (h2 * 1_566_083_941L)).intValue();
-	}
+    public String toUtf16() {
+        if (null == this.buffer) {
+            return null;
+        }
+        return this.buffer instanceof String ? (String) this.buffer : this.buffer.toString();
+    }
+
+    public Utf8String toUtf8() {
+        if (null == this.buffer) {
+            return null;
+        }
+        return this.buffer instanceof String ? transcodeUtf16((String) this.buffer) : (Utf8String) this.buffer;
+    }
+
+    private static int reduceHashCode(final long h1, final long h2) {
+        return Long.valueOf(h1 + (h2 * 1_566_083_941L)).intValue();
+    }
 }

@@ -80,7 +80,7 @@ public final class JsonModelRowGenerator {
             new Reference<RowBuffer>(this.row);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        Result tempVar = RowWriter.WriteBuffer(tempReference_row, value, (RowWriter RowWriter writer, TypeArgument typeArg,
+        Result tempVar = RowWriter.writeBuffer(tempReference_row, value, (RowWriter RowWriter writer, TypeArgument typeArg,
                                                                           HashMap<Utf8String, Object> dict) ->
         {
             for ((Utf8String propPath,Object propValue) :dict)
@@ -118,7 +118,7 @@ public final class JsonModelRowGenerator {
             //ORIGINAL LINE: case bool x:
             case
                 boolean x:
-                return writer.get().WriteBoolean(path, x);
+                return writer.get().writeBoolean(path, x);
             // TODO: C# TO JAVA CONVERTER: Java has no equivalent to C# pattern variables in 'case' statements:
             //ORIGINAL LINE: case long x:
             case
@@ -155,7 +155,7 @@ public final class JsonModelRowGenerator {
             case HashMap < Utf8String, Object > x:
                 // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these
                 // are not converted by C# to Java Converter:
-                return writer.get().WriteScope(path, new TypeArgument(LayoutType.Object), x,
+                return writer.get().writeScope(path, new TypeArgument(LayoutType.Object), x,
                     (RowWriter RowWriter writer2, TypeArgument typeArg, HashMap<Utf8String, Object> dict) ->
                 {
                     for ((Utf8String propPath,Object propValue) :dict)
@@ -172,7 +172,7 @@ public final class JsonModelRowGenerator {
             //ORIGINAL LINE: case List<object> x:
             case ArrayList < Object > x:
                 // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not converted by C# to Java Converter:
-                return writer.get().WriteScope(path, new TypeArgument(LayoutType.Array), x, (RowWriter RowWriter writer2, TypeArgument typeArg, ArrayList<Object> list) ->
+                return writer.get().writeScope(path, new TypeArgument(LayoutType.Array), x, (RowWriter RowWriter writer2, TypeArgument typeArg, ArrayList<Object> list) ->
                 {
                     for (Object elm : list) {
                         Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter> tempReference_writer2 = new Reference<com.azure.data.cosmos.serialization.hybridrow.io.RowWriter>(writer2);

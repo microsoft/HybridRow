@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
+public final class LayoutBinary extends LayoutTypePrimitive<ByteBuf> {
     // implements
     // LayoutListWritable<Byte>,
     // LayoutListReadable<Byte>,
@@ -41,7 +41,7 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
         @Nonnull final RowBuffer buffer,
         @Nonnull final RowCursor scope,
         @Nonnull final LayoutColumn column,
-        @Nonnull final Out<byte[]> value) {
+        @Nonnull final Out<ByteBuf> value) {
 
         checkNotNull(buffer, "expected non-null buffer");
         checkNotNull(scope, "expected non-null scope");
@@ -56,14 +56,14 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
             return Result.NOT_FOUND;
         }
 
-        value.set(ByteBufUtil.getBytes(buffer.readFixedBinary(scope.start() + column.offset(), column.size())));
+        value.set(buffer.readFixedBinary(scope.start() + column.offset(), column.size()));
         return Result.SUCCESS;
     }
 
     @Override
     @Nonnull
     public Result readSparse(
-        @Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit, @Nonnull final Out<byte[]> value) {
+        @Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit, @Nonnull final Out<ByteBuf> value) {
 
         checkNotNull(buffer, "expected non-null buffer");
         checkNotNull(edit, "expected non-null edit");
@@ -76,7 +76,7 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
             return result;
         }
 
-        value.set(ByteBufUtil.getBytes(buffer.readSparseBinary(edit)));
+        value.set(buffer.readSparseBinary(edit));
         return Result.SUCCESS;
     }
 
@@ -86,7 +86,7 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
         @Nonnull RowBuffer buffer,
         @Nonnull RowCursor scope,
         @Nonnull LayoutColumn column,
-        @Nonnull Out<byte[]> value) {
+        @Nonnull Out<ByteBuf> value) {
 
         checkNotNull(buffer, "expected non-null buffer");
         checkNotNull(scope, "expected non-null scope");
@@ -101,7 +101,7 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
         }
 
         final int valueOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
-        value.set(ByteBufUtil.getBytes(buffer.readVariableBinary(valueOffset)));
+        value.set(buffer.readVariableBinary(valueOffset));
 
         return Result.SUCCESS;
     }
@@ -112,7 +112,7 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
         @Nonnull RowBuffer buffer,
         @Nonnull RowCursor scope,
         @Nonnull LayoutColumn column,
-        @Nonnull byte[] value) {
+        @Nonnull ByteBuf value) {
 
         checkNotNull(buffer, "expected non-null buffer");
         checkNotNull(scope, "expected non-null scope");
@@ -121,23 +121,21 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
         checkArgument(column.size() >= 0);
-        checkArgument(value.length == column.size());
 
         if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        final ByteBuf valueBuffer = Unpooled.wrappedBuffer(value).asReadOnly();
         final int valueOffset = scope.start() + column.offset();
         buffer.setBit(scope.start(), column.nullBit());
 
-        buffer.writeFixedBinary(valueOffset, valueBuffer, column.size());
+        buffer.writeFixedBinary(valueOffset, value, column.size());
         return Result.SUCCESS;
     }
 
     @Override
     @Nonnull
-    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull byte[] value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull ByteBuf value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 
@@ -146,8 +144,13 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
     public Result writeSparse(
         @Nonnull RowBuffer buffer,
         @Nonnull RowCursor edit,
-        @Nonnull byte[] value,
+        @Nonnull ByteBuf value,
         @Nonnull UpdateOptions options) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(value, "expected non-null value");
+        checkNotNull(options, "expected non-null options");
 
         Result result = LayoutType.prepareSparseWrite(buffer, edit, this.typeArg(), options);
 
@@ -155,7 +158,7 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
             return result;
         }
 
-        buffer.writeSparseBinary(edit, Unpooled.wrappedBuffer(value).asReadOnly(), options);
+        buffer.writeSparseBinary(edit, value, options);
         return Result.SUCCESS;
     }
 
@@ -165,7 +168,12 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
         @Nonnull RowBuffer buffer,
         @Nonnull RowCursor scope,
         @Nonnull LayoutColumn column,
-        @Nonnull byte[] value) {
+        @Nonnull ByteBuf value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(value, "expected non-null value");
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 
@@ -173,16 +181,15 @@ public final class LayoutBinary extends LayoutTypePrimitive<byte[]> {
             return Result.INSUFFICIENT_PERMISSIONS;
         }
 
-        if ((column.size() > 0) && (value.length > column.size())) {
+        if ((column.size() > 0) && (value.readableBytes() > column.size())) {
             return Result.TOO_BIG;
         }
 
         final boolean exists = buffer.readBit(scope.start(), column.nullBit());
-        final ByteBuf valueBuffer = Unpooled.wrappedBuffer(value).asReadOnly();
         final int valueOffset = buffer.computeVariableValueOffset(scope.layout(), scope.start(), column.offset());
         final Out<Integer> shift = new Out<>();
 
-        buffer.writeVariableBinary(valueOffset, valueBuffer, exists, shift);
+        buffer.writeVariableBinary(valueOffset, value, exists, shift);
         buffer.setBit(scope.start(), column.nullBit());
         scope.metaOffset(scope.metaOffset() + shift.get());
         scope.valueOffset(scope.valueOffset() + shift.get());

@@ -57,7 +57,7 @@ public final class RowWriterUnitTests {
             new Reference<RowBuffer>(row);
         // TODO: C# TO JAVA CONVERTER: The following lambda contained an unresolved 'ref' keyword - these are not
         // converted by C# to Java Converter:
-        ResultAssert.IsSuccess(RowWriter.WriteBuffer(tempReference_row, null, (RowWriter RowWriter writer,
+        ResultAssert.IsSuccess(RowWriter.writeBuffer(tempReference_row, null, (RowWriter RowWriter writer,
                                                                                TypeArgument rootTypeArg, Object ignored) ->
         {
             ResultAssert.IsSuccess(writer.WriteNull("null"));

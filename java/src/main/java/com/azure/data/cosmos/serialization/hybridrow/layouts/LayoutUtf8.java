@@ -14,7 +14,8 @@ import javax.annotation.Nonnull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class LayoutUtf8 extends LayoutTypePrimitive<String> implements LayoutUtf8Readable, LayoutUtf8Writable {
+public final class LayoutUtf8 extends LayoutTypePrimitive<String>
+    implements LayoutUtf8Readable, LayoutUtf8Writable {
 
     public LayoutUtf8() {
         super(LayoutCode.UTF_8, 0);

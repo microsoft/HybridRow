@@ -16,7 +16,6 @@ public final class AssertThrowsException {
         if (input1 == null) {
             return "(null)";
         }
-
         return Assert.ReplaceNullChars(input1);
     }
 

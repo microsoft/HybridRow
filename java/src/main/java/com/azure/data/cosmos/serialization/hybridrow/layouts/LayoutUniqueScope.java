@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class LayoutUniqueScope extends LayoutIndexedScope {
+public abstract class LayoutUniqueScope extends LayoutIndexedScope implements ILayoutType {
 
     protected LayoutUniqueScope(LayoutCode code, boolean immutable, boolean isSizedScope, boolean isTypedScope) {
         super(code, immutable, isSizedScope, false, true, isTypedScope);

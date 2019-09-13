@@ -13,10 +13,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.common.base.Objects;
+import com.google.common.base.Suppliers;
 import com.google.common.base.Utf8;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
+import io.netty.util.ByteProcessor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,6 +30,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -40,32 +44,49 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @SuppressWarnings("UnstableApiUsage")
 public final class Utf8String implements ByteBufHolder, CharSequence, Comparable<Utf8String> {
 
-    public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER, 0);
-    public static final Utf8String NULL = new Utf8String();
+    public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER);
+    public static final Utf8String NULL = new Utf8String(null);
 
     private final ByteBuf buffer;
-    private final int length;
+    private final Supplier<Integer> codePointCount;
+    private final Supplier<Integer> utf16CodeUnitCount;
 
-    private Utf8String() {
-        this.buffer = null;
-        this.length = -1;
-    }
+    private Utf8String(@Nullable final ByteBuf buffer) {
 
-    private Utf8String(@Nonnull final ByteBuf buffer) {
-        this(buffer, decodedLength(buffer));
-    }
+        if (buffer == null) {
+            this.buffer = null;
+            this.codePointCount = Suppliers.memoize(() -> -1);
+            this.utf16CodeUnitCount = Suppliers.memoize(() -> -1);
+            return;
+        }
 
-    private Utf8String(@Nonnull final ByteBuf buffer, final int decodedLength) {
-        checkNotNull(buffer, "expected non-null buffer");
-        this.buffer = buffer.asReadOnly();
-        this.length = decodedLength;
+        if (buffer.writerIndex() == 0) {
+            this.buffer = Unpooled.EMPTY_BUFFER;
+            this.codePointCount = Suppliers.memoize(() -> 0);
+            this.utf16CodeUnitCount = Suppliers.memoize(() -> 0);
+            return;
+        }
+
+        this.buffer = buffer;
+
+        this.codePointCount = Suppliers.memoize(() -> {
+            final UTF8CodePointCounter counter = new UTF8CodePointCounter();
+            this.buffer.forEachByte(0, this.buffer.writerIndex(), counter);
+            return counter.value();
+        });
+
+        this.utf16CodeUnitCount = Suppliers.memoize(() -> {
+            final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter();
+            this.buffer.forEachByte(0, this.buffer.writerIndex(), counter);
+            return counter.value();
+        });
     }
 
     /**
      * {@code true} if the length of this instance is zero
      */
     public final boolean isEmpty() {
-        return this.length == 0;
+        return this.buffer != null && this.buffer.writerIndex() == 0;
     }
 
     /**
@@ -92,10 +113,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * Non-allocating enumeration of each code point in the UTF-8 stream
      */
     public final IntStream codePoints() {
-        if (this.length == 0) {
+        if (this.buffer == null || this.buffer.writerIndex() == 0) {
             return IntStream.empty();
         }
-        return StreamSupport.intStream(new CodePointIterable(this.buffer, this.length), false);
+        return StreamSupport.intStream(new CodePointIterable(this.buffer, this.codePointCount.get()), false);
     }
 
 
@@ -130,7 +151,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         if (limit > 0) {
 
-            final CodePointIterable iterable = new CodePointIterable(this.buffer, this.length);
+            final CodePointIterable iterable = new CodePointIterable(this.buffer, this.utf16CodeUnitCount.get());
             int index = 0;
 
             for (int codePoint : iterable) {
@@ -182,16 +203,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Encoded length of this {@link Utf8String}
      * <p>
-     * This is the same value as would be returned by {@link String#getBytes()#length} with no time or space overhead.
+     * This is the same value as would be returned by {@link String#getBytes()#utf16CodeUnitCount} with no time or space overhead.
      *
      * @return encoded length of {@link Utf8String}
      */
     public final int encodedLength() {
-        return this.buffer.writerIndex();
+        return this.buffer == null ? 0 : this.buffer.writerIndex();
     }
 
     public final boolean equals(ByteBuf other) {
-        return this.buffer.equals(other);
+        return Objects.equal(this.buffer, other);
     }
 
     public final boolean equals(String other) {
@@ -202,33 +223,25 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     public final boolean equals(Utf8String other) {
-        if (other == null) {
-            return false;
-        }
-        if (other == this) {
+        if (this == other) {
             return true;
         }
-        return this.buffer.equals(other.buffer);
+        if (null == other) {
+            return false;
+        }
+        return Objects.equal(this.buffer, other.buffer);
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other == null) {
-            return false;
-        }
-        if (other == this) {
+        if (this == other) {
             return true;
         }
-        if (other instanceof ByteBuf) {
-            return this.equals((ByteBuf)other);
+        if (null == other || this.getClass() != other.getClass()) {
+            return false;
         }
-        if (other instanceof String) {
-            return this.equals((String)other);
-        }
-        if (other instanceof Utf8String) {
-            return this.equals((Utf8String)other);
-        }
-        return false;
+        Utf8String that = (Utf8String) other;
+        return this.utf16CodeUnitCount == that.utf16CodeUnitCount && Objects.equal(this.buffer, that.buffer);
     }
 
     /**
@@ -247,11 +260,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation
+     * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation.
      * <p>
-     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
+     * The {@link Utf8String} created retains the {@link ByteBuf} and ensures it is read-only by calling
+     * {@link ByteBuf#asReadOnly}. No data is transferred.
      *
-     * @param buffer The {@link ByteBuf} to assign to the {@link Utf8String} created.
+     * @param buffer a {@link ByteBuf} to assign to the {@link Utf8String} created.
      * @return a new {@link Utf8String}
      */
     @Nonnull
@@ -266,12 +280,13 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Returns the length of this character sequence
+     * Returns the length of this character sequence.
      * <p>
-     * The length is the number of Unicode characters in the sequence.
+     * The length is the number of UTF-16 code units in the sequence. This is the same value as would be returned by
+     * {@link Utf8String#toUtf16()#length()} with no time or space overhead.
      */
     public final int length() {
-        return this.length;
+        return this.utf16CodeUnitCount.get();
     }
 
     /**
@@ -285,10 +300,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Decreases the reference count by {@code 1} and deallocates this object if the reference count reaches at
-     * {@code 0}.
+     * Decreases the reference count by {@code 1}.
      *
-     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
+     * The underlying storage for this instance is deallocated, if the reference count reaches {@code 0}.
+     *
+     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated.
      */
     @Override
     public boolean release() {
@@ -296,11 +312,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Decreases the reference count by the specified {@code decrement} and deallocates this object if the reference
-     * count reaches at {@code 0}.
+     * Decreases the reference count by the specified {@code decrement}
      *
-     * @param decrement
-     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
+     * The underlying storage for this instance is deallocated, if the reference count reaches {@code 0}.
+     *
+     * @param decrement the value to subtract from the reference count.
+     * @return {@code true} if and only if the reference count became {@code 0}.
      */
     @Override
     public boolean release(int decrement) {
@@ -308,7 +325,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Returns a new {@link Utf8String} which contains the specified {@code content}
+     * Returns a new {@link Utf8String} which contains the specified {@code content}.
      *
      * @param content text of the {@link Utf8String} to be created.
      */
@@ -330,7 +347,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Duplicates this {@link Utf8String}
+     * Duplicates this {@link Utf8String}.
      * <p>
      * This method returns a retained duplicate unlike {@link #duplicate()}.
      *
@@ -343,9 +360,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        checkArgument(start < 0 || end < 0 || start > end || end > this.length, "start: %s, end: %s", start, end);
-        // TODO: DANOBLE: compute buffer index for start and end character positions and use them in the slice
-        return new Utf8String(this.buffer.slice(), end - start);
+        checkArgument(start < 0 || end < 0 || start > end || end > this.length(), "start: %s, end: %s", start, end);
+        return new Utf8String(this.buffer.slice(start, end));
     }
 
     @Override
@@ -394,43 +410,34 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         checkState(count == length, "count: %s, length: %s", count, length);
 
-        return new Utf8String(buffer, string.length());
+        return new Utf8String(buffer);
     }
 
-    private static int decodedLength(final ByteBuf buffer) {
-
-        final CodePointIterable iterable = new CodePointIterable(buffer, -1);
-        int decodedLength = 0;
-
-        for (int ignored : iterable) {
-            decodedLength++;
-        }
-
-        return decodedLength;
-    }
-
-    private static final class CodePointIterable implements Iterable<Integer>, Iterator<Integer>, Spliterator.OfInt {
+    private static final class CodePointIterable extends UTF8CodePointGetter implements
+        Iterable<Integer>, Iterator<Integer>, Spliterator.OfInt {
 
         private static final int CHARACTERISTICS = Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
 
         private final ByteBuf buffer;
-        private final int length;
-        private int index;
+        private final int codePointCount;
 
-        CodePointIterable(final ByteBuf buffer, final int length) {
+        private int start, length;
+
+        CodePointIterable(final ByteBuf buffer, final int codePointCount) {
+            this.codePointCount = codePointCount;
             this.buffer = buffer;
-            this.length = length;
-            this.index = 0;
+            this.start = 0;
+            this.length = buffer.writerIndex();
         }
 
         @Override
         public int characteristics() {
-            return this.length == -1 ? CHARACTERISTICS : CHARACTERISTICS | Spliterator.SIZED | Spliterator.SUBSIZED;
+            return this.codePointCount == -1 ? CHARACTERISTICS : CHARACTERISTICS | Spliterator.SIZED | Spliterator.SUBSIZED;
         }
 
         @Override
         public long estimateSize() {
-            return this.length < 0 ? Long.MAX_VALUE : this.length;
+            return this.codePointCount < 0 ? Long.MAX_VALUE : this.codePointCount;
         }
 
         @Override
@@ -440,7 +447,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         @Override
         public boolean hasNext() {
-            return this.index < this.buffer.capacity();
+            return this.length > 0;
         }
 
         @Override
@@ -456,50 +463,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                 throw new NoSuchElementException();
             }
 
-            final int leadingByte = this.buffer.getByte(this.index++) & 0xFF;
+            this.start = this.buffer.forEachByte(this.start, this.length, this);
+            this.length -= this.start;
 
-            // A 1-byte UTF-8 code point is a special case that covers the 7-bit ASCII character set
-
-            if (leadingByte < 0x80) {
-                return leadingByte;
-            }
-
-            // The initial byte of 2-, 3- and 4-byte UTF-8 code points start with 2, 3, or 4 one bits followed by a 0
-            // bit
-
-            final int codePoint;
-
-            if ((leadingByte & 0b1110_0000) == 0b1100_0000) {
-
-                // 110xxxxx 10xxxxxx => 0x00000080 - 0x000007FF
-
-                codePoint = ((leadingByte & 0b0001_1111) << 6) |
-                    (this.buffer.getByte(this.index++) & 0b0011_1111);
-
-            } else if ((leadingByte & 0b1111_0000) == 0b1110_0000) {
-
-                // 1110xxxx 10xxxxxx 10xxxxxx => 0x00000800 - 0x0000FFFF
-
-                codePoint = ((leadingByte & 0b0000_1111) << 12) |
-                    ((this.buffer.getByte(this.index++) & 0b0011_1111) << 6) |
-                    ((this.buffer.getByte(this.index++) & 0b0011_1111));
-
-            } else if ((leadingByte & 0b1111_1000) == 0b1111_0000) {
-
-                // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx => 0x00010000 - 0x001FFFFF
-
-                codePoint = ((leadingByte & 0b0000_0111) << 18) |
-                    ((this.buffer.getByte(this.index++) & 0b0011_1111) << 12) |
-                    ((this.buffer.getByte(this.index++) & 0b0011_1111) << 6) |
-                    ((this.buffer.getByte(this.index++) & 0b0011_1111));
-
-            } else {
-                // leading byte is improperly encoded and we'll detect that before returning
-                codePoint = leadingByte;
-            }
-
-            checkState(Character.isDefined(codePoint), "invalid character: %s", codePoint);
-            return codePoint;
+            return this.codePoint();
         }
 
         @Override
@@ -561,6 +528,206 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         @Override
         public void serialize(Utf8String value, JsonGenerator generator, SerializerProvider provider) throws IOException {
             generator.writeString(value.toString());
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used by to count the number of UTF-16 code units in a UTF-8 encoded string.
+     *
+     * This class makes use of the fact that code points that UTF-16 encodes with two 16-bit code units, UTF-8 encodes
+     * with 4 8-bit code units, and vice versa. Lead bytes are identified and counted. All other bytes are skipped.
+     * Code points are not validated. The {@link #process} method counts undefined leading bytes as an undefined UTF-16
+     * code unit to be replaced.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
+     */
+    private static final class UTF16CodeUnitCounter implements ByteProcessor {
+
+        private int count = 0;
+        private int skip = 0;
+
+        @Override
+        public boolean process(byte value) throws Exception {
+
+            if (this.skip > 0) {
+                this.skip--;
+            } else {
+                final int leadingByte = value & 0xFF;
+                if (leadingByte < 0x7F) {
+                    // UTF-8-1 = 0x00-7F
+                    this.skip = 0;
+                    this.count++;
+                } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                    // UTF8-8-2 = 0xC2-DF UTF8-tail
+                    this.skip = 1;
+                    this.count++;
+                } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                    // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
+                    this.skip = 2;
+                    this.count++;
+                } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                    // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                    this.skip = 3;
+                    this.count += 2;
+                } else {
+                    this.skip = 0;
+                    this.count++;
+                }
+            }
+            return true;
+        }
+
+        public int value() {
+            return this.count;
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used by to count the number of Unicode code points in a UTF-8 encoded string.
+     *
+     * Lead bytes are identified and counted. All other bytes are skipped. Code points are not validated. The
+     * {@link #process} method counts undefined lead bytes as a single code point to be replaced.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
+     */
+    private static final class UTF8CodePointCounter implements ByteProcessor {
+
+        private int count = 0;
+        private int skip = 0;
+
+        @Override
+        public boolean process(byte value) {
+
+            if (this.skip > 0) {
+                this.skip--;
+            } else {
+                final int leadingByte = value & 0xFF;
+                if (leadingByte < 0x7F) {
+                    // UTF-8-1 = 0x00-7F
+                    this.skip = 0;
+                } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                    // UTF8-8-2 = 0xC2-DF UTF8-tail
+                    this.skip = 1;
+                } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                    // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
+                    this.skip = 2;
+                } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                    // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                    this.skip = 3;
+                } else {
+                    // Undefined leading byte
+                    this.skip = 0;
+                }
+                this.count++;
+            }
+            return true;
+        }
+
+        public int value() {
+            return this.count;
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used to read a UTF-8 encoded string one Unicode code point at a time.
+     * <p>
+     * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
+     * construction of an instance of this class must be a leading byte. This is used to determine the number of
+     * single-byte UTF-8 code units in the code point.
+     * <p>
+     * Code points are validated. The {@link #process(byte)} method returns the Unicode
+     * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement character</a>
+     * when an undefined code point is encountered.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
+     */
+    private static class UTF8CodePointGetter implements ByteProcessor {
+
+        private static final int REPLACEMENT_CHARACTER = 0xFFFD;
+
+        private int codePoint = 0;
+        private int shift = -1;
+
+        /**
+         * Gets the next code unit in a UTF-8 code point sequence.
+         *
+         * @param value the next code unit in a UTF-8
+         *
+         * @return {@code true} if additional code units must be read to complete the code point; otherwise, if the
+         * code point is complete, a value of {@code false} is returned.
+         */
+        @Override
+        public boolean process(byte value) {
+
+            switch (this.shift) {
+
+                default: {
+
+                    // Next unit of code point sequence
+
+                    this.codePoint |= (value & 0xFF << this.shift);
+                    this.shift -= Byte.SIZE;
+                    return true;
+                }
+                case 0: {
+
+                    // End of code point sequence
+
+                    this.codePoint |= value & 0xFF;
+                    this.shift = -1;
+
+                    if (!Character.isDefined(this.codePoint)) {
+                        this.codePoint = REPLACEMENT_CHARACTER;
+                    };
+
+                    return false;
+                }
+                case -1: {
+
+                    // Start of code point sequence
+
+                    final int leadingByte = value & 0xFF;
+
+                    if (leadingByte < 0x7F) {
+                        // UTF-8-1 = 0x00-7F
+                        this.codePoint = leadingByte;
+                        return false;
+                    }
+
+                    if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                        // UTF8-8-2 = 0xC2-DF UTF8-tail
+                        this.codePoint = leadingByte << Byte.SIZE;
+                        this.shift = 0;
+                        return true;
+                    }
+
+                    if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                        // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
+                        this.codePoint = leadingByte << 2 * Byte.SIZE;
+                        this.shift = Byte.SIZE;
+                        return true;
+                    }
+
+                    if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                        // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                        this.codePoint = leadingByte << 3 * Byte.SIZE;
+                        this.shift = 3 * Byte.SIZE;
+                        return true;
+                    }
+
+                    this.codePoint = REPLACEMENT_CHARACTER;
+                    return false;
+                }
+            }
+        }
+
+        /**
+         * Returns the value of the most-recently read code point.
+         *
+         * @return value of the most-recently read code point.
+         */
+        int codePoint() {
+            return this.codePoint;
         }
     }
 }

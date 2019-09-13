@@ -10,6 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursors;
+import com.azure.data.cosmos.serialization.hybridrow.unit.customerschema.Hotel;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -25,16 +26,18 @@ import java.util.UUID;
 // are anonymous.")][DeploymentItem("TestData\\CustomerSchema.json", "TestData")] public sealed class
 // CustomerExampleUnitTests
 public final class CustomerExampleUnitTests {
-    private final Hotel hotelExample = new Hotel() {
-        Id ="The-Westin-St-John-Resort-Villas-1187",Name ="The Westin St. John Resort Villas",Phone ="+1 340-693-8000"
-            ,Address =new Address
 
-        {
+    private final Hotel hotelExample = new Hotel() {
+        Id = "The-Westin-St-John-Resort-Villas-1187",
+        Name ="The Westin St. John Resort Villas",
+        Phone ="+1 340-693-8000",
+        Address = new Address {
             Street = "300B Chocolate Hole", City = "Great Cruz Bay", State = "VI", PostalCode = new PostalCode {
-            Zip = 00830, Plus4 = 0001
-        }
+                Zip = 00830, Plus4 = 0001
+            }
         }
     };
+
     private LayoutResolver customerResolver;
     private Namespace customerSchema;
     private Layout guestLayout;

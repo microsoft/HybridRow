@@ -23,7 +23,7 @@ public final class Reference<T> {
     }
 
     public T get() {
-        return value;
+        return this.value;
     }
 
     public void set(T value) {
@@ -41,7 +41,7 @@ public final class Reference<T> {
      * @return {@code true} if there is a value present, otherwise {@code false}
      */
     public boolean isPresent() {
-        return value != null;
+        return this.value != null;
     }
 
     /**
@@ -66,12 +66,12 @@ public final class Reference<T> {
             return false;
         }
 
-        return Objects.equals(value, ((Reference)other).value);
+        return Objects.equals(this.value, ((Reference)other).value);
     }
 
 
     @Override
     public String toString() {
-        return value == null ? "null" : value.toString();
+        return this.value == null ? "null" : this.value.toString();
     }
 }

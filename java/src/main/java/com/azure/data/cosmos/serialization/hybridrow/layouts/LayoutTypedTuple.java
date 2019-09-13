@@ -50,7 +50,7 @@ public final class LayoutTypedTuple extends LayoutIndexedScope {
         @Nonnull final RowBuffer buffer, final int offset, @Nonnull final Out<Integer> lengthInBytes) {
 
         checkNotNull(buffer, "expected non-null buffer");
-        lengthInBytes
+        checkNotNull(lengthInBytes, "expected non-null lengthInBytes");
         checkArgument(offset >= 0, "expected non-negative offset, not %s", offset);
 
         final int numTypeArgs = (int) buffer.readVariableUInt(offset, lengthInBytes);
