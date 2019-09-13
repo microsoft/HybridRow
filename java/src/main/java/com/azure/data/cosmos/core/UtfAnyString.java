@@ -9,7 +9,7 @@ import static com.azure.data.cosmos.core.Utf8String.transcodeUtf16;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A string whose memory representation may be either UTF-8 or UTF-16
+ * A string whose memory representation may be either UTF-8 or UTF-16.
  * <p>
  * This type supports polymorphic use of {@link String} and {@link Utf8String} when equality, hashing, and comparison
  * are needed against either encoding.  An API leveraging {@link UtfAnyString} can avoid separate method overloads
@@ -40,14 +40,14 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
     }
 
     /**
-     * {@code true} if the {@link UtfAnyString} is empty
+     * {@code true} if the {@link UtfAnyString} is empty.
      */
     public boolean isEmpty() {
         return this.buffer != null && this.buffer.length() == 0;
     }
 
     /**
-     * {@code true} if the {@link UtfAnyString} is {@code null}
+     * {@code true} if the {@link UtfAnyString} is {@code null}.
      */
     public boolean isNull() {
         return null == this.buffer;
@@ -62,7 +62,7 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
     }
 
     /**
-     * Returns the {@code char} value at the specified {@code index}
+     * Returns the {@code char} value at the specified {@code index}.
      * <p>
      * An index ranges from zero to {@link UtfAnyString#length()} minus one. The first {@code char} value of the
      * sequence is at index zero, the next at index one, and so on, as for array indexing. If the {@code char}
@@ -230,11 +230,12 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
     }
 
     /**
-     * Returns the length of this character sequence.  The length is the number
-     * of 16-bit {@code char}s in the sequence.
+     * Returns the length of this character sequence.
+     * <p>
+     * The length is the number of 16-bit {@code char}s in the sequence.
      *
-     * @return the number of {@code char}s in this sequence
-     * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}
+     * @return the number of {@code char}s in this sequence.
+     * @throws UnsupportedOperationException if this {@link UtfAnyString} is {@code null}.
      */
     @Override
     public int length() {
@@ -245,7 +246,7 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
     }
 
     /**
-     * Returns a {@code CharSequence} that is a subsequence of this sequence
+     * Returns a {@code CharSequence} that is a subsequence of this sequence.
      * <p>
      * The subsequence starts with the {@code char} value at the specified index and ends with the{@code char} value at
      * index {@code end - 1}. The length (in {@code char}s) of the returned sequence is {@code end - start}, so if

@@ -46,10 +46,10 @@ public final class DecimalCodec {
     }
 
     /**
-     * Decode a {@link BigDecimal} from a {@code System.DecimalCodec} as serialized by {@code MemoryMarshal.Write}
+     * Decode an {@link BigDecimal} serialized like a {@code System.Decimal} by {@code MemoryMarshal.Write}.
      *
-     * @param bytes a {@link byte} array containing the serialized {@code System.DecimalCodec} to be decoded
-     * @return a new {@link BigDecimal}
+     * @param bytes a {@link byte} array containing the serialized {@code System.Decimal} to be decoded.
+     * @return a new {@link BigDecimal}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/system/decimal.cs.html">
      * struct DecimalCodec source</a>
      */
@@ -59,10 +59,10 @@ public final class DecimalCodec {
     }
 
     /**
-     * Decode a {@link BigDecimal} from a {@code System.DecimalCodec} value serialized by {@code MemoryMarshal.Write}
+     * Decode an {@link BigDecimal} serialized like a {@code System.Decimal} by {@code MemoryMarshal.Write}.
      *
-     * @param in a {@link ByteBuf} containing the serialized {@code System.DecimalCodec} to be decoded
-     * @return a new {@link BigDecimal}
+     * @param in a {@link ByteBuf} containing the serialized {@code System.Decimal} to be decoded.
+     * @return a new {@link BigDecimal}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/system/decimal.cs.html">
      * struct DecimalCodec source</a>
      */
@@ -106,10 +106,10 @@ public final class DecimalCodec {
     }
 
     /**
-     * Encode a {@link BigDecimal} as a {@code System.DecimalCodec} serialized by {@code MemoryMarshal.Write}
+     * Encode a {@link BigDecimal} like a {@code System.Decimal} serialized by {@code MemoryMarshal.Write}.
      *
-     * @param bigDecimal a {@link BigDecimal} to be encoded
-     * @return a new byte array containing the encoded {@code bigDecimal}
+     * @param bigDecimal a {@link BigDecimal} to be encoded.
+     * @return a new byte array containing the encoded {@code bigDecimal}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/system/decimal.cs.html">
      * struct DecimalCodec source</a>
      */
@@ -120,10 +120,10 @@ public final class DecimalCodec {
     }
 
     /**
-     * Encode a {@link BigDecimal} as a {@code System.DecimalCodec} serialized by {@code MemoryMarshal.Write}
+     * Encode a {@link BigDecimal} like a {@code System.Decimal} serialized by {@code MemoryMarshal.Write}.
      *
-     * @param value a {@link BigDecimal} to be encoded
-     * @param out   an output {@link ByteBuf}
+     * @param value a {@link BigDecimal} to be encoded.
+     * @param out   an output {@link ByteBuf}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/system/decimal.cs.html">
      * struct DecimalCodec source</a>
      */

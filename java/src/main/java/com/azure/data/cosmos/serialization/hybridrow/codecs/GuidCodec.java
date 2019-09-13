@@ -21,10 +21,10 @@ public final class GuidCodec {
     }
 
     /**
-     * Decode a {@link UUID} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Decode a {@link UUID} serialized like a {@code System.Guid} by {@code MemoryMarshal.Write}.
      *
-     * @param bytes a {@link byte} array containing the serialized {@link UUID} to be decoded
-     * @return a new {@link UUID}
+     * @param bytes a {@link byte} array containing the serialized {@link UUID} to be decoded.
+     * @return a new {@link UUID}.
      */
     public static UUID decode(@Nonnull final byte[] bytes) {
         checkNotNull(bytes);
@@ -32,9 +32,9 @@ public final class GuidCodec {
     }
 
     /**
-     * Decode a {@link UUID} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Decode a {@link UUID} serialized like a {@code System.Guid} by {@code MemoryMarshal.Write}.
      *
-     * @param in a {@link ByteBuf} containing the serialized {@link UUID} to be decoded
+     * @param in a {@link ByteBuf} containing the serialized {@link UUID} to be decoded;
      * @return a new {@link UUID}
      */
     public static UUID decode(@Nonnull final ByteBuf in) {
@@ -60,10 +60,10 @@ public final class GuidCodec {
     }
 
     /**
-     * Encodes a {@link UUID} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Encodes a {@link UUID} like a {@code System.Guid} serialized by {@code MemoryMarshal.Write}.
      *
-     * @param uuid a {@link UUID} to be encoded
-     * @return a new byte array containing the encoded
+     * @param uuid a {@link UUID} to be encoded.
+     * @return a new byte array containing the encoded.
      */
     public static byte[] encode(final UUID uuid) {
         final byte[] bytes = new byte[BYTES];
@@ -72,10 +72,10 @@ public final class GuidCodec {
     }
 
     /**
-     * Encodes a {@link UUID} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Encodes a {@link UUID} like a {@code System.Guid} serialized by {@code MemoryMarshal.Write}.
      *
-     * @param uuid a {@link UUID} to be encoded
-     * @param out  an output {@link ByteBuf}
+     * @param uuid a {@link UUID} to be encoded.
+     * @param out  an output {@link ByteBuf}.
      */
     public static void encode(final UUID uuid, final ByteBuf out) {
 

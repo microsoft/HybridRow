@@ -32,10 +32,10 @@ public final class DateTimeCodec {
     }
 
     /**
-     * Decode an {@link OffsetDateTime} from a {@code System.DateTimeCodec} as serialized by {@code MemoryMarshal.Write}
+     * Decode an {@link OffsetDateTime} serialized like a {@code System.DateTime} by {@code MemoryMarshal.Write}.
      *
-     * @param bytes a {@link byte} array containing the serialized value to be decoded
-     * @return a new {@link OffsetDateTime}
+     * @param bytes a {@link byte} array containing the serialized value to be decoded.
+     * @return a new {@link OffsetDateTime}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
      * struct DateTimeCodec source</a>
      */
@@ -45,10 +45,10 @@ public final class DateTimeCodec {
     }
 
     /**
-     * Decode an {@link OffsetDateTime} from a {@code System.DateTimeCodec} as serialized by {@code MemoryMarshal.Write}
+     * Decode an {@link OffsetDateTime} serialized like a {@code System.DateTime} by {@code MemoryMarshal.Write}.
      *
-     * @param in a {@link ByteBuf} containing the serialized value to be decoded
-     * @return a new {@link OffsetDateTime}
+     * @param in a {@link ByteBuf} containing the serialized value to be decoded.
+     * @return a new {@link OffsetDateTime}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
      * struct DateTimeCodec source</a>
      */
@@ -68,10 +68,10 @@ public final class DateTimeCodec {
     }
 
     /**
-     * Encode an {@link OffsetDateTime} as a {@code System.DateTimeCodec} serialized by {@code MemoryMarshal.Write}
+     * Encode an {@link OffsetDateTime} like a {@code System.DateTime} serialized by {@code MemoryMarshal.Write}.
      *
-     * @param offsetDateTime an {@link OffsetDateTime} to be encoded
-     * @return a new byte array containing the encoded {@code offsetDateTime}
+     * @param offsetDateTime an {@link OffsetDateTime} to be encoded.
+     * @return a new byte array containing the encoded {@code offsetDateTime}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
      * struct DateTimeCodec source</a>
      */
@@ -82,10 +82,10 @@ public final class DateTimeCodec {
     }
 
     /**
-     * Encode an {@link OffsetDateTime} as a {@code System.DateTimeCodec} serialized by {@code MemoryMarshal.Write}
+     * Encode an {@link OffsetDateTime} like a {@code System.DateTime} produced by {@code MemoryMarshal.Write}.
      *
-     * @param offsetDateTime an {@link OffsetDateTime} to be encoded
-     * @param out            an output {@link ByteBuf}
+     * @param offsetDateTime an {@link OffsetDateTime} to be encoded.
+     * @param out            an output {@link ByteBuf}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
      * struct DateTimeCodec source</a>
      */

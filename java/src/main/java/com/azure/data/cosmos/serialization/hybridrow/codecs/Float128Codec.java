@@ -20,10 +20,10 @@ public final class Float128Codec {
     }
 
     /**
-     * Decode a {@link Float128} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Decode a {@link Float128} from a sequence of two {@code long}s in little endian format.
      *
-     * @param bytes a {@link byte} array containing the serialized {@link Float128} to be decoded
-     * @return a new {@link Float128}
+     * @param bytes a {@link byte} array containing the serialized {@link Float128} to be decoded.
+     * @return a new {@link Float128}.
      */
     public static Float128 decode(@Nonnull final byte[] bytes) {
         checkNotNull(bytes);
@@ -31,10 +31,10 @@ public final class Float128Codec {
     }
 
     /**
-     * Decode a {@link Float128} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Decode a {@link Float128} from a sequence of two {@code long}s in little endian format.
      *
-     * @param in a {@link ByteBuf} containing the serialized {@link Float128} to be decoded
-     * @return a new {@link Float128}
+     * @param in a {@link ByteBuf} containing the serialized {@link Float128} to be decoded.
+     * @return a new {@link Float128}.
      */
     public static Float128 decode(@Nonnull final ByteBuf in) {
 
@@ -48,10 +48,10 @@ public final class Float128Codec {
     }
 
     /**
-     * Encodes a {@link Float128} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Encodes a {@link Float128} as a sequence of two {@code long}s in little endian format.
      *
-     * @param value a {@link Float128} to be encoded
-     * @return a new byte array containing the encoded
+     * @param value a {@link Float128} to be encoded.
+     * @return a new byte array containing the encoded.
      */
     public static byte[] encode(final Float128 value) {
         final byte[] bytes = new byte[BYTES];
@@ -60,10 +60,10 @@ public final class Float128Codec {
     }
 
     /**
-     * Encodes a {@link Float128} as serialized by Microsoft APIs like {@code System.GuidCodec.ToByteArray}
+     * Encodes a {@link Float128} as a sequence of two {@code long}s in little endian format.
      *
-     * @param value a {@link Float128} to be encoded
-     * @param out  an output {@link ByteBuf}
+     * @param value a {@link Float128} to be encoded.
+     * @param out  an output {@link ByteBuf}.
      */
     public static void encode(final Float128 value, final ByteBuf out) {
         out.writeLongLE(value.high());

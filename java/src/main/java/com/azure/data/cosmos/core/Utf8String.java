@@ -83,14 +83,14 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * {@code true} if the length of this instance is zero
+     * {@code true} if the length of this instance is zero.
      */
     public final boolean isEmpty() {
         return this.buffer != null && this.buffer.writerIndex() == 0;
     }
 
     /**
-     * {@code true} if this instance is null
+     * {@code true} if this instance is null.
      */
     public final boolean isNull() {
         return this.buffer == null;
@@ -102,7 +102,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Non-allocating enumeration of each character in the UTF-8 stream
+     * Non-allocating enumeration of each character in the UTF-8 stream.
      */
     @Override
     public IntStream chars() {
@@ -110,7 +110,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Non-allocating enumeration of each code point in the UTF-8 stream
+     * Non-allocating enumeration of each code point in the UTF-8 stream.
      */
     public final IntStream codePoints() {
 
@@ -162,7 +162,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}
+     * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
      * <p>
      * A value of {@code null} is returns, if this {@link Utf8String} is null.
      * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
@@ -173,7 +173,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Creates a deep copy of this {@link Utf8String}
+     * Creates a deep copy of this {@link Utf8String}.
      */
     @Override
     public Utf8String copy() {
@@ -181,7 +181,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Duplicates this {@link Utf8String}
+     * Duplicates this {@link Utf8String}.
      * <p>
      * Be aware that this will not automatically call {@link #retain()}.
      */
@@ -191,9 +191,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Encoded length of this {@link Utf8String}
+     * Encoded length of this {@link Utf8String}.
      * <p>
-     * This is the same value as would be returned by {@link String#getBytes()#utf16CodeUnitCount} with no time or space overhead.
+     * This is the same value as would be returned by {@link String#getBytes()#utf16CodeUnitCount} with no time or space
+     * overhead.
      *
      * @return encoded length of {@link Utf8String}
      */
@@ -235,9 +236,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation
+     * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation.
      * <p>
-     * The {@link Utf8String} created retains the {@link ByteBuf}. (No data is transferred.)
+     * The {@link Utf8String} created retains the {@link ByteBuf}. No data is transferred.
      *
      * @param buffer The {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
      * @return A {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
@@ -280,7 +281,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Returns the reference count of this {@link Utf8String}
+     * Returns the reference count of this {@link Utf8String}.
      * <p>
      * If {@code 0}, it means this object has been deallocated.
      */
@@ -302,7 +303,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Decreases the reference count by the specified {@code decrement}
+     * Decreases the reference count by the specified {@code decrement}.
      *
      * The underlying storage for this instance is deallocated, if the reference count reaches {@code 0}.
      *
@@ -376,7 +377,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Creates a {@link Utf8String} from a UTF16 encoding string
+     * Creates a {@link Utf8String} from a UTF16 encoding string.
      * <p>
      * This method must transcode the UTF-16 into UTF-8 which both requires allocation and is a size of data operation.
      *
@@ -422,8 +423,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         /**
          * Returns the next {@code int} element in the iteration.
          *
-         * @return the next {@code int} element in the iteration
-         * @throws NoSuchElementException if the iteration has no more elements
+         * @return the next {@code int} element in the iteration.
+         * @throws NoSuchElementException if the iteration has no more elements.
          */
         @Override
         public int nextInt() {
@@ -581,7 +582,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * single-byte UTF-8 code units in the code point.
      * <p>
      * Code points are validated. The {@link #process(byte)} method returns the Unicode
-     * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement character</a>
+     * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement Character</a>
      * when an undefined code point is encountered.
      *
      * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
