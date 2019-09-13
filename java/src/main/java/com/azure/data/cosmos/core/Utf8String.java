@@ -16,21 +16,20 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.base.Objects;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Utf8;
-import com.google.common.collect.Streams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.PrimitiveIterator;
 import java.util.Spliterator;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
+import java.util.Spliterators;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -114,12 +113,15 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * Non-allocating enumeration of each code point in the UTF-8 stream
      */
     public final IntStream codePoints() {
+
         if (this.buffer == null || this.buffer.writerIndex() == 0) {
             return IntStream.empty();
         }
-        return StreamSupport.intStream(new CodePointIterable(this.buffer, this.codePointCount.get()), false);
-    }
 
+        return StreamSupport.intStream(
+            () -> Spliterators.spliteratorUnknownSize(new CodePointIterator(this.buffer), Spliterator.ORDERED),
+            Spliterator.ORDERED,false);
+    }
 
     public final int compareTo(@Nonnull final Utf8String other) {
 
@@ -146,14 +148,17 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return other == null ? 0 : -1;
         }
 
-        // TODO: DANOBLE: Consider optimizing this method based on the cost of zipping boxed int streams
+        PrimitiveIterator.OfInt t = this.codePoints().iterator();
+        PrimitiveIterator.OfInt o = other.codePoints().iterator();
 
-        Optional<Integer> compare = Streams
-            .zip(this.codePoints().boxed(), other.codePoints().boxed(), (x, y) -> x - y)
-            .filter(delta -> delta != 0)
-            .findFirst();
+        while (t.hasNext() && o.hasNext()) {
+            final int compare = t.nextInt() - o.nextInt();
+            if (compare != 0) {
+                return compare;
+            }
+        }
 
-        return compare.orElse(this.length() - other.length());
+        return this.length() - other.length();
     }
 
     /**
@@ -398,36 +403,15 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return new Utf8String(buffer);
     }
 
-    private static final class CodePointIterable extends UTF8CodePointGetter implements
-        Iterable<Integer>, Iterator<Integer>, Spliterator.OfInt {
-
-        private static final int CHARACTERISTICS = Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
+    private static final class CodePointIterator extends UTF8CodePointGetter implements IntIterator.OfInt {
 
         private final ByteBuf buffer;
-        private final int codePointCount;
-
         private int start, length;
 
-        CodePointIterable(final ByteBuf buffer, final int codePointCount) {
-            this.codePointCount = codePointCount;
+        CodePointIterator(final ByteBuf buffer) {
             this.buffer = buffer;
             this.start = 0;
             this.length = buffer.writerIndex();
-        }
-
-        @Override
-        public int characteristics() {
-            return this.codePointCount == -1 ? CHARACTERISTICS : CHARACTERISTICS | Spliterator.SIZED | Spliterator.SUBSIZED;
-        }
-
-        @Override
-        public long estimateSize() {
-            return this.codePointCount < 0 ? Long.MAX_VALUE : this.codePointCount;
-        }
-
-        @Override
-        public void forEachRemaining(final Consumer<? super Integer> action) {
-            OfInt.super.forEachRemaining(action);
         }
 
         @Override
@@ -435,14 +419,14 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return this.length > 0;
         }
 
+        /**
+         * Returns the next {@code int} element in the iteration.
+         *
+         * @return the next {@code int} element in the iteration
+         * @throws NoSuchElementException if the iteration has no more elements
+         */
         @Override
-        @Nonnull
-        public Iterator<Integer> iterator() {
-            return this;
-        }
-
-        @Override
-        public Integer next() {
+        public int nextInt() {
 
             if (!this.hasNext()) {
                 throw new NoSuchElementException();
@@ -453,30 +437,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
             return this.codePoint();
         }
-
-        @Override
-        public Spliterator<Integer> spliterator() {
-            return this;
-        }
-
-        @Override
-        public boolean tryAdvance(@Nonnull final IntConsumer action) {
-
-            checkNotNull(action, "expected non-null action");
-
-            if (this.hasNext()) {
-                action.accept(this.next());
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public OfInt trySplit() {
-            return null;
-        }
-
     }
 
     static final class Deserializer extends StdDeserializer<Utf8String> {
