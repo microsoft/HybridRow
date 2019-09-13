@@ -11,14 +11,14 @@ package com.azure.data.cosmos.serialization.hybridrow;
  */
 public final class UnixDateTime {
     /**
-     * Unix epoch
+     * Unix epoch.
      * <p>
      * {@link UnixDateTime} values are signed values centered on this value.
      */
     public static final UnixDateTime EPOCH = new UnixDateTime();
 
     /**
-     * Size in bytes of a {@link UnixDateTime}
+     * Size in bytes of a {@link UnixDateTime}.
      */
     public static final int BYTES = Long.SIZE;
 

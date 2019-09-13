@@ -4,7 +4,7 @@
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 /**
- * Describes a property or set of properties used to order the data set within a single
+ * Describes a property or set of properties used to order the data set within a single.
  * partition.
  */
 public class PrimarySortKey {

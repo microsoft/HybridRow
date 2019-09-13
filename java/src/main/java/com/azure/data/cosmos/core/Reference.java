@@ -6,7 +6,7 @@ package com.azure.data.cosmos.core;
 import java.util.Objects;
 
 /**
- * A container object which may or may not contain a non-null value
+ * A container object which may or may not contain a non-null value.
  *
  * This is a value-based class and as such use of identity-sensitive operations--including reference equality
  * ({@code ==}), identity hash code, or synchronization--on instances of {@Reference} may have unpredictable results
@@ -34,7 +34,7 @@ public final class Reference<T> {
     }
 
     /**
-     * {@code true} if there is a value present, otherwise {@code false}
+     * {@code true} if there is a value present, otherwise {@code false}.
      *
      * This is equivalent to evaluating the expression {@code ref.get() == null}.
      *
@@ -45,7 +45,7 @@ public final class Reference<T> {
     }
 
     /**
-     * Indicates whether some other object is equal to this {@link Reference} value. The other object is considered equal if:
+     * Indicates whether some other object is equal to this {@link Reference} value. The other object is considered equal if:.
      * <ul>
      * <li>it is also an {@link Reference} and;
      * <li>both instances have no value present or;

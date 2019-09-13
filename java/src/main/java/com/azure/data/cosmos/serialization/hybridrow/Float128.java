@@ -44,16 +44,14 @@ public final class Float128 {
     }
 
     /**
-     * The high-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID
-     * encoding scheme.
+     * The high-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID encoding scheme.
      */
     public long high() {
         return this.high;
     }
 
     /**
-     * The low-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID
-     * encoding scheme.
+     * The low-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID encoding scheme.
      */
     public long low() {
         return this.low;

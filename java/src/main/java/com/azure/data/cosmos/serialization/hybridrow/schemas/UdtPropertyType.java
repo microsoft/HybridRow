@@ -18,7 +18,7 @@ public class UdtPropertyType extends ScopePropertyType {
     private SchemaId schemaId;
 
     /**
-     * Initializes a new {@link UdtPropertyType}
+     * Initializes a new {@link UdtPropertyType}.
      */
     public UdtPropertyType() {
         this.schemaId(SchemaId.INVALID);

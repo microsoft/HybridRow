@@ -36,7 +36,7 @@ public final class Murmur3Hash {
     private static final ByteBuf EMPTY_STRING = Constant.add("");
 
     /**
-     * Computes a 128-bit Murmur3Hash 128-bit value for a data item
+     * Computes a 128-bit Murmur3Hash 128-bit value for a data item.
      *
      * @param item The data to hash
      * @param seed The seed with which to initialize

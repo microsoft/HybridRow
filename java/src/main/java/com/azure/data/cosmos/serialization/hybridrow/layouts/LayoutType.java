@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.lenientFormat;
 
 /**
- * Describes the physical byte layout of a hybrid row field of a specific physical type {@code T}
+ * Describes the physical byte layout of a hybrid row field of a specific physical type {@code T}.
  *
  * {@link LayoutType} provides methods for manipulating hybrid row fields of a particular type, and properties that
  * describe the layout of fields of that type.

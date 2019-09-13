@@ -126,7 +126,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * If existing, the offset to the end of the existing field. Used as a hint when skipping
+     * If existing, the offset to the end of the existing field. Used as a hint when skipping.
      * forward.
      */
     public int endOffset() {
@@ -151,7 +151,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * If {@code true}, this scope's nested fields cannot be updated individually
+     * If {@code true}, this scope's nested fields cannot be updated individually.
      * <p>
      * The entire scope can still be replaced.
      */
@@ -165,7 +165,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * For indexed scopes (e.g. an Array scope), the zero-based index into the scope of the sparse field
+     * For indexed scopes (e.g. an Array scope), the zero-based index into the scope of the sparse field.
      */
     public int index() {
         return this.index;
@@ -189,7 +189,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * If existing, the offset to the metadata of the existing field, otherwise the location to
+     * If existing, the offset to the metadata of the existing field, otherwise the location to.
      * insert a new field.
      */
     public int metaOffset() {
@@ -226,7 +226,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * The kind of scope within which this edit was prepared
+     * The kind of scope within which this edit was prepared.
      */
     public LayoutTypeScope scopeType() {
         return this.scopeType;
@@ -238,7 +238,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * The type parameters of the scope within which this edit was prepared
+     * The type parameters of the scope within which this edit was prepared.
      */
     public TypeArgumentList scopeTypeArgs() {
         return this.scopeTypeArgs;
@@ -250,8 +250,7 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * The 0-based byte offset from the beginning of the row where the first sparse field within
-     * the scope begins.
+     * The 0-based byte offset from the beginning of the row where the first sparse field within the scope begins.
      */
     public int start() {
         return this.start;

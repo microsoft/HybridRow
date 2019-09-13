@@ -59,7 +59,7 @@ public final class RowWriter {
     private RowBuffer row;
 
     /**
-     * Initializes a new instance of the {@link RowWriter} class
+     * Initializes a new instance of the {@link RowWriter} class.
      *
      * @param row   The row to be read.
      * @param scope The scope into which items should be written.

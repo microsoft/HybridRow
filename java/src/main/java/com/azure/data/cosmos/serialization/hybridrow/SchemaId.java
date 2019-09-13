@@ -22,7 +22,7 @@ import java.io.IOException;
 import static com.google.common.base.Strings.lenientFormat;
 
 /**
- * The unique identifier for a schema
+ * The unique identifier for a schema.
  * Identifiers must be unique within the scope of the database in which they are used.
  */
 @JsonDeserialize(using = SchemaId.JsonDeserializer.class)
@@ -65,7 +65,7 @@ public final class SchemaId implements Comparable<SchemaId> {
     }
 
     /**
-     * {@code true} if this is the same {@link SchemaId} as {@code other}
+     * {@code true} if this is the same {@link SchemaId} as {@code other}.
      *
      * @param other The value to compare against.
      * @return True if the two values are the same.
@@ -78,7 +78,7 @@ public final class SchemaId implements Comparable<SchemaId> {
     }
 
     /**
-     * Returns a {@link SchemaId} from a specified underlying integer value
+     * Returns a {@link SchemaId} from a specified underlying integer value.
      *
      * @return The integer value of this {@link SchemaId}
      */
@@ -97,7 +97,7 @@ public final class SchemaId implements Comparable<SchemaId> {
     }
 
     /**
-     * The underlying integer value of this {@link SchemaId}
+     * The underlying integer value of this {@link SchemaId}.
      *
      * @return The integer value of this {@link SchemaId}
      */

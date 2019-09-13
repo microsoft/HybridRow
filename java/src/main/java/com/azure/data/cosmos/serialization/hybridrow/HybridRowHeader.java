@@ -16,7 +16,7 @@ public final class HybridRowHeader {
     private HybridRowVersion version = HybridRowVersion.values()[0];
 
     /**
-     * Initializes a new instance of a {@link HybridRowHeader}
+     * Initializes a new instance of a {@link HybridRowHeader}.
      *
      * @param version  The version of the HybridRow library used to write this row.
      * @param schemaId The unique identifier of the schema whose layout was used to write this row.

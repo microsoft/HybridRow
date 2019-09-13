@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A schema describes either table or UDT metadata
+ * A schema describes either table or UDT metadata.
  * <p>
  * The schema of a table or UDT describes the structure of row (i.e. which columns and the types of those columns). A
  * table schema represents the description of the contents of a collection level row directly.  UDTs described nested
@@ -63,7 +63,7 @@ public class Schema {
     }
 
     /**
-     * Compiles this logical schema into a physical layout that can be used to read and write rows
+     * Compiles this logical schema into a physical layout that can be used to read and write rows.
      *
      * @param ns The namespace within which this schema is defined.
      * @return The layout for the schema.
@@ -117,7 +117,7 @@ public class Schema {
     }
 
     /**
-     * An (optional) list of zero or more logical paths that form the partition key
+     * An (optional) list of zero or more logical paths that form the partition key.
      * <p>
      * All paths referenced MUST map to a property within the schema. This field is never null.
      *
@@ -134,7 +134,7 @@ public class Schema {
     }
 
     /**
-     * An (optional) list of zero or more logical paths that form the primary sort key
+     * An (optional) list of zero or more logical paths that form the primary sort key.
      * <p>
      * All paths referenced MUST map to a property within the schema. This field is never null.
      *
@@ -151,7 +151,7 @@ public class Schema {
     }
 
     /**
-     * A list of zero or more property definitions that define the columns within the schema
+     * A list of zero or more property definitions that define the columns within the schema.
      * <p>
      * This field is never null.
      *
@@ -168,7 +168,7 @@ public class Schema {
     }
 
     /**
-     * The unique identifier for a schema
+     * The unique identifier for a schema.
      * <p>
      * Identifiers must be unique within the scope of the database in which they are used.
      */
@@ -199,7 +199,7 @@ public class Schema {
     }
 
     /**
-     * Returns a JSON string representation of the current {@link Schema}
+     * Returns a JSON string representation of the current {@link Schema}.
      *
      * @return a JSON string representation of the current {@link Schema}
      */
@@ -209,7 +209,7 @@ public class Schema {
     }
 
     /**
-     * The type of this schema
+     * The type of this schema.
      * <p>
      * This value MUST be {@link TypeKind#SCHEMA}.
      */
@@ -223,7 +223,7 @@ public class Schema {
     }
 
     /**
-     * The version of the HybridRow Schema Definition Language used to encode this schema
+     * The version of the HybridRow Schema Definition Language used to encode this schema.
      */
     public final SchemaLanguageVersion version() {
         return this.version;

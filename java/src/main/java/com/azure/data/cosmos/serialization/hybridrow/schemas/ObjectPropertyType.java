@@ -25,7 +25,7 @@ public class ObjectPropertyType extends ScopePropertyType {
     }
 
     /**
-     * A list of zero or more property definitions that define the columns within the schema
+     * A list of zero or more property definitions that define the columns within the schema.
      */
     public final List<Property> properties() {
         return this.properties;

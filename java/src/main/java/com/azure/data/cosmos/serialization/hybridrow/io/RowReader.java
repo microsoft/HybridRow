@@ -55,7 +55,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
 /**
- * A forward-only, streaming, field reader for {@link RowBuffer}
+ * A forward-only, streaming, field reader for {@link RowBuffer}.
  * <p>
  * A {@link RowReader} allows the traversal in a streaming, left to right fashion, of an entire HybridRow. The row's
  * layout provides decoding for any schematized portion of the row. However, unschematized sparse fields are read
@@ -75,7 +75,7 @@ public final class RowReader {
     private States state;
 
     /**
-     * Initializes a new instance of the {@link RowReader} class
+     * Initializes a new instance of the {@link RowReader} class.
      *
      * @param row   The row to be read
      */
@@ -84,7 +84,7 @@ public final class RowReader {
     }
 
     /**
-     * Initializes a new instance of the {@link RowReader} class
+     * Initializes a new instance of the {@link RowReader} class.
      *
      * @param row        The row to be read
      * @param checkpoint Initial state of the reader
@@ -101,7 +101,7 @@ public final class RowReader {
     }
 
     /**
-     * Initializes a new instance of the {@link RowReader} class
+     * Initializes a new instance of the {@link RowReader} class.
      *
      * @param row   The row to be read
      * @param scope Cursor defining the scope of the fields to be read
@@ -123,7 +123,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length {@code MongoDbObjectId} value
+     * Read the current field as a fixed length {@code MongoDbObjectId} value.
      *
      * @param value On success, receives the value, undefined otherwise
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -151,7 +151,7 @@ public final class RowReader {
     }
 
     /**
-     * {@code true} if field has a value--if positioned on a field--undefined otherwise
+     * {@code true} if field has a value--if positioned on a field--undefined otherwise.
      * <p>
      * If the current field is a Nullable scope, this method return true if the value is not null. If the current field
      * is a nullable Null primitive value, this method return true if the value is set (even though its values is set
@@ -177,7 +177,7 @@ public final class RowReader {
     }
 
     /**
-     * Zero-based index, relative to the scope, of the field--if positioned on a field--undefined otherwise
+     * Zero-based index, relative to the scope, of the field--if positioned on a field--undefined otherwise.
      * <p>
      * When enumerating a non-indexed scope, this value is always zero.
      *
@@ -188,14 +188,14 @@ public final class RowReader {
     }
 
     /**
-     * The length of row in bytes
+     * The length of row in bytes.
      */
     public int length() {
         return this.row.length();
     }
 
     /**
-     * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise
+     * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise.
      * <p>
      * When enumerating an indexed scope, this value is always null.
      *
@@ -224,7 +224,7 @@ public final class RowReader {
     }
 
     /**
-     * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise
+     * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise.
      * <p>
      * When enumerating an indexed scope, this value is always null.
      *
@@ -242,7 +242,7 @@ public final class RowReader {
     }
 
     /**
-     * Advances the reader to the next field
+     * Advances the reader to the next field.
      *
      * @return {@code true}, if there is another field to be read; {@code false} otherwise
      */
@@ -292,7 +292,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a variable length, sequence of bytes
+     * Read the current field as a variable length, sequence of bytes.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -321,7 +321,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a variable length, sequence of bytes
+     * Read the current field as a variable length, sequence of bytes.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -341,7 +341,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a {@link Boolean}
+     * Read the current field as a {@link Boolean}.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -369,7 +369,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length {@code DateTime} value
+     * Read the current field as a fixed length {@code DateTime} value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -397,7 +397,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length decimal value
+     * Read the current field as a fixed length decimal value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -424,7 +424,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 128-bit, IEEE-encoded floating point value
+     * Read the current field as a fixed length, 128-bit, IEEE-encoded floating point value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.

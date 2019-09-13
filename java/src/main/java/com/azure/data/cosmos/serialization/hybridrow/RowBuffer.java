@@ -88,7 +88,7 @@ import static com.google.common.base.Strings.lenientFormat;
 //import static com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutTypes.MongoDbObjectId;
 
 /**
- * Manages a sequence of bytes representing a Hybrid Row
+ * Manages a sequence of bytes representing a Hybrid Row.
  * <p>
  * A Hybrid Row begins in the 0-th byte of the {@link RowBuffer}. The sequence of bytes is defined by the Hybrid Row
  * grammar.
@@ -99,7 +99,7 @@ public final class RowBuffer {
     private LayoutResolver resolver;
 
     /**
-     * Initializes a new instance of a {@link RowBuffer}
+     * Initializes a new instance of a {@link RowBuffer}.
      *
      * @param capacity Initial buffer capacity.
      */
@@ -108,7 +108,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Initializes a new instance of a {@link RowBuffer}
+     * Initializes a new instance of a {@link RowBuffer}.
      *
      * @param capacity  Initial buffer capacity
      * @param allocator A buffer allocator
@@ -121,7 +121,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Initializes a new instance of a {@link RowBuffer} from an existing buffer
+     * Initializes a new instance of a {@link RowBuffer} from an existing buffer.
      *
      * @param buffer   An existing {@link ByteBuf} containing a Hybrid Row. This instance takes ownership of the buffer.
      *                 Hence, the caller should not maintain a reference to the buffer or mutate the buffer after this
@@ -156,7 +156,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Compute the byte offset from the beginning of the row for a given variable's value
+     * Compute the byte offset from the beginning of the row for a given variable's value.
      *
      * @param layout      The (optional) layout of the current scope.
      * @param scopeOffset The zero-based offset to the beginning of the scope's value.
@@ -196,7 +196,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Compute the number of bytes necessary to store the unsigned 32-bit integer value using the varuint encoding
+     * Compute the number of bytes necessary to store the unsigned 32-bit integer value using the varuint encoding.
      *
      * @param value The value to be encoded
      * @return The number of bytes needed to store the varuint encoding of {@code value}
@@ -218,7 +218,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Delete the sparse field at the specified cursor position
+     * Delete the sparse field at the specified cursor position.
      *
      * @param edit identifies the field to delete
      */
@@ -242,7 +242,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Delete the variable-length field at a specified {@code offset}
+     * Delete the variable-length field at a specified {@code offset}.
      * <p>
      * The field is interpreted as either a variable-length integer or a variable-length sequence of bytes as indicated
      * by the value of {@code isVarint}.
@@ -319,14 +319,14 @@ public final class RowBuffer {
     }
 
     /**
-     * The length of this {@link RowBuffer} in bytes
+     * The length of this {@link RowBuffer} in bytes.
      */
     public int length() {
         return this.buffer.writerIndex();
     }
 
     /**
-     * Compute the byte offsets from the beginning of the row for a given sparse field insertion
+     * Compute the byte offsets from the beginning of the row for a given sparse field insertion.
      * into a set/map.
      *
      * @param scope   The sparse scope to insert into.
@@ -448,7 +448,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Reads in the contents of the current {@link RowBuffer} from an {@link InputStream}
+     * Reads in the contents of the current {@link RowBuffer} from an {@link InputStream}.
      * <p>
      * The {@link RowBuffer} is initialized with the associated layout and row {@code version}.
      *
@@ -488,7 +488,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Reads the contents of the current {@link RowBuffer} from a {@link ByteBuf}
+     * Reads the contents of the current {@link RowBuffer} from a {@link ByteBuf}.
      * <p>
      * The {@link RowBuffer} is initialized with a copy of the specified input {@link ByteBuf} and the associated layout
      * and row {@code version}.
@@ -795,7 +795,7 @@ public final class RowBuffer {
     //    }
 
     /**
-     * Rotates the sign bit of a two's complement value to the least significant bit
+     * Rotates the sign bit of a two's complement value to the least significant bit.
      *
      * @param value A signed value.
      * @return An unsigned value encoding the same value but with the sign bit in the LSB.
@@ -1172,7 +1172,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Sets the specified 64-bit integer at the current {@link RowBuffer position} as a 7-bit encoded 32-bit value
+     * Sets the specified 64-bit integer at the current {@link RowBuffer position} as a 7-bit encoded 32-bit value.
      * <p>
      * The 64-bit integer value is written 7-bits at a time. The high bit of the byte, when set, indicates there are
      * more bytes. An {@link IllegalArgumentException} is thrown, if the specified 64-bit integer value is outside
@@ -2011,7 +2011,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Writes the content of the buffer on to an {@link OutputStream}
+     * Writes the content of the buffer on to an {@link OutputStream}.
      *
      * @param stream the target @{link OutputStream}
      * @throws IOException if the specified {@code stream} throws an {@link IOException} during output
@@ -2307,7 +2307,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Compares the values of two encoded key-value pair fields using the hybrid row binary
+     * Compares the values of two encoded key-value pair fields using the hybrid row binary.
      * collation.
      *
      * @param left  An edit describing the left field.
@@ -2500,7 +2500,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Ensure that sufficient space exists in the row buffer to write the specified value
+     * Ensure that sufficient space exists in the row buffer to write the specified value.
      *
      * @param length      The number of bytes needed to encode the value of the field to be written.
      * @param edit        The prepared edit indicating where and in what context the current write will happen.
@@ -2591,7 +2591,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Ensure that sufficient space exists in the row buffer to write the specified value
+     * Ensure that sufficient space exists in the row buffer to write the specified value.
      *
      * @param length      The number of bytes needed to encode the value of the field to be written.
      * @param edit        The prepared edit indicating where and in what context the current write will happen.
@@ -2645,7 +2645,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Sorts a {@code uniqueIndex} list using the hybrid row binary collation
+     * Sorts a {@code uniqueIndex} list using the hybrid row binary collation.
      *
      * @param scope       The scope to be sorted.
      * @param edit     A edit that points at the scope.
@@ -2931,7 +2931,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Skip over a nested scope
+     * Skip over a nested scope.
      *
      * @param edit The sparse scope to search
      * @return The zero-based byte offset immediately following the scope end marker
@@ -2950,7 +2950,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Compute the size of a sparse (primitive) field
+     * Compute the size of a sparse (primitive) field.
      *
      * @param type    The type of the current sparse field.
      * @param metaOffset  The zero-based offset from the beginning of the row where the field begins.
@@ -3039,7 +3039,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Compute the size of a sparse field
+     * Compute the size of a sparse field.
      *
      * @param edit The edit structure describing the field to measure.
      * @return The length (in bytes) of the encoded field including the metadata and the value.
@@ -3056,7 +3056,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Reads and validates the header of the current {@link RowBuffer}
+     * Reads and validates the header of the current {@link RowBuffer}.
      *
      * @return {@code true} if the header validation succeeded; otherwise, if the header is invalid, {@code false}
      */
@@ -3378,7 +3378,7 @@ public final class RowBuffer {
     }
 
     /**
-     * Represents a single item within a set/map scope that needs to be indexed
+     * Represents a single item within a set/map scope that needs to be indexed.
      * <p>
      * This structure is used when rebuilding a set/map index during row streaming via {@link RowWriter}.Each item
      * encodes its offsets and length within the row.
@@ -3403,7 +3403,7 @@ public final class RowBuffer {
         }
 
         /**
-         * If existing, the offset to the metadata of the existing field, otherwise the location to insert a new field
+         * If existing, the offset to the metadata of the existing field, otherwise the location to insert a new field.
          */
         public int metaOffset() {
             return this.metaOffset;
@@ -3415,7 +3415,7 @@ public final class RowBuffer {
         }
 
         /**
-         * Size of the target element
+         * Size of the target element.
          */
         public int size() {
             return this.size;
@@ -3427,7 +3427,7 @@ public final class RowBuffer {
         }
 
         /**
-         * If existing, the offset to the value of the existing field, otherwise undefined
+         * If existing, the offset to the value of the existing field, otherwise undefined.
          */
         public int valueOffset() {
             return this.valueOffset;

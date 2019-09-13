@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A Layout describes the structure of a Hybrid Row
+ * A Layout describes the structure of a Hybrid Row.
  * <p>
  * A layout indicates the number, order, and type of all schematized columns to be stored within a hybrid row. The
  * order and type of columns defines the physical ordering of bytes used to encode the row and impacts the cost of
@@ -97,7 +97,7 @@ public final class Layout {
     }
 
     /**
-     * Finds a column specification for a column with a matching path
+     * Finds a column specification for a column with a matching path.
      *
      * @param path path of the column to find
      * @return {@link LayoutColumn}, if a column with the {@code path} is found, {@link Optional#empty()}
@@ -129,7 +129,7 @@ public final class Layout {
     }
 
     /**
-     * Top level columns defined by the current {@link Layout} in left-to-right order
+     * Top level columns defined by the current {@link Layout} in left-to-right order.
      *
      * @return Top level columns defined by the current {@link Layout} in left-to-right order
      */
@@ -188,7 +188,7 @@ public final class Layout {
     }
 
     /**
-     * Returns a human readable diagnostic string representation of this {@link Layout}
+     * Returns a human readable diagnostic string representation of this {@link Layout}.
      * <p>
      * This representation should only be used for debugging and diagnostic purposes.
      */
