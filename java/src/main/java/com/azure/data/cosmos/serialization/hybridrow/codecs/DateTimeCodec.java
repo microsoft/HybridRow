@@ -14,6 +14,30 @@ import java.time.ZoneOffset;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Provides static methods for encoding and decoding {@link OffsetDateTime}s serialized as {@code System.DateTime}s
+ *
+ * {@link OffsetDateTime} values are serialized as unsigned 64-bit integers:
+ *
+ * <table>
+ *     <tbody>
+ *      <tr><td>
+ *          Bits 01-62
+ *      </td><td>
+ *          Contain the number of 100-nanosecond ticks where 0 represents {@code 1/1/0001 12:00am}, up until the value
+ *          {@code 12/31/9999 23:59:59.9999999}.
+ *      </td></tr>
+ *      <tr><td>
+ *          Bits 63-64
+ *      </td><td>
+ *          Contain a four-state value that describes the {@code System.DateTimeKind} value of the date time, with a
+ *          2nd value for the rare case where the date time is local, but is in an overlapped daylight savings time
+ *          hour and it is in daylight savings time. This allows distinction of these otherwise ambiguous local times
+ *          and prevents data loss when round tripping from Local to UTC time.
+ *      </td></tr>
+ *   </tbody>
+ * </table>
+ */
 public final class DateTimeCodec {
 
     public static final int BYTES = Long.BYTES;
@@ -23,6 +47,8 @@ public final class DateTimeCodec {
     private static final long KIND_LOCAL = 0x8000000000000000L;
     private static final long KIND_UTC = 0x4000000000000000L;
     private static final long TICKS_MASK = 0x3FFFFFFFFFFFFFFFL;
+
+    private static final long UNIX_EPOCH_TICKS = 0x89F7FF5F7B58000L;
 
     private static final ZoneOffset ZONE_OFFSET_LOCAL = OffsetDateTime.now().getOffset();
     private static final int ZONE_OFFSET_LOCAL_TOTAL_SECONDS = ZONE_OFFSET_LOCAL.getTotalSeconds();
@@ -61,10 +87,13 @@ public final class DateTimeCodec {
             in.readableBytes());
 
         final long data = in.readLongLE();
-        final long epochSecond = data & TICKS_MASK;
+        final long ticks = data & TICKS_MASK;
         final ZoneOffset zoneOffset = (data & FLAGS_MASK) == KIND_UTC ? ZoneOffset.UTC : ZONE_OFFSET_LOCAL;
 
-        return OffsetDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), zoneOffset);
+        final long epochSecond = ((ticks - UNIX_EPOCH_TICKS) / 10_000_000L) - zoneOffset.getTotalSeconds();
+        final int nanos = (int) (100L * (ticks % 10_000_000L));
+
+        return OffsetDateTime.ofInstant(Instant.ofEpochSecond(epochSecond, nanos), zoneOffset);
     }
 
     /**
@@ -77,7 +106,7 @@ public final class DateTimeCodec {
      */
     public static byte[] encode(final OffsetDateTime offsetDateTime) {
         final byte[] bytes = new byte[BYTES];
-        encode(offsetDateTime, Unpooled.wrappedBuffer(bytes));
+        encode(offsetDateTime, Unpooled.wrappedBuffer(bytes).clear());
         return bytes;
     }
 
@@ -91,21 +120,25 @@ public final class DateTimeCodec {
      */
     public static void encode(final OffsetDateTime offsetDateTime, final ByteBuf out) {
 
-        final long epochSecond = offsetDateTime.toEpochSecond();
+        final ZoneOffset offset = offsetDateTime.getOffset();
+        final Instant instant = offsetDateTime.toInstant();
 
-        checkArgument(epochSecond <= TICKS_MASK, "expected offsetDateTime epoch second in range [0, %s], not %s",
+        final long ticks = UNIX_EPOCH_TICKS + 10_000_000L * (instant.getEpochSecond() + offset.getTotalSeconds())
+            + instant.getNano() / 100L;
+
+        checkArgument(ticks <= TICKS_MASK, "expected offsetDateTime epoch second in range [0, %s], not %s",
             TICKS_MASK,
-            epochSecond);
+            ticks);
 
         final int zoneOffsetTotalSeconds = offsetDateTime.getOffset().getTotalSeconds();
         final long value;
 
         if (zoneOffsetTotalSeconds == ZONE_OFFSET_UTC_TOTAL_SECONDS) {
-            value = epochSecond | KIND_UTC;
+            value = ticks | KIND_UTC;
         } else if (zoneOffsetTotalSeconds == ZONE_OFFSET_LOCAL_TOTAL_SECONDS) {
-            value = epochSecond | KIND_LOCAL;
+            value = ticks | KIND_LOCAL;
         } else {
-            value = epochSecond | KIND_AMBIGUOUS;
+            value = ticks | KIND_AMBIGUOUS;
         }
 
         out.writeLongLE(value);

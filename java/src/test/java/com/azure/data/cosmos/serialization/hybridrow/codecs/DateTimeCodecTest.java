@@ -35,7 +35,7 @@ public class DateTimeCodecTest {
 
     @Test(dataProvider = "dateTimeDataProvider")
     public void testDecodeByteBuf(byte[] buffer, OffsetDateTime value) {
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(new byte[DateTimeCodec.BYTES]);
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(buffer);
         OffsetDateTime actual = DateTimeCodec.decode(byteBuf);
         assertEquals(actual, value);
     }
@@ -48,13 +48,14 @@ public class DateTimeCodecTest {
 
     @Test(dataProvider = "dateTimeDataProvider")
     public void testEncodeByteBuf(byte[] buffer, OffsetDateTime value) {
-        ByteBuf actual = Unpooled.wrappedBuffer(new byte[DateTimeCodec.BYTES]);
+        ByteBuf actual = Unpooled.wrappedBuffer(new byte[DateTimeCodec.BYTES]).clear();
         DateTimeCodec.encode(value, actual);
         assertEquals(actual.array(), buffer);
     }
 
     @DataProvider(name = "dateTimeDataProvider")
-    private Iterator<Object[]> dateTimeData(byte[] buffer, OffsetDateTime value) {
+    private static Iterator<Object[]> dateTimeData() {
+
         ImmutableList<DateTimeItem> items = ImmutableList.of(
             new DateTimeItem(new byte[] {
                 (byte) 120, (byte) 212, (byte) 106, (byte) 251, (byte) 105, (byte) 48, (byte) 215, (byte) 136 },
@@ -63,6 +64,7 @@ public class DateTimeCodecTest {
                 (byte) 226, (byte) 108, (byte) 87, (byte) 194, (byte) 164, (byte) 48, (byte) 215, (byte) 72 },
                 OffsetDateTime.parse("2019-09-03T19:27:28.9493730Z"))
         );
+
         return items.stream().map(item -> new Object[] { item.buffer, item.value }).iterator();
     }
 
