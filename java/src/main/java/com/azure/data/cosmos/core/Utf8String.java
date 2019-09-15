@@ -596,7 +596,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         private static final int REPLACEMENT_CHARACTER = 0xFFFD;
 
-        private int codePoint = 0;
+        private int codePoint = -1;
+        private int length = -1;
         private int shift = -1;
 
         /**
@@ -616,16 +617,93 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
                     // Next unit of code point sequence
 
-                    this.codePoint |= (value & 0xFF << this.shift);
+                    this.codePoint |= ((value & 0xFF) << this.shift);
                     this.shift -= Byte.SIZE;
+
                     return true;
                 }
                 case 0: {
 
-                    // End of code point sequence
+                    // End of code point sequence of length 2-4
 
-                    this.codePoint |= value & 0xFF;
+                    this.codePoint |= (value & 0xFF);
                     this.shift = -1;
+
+                    switch (this.length) {
+                        default: {
+                            assert false : lenientFormat("codePoint: 0b%s, length: %s, shift: 0",
+                                Integer.toBinaryString(this.codePoint),
+                                this.length);
+                            this.codePoint = REPLACEMENT_CHARACTER;
+                            return false;
+                        }
+                        case 2: {
+
+                            // Map UTF-8 encoding to UTF-16 code point in the [0x0080, 0x07FF] range
+                            //
+                            // UTF-8 Encodings in this this range have this bit pattern:
+                            //
+                            //  Bits 08-15 = 0b110YYYYY (byte 1)
+                            //  Bits 00-07 = 0b10XXXXXX (byte 2)
+                            //
+                            // The corresponding UTF-16 code point can be viewed as an 11-bit integer, 0bYYYYYXXXXXX.
+                            // Hence, we map the UTF-8 code units into 1 byte with the first 5 bits coming from the
+                            // first (high order) byte and the final 6 bits coming from the second (low order) byte
+
+                            final int b1 = this.codePoint & 0b0001111100000000;
+                            final int b2 = this.codePoint & 0b0000000000111111;
+
+                            this.codePoint = (b1 >> 2) | b2;
+                            break;
+                        }
+                        case 3: {
+
+                            // Map UTF-8 encoding to UTF-16 code point in the [0x0800, 0xFFFF] range
+                            //
+                            // UTF-8 encodings in this range have this bit pattern:
+                            //
+                            //  Bits 16-23 = 0b1110ZZZZ (byte 1)
+                            //  Bits 08-15 = 0b10YYYYYY (byte 2)
+                            //  Bits 00-07 = 0b10XXXXXX (byte 3)
+                            //
+                            // The corresponding UTF-16 code point can be viewed as a 16-bit integer,
+                            // 0bZZZZYYYYYYXXXXXX. Hence, we map the UTF-8 code units into 2 bytes with the first 3
+                            // bits coming from the first (high order) byte, the next 6 bits from the second (mid order)
+                            // byte, and the last 6 bits from the third (low order) byte.
+
+                            final int b1 = this.codePoint & 0b000011110000000000000000;
+                            final int b2 = this.codePoint & 0b000000000011111100000000;
+                            final int b3 = this.codePoint & 0b000000000000000000111111;
+
+                            this.codePoint = (b1 >> 4) | (b2 >> 2) | b3;
+                            break;
+                        }
+                        case 4: {
+
+                            // Map UTF-8 encoding to UTF-16 code point in the [0x10000, 0x0FFFF] range
+                            //
+                            // UTF-8 encodings in this range have this bit pattern:
+                            //
+                            //  Bits 24-32 = 0b11110VVV (byte 1)
+                            //  Bits 16-23 = 0b10ZZZZZZ (byte 2)
+                            //  Bits 08-15 = 0b10YYYYYY (byte 3)
+                            //  Bits 00-07 = 0b10XXXXXX (byte 4)
+                            //
+                            // The corresponding UTF-16 code point can be viewed as a 21-bit integer,
+                            // 0bVVVZZZZZZYYYYYYXXXXXX. Hence, we map the UTF-8 code units into 3 bytes with the first
+                            // 4 bits coming from the first (high order) byte, the next 6 bits from the second byte,
+                            // the next 6 bits from the third byte, and the last 6 bits from the fourth (low order)
+                            // byte.
+
+                            final int b1 = this.codePoint & 0b00000111000000000000000000000000;
+                            final int b2 = this.codePoint & 0b00000000001111110000000000000000;
+                            final int b3 = this.codePoint & 0b00000000000000000011111100000000;
+                            final int b4 = this.codePoint & 0b00000000000000000000000000111111;
+
+                            this.codePoint = (b1 >> 6) | (b2 >> 4) | (b3 >> 2) | b4;
+                            break;
+                        }
+                    }
 
                     if (!Character.isDefined(this.codePoint)) {
                         this.codePoint = REPLACEMENT_CHARACTER;
@@ -642,12 +720,14 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                     if (leadingByte < 0x7F) {
                         // UTF-8-1 = 0x00-7F
                         this.codePoint = leadingByte;
+                        this.length = 1;
                         return false;
                     }
 
                     if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
                         // UTF8-8-2 = 0xC2-DF UTF8-tail
                         this.codePoint = leadingByte << Byte.SIZE;
+                        this.length = 2;
                         this.shift = 0;
                         return true;
                     }
@@ -655,6 +735,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                     if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
                         // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
                         this.codePoint = leadingByte << 2 * Byte.SIZE;
+                        this.length = 3;
                         this.shift = Byte.SIZE;
                         return true;
                     }
@@ -662,7 +743,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                     if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
                         // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
                         this.codePoint = leadingByte << 3 * Byte.SIZE;
-                        this.shift = 3 * Byte.SIZE;
+                        this.length = 4;
+                        this.shift = 2 * Byte.SIZE;
                         return true;
                     }
 
