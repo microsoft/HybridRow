@@ -18,13 +18,16 @@ import com.google.common.base.Suppliers;
 import com.google.common.base.Utf8;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
 import it.unimi.dsi.fastutil.ints.IntIterator;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.PrimitiveIterator;
@@ -246,8 +249,15 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Nonnull
     public static Optional<Utf8String> from(@Nonnull final ByteBuf buffer) {
+
         checkNotNull(buffer, "expected non-null buffer");
-        return Utf8.isWellFormed(buffer.array()) ? Optional.of(new Utf8String(buffer)) : Optional.empty();
+
+        if (buffer.writerIndex() == 0) {
+            return Optional.of(EMPTY);
+        }
+
+        int index = buffer.forEachByte(0, buffer.writerIndex(), new UTF8CodePointValidator());
+        return index >= 0 ? Optional.empty() : Optional.of(new Utf8String(buffer));
     }
 
     /**
@@ -262,7 +272,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     @Nonnull
     public static Utf8String fromUnsafe(@Nonnull ByteBuf buffer) {
         checkNotNull(buffer, "expected non-null buffer");
-        return new Utf8String(buffer);
+        return buffer.writerIndex() == 0 ? EMPTY : new Utf8String(buffer);
     }
 
     @Override
@@ -356,6 +366,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     @Override
+    @Nonnull
     public String toString() {
         return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
     }
@@ -381,27 +392,20 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * <p>
      * This method must transcode the UTF-16 into UTF-8 which both requires allocation and is a size of data operation.
      *
-     * @param string A UTF-16 encoding string or {@code null}
-     * @return A new {@link Utf8String} or {@code null}, if {@code string} is {@code null}
+     * @param string A UTF-16 encoded string or {@code null}.
+     *
+     * @return A new {@link Utf8String}, Utf8String.EMPTY, {@code string} is empty, or Utf8String.NULL, if
+     * {@code string} is {@code null}.
      */
-    @Nullable
+    @Nonnull
     public static Utf8String transcodeUtf16(@Nullable final String string) {
-
         if (string == null) {
-            return null;
+            return NULL;
         }
-
         if (string.isEmpty()) {
             return EMPTY;
         }
-
-        final int length = Utf8.encodedLength(string);
-        final ByteBuf buffer = Unpooled.wrappedBuffer(new byte[length]);
-        final int count = buffer.writeCharSequence(string, UTF_8);
-
-        checkState(count == length, "count: %s, length: %s", count, length);
-
-        return new Utf8String(buffer);
+        return new Utf8String(Unpooled.wrappedBuffer(string.getBytes(UTF_8)));
     }
 
     private static final class CodePointIterator extends UTF8CodePointGetter implements IntIterator.OfInt {
@@ -417,7 +421,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         @Override
         public boolean hasNext() {
-            return this.length > 0;
+            return 0 <= this.start && this.start < this.length;
         }
 
         /**
@@ -433,8 +437,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                 throw new NoSuchElementException();
             }
 
-            this.start = this.buffer.forEachByte(this.start, this.length, this);
-            this.length -= this.start;
+            final int index = this.buffer.forEachByte(this.start, this.length - this.start, this);
+            assert index >= 0;
+            this.start = index + 1;
 
             return this.codePoint();
         }
@@ -662,6 +667,99 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                     }
 
                     this.codePoint = REPLACEMENT_CHARACTER;
+                    return false;
+                }
+            }
+        }
+
+        /**
+         * Returns the value of the most-recently read code point.
+         *
+         * @return value of the most-recently read code point.
+         */
+        int codePoint() {
+            return this.codePoint;
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used to validate a UTF-8 encoded strings.
+     * <p>
+     * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
+     * construction of an instance of this class must be a leading byte. This is used to determine the number of
+     * single-byte UTF-8 code units in the code point. The {@link #process(byte)} method returns {@code false} when
+     * an undefined code point is encountered.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
+     */
+    private static class UTF8CodePointValidator implements ByteProcessor {
+
+        private int codePoint = 0;
+        private int shift = -1;
+
+        /**
+         * Processes the next code unit in a UTF-8 code point sequence.
+         *
+         * @param value a {@code byte} representing the next code unit in a UTF-8 code point sequence.
+         *
+         * @return {@code false} if the current code unit signals the end of an undefined code point; otherwise, a value
+         * of {@code true}.
+         */
+        @Override
+        public boolean process(byte value) {
+
+            switch (this.shift) {
+
+                default: {
+
+                    // Next unit of code point sequence
+
+                    this.codePoint |= (value & 0xFF << this.shift);
+                    this.shift -= Byte.SIZE;
+                    return true;
+                }
+                case 0: {
+
+                    // End of code point sequence
+
+                    this.codePoint |= value & 0xFF;
+                    this.shift = -1;
+
+                    return Character.isDefined(this.codePoint);
+                }
+                case -1: {
+
+                    // Start of code point sequence
+
+                    final int leadingByte = value & 0xFF;
+
+                    if (leadingByte < 0x7F) {
+                        // UTF-8-1 = 0x00-7F
+                        this.codePoint = leadingByte;
+                        return true;
+                    }
+
+                    if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                        // UTF8-8-2 = 0xC2-DF UTF8-tail
+                        this.codePoint = leadingByte << Byte.SIZE;
+                        this.shift = 0;
+                        return true;
+                    }
+
+                    if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                        // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
+                        this.codePoint = leadingByte << 2 * Byte.SIZE;
+                        this.shift = Byte.SIZE;
+                        return true;
+                    }
+
+                    if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                        // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                        this.codePoint = leadingByte << 3 * Byte.SIZE;
+                        this.shift = 3 * Byte.SIZE;
+                        return true;
+                    }
+
                     return false;
                 }
             }
