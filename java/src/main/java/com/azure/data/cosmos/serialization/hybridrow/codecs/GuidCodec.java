@@ -12,6 +12,39 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Provides static methods for encoding and decoding {@link UUID}s serialized as {@code System.Guid}s
+ *
+ * {@link UUID}s are serialized like {@code System.Guid}s read and written by {@code MemoryMarshal.Read} and
+ * {@code MemoryMarshal.Write}.
+ *
+ * <table>
+ *     <tbody>
+ *      <tr><td>
+ *          Bits 00-31
+ *      </td><td>
+ *          Contain an unsigned 32-bit int serialized in little-endian format.
+ *      </td></tr>
+ *      <tr><td>
+ *          Bits 32-47
+ *      </td><td>
+ *          Contain an unsigned 16-bit int serialized in little-endian format.
+ *      </td></tr>
+ *      <tr><td>
+ *          Bits 48-63
+ *      </td><td>
+ *          Contain an unsigned 16-bit int serialized in little-endian format.
+ *      </td></tr>
+ *      <tr><td>
+ *          Bits 64-127
+ *      </td><td>
+ *          Contain an unsigned 64-bit int serialized in big-endian format.
+ *      </td></tr>
+ *   </tbody>
+ * </table>
+ *
+ * @see <a href="https://referencesource.microsoft.com/#mscorlib/system/guid.cs">struct Guid source</a>
+ */
 public final class GuidCodec {
 
     public static final int BYTES = 2 * Long.BYTES;
@@ -34,29 +67,21 @@ public final class GuidCodec {
     /**
      * Decode a {@link UUID} serialized like a {@code System.Guid} by {@code MemoryMarshal.Write}.
      *
-     * @param in a {@link ByteBuf} containing the serialized {@link UUID} to be decoded;
-     * @return a new {@link UUID}
+     * @param in a {@link ByteBuf} containing the serialized {@link UUID} to be decoded.
+     * @return a new {@link UUID}.
      */
     public static UUID decode(@Nonnull final ByteBuf in) {
 
         checkNotNull(in, "expected non-null in");
 
-        checkArgument(in.readableBytes() >= BYTES, "expected %s readable bytes, not %s",
-            BYTES,
-            in.readableBytes());
+        checkArgument(in.readableBytes() >= BYTES, "expected %s readable bytes, not %s bytes",
+            BYTES, in.readableBytes());
 
-        long mostSignificantBits = in.readUnsignedIntLE() << 32;
+        final long mostSignificantBits = in.readUnsignedIntLE() << Integer.SIZE
+            | (0x000000000000FFFFL & in.readShortLE()) << Short.SIZE
+            | (0x000000000000FFFFL & in.readShortLE());
 
-        mostSignificantBits |= (0x000000000000FFFFL & in.readShortLE()) << 16;
-        mostSignificantBits |= (0x000000000000FFFFL & in.readShortLE());
-
-        long leastSignificantBits = (0x000000000000FFFFL & in.readShortLE()) << (32 + 16);
-
-        for (int shift = 32 + 8; shift >= 0; shift -= 8) {
-            leastSignificantBits |= (0x00000000000000FFL & in.readByte()) << shift;
-        }
-
-        return new UUID(mostSignificantBits, leastSignificantBits);
+        return new UUID(mostSignificantBits, in.readLong());
     }
 
     /**
@@ -67,7 +92,7 @@ public final class GuidCodec {
      */
     public static byte[] encode(final UUID uuid) {
         final byte[] bytes = new byte[BYTES];
-        encode(uuid, Unpooled.wrappedBuffer(bytes));
+        encode(uuid, Unpooled.wrappedBuffer(bytes).clear());
         return bytes;
     }
 
@@ -85,10 +110,6 @@ public final class GuidCodec {
         out.writeShortLE((short) ((mostSignificantBits & 0x00000000FFFF0000L) >>> 16));
         out.writeShortLE((short) (mostSignificantBits & 0x000000000000FFFFL));
 
-        final long leastSignificantBits = uuid.getLeastSignificantBits();
-
-        out.writeShortLE((short) ((leastSignificantBits & 0xFFFF000000000000L) >>> (32 + 16)));
-        out.writeShort((short) ((leastSignificantBits & 0x0000FFFF00000000L) >>> 32));
-        out.writeInt((int) (leastSignificantBits & 0x00000000FFFFFFFFL));
+        out.writeLong(uuid.getLeastSignificantBits());
     }
 }

@@ -37,6 +37,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *      </td></tr>
  *   </tbody>
  * </table>
+ *
+ * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">struct DateTime source</a>
  */
 public final class DateTimeCodec {
 
@@ -62,8 +64,7 @@ public final class DateTimeCodec {
      *
      * @param bytes a {@link byte} array containing the serialized value to be decoded.
      * @return a new {@link OffsetDateTime}.
-     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
-     * struct DateTimeCodec source</a>
+     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">struct DateTime source</a>
      */
     public static OffsetDateTime decode(@Nonnull final byte[] bytes) {
         checkNotNull(bytes);
@@ -75,8 +76,7 @@ public final class DateTimeCodec {
      *
      * @param in a {@link ByteBuf} containing the serialized value to be decoded.
      * @return a new {@link OffsetDateTime}.
-     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
-     * struct DateTimeCodec source</a>
+     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">struct DateTime source</a>
      */
     public static OffsetDateTime decode(@Nonnull final ByteBuf in) {
 
@@ -101,8 +101,7 @@ public final class DateTimeCodec {
      *
      * @param offsetDateTime an {@link OffsetDateTime} to be encoded.
      * @return a new byte array containing the encoded {@code offsetDateTime}.
-     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
-     * struct DateTimeCodec source</a>
+     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">struct DateTime source</a>
      */
     public static byte[] encode(final OffsetDateTime offsetDateTime) {
         final byte[] bytes = new byte[BYTES];
@@ -115,8 +114,7 @@ public final class DateTimeCodec {
      *
      * @param offsetDateTime an {@link OffsetDateTime} to be encoded.
      * @param out            an output {@link ByteBuf}.
-     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">
-     * struct DateTimeCodec source</a>
+     * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">struct DateTime source</a>
      */
     public static void encode(final OffsetDateTime offsetDateTime, final ByteBuf out) {
 

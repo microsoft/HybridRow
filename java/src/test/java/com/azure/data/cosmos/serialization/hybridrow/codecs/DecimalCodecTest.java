@@ -19,10 +19,13 @@ import static org.testng.Assert.assertEquals;
  * <p>
  * Test data was generated from code that looks like this:
  * {@code
+ * using System.Runtime.InteropServices;
  * var buffer = new byte[16];
  * var value = decimal.MaxValue;
  * MemoryMarshal.Write(buffer, ref value);
- * Console.WriteLine($"new DecimalItem(new byte[] {{ (byte) {string.Join(", (byte) ", buffer )} }}, new BigDecimal(\"{value.ToString()}\"))"); * }
+ * Console.WriteLine($"new DecimalItem(new byte[] {{ (byte) {string.Join(", (byte) ", buffer )} }}, new BigDecimal(\"
+ * {value.ToString()}\"))");
+ * }
  */
 public class DecimalCodecTest {
 
@@ -34,7 +37,7 @@ public class DecimalCodecTest {
 
     @Test(dataProvider = "decimalDataProvider")
     public void testDecodeByteBuf(byte[] buffer, BigDecimal value) {
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(new byte[DecimalCodec.BYTES]);
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(buffer);
         BigDecimal actual = DecimalCodec.decode(byteBuf);
         assertEquals(actual, value);
     }
@@ -47,14 +50,23 @@ public class DecimalCodecTest {
 
     @Test(dataProvider = "decimalDataProvider")
     public void testEncodeByteBuf(byte[] buffer, BigDecimal value) {
-        ByteBuf actual = Unpooled.wrappedBuffer(new byte[DecimalCodec.BYTES]);
+        ByteBuf actual = Unpooled.wrappedBuffer(new byte[DecimalCodec.BYTES]).clear();
         DecimalCodec.encode(value, actual);
         assertEquals(actual.array(), buffer);
     }
 
     @DataProvider(name = "decimalDataProvider")
-    private Iterator<Object[]> dateTimeData(byte[] buffer, BigDecimal value) {
+    private static Iterator<Object[]> decimalData() {
+
         ImmutableList<DecimalItem> items = ImmutableList.of(
+            new DecimalItem( // decimal.MinusOne
+                new byte[] {
+                    (byte) 0, (byte) 0, (byte) 0, (byte) 128, // flags
+                    (byte) 0, (byte) 0, (byte) 0, (byte) 0,   // high
+                    (byte) 1, (byte) 0, (byte) 0, (byte) 0,   // low
+                    (byte) 0, (byte) 0, (byte) 0, (byte) 0,   // mid
+                },
+                new BigDecimal("-1")),
             new DecimalItem( // decimal.Zero
                 new byte[] {
                     (byte) 0, (byte) 0, (byte) 0, (byte) 0,  // flags
@@ -86,8 +98,16 @@ public class DecimalCodecTest {
                     (byte) 255, (byte) 255, (byte) 255, (byte) 255,  // low
                     (byte) 255, (byte) 255, (byte) 255, (byte) 255,  // mid
                 },
-                new BigDecimal("79228162514264337593543950335"))
+                new BigDecimal("79228162514264337593543950335")),
+            new DecimalItem( // new decimal(Math.PI)
+                new byte[] {
+                    (byte) 0, (byte) 0, (byte) 14, (byte) 0,         // flags
+                    (byte) 0, (byte) 0, (byte) 0, (byte) 0,          // high
+                    (byte) 131, (byte) 36, (byte) 106, (byte) 231,   // low
+                    (byte) 185, (byte) 29, (byte) 1, (byte) 0 },     // mid
+                new BigDecimal("3.14159265358979"))
         );
+
         return items.stream().map(item -> new Object[] { item.buffer, item.value }).iterator();
     }
 

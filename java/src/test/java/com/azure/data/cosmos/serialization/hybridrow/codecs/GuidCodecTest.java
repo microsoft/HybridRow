@@ -35,7 +35,7 @@ public class GuidCodecTest {
 
     @Test(dataProvider = "guidDataProvider")
     public void testDecodeByteBuf(byte[] buffer, UUID value) {
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(new byte[GuidCodec.BYTES]);
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(buffer);
         UUID actual = GuidCodec.decode(byteBuf);
         assertEquals(actual, value);
     }
@@ -48,13 +48,14 @@ public class GuidCodecTest {
 
     @Test(dataProvider = "guidDataProvider")
     public void testEncodeByteBuf(byte[] buffer, UUID value) {
-        ByteBuf actual = Unpooled.wrappedBuffer(new byte[GuidCodec.BYTES]);
+        ByteBuf actual = Unpooled.wrappedBuffer(new byte[GuidCodec.BYTES]).clear();
         GuidCodec.encode(value, actual);
         assertEquals(actual.array(), buffer);
     }
 
     @DataProvider(name = "guidDataProvider")
-    private Iterator<Object[]> guidData(byte[] buffer, UUID value) {
+    private static Iterator<Object[]> guidData() {
+
         ImmutableList<GuidItem> items = ImmutableList.of(
             new GuidItem(
                 new byte[] {
@@ -69,6 +70,7 @@ public class GuidCodecTest {
                 },
                 UUID.fromString("1bd611bf-aa16-4554-9369-c3d80151226b"))
         );
+
         return items.stream().map(item -> new Object[] { item.buffer, item.value }).iterator();
     }
 
