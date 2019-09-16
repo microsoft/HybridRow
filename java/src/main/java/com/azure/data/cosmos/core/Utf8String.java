@@ -39,41 +39,36 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.lenientFormat;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * The {@link Utf8String} class represents UTF-8 encoded character strings.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
+ */
 @JsonDeserialize(using = Utf8String.JsonDeserializer.class)
 @JsonSerialize(using = Utf8String.JsonSerializer.class)
-@SuppressWarnings("UnstableApiUsage")
 public final class Utf8String implements ByteBufHolder, CharSequence, Comparable<Utf8String> {
 
     public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER);
     public static final Utf8String NULL = new Utf8String(null);
 
     private final ByteBuf buffer;
-    private final Supplier<Integer> codePointCount;
     private final Supplier<Integer> utf16CodeUnitCount;
 
     private Utf8String(@Nullable final ByteBuf buffer) {
 
         if (buffer == null) {
             this.buffer = null;
-            this.codePointCount = Suppliers.memoize(() -> -1);
             this.utf16CodeUnitCount = Suppliers.memoize(() -> -1);
             return;
         }
 
         if (buffer.writerIndex() == 0) {
             this.buffer = Unpooled.EMPTY_BUFFER;
-            this.codePointCount = Suppliers.memoize(() -> 0);
             this.utf16CodeUnitCount = Suppliers.memoize(() -> 0);
             return;
         }
 
         this.buffer = buffer;
-
-        this.codePointCount = Suppliers.memoize(() -> {
-            final UTF8CodePointCounter counter = new UTF8CodePointCounter();
-            this.buffer.forEachByte(0, this.buffer.writerIndex(), counter);
-            return counter.value();
-        });
 
         this.utf16CodeUnitCount = Suppliers.memoize(() -> {
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter();
@@ -206,10 +201,30 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return this.buffer == null ? 0 : this.buffer.writerIndex();
     }
 
+    /**
+     * Compares the contents of a {@link ByteBuf} to the contents of this {@link Utf8String}.
+     * <p>
+     * The result is {@code true} if and only if the given {@link ByteBuf} is not {@code null} and contains the same
+     * sequence of UTF-8 code units (bytes) as this {@link Utf8String}.
+     *
+     * @param other the {@link String} to compare against.
+     * @return {@code true} if the given {@link String} represents the same sequence of characters as this
+     * {@link Utf8String}, {@code false} otherwise.
+     */
     public final boolean equals(ByteBuf other) {
         return Objects.equal(this.buffer, other);
     }
 
+    /**
+     * Compares the contents of a {@link String} to the contents of this {@link Utf8String}.
+     * <p>
+     * The result is {@code true} if and only if the argument is not {@code null} and is a {@link String} that
+     * represents the same sequence of characters as this {@link Utf8String}.
+     *
+     * @param other the {@link String} to compare against.
+     * @return {@code true} if the given {@link String} represents the same sequence of characters as this
+     * {@link Utf8String}, {@code false} otherwise.
+     */
     public final boolean equals(String other) {
         if (other == null) {
             return false;
@@ -217,6 +232,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return this.compareTo(other) == 0;
     }
 
+    /**
+     * Compares this {@link Utf8String} to another {@link Utf8String}.
+     * <p>
+     * The result is {@code true} if and only if the argument is not {@code null} and is a {@link Utf8String} that
+     * represents the same sequence of characters as this {@link Utf8String}.
+     *
+     * @param other the {@link Utf8String} to compare against.
+     * @return {@code true} if the given {@link Utf8String} represents the same sequence of characters as this
+     * {@link Utf8String}, {@code false} otherwise.
+     */
     public final boolean equals(Utf8String other) {
         if (this == other) {
             return true;
@@ -227,6 +252,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return Objects.equal(this.buffer, other.buffer);
     }
 
+    /**
+     * Compares this {@link Utf8String} to another object.
+     * <p>
+     * The result is {@code true} if and only if the argument is not {@code null} and is a {@link Utf8String} that
+     * represents the same sequence of characters as this {@link Utf8String}.
+     *
+     * @param other the object to compare to this {@link Utf8String}.
+     * @return {@code true} if the given object represents a {@link Utf8String} equivalent to this {@link Utf8String},
+     * {@code false} otherwise.
+     */
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -276,16 +311,26 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return buffer.writerIndex() == 0 ? EMPTY : new Utf8String(buffer);
     }
 
+    /**
+     * Returns a hash code calculated from the content of this {@link Utf8String}.
+     * <p>
+     * If there's a {@link Utf8String} that is {@linkplain #equals(Object) equal to} this {@link Utf8String}, both
+     * strings will return the same value.
+     *
+     * @return a hash code value for this {@link Utf8String}.
+     */
     @Override
     public int hashCode() {
         return this.buffer == null ? 0 : this.buffer.hashCode();
     }
 
     /**
-     * Returns the length of this character sequence.
+     * Returns the length of this {@link Utf8String}.
      * <p>
-     * The length is the number of UTF-16 code units in the sequence. This is the same value as would be returned by
-     * {@link Utf8String#toUtf16()#length()} with no time or space overhead.
+     * The length is the number of UTF-16 code units in this {@link Utf8String}. This is the same value as would be
+     * returned by {@link Utf8String#toUtf16()#length()} with no time or space overhead.
+     *
+     * @return the length of this {@link Utf8String}.
      */
     public final int length() {
         return this.utf16CodeUnitCount.get();
@@ -294,7 +339,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Returns the reference count of this {@link Utf8String}.
      * <p>
-     * If {@code 0}, it means this object has been deallocated.
+     * If {@code 0}, it means the content of this {@link Utf8String} has been deallocated.
+     *
+     * @return the reference count of this {@link Utf8String}.
      */
     @Override
     public int refCnt() {
@@ -302,7 +349,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Decreases the reference count by {@code 1}.
+     * Decreases the reference count of this {@link Utf8String} by {@code 1}.
      *
      * The underlying storage for this instance is deallocated, if the reference count reaches {@code 0}.
      *
@@ -314,8 +361,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Decreases the reference count by the specified {@code decrement}.
-     *
+     * Decreases the reference count of this {@link Utf8String} by the specified {@code decrement}.
+     * <p>
      * The underlying storage for this instance is deallocated, if the reference count reaches {@code 0}.
      *
      * @param decrement the value to subtract from the reference count.
@@ -330,6 +377,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * Returns a new {@link Utf8String} which contains the specified {@code content}.
      *
      * @param content text of the {@link Utf8String} to be created.
+     * @return the {@link Utf8String} created.
      */
     @Override
     public Utf8String replace(ByteBuf content) {
@@ -500,10 +548,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         }
 
         /**
-         * Returns the next {@code int} element in the iteration.
+         * Returns the next {@code int} code point in the iteration.
          *
-         * @return the next {@code int} element in the iteration.
-         * @throws NoSuchElementException if the iteration has no more elements.
+         * @return the next {@code int} code point in the iteration.
+         * @throws NoSuchElementException if the iteration has no more code points.
          */
         @Override
         public int nextInt() {
@@ -559,11 +607,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     /**
      * A {@link ByteProcessor} used by to count the number of UTF-16 code units in a UTF-8 encoded string.
-     *
+     * <p>
      * This class makes use of the fact that code points that UTF-16 encodes with two 16-bit code units, UTF-8 encodes
      * with 4 8-bit code units, and vice versa. Lead bytes are identified and counted. All other bytes are skipped.
-     * Code points are not validated. The {@link #process} method counts undefined leading bytes as an undefined UTF-16
-     * code unit to be replaced.
+     * Code points are not validated.
+     * <p>
+     * The {@link #process} method counts undefined leading bytes as an undefined UTF-16 code unit to be replaced.
      *
      * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
      */
@@ -609,52 +658,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * A {@link ByteProcessor} used by to count the number of Unicode code points in a UTF-8 encoded string.
-     *
-     * Lead bytes are identified and counted. All other bytes are skipped. Code points are not validated. The
-     * {@link #process} method counts undefined lead bytes as a single code point to be replaced.
-     *
-     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
-     */
-    private static final class UTF8CodePointCounter implements ByteProcessor {
-
-        private int count = 0;
-        private int skip = 0;
-
-        @Override
-        public boolean process(byte value) {
-
-            if (this.skip > 0) {
-                this.skip--;
-            } else {
-                final int leadingByte = value & 0xFF;
-                if (leadingByte < 0x7F) {
-                    // UTF-8-1 = 0x00-7F
-                    this.skip = 0;
-                } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
-                    // UTF8-8-2 = 0xC2-DF UTF8-tail
-                    this.skip = 1;
-                } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
-                    // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
-                    this.skip = 2;
-                } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
-                    // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
-                    this.skip = 3;
-                } else {
-                    // Undefined leading byte
-                    this.skip = 0;
-                }
-                this.count++;
-            }
-            return true;
-        }
-
-        public int value() {
-            return this.count;
-        }
-    }
-
-    /**
      * A {@link ByteProcessor} used to read a UTF-8 encoded string one Unicode code point at a time.
      * <p>
      * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
@@ -664,8 +667,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * Code points are validated. The {@link #process(byte)} method returns the Unicode
      * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement Character</a>
      * when an undefined code point is encountered.
-     *
-     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
      */
     private static class UTF8CodePointGetter implements ByteProcessor {
 
