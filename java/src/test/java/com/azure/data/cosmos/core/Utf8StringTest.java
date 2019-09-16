@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
 public class Utf8StringTest {
@@ -55,12 +56,32 @@ public class Utf8StringTest {
         assertEquals(value.codePoints().iterator(), item.value().codePoints().iterator());
     }
 
-    @Test
-    public void testCompareTo() {
-    }
+    @SuppressWarnings("EqualsWithItself")
+    @Test(dataProvider = "unicodeTextDataProvider")
+    public void testCompareTo(UnicodeTextItem item) {
 
-    @Test
-    public void testTestCompareTo() {
+        Utf8String value = Utf8String.transcodeUtf16(item.value());
+        assertEquals(value.compareTo(value), 0);
+        assertEquals(value.compareTo(item.value()), 0);
+
+        Utf8String unsafe = Utf8String.fromUnsafe(item.byteBuf());
+        assertEquals(unsafe.compareTo(value), 0);
+        assertEquals(unsafe.compareTo(item.value()), 0);
+
+        Optional<Utf8String> optional = Utf8String.from(item.byteBuf());
+        assertTrue(optional.isPresent());
+        assertEquals(optional.get().compareTo(value), 0);
+        assertEquals(optional.get().compareTo(item.value()), 0);
+
+        assertThrows(NullPointerException.class, () -> {
+            //noinspection ConstantConditions,ResultOfMethodCallIgnored
+            value.compareTo((Utf8String) null);
+        });
+
+        assertEquals(Utf8String.NULL.compareTo(item.value()), -1);
+        assertEquals(Utf8String.NULL.compareTo((String) null), 0);
+        assertEquals(Utf8String.EMPTY.compareTo((String) null), 1);
+        assertEquals(Utf8String.EMPTY.compareTo(Utf8String.NULL), 1);
     }
 
     @Test
@@ -115,17 +136,22 @@ public class Utf8StringTest {
     private static Iterator<Object[]> unicodeTextData() {
 
         ImmutableList<UnicodeTextItem> items = ImmutableList.of(
-            // English
+            // US ASCII (7-bit encoding)
+            // ..English
             new UnicodeTextItem("The quick brown fox jumps over the lazy dog."),
-            // German
+            // ISO-8859-1 (8-bit encoding that adds Latin-1 supplement to US ASCII)
+            // ..German
             new UnicodeTextItem("Der schnelle braune Fuchs springt über den faulen Hund."),
-            // Swedish
+            // ..Swedish
             new UnicodeTextItem("Den snabbbruna räven hoppar över den lata hunden."),
-            // Greek
+            // ISO 8859-7 (11-bit encoding that covers the Greek and Coptic alphabets)
+            // ..Greek
             new UnicodeTextItem("Η γρήγορη καφέ αλεπού πηδάει πάνω από το τεμπέλικο σκυλί."),
-            // Japanese
+            // Katakana code block (16-bit encoding containing katakana characters for the Japanese and Ainu languages)
+            // ..Japanese
             new UnicodeTextItem("速い茶色のキツネは怠laな犬を飛び越えます。"),
-            // Deseret alphabet
+            // Deseret code block (21-bit encoding containing an English alphabet invented by the LDS Church)
+            // ..Deseret
             new UnicodeTextItem("\uD801\uDC10\uD801\uDC2F\uD801\uDC4A\uD801\uDC2C, \uD801\uDC38\uD801\uDC35 \uD801\uDC2A\uD801\uDC49 \uD801\uDC4F?")
         );
 
@@ -148,6 +174,11 @@ public class Utf8StringTest {
 
         public ByteBuf byteBuf() {
             return Unpooled.wrappedBuffer(this.buffer);
+        }
+
+        @Override
+        public String toString() {
+            return this.value.toString();
         }
 
         public String value() {
