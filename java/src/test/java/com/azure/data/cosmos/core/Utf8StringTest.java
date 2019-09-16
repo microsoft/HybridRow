@@ -180,6 +180,11 @@ public class Utf8StringTest {
     @DataProvider(name = "unicodeAlphabetDataProvider")
     private static Iterator<Object[]> unicodeAlphabet() {
         ImmutableList<UnicodeAlphabet> items = ImmutableList.of(
+            new UnicodeAlphabet("English", new String[] {
+                "A", "a", "B", "b", "C", "c", "D", "d", "E", "e", "F", "f", "G", "g", "H", "h", "I", "i", "J", "j",
+                "K", "k", "L", "l", "M", "m", "N", "n", "O", "o", "P", "p", "Q", "q", "R", "r", "S", "s", "T", "t",
+                "U", "u", "V", "v", "W", "w", "X", "x", "Y", "y", "Z", "z"
+            }),
             new UnicodeAlphabet("Turkish", new String[] {
                 "A", "a", "B", "b", "C", "c", "Ç", "ç", "D", "d", "E", "e", "F", "f", "G", "g", "Ğ", "ğ", "H", "h",
                 "I", "ı", "İ", "i", "J", "j", "K", "k", "L", "l", "M", "m", "N", "n", "O", "o", "Ö", "ö", "P", "p",
