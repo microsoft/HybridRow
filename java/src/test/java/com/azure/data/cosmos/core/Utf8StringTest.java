@@ -57,6 +57,18 @@ public class Utf8StringTest {
         assertEquals(value.codePoints().iterator(), item.value().codePoints().iterator());
     }
 
+    @Test(dataProvider = "unicodeAlphabetDataProvider")
+    public void testCompareTo(UnicodeAlphabet item) {
+        for (int i = 0, j = item.letters.length - 2; i < j; i += 2, j -= 2) {
+            try {
+                item.testCompareTo(i, j); // upper case letter
+                item.testCompareTo(i + 1, j + 1);  // lower case letter
+            } catch (Throwable throwable) {
+                throw throwable;
+            }
+        }
+    }
+
     @SuppressWarnings("EqualsWithItself")
     @Test(dataProvider = "unicodeTextDataProvider")
     public void testCompareTo(UnicodeTextItem item) {
@@ -163,6 +175,17 @@ public class Utf8StringTest {
     @Test(dataProvider = "unicodeTextDataProvider")
     public void testTranscodeUtf16(UnicodeTextItem item) {
         assertEquals(Utf8String.transcodeUtf16(item.value()).toUtf16(), item.value());
+    }
+
+    @DataProvider(name = "unicodeAlphabetDataProvider")
+    private static Iterator<Object[]> unicodeAlphabet() {
+        ImmutableList<UnicodeAlphabet> items = ImmutableList.of(
+            new UnicodeAlphabet("Turkish", new String[] {
+                "A", "a", "B", "b", "C", "c", "Ç", "ç", "D", "d", "E", "e", "F", "f", "G", "g", "Ğ", "ğ", "H", "h",
+                "I", "ı", "İ", "i", "J", "j", "K", "k", "L", "l", "M", "m", "N", "n", "O", "o", "Ö", "ö", "P", "p",
+                "R", "r", "S", "s", "Ş", "ş", "T", "t", "U", "u", "Ü", "ü", "V", "v", "Y", "y", "Z", "z" })
+        );
+        return items.stream().map(item -> new Object[] { item }).iterator();
     }
 
     @DataProvider(name = "unicodeTextDataProvider")
@@ -277,6 +300,82 @@ public class Utf8StringTest {
             for (Utf8String variant : this.variants) {
                 assertFalse(variant.equals(other));
             }
+        }
+    }
+
+    private static class UnicodeAlphabet {
+
+        private final ByteBuf[] encodedLetters;
+        private final String name;
+        private final String[] letters;
+
+        UnicodeAlphabet(String name, String[] letters) {
+
+            this.name = name;
+            this.letters = letters;
+            this.encodedLetters = new ByteBuf[letters.length];
+
+            int i = 0;
+
+            for (String letter : letters) {
+                this.encodedLetters[i] = Unpooled.wrappedBuffer(letter.getBytes(StandardCharsets.UTF_8)).asReadOnly();
+                i++;
+            }
+        }
+
+        ByteBuf[] encodedLetters() {
+            return this.encodedLetters;
+        }
+
+        String[] letters() {
+            return this.letters;
+        }
+
+        String name() {
+            return this.name;
+        }
+
+        void testCompareTo(final int i, final int j) {
+
+            final Utf8String ei = Utf8String.fromUnsafe(this.encodedLetters[i]);
+            final String li = this.letters[i];
+
+            final Utf8String ej = Utf8String.fromUnsafe(this.encodedLetters[j]);
+            final String lj = this.letters[j];
+
+            // Compare String form of letters to the Utf8String forms
+
+            assertEquals(
+                normalize(ei.compareTo(li)),
+                normalize(li.compareTo(li)));
+            assertEquals(
+                normalize(ei.compareTo(lj)),
+                normalize(li.compareTo(lj)));
+            assertEquals(
+                normalize(ej.compareTo(li)),
+                normalize(lj.compareTo(li)));
+            assertEquals(
+                normalize(ej.compareTo(lj)),
+                normalize(lj.compareTo(lj)));
+
+            // Compare Utf8String form of letters to the Utf8String forms
+
+            assertEquals(
+                normalize(ei.compareTo(Utf8String.transcodeUtf16(li))),
+                normalize(li.compareTo(li)));
+            assertEquals(
+                normalize(ei.compareTo(Utf8String.transcodeUtf16(lj))),
+                normalize(li.compareTo(lj)));
+            assertEquals(
+                normalize(ej.compareTo(Utf8String.transcodeUtf16(li))),
+                normalize(lj.compareTo(li)));
+            assertEquals(
+                normalize(ej.compareTo(Utf8String.transcodeUtf16(lj))),
+                normalize(lj.compareTo(lj)));
+        }
+
+        static int normalize(int comparison) {
+            return Integer.signum(comparison);
         }
     }
 

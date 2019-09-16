@@ -118,6 +118,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             Spliterator.ORDERED,false);
     }
 
+    /**
+     * Compares the contents of this {@link Utf8String} to another {@link Utf8String} lexicographically.
+     * <p>
+     * The comparison is based on the Unicode value of each of the characters in the strings.
+     *
+     * @param other the {@link Utf8String} to be compared.
+     * @return the value 0 if the argument {@code string} is equal to this {@link Utf8String}; a value less than 0 if
+     * this {@link Utf8String} is lexicographically less than the {@code string} argument; and a value greater than 0
+     * if this {@link Utf8String} is lexicographically greater than the {@code string}  argument.
+     */
     public final int compareTo(@Nonnull final Utf8String other) {
 
         checkNotNull(other, "expected non-null other");
@@ -137,9 +147,22 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return this.buffer.compareTo(other.buffer);
     }
 
-    public final int compareTo(final String other) {
+    /**
+     * Compares the contents of a {@link String} to this {@link Utf8String} lexicographically.
+     * <p>
+     * The comparison is based on the Unicode value of each of the characters in the strings. This method takes
+     * advantage of the UTF-8 encoding mechanism which is cleverly designed so that if you sort by looking at the
+     * numeric value of each 8-bit encoded byte, you will get the same result as if you first decoded the string
+     * into Unicode and compared the numeric values of each code point.
+     *
+     * @param string the {@link String} to be compared.
+     * @return the value 0 if the argument {@code string} is equal to this {@link Utf8String}; a value less than 0 if
+     * this {@link Utf8String} is lexicographically less than the {@code string} argument; and a value greater than 0
+     * if this {@link Utf8String} is lexicographically greater than the {@code string}  argument.
+     */
+    public final int compareTo(final String string) {
 
-        if (null == other) {
+        if (null == string) {
             return null == this.buffer ? 0 : 1;
         }
 
@@ -148,7 +171,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         }
 
         PrimitiveIterator.OfInt t = this.codePoints().iterator();
-        PrimitiveIterator.OfInt o = other.codePoints().iterator();
+        PrimitiveIterator.OfInt o = string.codePoints().iterator();
 
         while (t.hasNext() && o.hasNext()) {
             final int compare = t.nextInt() - o.nextInt();
@@ -157,14 +180,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             }
         }
 
-        return this.length() - other.length();
+        return this.length() - string.length();
     }
 
     /**
      * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
      * <p>
-     * A value of {@code null} is returns, if this {@link Utf8String} is null.
-     * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
+     * A value of {@code null} is returned, if this {@link Utf8String} is null.
+     *
+     * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}, or
+     * {@code null} if this {@link Utf8String} is null.
      */
     @Nullable
     public ByteBuf content() {
@@ -173,20 +198,35 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     /**
      * Creates a deep copy of this {@link Utf8String}.
+     * <p>
+     * A value of {@link #NULL} or {@link #EMPTY} is returned, if this {@link Utf8String} is null or empty.
+     *
+     * @return a deep copy of this {@link Utf8String}, or a value of {@link #NULL} or {@link #EMPTY}, if this
+     * {@link Utf8String} is null or empty.
      */
     @Override
     public Utf8String copy() {
-        throw new UnsupportedOperationException();
+        if (this.buffer == null) {
+            return NULL;
+        }
+        return this.buffer.writerIndex() == 0 ? EMPTY : fromUnsafe(this.buffer.copy());
     }
 
     /**
      * Duplicates this {@link Utf8String}.
      * <p>
-     * Be aware that this will not automatically call {@link #retain()}.
+     * A value of {@link #NULL} or {@link #EMPTY} is returned, if this {@link Utf8String} is null or empty. Be aware
+     * that this will not automatically call {@link #retain()}.
+     *
+     * @return a duplicate of this {@link Utf8String}, or a value of {@link #NULL} or {@link #EMPTY}, if this
+     * {@link Utf8String} is null or empty.
      */
     @Override
     public Utf8String duplicate() {
-        throw new UnsupportedOperationException();
+        if (this.buffer == null) {
+            return NULL;
+        }
+        return this.buffer.writerIndex() == 0 ? EMPTY : fromUnsafe(this.buffer.duplicate());
     }
 
     /**
@@ -205,7 +245,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * Compares the contents of a {@link ByteBuf} to the contents of this {@link Utf8String}.
      * <p>
      * The result is {@code true} if and only if the given {@link ByteBuf} is not {@code null} and contains the same
-     * sequence of UTF-8 code units (bytes) as this {@link Utf8String}.
+     * sequence of 8-bit code units as this {@link Utf8String}.
      *
      * @param other the {@link String} to compare against.
      * @return {@code true} if the given {@link String} represents the same sequence of characters as this
@@ -218,8 +258,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Compares the contents of a {@link String} to the contents of this {@link Utf8String}.
      * <p>
-     * The result is {@code true} if and only if the argument is not {@code null} and is a {@link String} that
-     * represents the same sequence of characters as this {@link Utf8String}.
+     * The result is {@code true} if and only if the argument is not {@code null} and represents the same sequence of
+     * characters as this {@link Utf8String}.
      *
      * @param other the {@link String} to compare against.
      * @return {@code true} if the given {@link String} represents the same sequence of characters as this
@@ -279,8 +319,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * <p>
      * The {@link Utf8String} created retains the {@link ByteBuf}. No data is transferred.
      *
-     * @param buffer The {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
-     * @return A {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
+     * @param buffer the {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
+     * @return a {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
      * otherwise.
      */
     @Nonnull
@@ -350,7 +390,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     /**
      * Decreases the reference count of this {@link Utf8String} by {@code 1}.
-     *
+     * <p>
      * The underlying storage for this instance is deallocated, if the reference count reaches {@code 0}.
      *
      * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated.
