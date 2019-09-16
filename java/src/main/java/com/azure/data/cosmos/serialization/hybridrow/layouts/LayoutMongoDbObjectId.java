@@ -3,14 +3,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.serialization.hybridrow.Result;
-import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
-import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
-
 import javax.annotation.Nonnull;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public final class LayoutMongoDbObjectId extends LayoutType/*<MongoDbObjectId>*/ {
 

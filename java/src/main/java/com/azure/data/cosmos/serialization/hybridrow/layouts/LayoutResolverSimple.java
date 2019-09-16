@@ -6,7 +6,6 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 
 import javax.annotation.Nonnull;
-
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;

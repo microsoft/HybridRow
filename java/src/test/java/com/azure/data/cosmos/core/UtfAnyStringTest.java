@@ -5,8 +5,6 @@ package com.azure.data.cosmos.core;
 
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
-
 public class UtfAnyStringTest {
 
     @Test

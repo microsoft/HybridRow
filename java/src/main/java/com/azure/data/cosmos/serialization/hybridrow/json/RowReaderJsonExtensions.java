@@ -5,22 +5,14 @@ package com.azure.data.cosmos.serialization.hybridrow.json;
 
 import com.azure.data.cosmos.core.Json;
 import com.azure.data.cosmos.core.Out;
-import com.azure.data.cosmos.core.Utf8String;
-import com.azure.data.cosmos.serialization.hybridrow.Float128;
-import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.UnixDateTime;
 import com.azure.data.cosmos.serialization.hybridrow.io.RowReader;
-import io.netty.buffer.ByteBuf;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.annotation.Nonnull;
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
 public final class RowReaderJsonExtensions {

@@ -3,7 +3,6 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
-import com.azure.data.cosmos.core.Reference;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
@@ -37,7 +36,6 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutUtf8Writable;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgument;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.UpdateOptions;
-import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
