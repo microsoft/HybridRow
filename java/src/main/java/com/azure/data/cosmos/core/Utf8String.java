@@ -237,7 +237,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return false;
         }
         Utf8String that = (Utf8String) other;
-        return this.utf16CodeUnitCount == that.utf16CodeUnitCount && Objects.equal(this.buffer, that.buffer);
+        return Objects.equal(this.buffer, that.buffer);
     }
 
     /**
@@ -279,7 +279,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     @Override
     public int hashCode() {
-        return this.buffer.hashCode();
+        return this.buffer == null ? 0 : this.buffer.hashCode();
     }
 
     /**
