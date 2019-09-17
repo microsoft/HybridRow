@@ -25,6 +25,7 @@ import static org.testng.Assert.assertEquals;
  * Console.WriteLine($"new GuidItem(new byte[] {{ (byte) {string.Join(", (byte) ", buffer )} }}, UUID.fromString(\"{value.ToString()}\"))");
  * }
  */
+@Test(groups = "unit")
 public class GuidCodecTest {
 
     @Test(dataProvider = "guidDataProvider")

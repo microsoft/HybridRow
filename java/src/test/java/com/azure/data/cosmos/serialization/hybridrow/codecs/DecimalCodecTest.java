@@ -27,6 +27,7 @@ import static org.testng.Assert.assertEquals;
  * {value.ToString()}\"))");
  * }
  */
+@Test(groups = "unit")
 public class DecimalCodecTest {
 
     @Test(dataProvider = "decimalDataProvider")

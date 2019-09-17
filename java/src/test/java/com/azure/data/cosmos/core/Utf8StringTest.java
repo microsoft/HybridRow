@@ -20,6 +20,7 @@ import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
+@Test(groups = "unit")
 public class Utf8StringTest {
 
     @Test

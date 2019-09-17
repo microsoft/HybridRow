@@ -25,6 +25,7 @@ import static org.testng.Assert.assertEquals;
  * Console.WriteLine($"new DateTimeItem(new byte[] {{ (byte) {string.Join(", (byte) ", buffer )} }}, OffsetDateTime.parse(\"{value.ToString("o")}\"))");
  * }
  */
+@Test(groups = "unit")
 public class DateTimeCodecTest {
 
     @Test(dataProvider = "dateTimeDataProvider")

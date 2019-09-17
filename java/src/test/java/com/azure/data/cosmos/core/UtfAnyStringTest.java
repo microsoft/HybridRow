@@ -5,6 +5,7 @@ package com.azure.data.cosmos.core;
 
 import org.testng.annotations.Test;
 
+@Test(groups = "unit")
 public class UtfAnyStringTest {
 
     @Test

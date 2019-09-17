@@ -10,11 +10,12 @@ import java.nio.file.Paths;
 
 import static org.testng.Assert.*;
 
+@Test(groups = "unit")
 public class SystemSchemaTest {
 
     private static final Path SchemaFile = Paths.get("data", "CustomerSchema.json");
 
-    @Test
+    @Test(enabled = false)
     public void testLoadSchema() {
 
         final LayoutResolver layoutResolver = SystemSchema.layoutResolver();
