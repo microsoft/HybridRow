@@ -22,7 +22,7 @@ public final class Float128Codec {
     /**
      * Decode a {@link Float128} from a sequence of two {@code long}s in little endian format.
      *
-     * @param bytes a {@link byte} array containing the serialized {@link Float128} to be decoded.
+     * @param bytes an array containing the serialized {@link Float128} to be decoded.
      * @return a new {@link Float128}.
      */
     public static Float128 decode(@Nonnull final byte[] bytes) {

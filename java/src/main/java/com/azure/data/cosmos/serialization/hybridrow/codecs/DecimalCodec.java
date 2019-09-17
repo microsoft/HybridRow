@@ -64,7 +64,7 @@ public final class DecimalCodec {
     /**
      * Decode an {@link BigDecimal} serialized like a {@code System.Decimal} by {@code MemoryMarshal.Write}.
      *
-     * @param bytes a {@link byte} array containing the serialized {@code System.Decimal} to be decoded.
+     * @param bytes an array containing the serialized {@code System.Decimal} to be decoded.
      * @return a new {@link BigDecimal}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/system/decimal.cs.html">struct Decimal source</a>
      */

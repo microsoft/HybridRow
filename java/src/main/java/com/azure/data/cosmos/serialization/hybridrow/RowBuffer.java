@@ -3684,7 +3684,7 @@ public final class RowBuffer {
     /**
      * Represents a single item within a set/map scope that needs to be indexed.
      * <p>
-     * This structure is used when rebuilding a set/map index during row streaming via {@link RowWriter}.Each item
+     * This structure is used when rebuilding a set/map index during row streaming via {@link RowWriter}. Each item
      * encodes its offsets and length within the row.
      */
     static final class UniqueIndexItem {

@@ -62,7 +62,7 @@ public final class Murmur3Hash {
     }
 
     /**
-     * Computes a 128-bit Murmur3Hash 128-bit value for a {@link boolean} data item.
+     * Computes a 128-bit Murmur3Hash 128-bit value for a {@code boolean} data item.
      *
      * @param item The data to hash.
      * @param seed The seed with which to initialize.

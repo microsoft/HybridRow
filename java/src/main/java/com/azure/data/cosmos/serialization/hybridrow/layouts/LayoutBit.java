@@ -14,7 +14,7 @@ public final class LayoutBit {
     private final int index;
 
     /**
-     * Initializes a new instance of the {@link LayoutBit} struct.
+     * Initializes a new instance of the {@link LayoutBit} class.
      *
      * @param index The zero-based offset into the layout bitmask.
      */
@@ -35,9 +35,9 @@ public final class LayoutBit {
     }
 
     /**
-     * Zero-based bit from the beginning of the byte that contains this bit
+     * Zero-based bit from the beginning of the byte that contains this bit.
      * <p>
-     * Also see {@link #offset} to identify relevant byte.
+     * Also see {@link #offset(int)} to identify relevant byte.
      *
      * @return The bit of the byte within the bitmask.
      */
@@ -46,7 +46,9 @@ public final class LayoutBit {
     }
 
     /**
-     * Zero-based offset into the layout bitmask
+     * Zero-based offset into the layout bitmask.
+     *
+     * @return zero-based offset into the layout bitmask.
      */
     public int index() {
         return this.index;
@@ -57,9 +59,9 @@ public final class LayoutBit {
     }
 
     /**
-     * Returns the zero-based byte offset from the beginning of the row or scope that contains the bit from the bitmask
+     * Returns the zero-based byte offset from the beginning of the row or scope that contains the bit from the bitmask.
      * <p>
-     * Also see {@link #bit} to identify.
+     * Also see {@link #bit()} to identify.
      *
      * @param offset The byte offset from the beginning of the row where the scope begins.
      * @return The byte offset containing this bit.

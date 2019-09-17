@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class LayoutTypePrimitive<T> extends LayoutType implements ILayoutType {
     /**
-     * Initializes a new instance of the {@link LayoutType<T>} class.
+     * Initializes a new instance of the {@link LayoutTypePrimitive<T>} class.
      *
      * @param code
      * @param immutable

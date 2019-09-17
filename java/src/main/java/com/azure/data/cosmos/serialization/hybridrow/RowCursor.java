@@ -89,7 +89,7 @@ public final class RowCursor implements Cloneable {
     /**
      * Sets the layout type of an existing field.
      *
-     * @param value  a {@link LayoutType layout type}.
+     * @param value  a {@link LayoutType}.
      * @return a reference to this {@link RowCursor}.
      */
     public RowCursor cellType(LayoutType value) {
@@ -100,7 +100,7 @@ public final class RowCursor implements Cloneable {
     /**
      * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      *
-     * @return a {@link TypeArgumentList type argument argument list} or {@code null}.
+     * @return a {@link TypeArgumentList} or {@code null}.
      */
     public TypeArgumentList cellTypeArgs() {
         return this.cellTypeArgs;
@@ -109,7 +109,7 @@ public final class RowCursor implements Cloneable {
     /**
      * Sets the layout type arguments of an existing field.
      *
-     * @param value  a {@link TypeArgumentList type argument argument list}.
+     * @param value  a {@link TypeArgumentList} or {@code null}.
      * @return a reference to this {@link RowCursor}.
      */
     public RowCursor cellTypeArgs(TypeArgumentList value) {

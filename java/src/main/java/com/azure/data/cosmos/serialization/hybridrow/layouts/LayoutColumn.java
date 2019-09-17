@@ -77,8 +77,8 @@ public final class LayoutColumn {
     /**
      * Full logical path of the field within the row
      * <p>
-     * Paths are expressed in dotted notation: e.g. a relative {@link #path} of 'b.c' within the scope 'a' yields a
-     * {@link #fullPath} of 'a.b.c'.
+     * Paths are expressed in dotted notation: e.g. a relative {@link #path()} of 'b.c' within the scope 'a' yields a
+     * full path of 'a.b.c'.
      */
     public @Nonnull Utf8String fullPath() {
         return this.fullPath;
@@ -101,12 +101,12 @@ public final class LayoutColumn {
     }
 
     /**
-     * If {@link #storage} equals {@link StorageKind#FIXED} then the byte offset to the field location.
+     * If {@link #storage()} equals {@link StorageKind#FIXED} then the byte offset to the field location.
      * <p>
-     * If {@link #storage} equals {@link StorageKind#VARIABLE} then the zero-based index of the field from the
+     * If {@link #storage()} equals {@link StorageKind#VARIABLE} then the zero-based index of the field from the
      * beginning of the variable length segment.
      * <p>
-     * For all other values of {@link #storage}, {@link #offset} is ignored.
+     * For all other values of {@link #storage()}, {@code offset} is ignored.
      */
     public int offset() {
         return this.offset;
@@ -130,7 +130,7 @@ public final class LayoutColumn {
     }
 
     /**
-     * If {@link LayoutType#isBoolean} then the zero-based extra index within the bool byte
+     * If {@link LayoutType#isBoolean()} then the zero-based extra index within the bool byte
      * holding the value of this type, otherwise must be 0.
      */
     public int size() {

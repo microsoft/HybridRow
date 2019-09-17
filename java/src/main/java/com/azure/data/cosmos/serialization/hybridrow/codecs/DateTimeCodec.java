@@ -62,7 +62,7 @@ public final class DateTimeCodec {
     /**
      * Decode an {@link OffsetDateTime} serialized like a {@code System.DateTime} by {@code MemoryMarshal.Write}.
      *
-     * @param bytes a {@link byte} array containing the serialized value to be decoded.
+     * @param bytes an array containing the serialized value to be decoded.
      * @return a new {@link OffsetDateTime}.
      * @see <a href="https://referencesource.microsoft.com/mscorlib/a.html#df6b1eba7461813b">struct DateTime source</a>
      */

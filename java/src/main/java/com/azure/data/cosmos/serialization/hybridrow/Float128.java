@@ -7,7 +7,7 @@ package com.azure.data.cosmos.serialization.hybridrow;
  * Represents an IEEE 754-2008 128-bit decimal floating point number.
  * <p>
  * The {@link Float128} represents an IEEE 754-2008 floating point number as a pair of {@code long} values:
- * {@link #high} and {@link #low}.
+ * {@link #high()} and {@link #low()}.
  *
  * @see <a href="https://en.wikipedia.org/wiki/Decimal128_floating-point_format">decimal128 floating-point format</a>
  * @see <a href="https://ieeexplore.ieee.org/document/4610935">754-2008: IEEE Standard for Floating-Point Arithmetic</a>

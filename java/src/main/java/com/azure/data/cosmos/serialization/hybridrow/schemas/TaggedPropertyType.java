@@ -10,27 +10,26 @@ import java.util.List;
  * Tagged properties pair one or more typed values with an API-specific uint8 type code.
  * <p>
  * The {@code UInt8} type code is implicitly in position 0 within the resulting tagged and should not be specified in
- * {@link #items}.
+ * {@link #items()}.
  */
 public class TaggedPropertyType extends ScopePropertyType {
 
-    public static final int MaxTaggedArguments = 2;
-    public static final int MinTaggedArguments = 1;
-    /**
-     * Types of the elements of the tagged in element order.
-     */
+    public static final int MAX_TAGGED_ARGUMENTS = 2;
+    public static final int MIN_TAGGED_ARGUMENTS = 1;
+
     private List<PropertyType> items;
 
     /**
      * Initializes a new instance of the {@link TaggedPropertyType} class.
      */
     public TaggedPropertyType() {
-        this.items = new ArrayList<PropertyType>();
+        this.items = new ArrayList<>();
     }
 
     /**
      * Types of the elements of the tagged in element order.
-     * @return
+     *
+     * @return a list of property types.
      */
     public final List<PropertyType> items() {
         return this.items;

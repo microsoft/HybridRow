@@ -56,7 +56,7 @@ public final class GuidCodec {
     /**
      * Decode a {@link UUID} serialized like a {@code System.Guid} by {@code MemoryMarshal.Write}.
      *
-     * @param bytes a {@link byte} array containing the serialized {@link UUID} to be decoded.
+     * @param bytes an array containing the serialized {@link UUID} to be decoded.
      * @return a new {@link UUID}.
      */
     public static UUID decode(@Nonnull final byte[] bytes) {

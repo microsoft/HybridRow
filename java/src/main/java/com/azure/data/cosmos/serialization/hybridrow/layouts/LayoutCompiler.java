@@ -350,12 +350,12 @@ public final class LayoutCompiler {
                 assert logicalType instanceof TaggedPropertyType;
                 TaggedPropertyType tg = (TaggedPropertyType) logicalType;
 
-                if (tg.items().size() < TaggedPropertyType.MinTaggedArguments || (tg.items().size() > TaggedPropertyType.MaxTaggedArguments)) {
+                if (tg.items().size() < TaggedPropertyType.MIN_TAGGED_ARGUMENTS || (tg.items().size() > TaggedPropertyType.MAX_TAGGED_ARGUMENTS)) {
                     throw new LayoutCompilationException(lenientFormat(
                         "Invalid number of arguments in Tagged: %s <= %s <= %s",
-                        TaggedPropertyType.MinTaggedArguments,
+                        TaggedPropertyType.MIN_TAGGED_ARGUMENTS,
                         tg.items().size(),
-                        TaggedPropertyType.MaxTaggedArguments
+                        TaggedPropertyType.MAX_TAGGED_ARGUMENTS
                     ));
                 }
 

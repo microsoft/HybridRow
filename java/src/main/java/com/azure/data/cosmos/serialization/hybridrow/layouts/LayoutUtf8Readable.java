@@ -12,7 +12,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import javax.annotation.Nonnull;
 
 /**
- * An optional interface that indicates a {@link LayoutType{T}} can also be read as a {@link Utf8String}.
+ * An optional interface that indicates a {@link LayoutType} can also be read as a {@link Utf8String}.
  */
 public interface LayoutUtf8Readable extends ILayoutType {
 

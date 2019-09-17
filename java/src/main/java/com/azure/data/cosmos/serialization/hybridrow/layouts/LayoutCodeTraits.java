@@ -16,12 +16,12 @@ public final class LayoutCodeTraits {
     }
 
     /**
-     * Returns a canonicalized version of the specified layout code
+     * Returns a canonicalized version of the specified layout code.
      * <p>
      * Some codes (e.g. {@link LayoutCode#BOOLEAN} use multiple type codes to also encode values. This function converts
      * actual value based code into the canonicalized type code for schema comparisons.
      *
-     * @param code The code to canonicalize
+     * @param code The code to canonicalize.
      */
     public static LayoutCode canonicalize(LayoutCode code) {
         return (code == LayoutCode.BOOLEAN_FALSE) ? LayoutCode.BOOLEAN : code;

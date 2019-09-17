@@ -10,7 +10,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import java.util.List;
 
 /**
- * An optional interface that indicates a {@link LayoutType{T}} can also write using a {@link List{T}}
+ * An optional interface that indicates a {@link LayoutType} can also write using a {@link List}
  *
  * @param <TElement> The sub-element type to be written
  */

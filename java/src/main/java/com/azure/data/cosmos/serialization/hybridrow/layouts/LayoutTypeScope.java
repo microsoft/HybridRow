@@ -104,7 +104,7 @@ public abstract class LayoutTypeScope extends LayoutType {
      * {@code true} if writing an item in the specified typed scope would elide the type code because it is implied by
      * the type arguments
      *
-     * @param edit a non-null {@link RowCursor} specifying a typed scope
+     * @param edit a non-null {@link RowCursor} specifying a typed scope.
      * @return {@code true} if the type code is implied (not written); {@code false} otherwise.
      */
     public boolean hasImplicitTypeCode(@Nonnull final RowCursor edit) {

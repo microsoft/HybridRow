@@ -11,7 +11,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import javax.annotation.Nonnull;
 
 /**
- * An optional interface that indicates a {@link LayoutType{T}} can also write using a {@link Utf8String}
+ * An optional interface that indicates a {@link LayoutType} can also write using a {@link Utf8String}
  */
 public interface LayoutUtf8Writable extends ILayoutType {
 
