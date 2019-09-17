@@ -4,25 +4,17 @@
 package com.azure.data.cosmos.serialization.hybridrow;
 
 /**
- * An IEEE 128-bit floating point value.
+ * Represents an IEEE 754-2008 128-bit decimal floating point number.
  * <p>
- * A binary integer decimal representation of a 128-bit decimal value, supporting 34 decimal digits of
- * significand and an exponent range of -6143 to +6144.
- * <list type="table">
- * <listheader>
- * <term>Source</term> <description>Link</description>
- * </listheader> <item>
- * <term>Wikipedia:</term>
- * <description>https: //en.wikipedia.org/wiki/Decimal128_floating-point_format</description>
- * </item> <item>
- * <term>The spec:</term> <description>https: //ieeexplore.ieee.org/document/4610935</description>
- * </item> <item>
- * <term>Decimal Encodings:</term> <description>http: //speleotrove.com/decimal/decbits.html</description>
- * </item>
- * </list>
+ * The {@link Float128} represents an IEEE 754-2008 floating point number as a pair of {@code long} values:
+ * {@link #high} and {@link #low}.
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/Decimal128_floating-point_format">decimal128 floating-point format</a>
+ * @see <a href="https://ieeexplore.ieee.org/document/4610935">754-2008: IEEE Standard for Floating-Point Arithmetic</a>
+ * @see <a href="http://speleotrove.com/decimal/decbits.html">Decimal Arithmetic Encodings Version 1.01 – 7 Apr 2009</a>
  */
-
 public final class Float128 {
+
     /**
      * The size (in bytes) of a {@link Float128}.
      */
@@ -45,6 +37,8 @@ public final class Float128 {
 
     /**
      * The high-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID encoding scheme.
+     *
+     * @return the high-order 64 bits of the IEEE 754-2008 128-bit floating point number represented by this object.
      */
     public long high() {
         return this.high;
@@ -52,6 +46,8 @@ public final class Float128 {
 
     /**
      * The low-order 64 bits of the IEEE 754-2008 128-bit decimal floating point, using the BID encoding scheme.
+     *
+     * @return the low-order 64 bits of the IEEE 754-2008 128-bit floating point number represented by this object.
      */
     public long low() {
         return this.low;

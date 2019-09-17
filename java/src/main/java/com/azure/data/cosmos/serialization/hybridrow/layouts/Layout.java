@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Layout {
 
-    public static final Layout EMPTY = SystemSchema.layoutResolver.resolve(SystemSchema.EMPTY_SCHEMA_ID);
+    public static final Layout EMPTY = SystemSchema.layoutResolver().resolve(SystemSchema.EMPTY_SCHEMA_ID);
 
     private final String name;
     private final int numBitmaskBytes;

@@ -79,23 +79,39 @@ public final class RowCursor implements Cloneable {
 
     /**
      * If existing, the layout code of the existing field, otherwise undefined.
+     *
+     * @return layout code.
      */
     public LayoutType cellType() {
         return this.cellType;
     }
 
-    public RowCursor cellType(LayoutType cellType) {
-        this.cellType = cellType;
+    /**
+     * Sets the layout type of an existing field.
+     *
+     * @param value  a {@link LayoutType layout type}.
+     * @return a reference to this {@link RowCursor}.
+     */
+    public RowCursor cellType(LayoutType value) {
+        this.cellType = value;
         return this;
     }
 
     /**
      * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
+     *
+     * @return a {@link TypeArgumentList type argument argument list} or {@code null}.
      */
     public TypeArgumentList cellTypeArgs() {
         return this.cellTypeArgs;
     }
 
+    /**
+     * Sets the layout type arguments of an existing field.
+     *
+     * @param value  a {@link TypeArgumentList type argument argument list}.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor cellTypeArgs(TypeArgumentList value) {
         this.cellTypeArgs = value;
         return this;
@@ -103,48 +119,81 @@ public final class RowCursor implements Cloneable {
 
     /**
      * For sized scopes (e.g. Typed Array), the number of elements.
+     *
+     * @return the number of elements or zero.
      */
     public int count() {
         return this.count;
     }
 
+    /**
+     * Sets the number of elements for a sized scope.
+     *
+     * @param count the number of elements for a sized scope.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor count(int count) {
         this.count = count;
         return this;
     }
 
     /**
-     * If true, this scope is an unique index scope whose index will be built after its items are written.
+     * If true, this scope is a unique index scope whose index will be built after its items are written.
+     *
+     * @return {@code true}, if this cursor identifies a unique index scope, otherwise {@code false}.
      */
     public boolean deferUniqueIndex() {
         return this.deferUniqueIndex;
     }
 
+    /**
+     * Sets a value that indicates whether this cursor identifies a unique index scope.
+     *
+     * @param value {@code true}, if this cursor identifies a unique index scope, otherwise {@code false}.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor deferUniqueIndex(boolean value) {
         this.deferUniqueIndex = value;
         return this;
     }
 
     /**
-     * If existing, the offset to the end of the existing field. Used as a hint when skipping.
-     * forward.
+     * If existing, the offset to the end of the existing field.
+     * <p>
+     * This value is used as a hint when skipping forward.
+     *
+     * @return offset of the end of an existing field.
      */
     public int endOffset() {
         return this.endOffset;
     }
 
+    /**
+     * Sets a value that indicates whether this cursor identifies a unique index scope.
+     *
+     * @param value {@code true}, if this cursor identifies a unique index scope, otherwise {@code false}.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor endOffset(int value) {
         this.endOffset = value;
         return this;
     }
 
     /**
-     * True if an existing field matching the search criteria was found.
+     * {@code true} if an existing field matching the search criteria was found.
+     *
+     * @return {@code true} if an existing field matching the search criteria was found, otherwise {@code false}.
      */
     public boolean exists() {
         return this.exists;
     }
 
+    /**
+     * Sets a value that indicates whether this cursor identifies a field matching search criteria.
+     *
+     * @param value {@code true}, if this cursor identifies a field matching search criteria, otherwise {@code false}.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor exists(boolean value) {
         this.exists = value;
         return this;

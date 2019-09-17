@@ -1,0 +1,28 @@
+// Tagged demo schema that utilizes tagged types.
+{
+  "schemas": [
+    {
+      "name": "TaggedApi",
+      "id": 1,
+      "type": "schema",
+      "properties": [
+        {
+          "path": "tag1",
+          "type": {
+            "type": "tagged",
+            "immutable": true,
+            "items": [{ "type": "utf8", "nullable": false }]
+          }
+        },
+        {
+          "path": "tag2",
+          "type": {
+            "type": "tagged",
+            "immutable": false,
+            "items": [{ "type": "int32", "nullable": false }, { "type": "int64", "nullable": false }]
+          }
+        }
+      ]
+    }
+  ]
+}

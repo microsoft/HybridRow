@@ -10,6 +10,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -52,7 +53,7 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testCodePoints(UnicodeTextItem item) {
+    public void testCodePoints(UnicodeText item) {
         Utf8String value = Utf8String.transcodeUtf16(item.value());
         assertEquals(value.codePoints().iterator(), item.value().codePoints().iterator());
     }
@@ -71,7 +72,7 @@ public class Utf8StringTest {
 
     @SuppressWarnings("EqualsWithItself")
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testCompareTo(UnicodeTextItem item) {
+    public void testCompareTo(UnicodeText item) {
 
         Utf8String value = Utf8String.transcodeUtf16(item.value());
         assertEquals(value.compareTo(value), 0);
@@ -100,7 +101,7 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testEncodedLength(UnicodeTextItem item) {
+    public void testEncodedLength(UnicodeText item) {
         final int encodedLength = item.buffer.length;
         assertEquals(Utf8String.from(item.byteBuf()).orElseThrow(AssertionError::new).encodedLength(), encodedLength);
         assertEquals(Utf8String.fromUnsafe(item.byteBuf()).encodedLength(), encodedLength);
@@ -108,7 +109,7 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testTestEquals(UnicodeTextItem item) {
+    public void testTestEquals(UnicodeText item) {
 
         TestEquals testEquals = new TestEquals(item);
 
@@ -136,7 +137,7 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testFrom(UnicodeTextItem item) {
+    public void testFrom(UnicodeText item) {
         Optional<Utf8String> value = Utf8String.from(item.byteBuf());
         assertTrue(value.isPresent());
         assertTrue(value.get().equals(value.get()));
@@ -145,7 +146,7 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testFromUnsafe(UnicodeTextItem item) {
+    public void testFromUnsafe(UnicodeText item) {
         Utf8String value = Utf8String.fromUnsafe(item.byteBuf());
         assertTrue(value.equals(value));
         assertTrue(value.equals(item.value()));
@@ -153,13 +154,13 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testHashCode(UnicodeTextItem item) {
+    public void testHashCode(UnicodeText item) {
         Utf8String value = Utf8String.fromUnsafe(item.byteBuf());
         assertEquals(value.hashCode(), item.byteBuf().hashCode());
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testLength(UnicodeTextItem item) {
+    public void testLength(UnicodeText item) {
         assertEquals(Utf8String.fromUnsafe(item.byteBuf()).length(), item.value().length());
     }
 
@@ -168,12 +169,12 @@ public class Utf8StringTest {
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testToUtf16(UnicodeTextItem item) {
+    public void testToUtf16(UnicodeText item) {
         assertEquals(Utf8String.fromUnsafe(item.byteBuf()).toUtf16(), item.value());
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
-    public void testTranscodeUtf16(UnicodeTextItem item) {
+    public void testTranscodeUtf16(UnicodeText item) {
         assertEquals(Utf8String.transcodeUtf16(item.value()).toUtf16(), item.value());
     }
 
@@ -203,31 +204,31 @@ public class Utf8StringTest {
     @DataProvider(name = "unicodeTextDataProvider")
     private static Iterator<Object[]> unicodeTextData() {
 
-        ImmutableList<UnicodeTextItem> items = ImmutableList.of(
+        ImmutableList<UnicodeText> items = ImmutableList.of(
 
             // US ASCII (7-bit encoding)
             // ..English
-            new UnicodeTextItem("The quick brown fox jumps over the lazy dog."),
+            new UnicodeText("The quick brown fox jumps over the lazy dog."),
 
             // ISO-8859-1 (8-bit encoding)
             // ..German
-            new UnicodeTextItem("Der schnelle braune Fuchs springt über den faulen Hund."),
+            new UnicodeText("Der schnelle braune Fuchs springt über den faulen Hund."),
             // ..Icelandic
-            new UnicodeTextItem("Skjótur brúni refurinn hoppar yfir lata hundinn."),
+            new UnicodeText("Skjótur brúni refurinn hoppar yfir lata hundinn."),
             // ..Spanish
-            new UnicodeTextItem("El rápido zorro marrón salta sobre el perro perezoso."),
+            new UnicodeText("El rápido zorro marrón salta sobre el perro perezoso."),
 
             // ISO 8859-7 (11-bit encoding)
             // ..Greek
-            new UnicodeTextItem("Η γρήγορη καφέ αλεπού πηδάει πάνω από το τεμπέλικο σκυλί."),
+            new UnicodeText("Η γρήγορη καφέ αλεπού πηδάει πάνω από το τεμπέλικο σκυλί."),
 
             // Katakana code block (16-bit encoding)
             // ..Japanese
-            new UnicodeTextItem("速い茶色のキツネは怠laな犬を飛び越えます。"),
+            new UnicodeText("速い茶色のキツネは怠laな犬を飛び越えます。"),
 
              // Deseret code block (21-bit encoding containing an English alphabet invented by the LDS Church)
              // ..Deseret
-            new UnicodeTextItem("\uD801\uDC10\uD801\uDC2F\uD801\uDC4A\uD801\uDC2C, \uD801\uDC38\uD801\uDC35 \uD801\uDC2A\uD801\uDC49 \uD801\uDC4F?")
+            new UnicodeText("\uD801\uDC10\uD801\uDC2F\uD801\uDC4A\uD801\uDC2C, \uD801\uDC38\uD801\uDC35 \uD801\uDC2A\uD801\uDC49 \uD801\uDC4F?")
         );
 
         return items.stream().map(item -> new Object[] { item }).iterator();
@@ -235,10 +236,10 @@ public class Utf8StringTest {
 
     private static class TestEquals {
 
-        private final UnicodeTextItem item;
+        private final UnicodeText item;
         private final Utf8String[] variants;
 
-        public TestEquals(UnicodeTextItem item) {
+        public TestEquals(UnicodeText item) {
 
             this.item = item;
 
@@ -276,10 +277,10 @@ public class Utf8StringTest {
 
     private static class TestNotEquals {
 
-        private final UnicodeTextItem item;
+        private final UnicodeText item;
         private final Utf8String[] variants;
 
-        public TestNotEquals(UnicodeTextItem item) {
+        public TestNotEquals(UnicodeText item) {
 
             this.item = item;
 
@@ -384,6 +385,30 @@ public class Utf8StringTest {
             assertEquals(
                 normalize(ej.compareTo(Utf8String.transcodeUtf16(lj))),
                 normalize(lj.compareTo(lj)));
+
+            // Compare multi-character strings
+
+            String word1 = Arrays.stream(this.letters).skip(i).limit(j - i).reduce("", (w, c) -> w + c);
+            String word2 = Arrays.stream(this.letters).skip(j).limit(this.letters.length - j).reduce("", (w, c) -> w + c);
+
+            assertEquals(
+                normalize(Utf8String.transcodeUtf16(word1).compareTo(word1)),
+                normalize(word1.compareTo(word1)));
+            assertEquals(
+                normalize(Utf8String.transcodeUtf16(word1).compareTo(word2)),
+                normalize(word1.compareTo(word2)));
+            assertEquals(
+                normalize(Utf8String.transcodeUtf16(word2).compareTo(word1)),
+                normalize(word2.compareTo(word1)));
+            assertEquals(
+                normalize(Utf8String.transcodeUtf16(word1).compareTo(Utf8String.transcodeUtf16(word1))),
+                normalize(word1.compareTo(word1)));
+            assertEquals(
+                normalize(Utf8String.transcodeUtf16(word1).compareTo(Utf8String.transcodeUtf16(word2))),
+                normalize(word1.compareTo(word2)));
+            assertEquals(
+                normalize(Utf8String.transcodeUtf16(word2).compareTo(Utf8String.transcodeUtf16(word1))),
+                normalize(word2.compareTo(word1)));
         }
 
         @Override
@@ -396,12 +421,12 @@ public class Utf8StringTest {
         }
     }
 
-    private static class UnicodeTextItem {
+    private static class UnicodeText {
 
         private final byte[] buffer;
         private final String value;
 
-        UnicodeTextItem(String value) {
+        UnicodeText(String value) {
             this.buffer = value.getBytes(StandardCharsets.UTF_8);
             this.value = value;
         }
@@ -416,7 +441,7 @@ public class Utf8StringTest {
 
         @Override
         public String toString() {
-            return this.value.toString();
+            return this.value;
         }
 
         public String value() {

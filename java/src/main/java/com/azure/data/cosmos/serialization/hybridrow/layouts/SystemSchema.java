@@ -5,6 +5,7 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
+import com.google.common.base.Suppliers;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -12,8 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.lenientFormat;
 
 public final class SystemSchema {
 
@@ -27,45 +30,36 @@ public final class SystemSchema {
      * SchemaId of HybridRow RecordIO Record Headers.
      */
     public static final SchemaId RECORD_SCHEMA_ID = SchemaId.from(2147473649);
+
     /**
      * SchemaId of HybridRow RecordIO Segments.
      */
     public static final SchemaId SEGMENT_SCHEMA_ID = SchemaId.from(2147473648);
 
-    public static final LayoutResolver layoutResolver = SystemSchema.loadSchema();
+    @SuppressWarnings("StatementWithEmptyBody")
+    private static final Supplier<LayoutResolver> layoutResolver = Suppliers.memoize(() -> {
+
+        final String json;
+
+        try (final InputStream stream = SystemSchema.class.getResourceAsStream("SystemSchema.json")) {
+            ByteBuf buffer = Unpooled.buffer();
+            while (buffer.writeBytes(stream, 8192) == 8192) { }
+            json = buffer.readCharSequence(buffer.readableBytes(), StandardCharsets.UTF_8).toString();
+        } catch (IOException cause) {
+            String message = lenientFormat("failed to load SystemSchema.json due to %s", cause);
+            throw new IllegalStateException(message, cause);
+        }
+
+        Optional<Namespace> namespace = Namespace.parse(json);
+        checkState(namespace.isPresent(), "failed to load SystemSchema.json");
+
+        return new LayoutResolverNamespace(namespace.get());
+    });
 
     private SystemSchema() {
     }
 
-    /*
-    private static String FormatResourceName(Assembly assembly, String resourceName) {
-        return assembly.GetName().Name + "." + resourceName.replace(" ", "_").replace("\\", ".").replace("/", ".");
-    }
-    */
-
-    static LayoutResolver loadSchema() {
-
-        final String json;
-
-        try {
-            json = SystemSchema.readFromResourceFile("system-schema.json");
-        } catch (IOException cause) {
-            throw new IllegalStateException("failed to load system-schema.json", cause);
-        }
-
-        Optional<Namespace> ns = Namespace.parse(json);
-        checkState(ns.isPresent(), "failed to load system-schema.json");
-
-        return new LayoutResolverNamespace(ns.get());
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    private static String readFromResourceFile(String name) throws IOException {
-        try (final InputStream stream = SystemSchema.class.getResourceAsStream(name)) {
-            ByteBuf buffer = Unpooled.buffer();
-            while (buffer.writeBytes(stream, 8192) == 8192) {
-            }
-            return buffer.readCharSequence(buffer.readableBytes(), StandardCharsets.UTF_8).toString();
-        }
+    public static LayoutResolver layoutResolver() {
+        return layoutResolver.get();
     }
 }

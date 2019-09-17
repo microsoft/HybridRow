@@ -24,23 +24,23 @@ public final class UnixDateTime {
 
     private long milliseconds;
 
-    /**
-     * Initializes a new instance of the {@link UnixDateTime} struct.
-     *
-     * @param milliseconds The number of milliseconds since {@link EPOCH}.
-     */
     private UnixDateTime() {
     }
 
+    /**
+     * Initializes a new instance of the {@link UnixDateTime} class.
+     *
+     * @param milliseconds The number of milliseconds since {@link #EPOCH}.
+     */
     public UnixDateTime(long milliseconds) {
         this.milliseconds = milliseconds;
     }
 
     /**
-     * {@code> true} if this value is the same as another value
+     * {@code> true} if this value is the same as another value.
      *
-     * @param other value to compare
-     * @return {code true} if this value is the same as the {code other}
+     * @param other value to compare.
+     * @return {code true} if this value is the same as the {code other}, {@code false} otherwise.
      */
     public boolean equals(UnixDateTime other) {
         if (other == null) {
@@ -66,9 +66,11 @@ public final class UnixDateTime {
     }
 
     /**
-     * The number of milliseconds since {@link #EPOCH}
+     * The number of milliseconds since {@link #EPOCH}.
      * <p>
-     * This value may be negative
+     * This value may be negative.
+     *
+     * @return the number of milliseconds since {@link #EPOCH}.
      */
     public long milliseconds() {
         return this.milliseconds;

@@ -198,8 +198,8 @@ public final class RowBuffer {
     /**
      * Compute the number of bytes necessary to store the unsigned 32-bit integer value using the varuint encoding.
      *
-     * @param value The value to be encoded
-     * @return The number of bytes needed to store the varuint encoding of {@code value}
+     * @param value the value to be encoded
+     * @return the number of bytes needed to store the varuint encoding of {@code value}
      */
     public static int count7BitEncodedUInt(long value) {
         checkArgument(0 <= value && value <= 0x00000000FFFFFFFFL, "value: %s", value);
@@ -212,6 +212,12 @@ public final class RowBuffer {
         return i;
     }
 
+    /**
+     * Decrement the unsigned 32-bit integer value at the given {@code offset} in this {@link RowBuffer}.
+     *
+     * @param offset    offset of a 32-bit unsigned integer value in this {@link RowBuffer}.
+     * @param decrement the decrement value.
+     */
     public void decrementUInt32(int offset, long decrement) {
         long value = this.buffer.getUnsignedIntLE(offset);
         this.buffer.setIntLE(offset, (int) (value - decrement));
@@ -266,7 +272,9 @@ public final class RowBuffer {
     }
 
     /**
-     * The root header for the row.
+     * The root header of this {@link RowBuffer}.
+     *
+     * @return root header of this {@link RowBuffer}.
      */
     public HybridRowHeader header() {
         return this.readHeader();
@@ -291,6 +299,12 @@ public final class RowBuffer {
     //        this.buffer.writerIndex(this.length() + shift);
     //    }
 
+    /**
+     * Decrement the unsigned 32-bit integer value at the given {@code offset} in this {@link RowBuffer}.
+     *
+     * @param offset    offset of a 32-bit unsigned integer value in this {@link RowBuffer}.
+     * @param increment the increment value.
+     */
     public void incrementUInt32(final int offset, final long increment) {
         final long value = this.buffer.getUnsignedIntLE(offset);
         this.buffer.setIntLE(offset, (int) (value + increment));
@@ -320,6 +334,8 @@ public final class RowBuffer {
 
     /**
      * The length of this {@link RowBuffer} in bytes.
+     *
+     * @return The length of this {@link RowBuffer} in bytes.
      */
     public int length() {
         return this.buffer.writerIndex();
@@ -378,21 +394,13 @@ public final class RowBuffer {
         return dstEdit;
     }
 
-    public long read7BitEncodedInt(int offset) {
-        Item<Long> item = this.read(this::read7BitEncodedInt, offset);
-        return item.value();
-    }
-
-    public long read7BitEncodedUInt(int offset) {
-        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
-        return item.value();
-    }
-
-    // TODO: DANOBLE: resurrect this method
-    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
-    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
-    //    }
-
+    /**
+     * Read the value of a bit within the bit field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a bit field within this {@link RowBuffer}.
+     * @param bit the bit to read.
+     * @return {@code true} if the {@code bit} is set, otherwise {@code false}.
+     */
     public boolean readBit(final int offset, @Nonnull final LayoutBit bit) {
 
         checkNotNull(bit, "expected non-null bit");
@@ -405,28 +413,86 @@ public final class RowBuffer {
         return item.value();
     }
 
+    /**
+     * Read the value of the {@code DateTime} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code DateTime} field within this {@link RowBuffer}.
+     * @return the {@code DateTime} value read.
+     */
     public OffsetDateTime readDateTime(int offset) {
         Item<OffsetDateTime> item = this.read(() -> DateTimeCodec.decode(this.buffer), offset);
         return item.value();
     }
 
+    // TODO: DANOBLE: resurrect this method
+    //    public MongoDbObjectId ReadMongoDbObjectId(int offset) {
+    //        return MemoryMarshal.<MongoDbObjectId>Read(this.buffer.Slice(offset));
+    //    }
+
+    /**
+     * Read the value of the {@code Decimal} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Decimal} field within this {@link RowBuffer}.
+     * @return the {@code Decimal} value read.
+     */
     public BigDecimal readDecimal(int offset) {
         Item<BigDecimal> item = this.read(() -> DecimalCodec.decode(this.buffer), offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code FixedBinary} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code FixedBinary} field within this {@link RowBuffer}.
+     * @return the {@code FixedBinary} value read.
+     */
     public ByteBuf readFixedBinary(int offset, int length) {
         Item<ByteBuf> item = this.read(() -> this.buffer.readSlice(length), offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code FixedString} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code FixedString} field within this {@link RowBuffer}.
+     * @param length number of bytes in the {@code FixedString} field.
+     * @return the {@code FixedString} value read.
+     */
     public Utf8String readFixedString(int offset, int length) {
         Item<Utf8String> item = this.read(this::readFixedString, offset, length);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code Float128} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Float128} field within this {@link RowBuffer}.
+     * @return the {@code Float128} value read.
+     */
     public Float128 readFloat128(int offset) {
         Item<Float128> item = this.read(this::readFloat128, offset);
+        return item.value();
+    }
+
+    /**
+     * Read the value of a {@code Float32} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Float32} field within this {@link RowBuffer}.
+     * @return the {@code Float32} value read.
+     */
+    public float readFloat32(int offset) {
+        Item<Float> item = this.read(this.buffer::readFloatLE, offset);
+        return item.value();
+    }
+
+    /**
+     * Read the value of a {@code Float64} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Float64} field within this {@link RowBuffer}.
+     * @return the {@code Float64} value read.
+     */
+    public double readFloat64(int offset) {
+        Item<Double> item = this.read(this.buffer::readDoubleLE, offset);
         return item.value();
     }
 
@@ -436,16 +502,6 @@ public final class RowBuffer {
     //        edit.endOffset = edit.valueOffset() + MongoDbObjectId.Size;
     //        return this.ReadMongoDbObjectId(edit.valueOffset()).clone();
     //    }
-
-    public float readFloat32(int offset) {
-        Item<Float> item = this.read(this.buffer::readFloatLE, offset);
-        return item.value();
-    }
-
-    public double readFloat64(int offset) {
-        Item<Double> item = this.read(this.buffer::readDoubleLE, offset);
-        return item.value();
-    }
 
     /**
      * Reads in the contents of the current {@link RowBuffer} from an {@link InputStream}.
@@ -513,104 +569,218 @@ public final class RowBuffer {
         return this.validateHeader(version);
     }
 
+    /**
+     * Read the value of a {@code Guid} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Guid} field within this {@link RowBuffer}.
+     * @return the {@code Guid} value read.
+     */
     public UUID readGuid(int offset) {
         return this.read(() -> GuidCodec.decode(this.buffer), offset).value();
     }
 
+    /**
+     * Read the value of a {@code Header} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Header} field within this {@link RowBuffer}.
+     * @return the {@code Header} value read.
+     */
     public HybridRowHeader readHeader(int offset) {
         return this.read(this::readHeader, offset).value();
     }
 
+    /**
+     * Read the value of a {@code Int16} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Int16} field within this {@link RowBuffer}.
+     * @return the {@code Int16} value read.
+     */
     public short readInt16(int offset) {
         return this.read(this.buffer::readShortLE, offset).value();
     }
 
+    /**
+     * Read the value of a {@code Int32} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Int32} field within this {@link RowBuffer}.
+     * @return the {@code Int32} value read.
+     */
     public int readInt32(int offset) {
         Item<Integer> item = this.read(this.buffer::readIntLE, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code Int64} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Int64} field within this {@link RowBuffer}.
+     * @return the {@code Int64} value read.
+     */
     public long readInt64(int offset) {
         Item<Long> item = this.read(this.buffer::readLongLE, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code Int8} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code Int8} field within this {@link RowBuffer}.
+     * @return the {@code Int8} value read.
+     */
     public byte readInt8(int offset) {
         Item<Byte> item = this.read(this.buffer::readByte, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SchemaId} field at the given {@code offset} within this {@link RowBuffer}.
+     *
+     * @param offset offset of a {@code SchemaId} field within this {@link RowBuffer}.
+     * @return the {@code SchemaId} value read.
+     */
     public SchemaId readSchemaId(int offset) {
         Item<SchemaId> item = this.read(() -> SchemaId.from(this.buffer.readIntLE()), offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseBinary} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseBinary} field within this {@link RowBuffer}.
+     * @return the {@code SparseBinary} value read.
+     */
     public ByteBuf readSparseBinary(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BINARY);
         Item<ByteBuf> item = this.read(this::readVariableBinary, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseBoolean} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseBoolean} field within this {@link RowBuffer}.
+     * @return the {@code SparseBoolean} value read.
+     */
     public boolean readSparseBoolean(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.BOOLEAN);
         edit.endOffset(edit.valueOffset());
         return edit.cellType() == LayoutTypes.BOOLEAN;
     }
 
+    /**
+     * Read the value of a {@code SparseDateTime} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseDateTime} field within this {@link RowBuffer}.
+     * @return the {@code SparseDateTime} value read.
+     */
     public OffsetDateTime readSparseDateTime(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DATE_TIME);
         edit.endOffset(edit.valueOffset() + Long.SIZE);
         return this.readDateTime(edit.valueOffset());
     }
 
+    /**
+     * Read the value of a {@code SparseDecimal} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseDecimal} field within this {@link RowBuffer}.
+     * @return the {@code SparseDecimal} value read.
+     */
     public BigDecimal readSparseDecimal(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.DECIMAL);
         Item<BigDecimal> item = this.read(this::readDecimal, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseFloat128} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseFloat128} field within this {@link RowBuffer}.
+     * @return the {@code SparseFloat128} value read.
+     */
     public Float128 readSparseFloat128(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_128);
         Item<Float128> item = this.read(this::readFloat128, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseFloat32} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseFloat32} field within this {@link RowBuffer}.
+     * @return the {@code SparseFloat32} value read.
+     */
     public float readSparseFloat32(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_32);
         Item<Float> item = this.read(this.buffer::readFloatLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseFloat64} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseFloat64} field within this {@link RowBuffer}.
+     * @return the {@code SparseFloat64} value read.
+     */
     public double readSparseFloat64(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.FLOAT_64);
         Item<Double> item = this.read(this.buffer::readDoubleLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseGuid} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseGuid} field within this {@link RowBuffer}.
+     * @return the {@code SparseGuid} value read.
+     */
     public UUID readSparseGuid(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.GUID);
         Item<UUID> item = this.read(this::readGuid, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseInt16} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseInt16} field within this {@link RowBuffer}.
+     * @return the {@code SparseInt16} value read.
+     */
     public short readSparseInt16(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_16);
         Item<Short> item = this.read(this.buffer::readShortLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseInt32} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseInt32} field within this {@link RowBuffer}.
+     * @return the {@code SparseInt32} value read.
+     */
     public int readSparseInt32(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_32);
         Item<Integer> item = this.read(this.buffer::readIntLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseInt64} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseInt64} field within this {@link RowBuffer}.
+     * @return the {@code SparseInt64} value read.
+     */
     public long readSparseInt64(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_64);
         Item<Long> item = this.read(this.buffer::readLongLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseInt8} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseInt8} field within this {@link RowBuffer}.
+     * @return the {@code SparseInt8} value read.
+     */
     public byte readSparseInt8(RowCursor edit) {
         // TODO: Remove calls to readSparsePrimitiveTypeCode once moved to V2 read.
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.INT_8);
@@ -618,6 +788,12 @@ public final class RowBuffer {
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseNull} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseNull} field within this {@link RowBuffer}.
+     * @return the {@code SparseNull} value read.
+     */
     public NullValue readSparseNull(@Nonnull RowCursor edit) {
 
         checkNotNull(edit, "expected non-null edit");
@@ -628,6 +804,12 @@ public final class RowBuffer {
         return NullValue.DEFAULT;
     }
 
+    /**
+     * Read the value of a {@code SparsePath} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparsePath} field within this {@link RowBuffer}.
+     * @return the {@code SparsePath} value read.
+     */
     public Utf8String readSparsePath(@Nonnull final RowCursor edit) {
 
         checkNotNull(edit, "expected non-null edit");
@@ -645,6 +827,15 @@ public final class RowBuffer {
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseLen} field at the given {@code offset} position.
+     *
+     * @param layout
+     * @param offset position of a {@code SparseLen} field within this {@link RowBuffer}.
+     * @param pathLenInBytes
+     * @param pathOffset
+     * @return the {@code SparseLen} value read.
+     */
     public int readSparsePathLen(
         @Nonnull final Layout layout, final int offset, @Nonnull final Out<Integer> pathLenInBytes,
         @Nonnull final Out<Integer> pathOffset) {
@@ -668,103 +859,218 @@ public final class RowBuffer {
         return token;
     }
 
+    /**
+     * Read the value of a {@code SparseString} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseString} field within this {@link RowBuffer}.
+     * @return the {@code SparseString} value read.
+     */
     public Utf8String readSparseString(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UTF_8);
         Item<Utf8String> item = this.read(this::readUtf8String, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseTypeCode} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code SparseTypeCode} field within this {@link RowBuffer}.
+     * @return the {@code SparseTypeCode} value read.
+     */
     public LayoutType readSparseTypeCode(int offset) {
         return LayoutType.fromCode(LayoutCode.from(this.readInt8(offset)));
     }
 
+    /**
+     * Read the value of a {@code SparseUInt16} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseUInt16} field within this {@link RowBuffer}.
+     * @return the {@code SparseUInt16} value read.
+     */
     public int readSparseUInt16(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_16);
         Item<Integer> item = this.read(this.buffer::readUnsignedShortLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseUInt32} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseUInt32} field within this {@link RowBuffer}.
+     * @return the {@code SparseUInt32} value read.
+     */
     public long readSparseUInt32(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_32);
         Item<Long> item = this.read(this.buffer::readUnsignedIntLE, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseUInt64} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseUInt64} field within this {@link RowBuffer}.
+     * @return the {@code SparseUInt64} value read.
+     */
     public long readSparseUInt64(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_64);
         Item<Long> item = this.read(this.buffer::readLongLE, edit);
         return item.value;
     }
 
+    /**
+     * Read the value of a {@code SparseUInt8} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseUInt8} field within this {@link RowBuffer}.
+     * @return the {@code SparseUInt8} value read.
+     */
     public short readSparseUInt8(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UINT_8);
         Item<Short> item = this.read(this.buffer::readUnsignedByte, edit);
         return item.value;
     }
 
+    /**
+     * Read the value of a {@code SparseUnixDateTime} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseUnixDateTime} field within this {@link RowBuffer}.
+     * @return the {@code SparseUnixDateTime} value read.
+     */
     public UnixDateTime readSparseUnixDateTime(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.UNIX_DATE_TIME);
         Item<UnixDateTime> item = this.read(this::readUnixDateTime, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseVarInt} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseVarInt} field within this {@link RowBuffer}.
+     * @return the {@code SparseVarInt} value read.
+     */
     public long readSparseVarInt(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.VAR_INT);
         Item<Long> item = this.read(this::read7BitEncodedInt, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code SparseVarUInt} field at the given {@link RowCursor edit} position.
+     *
+     * @param edit {@link RowCursor edit} position of a {@code SparseVarUInt} field within this {@link RowBuffer}.
+     * @return the {@code SparseVarUInt} value read.
+     */
     public long readSparseVarUInt(RowCursor edit) {
         this.readSparsePrimitiveTypeCode(edit, LayoutTypes.VAR_UINT);
         Item<Long> item = this.read(this::read7BitEncodedUInt, edit);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code UInt16} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code UInt16} field within this {@link RowBuffer}.
+     * @return the {@code UInt16} value read.
+     */
     public int readUInt16(int offset) {
         Item<Integer> item = this.read(this.buffer::readUnsignedShortLE, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code UInt32} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code UInt32} field within this {@link RowBuffer}.
+     * @return the {@code UInt32} value read.
+     */
     public long readUInt32(int offset) {
         Item<Long> item = this.read(this.buffer::readUnsignedIntLE, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code UInt64} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code UInt64} field within this {@link RowBuffer}.
+     * @return the {@code UInt64} value read.
+     */
     public long readUInt64(int offset) {
         Item<Long> item = this.read(this.buffer::readLongLE, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code UInt8} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code UInt8} field within this {@link RowBuffer}.
+     * @return the {@code UInt8} value read.
+     */
     public short readUInt8(int offset) {
         Item<Short> item = this.read(this.buffer::readUnsignedByte, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code UnixDateTime} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code UnixDateTime} field within this {@link RowBuffer}.
+     * @return the {@code UnixDateTime} value read.
+     */
     public UnixDateTime readUnixDateTime(int offset) {
         Item<UnixDateTime> item = this.read(this::readUnixDateTime, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code VariableBinary} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code VariableBinary} field within this {@link RowBuffer}.
+     * @return the {@code VariableBinary} value read.
+     */
     public ByteBuf readVariableBinary(int offset) {
         Item<ByteBuf> item = this.read(this::readVariableBinary, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code VariableInt} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code VariableInt} field within this {@link RowBuffer}.
+     * @return the {@code VariableInt} value read.
+     */
     public long readVariableInt(int offset) {
         Item<Long> item = this.read(this::read7BitEncodedInt, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code VariableString} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code VariableString} field within this {@link RowBuffer}.
+     * @return the {@code VariableString} value read.
+     */
     public Utf8String readVariableString(final int offset) {
         Item<Utf8String> item = this.read(this::readUtf8String, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code VariableUInt} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code VariableUInt} field within this {@link RowBuffer}.
+     * @return the {@code VariableUInt} value read.
+     */
     public long readVariableUInt(final int offset) {
         Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
         return item.value();
     }
 
+    /**
+     * Read the value of a {@code VariableUInt} field at the given {@code offset} position.
+     *
+     * @param offset position of a {@code VariableUInt} field within this {@link RowBuffer}.
+     * @param length on return, the number of bytes read.
+     * @return the {@code VariableUInt} value read.
+     */
     public long readVariableUInt(final int offset, @Nonnull final Out<Integer> length) {
         Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
         length.set(item.length());
@@ -786,14 +1092,6 @@ public final class RowBuffer {
         return this.resolver;
     }
 
-    // TODO: DANOBLE: Support MongoDbObjectId values
-    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
-    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
-    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
-    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
-    //        value = tempReference_value.get();
-    //    }
-
     /**
      * Rotates the sign bit of a two's complement value to the least significant bit.
      *
@@ -801,15 +1099,11 @@ public final class RowBuffer {
      * @return An unsigned value encoding the same value but with the sign bit in the LSB.
      * <p>
      * Moves the signed bit of a two's complement value to the least significant bit (LSB) by:
-     * <list type="number">
-     * <item>
-     * <description>If negative, take the two's complement.</description>
-     * </item><item>
-     * <description>Left shift the value by 1 bit.</description>
-     * </item><item>
-     * <description>If negative, set the LSB to 1.</description>
-     * </item>
-     * </list>
+     * <ol>
+     * <li>If negative, take the two's complement.
+     * <li>Left shift the value by 1 bit.
+     * <li>If negative, set the LSB to 1.
+     * </ol>
      */
     public static long rotateSignToLsb(long value) {
         boolean isNegative = value < 0;
@@ -828,6 +1122,14 @@ public final class RowBuffer {
         boolean isNegative = unsignedValue % 2 != 0;
         return isNegative ? (~(unsignedValue >>> 1) + 1) | 0x8000000000000000L : unsignedValue >>> 1;
     }
+
+    // TODO: DANOBLE: Support MongoDbObjectId values
+    //    public void WriteMongoDbObjectId(int offset, MongoDbObjectId value) {
+    //        Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId> tempReference_value =
+    //            new Reference<azure.data.cosmos.serialization.hybridrow.MongoDbObjectId>(value);
+    //        MemoryMarshal.Write(this.buffer.Slice(offset), tempReference_value);
+    //        value = tempReference_value.get();
+    //    }
 
     public void setBit(final int offset, @Nonnull final LayoutBit bit) {
         checkNotNull(bit, "expected non-null bit");
@@ -1065,28 +1367,20 @@ public final class RowBuffer {
      * @param scope The sparse scope to rebuild an index for.
      * @return Success if the index could be built, an error otherwise.
      * <p>
-     * The <paramref name="scope" /> MUST be a set or map scope.
+     * The {@code scope} MUST be a set or map scope.
      * <p>
      * The scope may have been built (e.g. via RowWriter) with relaxed uniqueness constraint checking.
      * This operation rebuilds an index to support verification of uniqueness constraints during
      * subsequent partial updates.  If the appropriate uniqueness constraints cannot be established (i.e.
      * a duplicate exists), this operation fails.  Before continuing, the resulting scope should either:
-     * <list type="number">
-     * <item>
-     * <description>
-     * Be repaired (e.g. by deleting duplicates) and the index rebuild operation should be
-     * run again.
-     * </description>
-     * </item> <item>
-     * <description>Be deleted.  The entire scope should be removed including its items.</description>
-     * </item>
-     * </list> Failure to perform one of these actions will leave the row is potentially in a corrupted
-     * state where partial updates may subsequent fail.
-     * </p>
+     * <ol>
+     * <li>Be repaired (e.g. by deleting duplicates) and the index rebuild operation should be run again.
+     * <li>Be deleted. The entire scope should be removed including its items.
+     * </ol>
+     * Failure to perform one of these actions will leave the row is potentially in a corrupted state where partial
+     * updates may subsequent fail.
      * <p>
-     * The target <paramref name="scope" /> may or may not have already been indexed.  This
-     * operation is idempotent.
-     * </p>
+     * The target {@code scope} may or may not have already been indexed. This operation is idempotent.
      */
     @Nonnull
     public Result typedCollectionUniqueIndexRebuild(@Nonnull final RowCursor scope) {
@@ -2762,8 +3056,18 @@ public final class RowBuffer {
         return Item.of(value, offset, actualLength);
     }
 
+    private long read7BitEncodedInt(int offset) {
+        Item<Long> item = this.read(this::read7BitEncodedInt, offset);
+        return item.value();
+    }
+
     private long read7BitEncodedInt() {
         return RowBuffer.rotateSignToMsb(this.read7BitEncodedUInt());
+    }
+
+    private long read7BitEncodedUInt(int offset) {
+        Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
+        return item.value();
     }
 
     private long read7BitEncodedUInt() {

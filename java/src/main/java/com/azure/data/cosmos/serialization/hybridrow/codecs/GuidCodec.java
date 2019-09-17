@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * {@link UUID}s are serialized like {@code System.Guid}s read and written by {@code MemoryMarshal.Read} and
  * {@code MemoryMarshal.Write}.
  *
- * <table>
+ * <table summary="Layout of field value">
  *     <tbody>
  *      <tr><td>
  *          Bits 00-31

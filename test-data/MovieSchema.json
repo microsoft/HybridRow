@@ -1,0 +1,40 @@
+// Todo demo schema that utilizes typed maps.
+{
+	"schemas": [
+		{ "name": "Movie", "id": 1, "type": "schema",
+			"properties": [
+				{ "path": "cast", "type": {
+					 "type": "map", 
+					 "keys": { "type": "utf8", "nullable": false }, 
+					 "values": { "type": "utf8", "nullable": false }
+				} },
+				{ "path": "stats", "type": {
+					 "type": "map", 
+					 "keys": { "type": "guid", "nullable": false }, 
+					 "values": { "type": "float64", "nullable": false }
+				} },
+				{ "path": "related", "type": {
+           "comment":  "map: actor -> { map: moveId -> roleName }",
+					 "type": "map", 
+					 "keys": { "type": "utf8", "nullable": false }, 
+					 "values": {
+						 "type": "map", 
+						 "nullable": false, 
+						 "keys": { "type": "int64", "nullable": false }, 
+						 "values": { "type": "utf8", "nullable": false }
+					 }
+				} },
+				{ "path": "revenue", "type": {
+           "comment":  "map: releaseDate -> Earnings }",
+					 "type": "map", 
+					 "keys": { "type": "datetime", "nullable": false }, 
+					 "values": { "type": "schema", "name": "Earnings", "nullable": false }
+				} }
+			]},
+		{ "name": "Earnings", "id": 2, "type": "schema",
+			"properties": [
+				{ "path": "domestic", "type": { "type": "decimal", "storage": "fixed" } },
+				{ "path": "worldwide", "type": { "type": "decimal", "storage": "fixed" } }
+			]}
+	]
+}

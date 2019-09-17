@@ -27,14 +27,18 @@ public final class HybridRowHeader {
     }
 
     /**
-     * The unique identifier of the schema whose layout was used to write this row.
+     * The unique identifier of the schema whose layout was used to write this {@link HybridRowHeader}.
+     *
+     * @return unique identifier of the schema whose layout was used to write this {@link HybridRowHeader}.
      */
     public SchemaId schemaId() {
         return this.schemaId;
     }
 
     /**
-     * The version of the HybridRow library used to write this row.
+     * The version of the HybridRow serialization library used to write this {@link HybridRowHeader}.
+     *
+     * @return  version of the HybridRow serialization library used to write this {@link HybridRowHeader}.
      */
     public HybridRowVersion version() {
         return this.version;

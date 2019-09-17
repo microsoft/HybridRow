@@ -72,6 +72,8 @@ public final class RowWriter {
 
     /**
      * The active layout of the current writer scope.
+     *
+     * @return layout of the current writer scope.
      */
     public Layout layout() {
         return this.cursor.layout();
@@ -79,6 +81,8 @@ public final class RowWriter {
 
     /**
      * The length of row in bytes.
+     *
+     * @return length of the row in bytes.
      */
     public int length() {
         return this.row.length();
@@ -86,6 +90,8 @@ public final class RowWriter {
 
     /**
      * The resolver for UDTs.
+     *
+     * @return the resolver of UDTs.
      */
     public LayoutResolver resolver() {
         return this.row.resolver();

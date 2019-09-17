@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * {@link OffsetDateTime} values are serialized as unsigned 64-bit integers:
  *
- * <table>
+ * <table summary="Layout of field value">
  *     <tbody>
  *      <tr><td>
  *          Bits 01-62

@@ -20,7 +20,7 @@ public final class RowReaderJsonExtensions {
      * Project a JSON document from a HybridRow {@link RowReader}.
      *
      * @param reader The reader to project to JSON.
-     * @param string If {@link Result#SUCCESS}, the JSON document that corresponds to the {@code reader).
+     * @param string If {@link Result#SUCCESS}, the JSON document that corresponds to the {@code reader}.
      * @return The result.
      */
     @Nonnull
@@ -33,7 +33,7 @@ public final class RowReaderJsonExtensions {
      *
      * @param reader   The reader to project to JSON.
      * @param settings Settings that control how the JSON document is formatted.
-     * @param string   If {@link Result#SUCCESS}, the JSON document that corresponds to the {@code reader).
+     * @param string   If {@link Result#SUCCESS}, the JSON document that corresponds to the {@code reader}.
      * @return The result.
      */
     @Nonnull

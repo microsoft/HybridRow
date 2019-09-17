@@ -156,6 +156,8 @@ public final class RowReader {
      * If the current field is a Nullable scope, this method return true if the value is not null. If the current field
      * is a nullable Null primitive value, this method return true if the value is set (even though its values is set
      * to null).
+     *
+     * @return {@code true} if field has a value, {@code false} otherwise.
      */
     public boolean hasValue() {
 
@@ -181,6 +183,7 @@ public final class RowReader {
      * <p>
      * When enumerating a non-indexed scope, this value is always zero.
      *
+     * @return zero-based index of the field relative to the scope, if positioned on a field; otherwise undefined.
      * @see #path
      */
     public int index() {
@@ -189,6 +192,8 @@ public final class RowReader {
 
     /**
      * The length of row in bytes.
+     *
+     * @return length of the current row in bytes.
      */
     public int length() {
         return this.row.length();
@@ -197,8 +202,9 @@ public final class RowReader {
     /**
      * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise.
      * <p>
-     * When enumerating an indexed scope, this value is always null.
+     * When enumerating an indexed scope, this value is always {@code null}.
      *
+     * @return path of the field relative to the scope, if positioned on a field; otherwise undefined.
      * @see #index
      */
     public UtfAnyString path() {
@@ -228,6 +234,7 @@ public final class RowReader {
      * <p>
      * When enumerating an indexed scope, this value is always null.
      *
+     * @return path of the field relative to the scope, if positioned on a field; otherwise undefined.
      * @see #index
      */
     public Utf8String pathSpan() {
@@ -244,7 +251,7 @@ public final class RowReader {
     /**
      * Advances the reader to the next field.
      *
-     * @return {@code true}, if there is another field to be read; {@code false} otherwise
+     * @return {@code true}, if there is another field to be read; {@code false} otherwise.
      */
     public boolean read() {
 
@@ -505,7 +512,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length GUID value
+     * Read the current field as a fixed length GUID value.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -533,7 +540,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 16-bit, signed integer
+     * Read the current field as a fixed length, 16-bit, signed integer.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -560,7 +567,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 32-bit, signed integer
+     * Read the current field as a fixed length, 32-bit, signed integer.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -587,7 +594,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 64-bit, signed integer
+     * Read the current field as a fixed length, 64-bit, signed integer.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -614,7 +621,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 8-bit, signed integer
+     * Read the current field as a fixed length, 8-bit, signed integer.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -641,7 +648,7 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a null
+     * Read the current field as a null.
      *
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
@@ -672,6 +679,11 @@ public final class RowReader {
      * <p>
      * Child readers can be used to read all sparse scope types including typed and untyped objects, arrays, tuples,
      * set, and maps.
+     *
+     * @param <TContext> a reader context type.
+     * @param context a reader context.
+     * @param func a reader function.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     @Nonnull
     public <TContext> Result readScope(@Nullable final TContext context, @Nullable final ReaderFunc<TContext> func) {
@@ -689,10 +701,12 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a nested, structured, sparse scope
+     * Read the current field as a nested, structured, sparse scope.
      * <p>
      * Child readers can be used to read all sparse scope types including typed and untyped objects, arrays, tuples,
      * set, and maps. Nested child readers are independent of their parent.
+     *
+     * @return a new {@link RowReader}.
      */
     public @Nonnull RowReader readScope() {
         RowCursor newScope = this.row.sparseIteratorReadScope(this.cursor, true);
@@ -700,9 +714,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a variable length, UTF-8 encoded string value
+     * Read the current field as a variable length, UTF-8 encoded string value.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readString(Out<String> value) {
@@ -770,9 +784,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 32-bit, unsigned integer
+     * Read the current field as a fixed length, 32-bit, unsigned integer.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt32(Out<Long> value) {
@@ -798,9 +812,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 64-bit, unsigned integer
+     * Read the current field as a fixed length, 64-bit, unsigned integer.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt64(Out<Long> value) {
@@ -825,9 +839,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length, 8-bit, unsigned integer
+     * Read the current field as a fixed length, 8-bit, unsigned integer.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUInt8(Out<Short> value) {
@@ -852,9 +866,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a fixed length {@link UnixDateTime} value
+     * Read the current field as a fixed length {@link UnixDateTime} value.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readUnixDateTime(Out<UnixDateTime> value) {
@@ -879,9 +893,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a variable length, 7-bit encoded, signed integer
+     * Read the current field as a variable length, 7-bit encoded, signed integer.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readVarInt(Out<Long> value) {
@@ -906,9 +920,9 @@ public final class RowReader {
     }
 
     /**
-     * Read the current field as a variable length, 7-bit encoded, unsigned integer
+     * Read the current field as a variable length, 7-bit encoded, unsigned integer.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result readVarUInt(Out<Long> value) {
@@ -937,13 +951,14 @@ public final class RowReader {
     }
 
     /**
-     * Advance a reader to the end of a child reader
+     * Advance a reader to the end of a child reader.
      * <p>
      * The child reader is also advanced to the end of its scope. The reader must not have been advanced since the child
      * reader was created with {@link #readScope}. This method can be used when the overload of {@link #readScope} that
-     * takes a {@link ReaderFunc{TContext} is not an option.
+     * takes a {@link ReaderFunc} is not an option.
      *
-     * @param nestedReader nested (child) reader to be advanced
+     * @param nestedReader nested (child) reader to be advanced.
+     * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result skipScope(@Nonnull final RowReader nestedReader) {
         if (nestedReader.cursor.start() != this.cursor.valueOffset()) {
@@ -954,7 +969,9 @@ public final class RowReader {
     }
 
     /**
-     * The storage placement of the field--if positioned on a field--undefined otherwise
+     * The storage placement of the field--if positioned on a field--undefined otherwise.
+     *
+     * @return storage kind.
      */
     public StorageKind storage() {
         switch (this.state) {
@@ -968,7 +985,9 @@ public final class RowReader {
     }
 
     /**
-     * The type of the field--if positioned on a field--undefined otherwise
+     * The type of the field--if positioned on a field--undefined otherwise.
+     *
+     * @return layout type.
      */
     public LayoutType type() {
 
@@ -983,7 +1002,9 @@ public final class RowReader {
     }
 
     /**
-     * The type arguments of the field  (if positioned on a field, undefined otherwise)
+     * The type arguments of the field, if positioned on a field, undefined otherwise.
+     *
+     * @return type argument list.
      */
     public TypeArgumentList typeArgs() {
 

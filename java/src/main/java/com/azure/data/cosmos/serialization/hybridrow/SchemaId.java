@@ -39,7 +39,7 @@ public final class SchemaId implements Comparable<SchemaId> {
     private final int value;
 
     /**
-     * Initializes a new instance of the {@link SchemaId} struct.
+     * Initializes a new instance of the {@link SchemaId} class.
      *
      * @param value The underlying globally unique identifier of the schema.
      */
@@ -78,9 +78,10 @@ public final class SchemaId implements Comparable<SchemaId> {
     }
 
     /**
-     * Returns a {@link SchemaId} from a specified underlying integer value.
+     * Returns a {@link SchemaId} with the given underlying integer value.
      *
-     * @return The integer value of this {@link SchemaId}
+     * @param value an integer.
+     * @return a {@link SchemaId} with the given underlying integer {@code value}.
      */
     public static SchemaId from(int value) {
         return cache.computeIfAbsent(value, SchemaId::new);
