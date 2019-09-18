@@ -103,7 +103,7 @@ public final class LayoutBit {
         /**
          * The number of bytes needed to hold all bits so far allocated.
          */
-        public final int getNumBytes() {
+        public final int numBytes() {
             return LayoutBit.divCeiling(this.next, Byte.SIZE);
         }
 
@@ -112,7 +112,7 @@ public final class LayoutBit {
          *
          * @return The allocated bit.
          */
-        public final LayoutBit Allocate() {
+        public final LayoutBit allocate() {
             return new LayoutBit(this.next++);
         }
     }

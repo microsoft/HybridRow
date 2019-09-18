@@ -27,10 +27,10 @@ public final class StringTokenizer {
     public StringTokenizer() {
 
         this.tokens = new HashMap<>();
-        this.tokens.put(Utf8String.EMPTY, new StringToken(0, Utf8String.EMPTY));
+        this.tokens.put(Utf8String.EMPTY, StringToken.NONE);
 
         this.stringTokens = new HashMap<>();
-        this.stringTokens.put("", new StringToken(0, Utf8String.EMPTY));
+        this.stringTokens.put("", StringToken.NONE);
 
         this.strings = new ArrayList<>();
         this.strings.add(Utf8String.EMPTY);

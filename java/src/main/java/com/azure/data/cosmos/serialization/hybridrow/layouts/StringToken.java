@@ -34,7 +34,7 @@ public final class StringToken implements Cloneable {
     private StringToken() {
         this.id = 0L;
         this.path = Utf8String.EMPTY;
-        this.varint = Unpooled.wrappedBuffer(new byte[1]).setInt(0, 0).asReadOnly();
+        this.varint = Unpooled.wrappedBuffer(new byte[1]).asReadOnly();
     }
 
     public boolean isNull() {

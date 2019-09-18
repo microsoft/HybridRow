@@ -44,16 +44,16 @@ public final class LayoutBuilder {
         LayoutColumn column;
         if (type.isNull()) {
             checkArgument(nullable);
-            LayoutBit nullBit = this.bitAllocator.Allocate();
+            LayoutBit nullBit = this.bitAllocator.allocate();
             column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
                 this.fixedCount, 0, nullBit, LayoutBit.INVALID, 0);
         } else if (type.isBoolean()) {
-            LayoutBit nullBit = nullable ? this.bitAllocator.Allocate() : LayoutBit.INVALID;
-            LayoutBit boolbit = this.bitAllocator.Allocate();
+            LayoutBit nullBit = nullable ? this.bitAllocator.allocate() : LayoutBit.INVALID;
+            LayoutBit boolbit = this.bitAllocator.allocate();
             column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
                 this.fixedCount, 0, nullBit, boolbit, 0);
         } else {
-            LayoutBit nullBit = nullable ? this.bitAllocator.Allocate() : LayoutBit.INVALID;
+            LayoutBit nullBit = nullable ? this.bitAllocator.allocate() : LayoutBit.INVALID;
             column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
                 this.fixedCount, this.fixedSize, nullBit, LayoutBit.INVALID, length);
 
@@ -98,7 +98,7 @@ public final class LayoutBuilder {
         checkArgument(type.allowVariable());
 
         LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.VARIABLE, this.parent(),
-            this.varCount, this.varCount, this.bitAllocator.Allocate(), LayoutBit.INVALID, length);
+            this.varCount, this.varCount, this.bitAllocator.allocate(), LayoutBit.INVALID, length);
 
         this.varCount++;
         this.varColumns.add(column);
@@ -107,7 +107,7 @@ public final class LayoutBuilder {
     public Layout build() {
         // Compute offset deltas.  Offset bools by the present byte count, and fixed fields by the sum of the present
         // and bool count.
-        int fixedDelta = this.bitAllocator.getNumBytes();
+        int fixedDelta = this.bitAllocator.numBytes();
         int varIndexDelta = this.fixedCount;
 
         // Update the fixedColumns with the delta before freezing them.
@@ -127,7 +127,7 @@ public final class LayoutBuilder {
 
         updatedColumns.addAll(this.sparseColumns);
 
-        Layout layout = new Layout(this.name, this.schemaId, this.bitAllocator.getNumBytes(), this.fixedSize + fixedDelta, updatedColumns);
+        Layout layout = new Layout(this.name, this.schemaId, this.bitAllocator.numBytes(), this.fixedSize + fixedDelta, updatedColumns);
         this.reset();
         return layout;
     }

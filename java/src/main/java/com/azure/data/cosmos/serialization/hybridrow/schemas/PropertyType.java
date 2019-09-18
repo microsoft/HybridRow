@@ -14,7 +14,7 @@ import java.util.PrimitiveIterator;
 /**
  * The base class for property types both primitive and complex.
  */
-@JsonTypeInfo(use = Id.NAME, property = "type")
+@JsonTypeInfo(use = Id.NAME, property = "type", visible = true)
 @JsonSubTypes({
     // Composite types
     @Type(value = ArrayPropertyType.class, name = "array"),
