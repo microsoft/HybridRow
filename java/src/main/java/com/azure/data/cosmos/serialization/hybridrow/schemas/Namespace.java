@@ -5,6 +5,8 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 import com.azure.data.cosmos.core.Json;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Namespace {
+
+    private static final Logger logger = LoggerFactory.getLogger(Json.class);
 
     @JsonProperty(required = true)
     private String name;
@@ -102,7 +106,11 @@ public class Namespace {
      */
     public static Optional<Namespace> parse(InputStream stream) {
         Optional<Namespace> namespace = Json.parse(stream, Namespace.class);
-        namespace.ifPresent(SchemaValidator::validate);
+        try {
+            namespace.ifPresent(SchemaValidator::validate);
+        } catch (SchemaException error) {
+            logger.error("failed to parse {} due to ", Namespace.class, error);
+        }
         return namespace;
     }
 }

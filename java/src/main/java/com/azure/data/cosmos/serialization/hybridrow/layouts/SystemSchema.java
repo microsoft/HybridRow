@@ -6,23 +6,21 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
 import com.google.common.base.Suppliers;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
 public final class SystemSchema {
+
+    public static final String specificationTitle = "HybridRow serialization library";
 
     /**
      * SchemaId of the empty schema. This schema has no defined cells but can accomodate
@@ -46,15 +44,16 @@ public final class SystemSchema {
         final Optional<Namespace> namespace;
 
         try (final InputStream stream = getResourceAsStream("SystemSchema.json")) {
-
             namespace = Namespace.parse(stream);
-
         } catch (IOException cause) {
-            String message = lenientFormat("Failed to load SystemSchema.json due to %s", cause);
+            String message = lenientFormat("failed to initialize %s due to %s", cause);
             throw new IllegalStateException(message, cause);
         }
 
-        return new LayoutResolverNamespace(namespace.get());
+        return new LayoutResolverNamespace(namespace.orElseThrow(() -> {
+            String message = lenientFormat("failed to initialize %s due to system schema parse error");
+            return new IllegalStateException(message);
+        }));
     });
 
     private SystemSchema() {

@@ -40,7 +40,7 @@ public final class Json {
         try {
             return Optional.of(reader.forType(type).readValue(stream));
         } catch (IOException error) {
-            logger.error("", error);
+            logger.error("failed to parse %s due to ", type.getName(), error);
             return Optional.empty();
         }
     }
