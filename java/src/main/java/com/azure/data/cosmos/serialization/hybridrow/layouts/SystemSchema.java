@@ -9,9 +9,13 @@ import com.google.common.base.Suppliers;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.CodeSource;
+import java.util.Enumeration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -41,17 +45,20 @@ public final class SystemSchema {
 
         final String json;
 
-        try (final InputStream stream = SystemSchema.class.getResourceAsStream("SystemSchema.json")) {
+        try (final InputStream stream = getResourceAsStream("SystemSchema.json")) {
+
+            Optional<Namespace> namespace = Namespace.parse(stream);
             ByteBuf buffer = Unpooled.buffer();
             while (buffer.writeBytes(stream, 8192) == 8192) { }
             json = buffer.readCharSequence(buffer.readableBytes(), StandardCharsets.UTF_8).toString();
+
         } catch (IOException cause) {
-            String message = lenientFormat("failed to load SystemSchema.json due to %s", cause);
+            String message = lenientFormat("Failed to load SystemSchema.json due to %s", cause);
             throw new IllegalStateException(message, cause);
         }
 
         Optional<Namespace> namespace = Namespace.parse(json);
-        checkState(namespace.isPresent(), "failed to load SystemSchema.json");
+        checkState(namespace.isPresent(), "Failed to parse SystemSchema.json");
 
         return new LayoutResolverNamespace(namespace.get());
     });
@@ -61,5 +68,24 @@ public final class SystemSchema {
 
     public static LayoutResolver layoutResolver() {
         return layoutResolver.get();
+    }
+
+    private static InputStream getResourceAsStream(final String name) throws IOException {
+
+        final CodeSource codeSource = SystemSchema.class.getProtectionDomain().getCodeSource();
+        final ClassLoader classLoader = SystemSchema.class.getClassLoader();
+        final String location = codeSource.getLocation().toString();
+        final Enumeration<URL> urls;
+
+        urls = classLoader.getResources(name);
+
+        while (urls.hasMoreElements()) {
+            final URL url = urls.nextElement();
+            if (url.toString().startsWith(location)) {
+                return url.openStream();
+            }
+        }
+
+        throw new FileNotFoundException(lenientFormat("cannot find resource at code source location %s", location));
     }
 }

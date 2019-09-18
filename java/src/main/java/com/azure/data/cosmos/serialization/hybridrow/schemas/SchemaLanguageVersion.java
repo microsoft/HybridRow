@@ -12,24 +12,47 @@ public enum SchemaLanguageVersion {
     /**
      * Initial version of the HybridRow Schema Description Lanauge.
      */
-    V1((byte)0);
+    V1((byte) 0, "v1");
 
     public static final int BYTES = Byte.BYTES;
 
     private static HashMap<Byte, SchemaLanguageVersion> mappings;
+    private String friendlyName;
     private byte value;
 
-    SchemaLanguageVersion(byte value) {
+    SchemaLanguageVersion(byte value, String text) {
         this.value = value;
+        this.friendlyName = text;
         mappings().put(value, this);
     }
 
-    public byte getValue() {
-        return this.value;
+    /**
+     * Returns the friendly name of this enum constant.
+     *
+     * @return the friendly name of this enum constant.
+     * @see #toString()
+     */
+    public String friendlyName() {
+        return this.friendlyName;
     }
 
-    public static SchemaLanguageVersion forValue(byte value) {
+    public static SchemaLanguageVersion from(byte value) {
         return mappings().get(value);
+    }
+
+    /**
+     * Returns the friendly name of this enum constant.
+     *
+     * @return the friendly name of this enum constant.
+     * @see #friendlyName()
+     */
+    @Override
+    public String toString() {
+        return this.friendlyName;
+    }
+
+    public byte value() {
+        return this.value;
     }
 
     private static HashMap<Byte, SchemaLanguageVersion> mappings() {
@@ -42,4 +65,6 @@ public enum SchemaLanguageVersion {
         }
         return mappings;
     }
+
+
 }

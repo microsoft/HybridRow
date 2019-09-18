@@ -7,6 +7,7 @@ import com.azure.data.cosmos.core.Json;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.Layout;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutCompiler;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,23 +28,42 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class Schema {
 
-    private String comment;
+    // Required fields
+
+    @JsonProperty(required = true)
+    private SchemaId id;
+
+    @JsonProperty(required = true)
     private String name;
+
+    @JsonProperty(defaultValue = "schema", required = true)
+    private TypeKind type;
+
+    // Optional fields
+
+    @JsonProperty
+    private String comment;
+
+    @JsonProperty
     private SchemaOptions options;
+
+    @JsonProperty
+    private List<Property> properties;
+
+    @JsonProperty
+    private SchemaLanguageVersion version;
+
+    // TODO: DANOBLE: how do these properties serialize?
+
     private List<PartitionKey> partitionKeys;
     private List<PrimarySortKey> primaryKeys;
-    private List<Property> properties;
-    private SchemaId schemaId = SchemaId.NONE;
     private List<StaticKey> staticKeys;
-    private TypeKind type = TypeKind.values()[0];
-    private SchemaLanguageVersion version = SchemaLanguageVersion.values()[0];
 
     /**
      * Initializes a new instance of the {@link Schema} class.
      */
-    public Schema() {
-        this.type(TypeKind.SCHEMA);
-        this.properties = Collections.emptyList();
+    private Schema() {
+        this.type = TypeKind.SCHEMA;
         this.partitionKeys = Collections.emptyList();
         this.primaryKeys = Collections.emptyList();
         this.staticKeys = Collections.emptyList();
@@ -51,12 +71,24 @@ public class Schema {
 
     /**
      * An (optional) comment describing the purpose of this schema.
+     * <p>
      * Comments are for documentary purpose only and do not affect the schema at runtime.
+     *
+     * @return the comment on this {@linkplain Schema schema} or {@code null}, if there is no comment.
      */
     public final String comment() {
         return this.comment;
     }
 
+    /**
+     * Sets the (optional) comment describing the purpose of this schema.
+     * <p>
+     * Comments are for documentary purpose only and do not affect the schema at runtime.
+     *
+     * @param value a comment on this {@linkplain Schema schema} or {@code null} to remove the comment, if any, on this
+     *              {@linkplain Schema schema}.
+     * @return a reference to this {@linkplain Schema schema}.
+     */
     public final Schema comment(String value) {
         this.comment = value;
         return this;
@@ -65,30 +97,41 @@ public class Schema {
     /**
      * Compiles this logical schema into a physical layout that can be used to read and write rows.
      *
-     * @param ns The namespace within which this schema is defined.
+     * @param namespace The namespace within which this schema is defined.
      * @return The layout for the schema.
      */
-    public final Layout compile(Namespace ns) {
+    public final Layout compile(Namespace namespace) {
 
-        checkNotNull(ns, "expected non-null ns");
-        checkArgument(ns.schemas().contains(this));
+        checkNotNull(namespace, "expected non-null ns");
+        checkArgument(namespace.schemas().contains(this));
 
-        return LayoutCompiler.compile(ns, this);
+        return LayoutCompiler.compile(namespace, this);
     }
 
     /**
-     * The name of the schema.
+     * The name of this {@linkplain Schema schema}.
      * <p>
-     * The name of a schema MUST be unique within its namespace.
-     * <para />
-     * Names must begin with an alpha-numeric character and can only contain alpha-numeric characters and
-     * underscores.
+     * The name of a schema MUST be unique within its namespace. Names must begin with an alpha-numeric character and
+     * can only contain alpha-numeric characters and underscores.
+     *
+     * @return the name of this {@linkplain Schema schema} or {@code null}, if the name has not yet been set.
      */
     public final String name() {
         return this.name;
     }
 
-    public final Schema name(String value) {
+    /**
+     * Sets the name of this {@linkplain Schema schema}.
+     * <p>
+     * The name of a schema MUST be unique within its namespace. Names must begin with an alpha-numeric character and
+     * can only contain alpha-numeric characters and underscores.
+     *
+     * @param value a name for this {@linkplain Schema schema}.
+     * @return a reference to this {@linkplain Schema schema}.
+     */
+    @Nonnull
+    public final Schema name(@Nonnull String value) {
+        checkNotNull(value);
         this.name = value;
         return this;
     }
@@ -112,8 +155,8 @@ public class Schema {
      * @return A logical schema, if the value parses.
      */
     public static Optional<Schema> parse(String value) {
-        return Json.<Schema>parse(value); // TODO: DANOBLE: perform structural validation on the Schema after JSON
-        // parsing
+        return Json.parse(value, Schema.class);
+        // TODO: DANOBLE: perform structural validation on the Schema after JSON parsing
     }
 
     /**
@@ -173,11 +216,11 @@ public class Schema {
      * Identifiers must be unique within the scope of the database in which they are used.
      */
     public final SchemaId schemaId() {
-        return this.schemaId;
+        return this.id;
     }
 
     public final Schema schemaId(SchemaId value) {
-        this.schemaId = value;
+        this.id = value;
         return this;
     }
 

@@ -110,7 +110,7 @@ public final class SchemaValidator {
         Property p, Schema s, Map<SchemaIdentification, Schema> schemas, Map<SchemaId, Schema> ids) {
 
         Assert.isValidIdentifier(p.path(), "Property path");
-        SchemaValidator.visit(p.propertyType(), null, schemas, ids);
+        SchemaValidator.visit(p.type(), null, schemas, ids);
     }
 
     private static void visit(
@@ -164,7 +164,7 @@ public final class SchemaValidator {
             Map<String, Property> pathDupCheck = new HashMap<>(op.properties().size());
             for (Property nested : op.properties()) {
                 Assert.duplicateCheck(nested.path(), nested, pathDupCheck, "Property path", "Object");
-                SchemaValidator.visit(nested.propertyType(), p, schemas, ids);
+                SchemaValidator.visit(nested.type(), p, schemas, ids);
             }
             return;
         }

@@ -3,22 +3,26 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * A primitive property.
  * <p>
- * Primitive properties map to columns one-to-one.  Primitive properties indicate how the
- * column should be represented within the row.
+ * Primitive properties map to columns one-to-one. Primitive properties indicate how the column should be represented
+ * within the row.
  */
 public class PrimitivePropertyType extends PropertyType {
 
+    @JsonProperty
     private int length;
-    private StorageKind storage = StorageKind.values()[0];
+
+    @JsonProperty
+    private StorageKind storage;
 
     /**
      * The maximum allowable length in bytes.
      * <p>
-     * This annotation is only valid for non-fixed length types. A value of 0 means the maximum
-     * allowable length.
+     * This annotation is only valid for non-fixed length types. A value of 0 means the maximum allowable length.
      */
     public final int length() {
         return this.length;

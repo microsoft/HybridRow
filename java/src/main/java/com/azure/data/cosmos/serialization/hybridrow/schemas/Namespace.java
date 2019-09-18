@@ -4,31 +4,39 @@
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 import com.azure.data.cosmos.core.Json;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class Namespace {
 
+    @JsonProperty(required = true)
     private String name;
-    private SchemaLanguageVersion version = SchemaLanguageVersion.values()[0];
+
+    @JsonProperty(required = true)
     private ArrayList<Schema> schemas;
 
-    /**
-     * Initializes a new instance of the {@link Namespace} class.
-     */
-    public Namespace() {
-        this.schemas(new ArrayList<Schema>());
-    }
+    @JsonProperty(required = true)
+    private SchemaLanguageVersion version;
 
     /**
-     * The fully qualified identifier of the namespace.
+     * The fully qualified name of the namespace.
+     *
+     * @return fully qualified name of the {@linkplain Namespace namespace}.
      */
     public final String name() {
         return this.name;
     }
 
+    /**
+     * Sets the fully qualified name of the namespace.
+     *
+     * @param value fully qualified name of the {@linkplain Namespace namespace}.
+     * @return a reference to this {@linkplain Namespace namespace}.
+     */
     public final Namespace name(String value) {
         this.name = value;
         return this;
@@ -54,11 +62,21 @@ public class Namespace {
 
     /**
      * The version of the HybridRow Schema Definition Language used to encode this namespace.
+     *
+     * @return {linkplain SchemaLanguageVersion version} of the HybridRow Schema Definition Language used to encode this
+     * {@linkplain Namespace namespace}.
      */
     public final SchemaLanguageVersion version() {
         return this.version;
     }
 
+    /**
+     * Sets the version of the HybridRow Schema Definition Language used to encode this namespace.
+     *
+     * @param value {linkplain SchemaLanguageVersion version} of the HybridRow Schema Definition Language that will be
+     *              used to encode this {@linkplain Namespace namespace}.
+     * @return a reference to this {@linkplain Namespace namespace}.
+     */
     public final Namespace version(SchemaLanguageVersion value) {
         this.version = value;
         return this;
@@ -67,12 +85,24 @@ public class Namespace {
     /**
      * Parse a JSON document and return a full namespace.
      *
-     * @param value The JSON text to parse
+     * @param value The JSON text to parse.
      * @return A namespace containing a set of logical schemas.
      */
     public static Optional<Namespace> parse(String value) {
-        Optional<Namespace> ns = Json.<Namespace>parse(value);
-        ns.ifPresent(SchemaValidator::validate);
-        return ns;
+        Optional<Namespace> namespace = Json.parse(value, Namespace.class);
+        namespace.ifPresent(SchemaValidator::validate);
+        return namespace;
+    }
+
+    /**
+     * Parse a JSON document and return a full namespace.
+     *
+     * @param stream The JSON input stream to parse.
+     * @return A namespace containing a set of logical schemas.
+     */
+    public static Optional<Namespace> parse(InputStream stream) {
+        Optional<Namespace> namespace = Json.parse(stream, Namespace.class);
+        namespace.ifPresent(SchemaValidator::validate);
+        return namespace;
     }
 }

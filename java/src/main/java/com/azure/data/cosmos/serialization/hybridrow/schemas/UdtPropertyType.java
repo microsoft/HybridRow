@@ -27,8 +27,7 @@ public class UdtPropertyType extends ScopePropertyType {
     /**
      * The identifier of the UDT schema defining the structure for the nested row.
      * <p>
-     * The UDT schema MUST be defined within the same {@link Namespace} as the schema that
-     * references it.
+     * The UDT schema MUST be defined within the same {@link Namespace} as the schema that references it.
      */
     public final String name() {
         return this.name;

@@ -19,7 +19,7 @@ public enum StorageKind {
      * <p>
      * This is indicative of an error in the the column specification.
      */
-    NONE(-1),
+    NONE(-1, "none"),
 
     /**
      * The property defines a sparse column
@@ -28,14 +28,14 @@ public enum StorageKind {
      * linked list at the end of the row. Access time for sparse columns is proportional to the number of sparse columns
      * in the row.
      */
-    SPARSE(0),
+    SPARSE(0, "sparse"),
 
     /**
      * The property is a fixed-length, space-reserved column
      * <p>
      * The column will consume 1 null-bit, and its byte-width regardless of whether the value is present in the row.
      */
-    FIXED(1),
+    FIXED(1, "fixed"),
 
     /**
      * The property is a variable-length column.
@@ -46,7 +46,7 @@ public enum StorageKind {
      * When a <em>long</em> value is marked variable then a null-bit is reserved and the value is optionally encoded as
      * variable if small enough to fit, otherwise the null-bit is set and the value is encoded as sparse.
      */
-    VARIABLE(2);
+    VARIABLE(2, "variable");
 
     public static final int BYTES = Integer.BYTES;
 
@@ -57,17 +57,28 @@ public enum StorageKind {
         return new Int2ObjectArrayMap<StorageKind>(values, storageKinds);
     });
 
-    private int value;
+    private final String friendlyName;
+    private final int value;
 
-    StorageKind(int value) {
+    StorageKind(int value, String friendlyName) {
+        this.friendlyName = friendlyName;
         this.value = value;
     }
 
-    public int value() {
-        return this.value;
+    public String friendlyName() {
+        return this.friendlyName;
     }
 
     public static StorageKind from(int value) {
         return mappings.get().get(value);
+    }
+
+    @Override
+    public String toString() {
+        return this.friendlyName;
+    }
+
+    public int value() {
+        return this.value;
     }
 }

@@ -61,15 +61,15 @@ public final class LayoutCompiler {
 
         for (Property p : properties) {
 
-            LayoutType type = LayoutCompiler.logicalToPhysicalType(ns, p.propertyType(), typeArgs);
+            LayoutType type = LayoutCompiler.logicalToPhysicalType(ns, p.type(), typeArgs);
 
             switch (LayoutCodeTraits.clearImmutableBit(type.layoutCode())) {
 
                 case OBJECT_SCOPE: {
-                    if (!p.propertyType().nullable()) {
+                    if (!p.type().nullable()) {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
                     }
-                    ObjectPropertyType op = (ObjectPropertyType)p.propertyType();
+                    ObjectPropertyType op = (ObjectPropertyType)p.type();
                     builder.addObjectScope(p.path(), type);
                     LayoutCompiler.addProperties(builder, ns, type.layoutCode(), op.properties());
                     builder.EndObjectScope();
@@ -87,7 +87,7 @@ public final class LayoutCompiler {
                 case TAGGED_SCOPE:
                 case TAGGED2_SCOPE:
                 case SCHEMA: {
-                    if (!p.propertyType().nullable()) {
+                    if (!p.type().nullable()) {
                         throw new LayoutCompilationException("Non-nullable sparse column are not supported.");
                     }
                     builder.addTypedScope(p.path(), type, typeArgs.get());
@@ -100,9 +100,9 @@ public final class LayoutCompiler {
 
                 default: {
 
-                    if (p.propertyType() instanceof PrimitivePropertyType) {
+                    if (p.type() instanceof PrimitivePropertyType) {
 
-                        PrimitivePropertyType pp = (PrimitivePropertyType) p.propertyType();
+                        PrimitivePropertyType pp = (PrimitivePropertyType) p.type();
 
                         switch (pp.storage()) {
 

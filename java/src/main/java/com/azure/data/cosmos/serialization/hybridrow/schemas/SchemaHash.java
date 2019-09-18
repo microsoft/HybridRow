@@ -73,7 +73,7 @@ public final class SchemaHash {
         HashCode128 hash = seed;
 
         hash = Murmur3Hash.Hash128(p.path(), hash);
-        hash = SchemaHash.computeHash(ns, p.propertyType(), hash);
+        hash = SchemaHash.computeHash(ns, p.type(), hash);
 
         return hash;
     }
