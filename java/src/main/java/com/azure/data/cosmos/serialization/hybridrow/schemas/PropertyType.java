@@ -25,9 +25,28 @@ import java.util.PrimitiveIterator;
     @Type(value = TaggedPropertyType.class, name="tagged"),
     @Type(value = TuplePropertyType.class, name="tuple"),
     // Primitive types
+    @Type(value = PrimitivePropertyType.class, name="null"),
+    @Type(value = PrimitivePropertyType.class, name="bool"),
+    @Type(value = PrimitivePropertyType.class, name="int8"),
+    @Type(value = PrimitivePropertyType.class, name="int16"),
     @Type(value = PrimitivePropertyType.class, name="int32"),
+    @Type(value = PrimitivePropertyType.class, name="int64"),
+    @Type(value = PrimitivePropertyType.class, name="varint"),
+    @Type(value = PrimitivePropertyType.class, name="uint8"),
+    @Type(value = PrimitivePropertyType.class, name="uint16"),
     @Type(value = PrimitivePropertyType.class, name="uint32"),
-    @Type(value = PrimitivePropertyType.class, name="utf8")
+    @Type(value = PrimitivePropertyType.class, name="uint64"),
+    @Type(value = PrimitivePropertyType.class, name="varuint"),
+    @Type(value = PrimitivePropertyType.class, name="float32"),
+    @Type(value = PrimitivePropertyType.class, name="float64"),
+    @Type(value = PrimitivePropertyType.class, name="float128"),
+    @Type(value = PrimitivePropertyType.class, name="decimal"),
+    @Type(value = PrimitivePropertyType.class, name="datetime"),
+    @Type(value = PrimitivePropertyType.class, name="unixdatetime"),
+    @Type(value = PrimitivePropertyType.class, name="binary"),
+    @Type(value = PrimitivePropertyType.class, name="guid"),
+    @Type(value = PrimitivePropertyType.class, name="utf8"),
+    @Type(value = PrimitivePropertyType.class, name="any")
 })
 public abstract class PropertyType {
 

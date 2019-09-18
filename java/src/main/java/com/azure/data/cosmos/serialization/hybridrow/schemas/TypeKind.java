@@ -186,7 +186,7 @@ public enum TypeKind {
     /**
      * An untyped sparse field.
      * <p>
-     * May only be used to define the type within a nested scope.
+     * May only be used to define the type of a field within a nested scope.
      */
     ANY(30, "any");
 
