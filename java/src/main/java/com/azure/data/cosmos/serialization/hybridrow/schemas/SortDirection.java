@@ -3,8 +3,12 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.google.common.base.Suppliers;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Describes the sort order direction.
@@ -22,12 +26,17 @@ public enum SortDirection {
 
     public static final int BYTEST = Integer.BYTES;
 
-    private static Int2ObjectMap<SortDirection> mappings;
-    private int value;
+    private static final Supplier<Int2ReferenceMap<SortDirection>> mappings = Suppliers.memoize(() -> {
+        SortDirection[] constants = SortDirection.class.getEnumConstants();
+        int[] values = new int[constants.length];
+        Arrays.setAll(values, index -> constants[index].value);
+        return new Int2ReferenceArrayMap<>(values, constants);
+    });
+
+    private final int value;
 
     SortDirection(int value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
     public int value() {
@@ -35,17 +44,6 @@ public enum SortDirection {
     }
 
     public static SortDirection from(int value) {
-        return mappings().get(value);
-    }
-
-    private static Int2ObjectMap<SortDirection> mappings() {
-        if (mappings == null) {
-            synchronized (SortDirection.class) {
-                if (mappings == null) {
-                    mappings = new Int2ObjectOpenHashMap<>();
-                }
-            }
-        }
-        return mappings;
+        return mappings.get().get(value);
     }
 }

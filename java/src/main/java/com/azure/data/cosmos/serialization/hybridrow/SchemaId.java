@@ -20,9 +20,11 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 
 import static com.google.common.base.Strings.lenientFormat;
+import static it.unimi.dsi.fastutil.HashCommon.*;
 
 /**
  * The unique identifier for a schema.
+ * <p>
  * Identifiers must be unique within the scope of the database in which they are used.
  */
 @JsonDeserialize(using = SchemaId.JsonDeserializer.class)
@@ -31,10 +33,15 @@ public final class SchemaId implements Comparable<SchemaId> {
 
     public static final int BYTES = Integer.BYTES;
     public static final SchemaId INVALID = null;
-    public static final SchemaId NONE = new SchemaId(-1);
+    public static final SchemaId NONE;
 
-    private static final long MAX_VALUE = 0x00000000FFFFFFFFL;
-    private static final Int2ReferenceMap<SchemaId> cache = new Int2ReferenceOpenHashMap<>();
+    private static final long MAX_VALUE = 0x00000000FFFFFFFEL;
+    private static final Int2ReferenceMap<SchemaId> cache;
+
+    static {
+        cache = new Int2ReferenceOpenHashMap<>();
+        cache.put(-1, NONE = new SchemaId(-1));
+    }
 
     private final int value;
 
@@ -68,7 +75,7 @@ public final class SchemaId implements Comparable<SchemaId> {
      * {@code true} if this is the same {@link SchemaId} as {@code other}.
      *
      * @param other The value to compare against.
-     * @return True if the two values are the same.
+     * @return {@code true} if the two values are the same.
      */
     public boolean equals(SchemaId other) {
         if (null == other) {
@@ -89,12 +96,12 @@ public final class SchemaId implements Comparable<SchemaId> {
 
     @Override
     public int hashCode() {
-        return Integer.valueOf(this.value()).hashCode();
+        return mix(this.value);
     }
 
     @Override
     public String toString() {
-        return String.valueOf(this.value());
+        return Integer.toString(this.value);
     }
 
     /**
@@ -118,11 +125,11 @@ public final class SchemaId implements Comparable<SchemaId> {
             final long value = parser.getLongValue();
 
             if (value < 0 || value > MAX_VALUE) {
-                String message = lenientFormat("expected value in [0, 4294967295], not %s", value);
+                String message = lenientFormat("expected value in [0, %s], not %s", MAX_VALUE, value);
                 throw MismatchedInputException.from(parser, SchemaId.class, message);
             }
 
-            return new SchemaId((int) value);
+            return SchemaId.from((int) value);
         }
     }
 

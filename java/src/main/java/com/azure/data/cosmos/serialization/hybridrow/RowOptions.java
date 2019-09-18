@@ -3,8 +3,13 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.azure.data.cosmos.serialization.hybridrow.schemas.SortDirection;
+import com.google.common.base.Suppliers;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Describes the desired behavior when mutating a hybrid row.
@@ -50,37 +55,31 @@ public enum RowOptions {
     /**
      * Delete an existing value.
      * <p>
-     * If a value exists, then it is removed.  The remainder of the row is resized to accomodate
+     * If a value exists, then it is removed.  The remainder of the row is resized to accommodate
      * a decrease in required space.  If no value exists this operation is a no-op.
      */
     DELETE(5);
 
     public static final int BYTES = Integer.BYTES;
 
-    private static Int2ObjectMap<RowOptions> mappings;
+    private static final Supplier<Int2ReferenceMap<RowOptions>> mappings = Suppliers.memoize(() -> {
+        RowOptions[] constants = RowOptions.class.getEnumConstants();
+        int[] values = new int[constants.length];
+        Arrays.setAll(values, index -> constants[index].value);
+        return new Int2ReferenceArrayMap<>(values, constants);
+    });
+
     private final int value;
 
     RowOptions(int value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
     public static RowOptions from(int value) {
-        return mappings().get(value);
+        return mappings.get().get(value);
     }
 
     public int value() {
         return this.value;
-    }
-
-    private static Int2ObjectMap<RowOptions> mappings() {
-        if (mappings == null) {
-            synchronized (RowOptions.class) {
-                if (mappings == null) {
-                    mappings = new Int2ObjectOpenHashMap<>();
-                }
-            }
-        }
-        return mappings;
     }
 }

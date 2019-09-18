@@ -4,8 +4,8 @@
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 import com.google.common.base.Suppliers;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -50,11 +50,11 @@ public enum StorageKind {
 
     public static final int BYTES = Integer.BYTES;
 
-    private static final Supplier<Int2ObjectMap<StorageKind>> mappings = Suppliers.memoize(() -> {
+    private static final Supplier<Int2ReferenceMap<StorageKind>> mappings = Suppliers.memoize(() -> {
         StorageKind[] storageKinds = StorageKind.class.getEnumConstants();
         int[] values = new int[storageKinds.length];
         Arrays.setAll(values, index -> storageKinds[index].value);
-        return new Int2ObjectArrayMap<StorageKind>(values, storageKinds);
+        return new Int2ReferenceArrayMap<>(values, storageKinds);
     });
 
     private final String friendlyName;

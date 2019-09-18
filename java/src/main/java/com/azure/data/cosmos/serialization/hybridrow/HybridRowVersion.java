@@ -3,8 +3,11 @@
 
 package com.azure.data.cosmos.serialization.hybridrow;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.google.common.base.Suppliers;
+import it.unimi.dsi.fastutil.bytes.Byte2ReferenceMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ReferenceOpenHashMap;
+
+import java.util.function.Supplier;
 
 /**
  * Versions of HybridRow.
@@ -22,30 +25,26 @@ public enum HybridRowVersion {
 
     public static final int BYTES = Byte.BYTES;
 
-    private static Int2ObjectMap<HybridRowVersion> mappings;
-    private byte value;
+    private static final Supplier<Byte2ReferenceMap<HybridRowVersion>> mappings = Suppliers.memoize(() -> {
+        final HybridRowVersion[] constants = HybridRowVersion.class.getEnumConstants();
+        final byte[] values = new byte[constants.length];
+        for (int i = 0; i < constants.length; i++) {
+            values[i] = constants[i].value();
+        }
+        return new Byte2ReferenceOpenHashMap<>(values, constants);
+    });
 
-    HybridRowVersion(byte value) {
+    private final byte value;
+
+    HybridRowVersion(final byte value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
-    public static HybridRowVersion from(byte value) {
-        return mappings().get(value);
+    public static HybridRowVersion from(final byte value) {
+        return mappings.get().get(value);
     }
 
     public byte value() {
         return this.value;
-    }
-
-    private static Int2ObjectMap<HybridRowVersion> mappings() {
-        if (mappings == null) {
-            synchronized (HybridRowVersion.class) {
-                if (mappings == null) {
-                    mappings = new Int2ObjectOpenHashMap<>();
-                }
-            }
-        }
-        return mappings;
     }
 }

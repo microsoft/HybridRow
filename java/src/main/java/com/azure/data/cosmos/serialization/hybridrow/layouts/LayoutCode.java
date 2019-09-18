@@ -3,10 +3,11 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
-import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import com.google.common.base.Suppliers;
+import it.unimi.dsi.fastutil.bytes.Byte2ReferenceMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ReferenceOpenHashMap;
 
-import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Type coded used in the binary encoding to indicate the formatting of succeeding bytes.
@@ -91,30 +92,26 @@ public enum LayoutCode {
 
     public static final int BYTES = Byte.BYTES;
 
-    private static Byte2ObjectMap<LayoutCode> mappings;
-    private byte value;
+    private static final Supplier<Byte2ReferenceMap<LayoutCode>> mappings = Suppliers.memoize(() -> {
+        final LayoutCode[] constants = LayoutCode.class.getEnumConstants();
+        final byte[] values = new byte[constants.length];
+        for (int i = 0; i < constants.length; i++) {
+            values[i] = constants[i].value();
+        }
+        return new Byte2ReferenceOpenHashMap<>(values, constants);
+    });
 
-    LayoutCode(byte value) {
+    private final byte value;
+
+    LayoutCode(final byte value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
     public byte value() {
         return this.value;
     }
 
-    public static LayoutCode from(byte value) {
-        return mappings().get(value);
-    }
-
-    private static Map<Byte, LayoutCode> mappings() {
-        if (mappings == null) {
-            synchronized (LayoutCode.class) {
-                if (mappings == null) {
-                    mappings = new Byte2ObjectOpenHashMap<>();
-                }
-            }
-        }
-        return mappings;
+    public static LayoutCode from(final byte value) {
+        return mappings.get().get(value);
     }
 }

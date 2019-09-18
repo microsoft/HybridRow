@@ -40,6 +40,46 @@ public final class RowCursor implements Cloneable {
     RowCursor() {
     }
 
+    /**
+     * If existing, the layout code of the existing field, otherwise undefined.
+     *
+     * @return layout code.
+     */
+    public LayoutType cellType() {
+        return this.cellType;
+    }
+
+    /**
+     * Sets the layout type of an existing field.
+     *
+     * @param value a {@link LayoutType}.
+     * @return a reference to this {@link RowCursor}.
+     */
+    public RowCursor cellType(LayoutType value) {
+        this.cellType = value;
+        return this;
+    }
+
+    /**
+     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
+     *
+     * @return a {@link TypeArgumentList} or {@code null}.
+     */
+    public TypeArgumentList cellTypeArgs() {
+        return this.cellTypeArgs;
+    }
+
+    /**
+     * Sets the layout type arguments of an existing field.
+     *
+     * @param value a {@link TypeArgumentList} or {@code null}.
+     * @return a reference to this {@link RowCursor}.
+     */
+    public RowCursor cellTypeArgs(TypeArgumentList value) {
+        this.cellTypeArgs = value;
+        return this;
+    }
+
     public RowCursor clone() {
         try {
             return (RowCursor) super.clone();
@@ -48,11 +88,32 @@ public final class RowCursor implements Cloneable {
         }
     }
 
+    /**
+     * For sized scopes (e.g. Typed Array), the number of elements.
+     *
+     * @return the number of elements or zero.
+     */
+    public int count() {
+        return this.count;
+    }
+
+    /**
+     * Sets the number of elements for a sized scope.
+     *
+     * @param count the number of elements for a sized scope.
+     * @return a reference to this {@link RowCursor}.
+     */
+    public RowCursor count(int count) {
+        this.count = count;
+        return this;
+    }
+
     public static RowCursor create(RowBuffer row) {
 
         final SchemaId schemaId = row.readSchemaId(1);
         final Layout layout = row.resolver().resolve(schemaId);
-        final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.BYTES, layout.numVariable());
+        final int sparseSegmentOffset = row.computeVariableValueOffset(layout, HybridRowHeader.BYTES,
+            layout.numVariable());
 
         return new RowCursor()
             .layout(layout)
@@ -75,66 +136,6 @@ public final class RowCursor implements Cloneable {
             .start(HybridRowHeader.BYTES)
             .metaOffset(row.length())
             .valueOffset(row.length());
-    }
-
-    /**
-     * If existing, the layout code of the existing field, otherwise undefined.
-     *
-     * @return layout code.
-     */
-    public LayoutType cellType() {
-        return this.cellType;
-    }
-
-    /**
-     * Sets the layout type of an existing field.
-     *
-     * @param value  a {@link LayoutType}.
-     * @return a reference to this {@link RowCursor}.
-     */
-    public RowCursor cellType(LayoutType value) {
-        this.cellType = value;
-        return this;
-    }
-
-    /**
-     * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
-     *
-     * @return a {@link TypeArgumentList} or {@code null}.
-     */
-    public TypeArgumentList cellTypeArgs() {
-        return this.cellTypeArgs;
-    }
-
-    /**
-     * Sets the layout type arguments of an existing field.
-     *
-     * @param value  a {@link TypeArgumentList} or {@code null}.
-     * @return a reference to this {@link RowCursor}.
-     */
-    public RowCursor cellTypeArgs(TypeArgumentList value) {
-        this.cellTypeArgs = value;
-        return this;
-    }
-
-    /**
-     * For sized scopes (e.g. Typed Array), the number of elements.
-     *
-     * @return the number of elements or zero.
-     */
-    public int count() {
-        return this.count;
-    }
-
-    /**
-     * Sets the number of elements for a sized scope.
-     *
-     * @param count the number of elements for a sized scope.
-     * @return a reference to this {@link RowCursor}.
-     */
-    public RowCursor count(int count) {
-        this.count = count;
-        return this;
     }
 
     /**
@@ -203,11 +204,21 @@ public final class RowCursor implements Cloneable {
      * If {@code true}, this scope's nested fields cannot be updated individually.
      * <p>
      * The entire scope can still be replaced.
+     *
+     * @return {@code true} if this scope's nested fields cannot be updated individually, otherwise {@code false}.
      */
     public boolean immutable() {
         return this.immutable;
     }
 
+    /**
+     * Sets a flag indicated whether this scope's nested fields cannot be updated individually.
+     * <p>
+     * The entire scope can still be replaced.
+     *
+     * @param value {@code true} if this scope's nested fields cannot be updated individually, otherwise {@code false}.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor immutable(boolean value) {
         this.immutable = value;
         return this;
@@ -215,11 +226,19 @@ public final class RowCursor implements Cloneable {
 
     /**
      * For indexed scopes (e.g. an Array scope), the zero-based index into the scope of the sparse field.
+     *
+     * @return the zero-based index into the scope of the sparse field.
      */
     public int index() {
         return this.index;
     }
 
+    /**
+     * Sets the zero-based index into the scope of a sparse field in an indexed scope (e.g. an Array scope).
+     *
+     * @param value the zero-based index into the scope of the sparse field.
+     * @return a reference to this {@link RowCursor}.
+     */
     public RowCursor index(int value) {
         this.index = value;
         return this;

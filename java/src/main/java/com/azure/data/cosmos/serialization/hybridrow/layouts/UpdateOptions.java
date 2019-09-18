@@ -3,8 +3,12 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.google.common.base.Suppliers;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Describes the desired behavior when writing a {@link LayoutType}.
@@ -47,30 +51,24 @@ public enum UpdateOptions {
 
     public static final int BYTES = Integer.BYTES;
 
-    private static Int2ObjectMap<UpdateOptions> mappings;
-    private int value;
+    private static final Supplier<Int2ReferenceMap<UpdateOptions>> mappings = Suppliers.memoize(() -> {
+        UpdateOptions[] constants = UpdateOptions.class.getEnumConstants();
+        int[] values = new int[constants.length];
+        Arrays.setAll(values, index -> constants[index].value);
+        return new Int2ReferenceArrayMap<>(values, constants);
+    });
+
+    private final int value;
 
     UpdateOptions(int value) {
         this.value = value;
-        mappings().put(value, this);
     }
 
     public static UpdateOptions from(int value) {
-        return mappings().get(value);
+        return mappings.get().get(value);
     }
 
     public int value() {
         return this.value;
-    }
-
-    private static Int2ObjectMap<UpdateOptions> mappings() {
-        if (mappings == null) {
-            synchronized (UpdateOptions.class) {
-                if (mappings == null) {
-                    mappings = new Int2ObjectOpenHashMap<>();
-                }
-            }
-        }
-        return mappings;
     }
 }

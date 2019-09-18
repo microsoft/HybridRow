@@ -3,12 +3,10 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
-// TODO: DANOBLE: Fixup JSON-serialized naming for agreement with the dotnet code
-
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.google.common.base.Suppliers;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -192,11 +190,11 @@ public enum TypeKind {
 
     public static final int BYTES = Integer.BYTES;
 
-    private static Supplier<Int2ObjectMap<TypeKind>> mappings = Suppliers.memoize(() -> {
-        TypeKind[] typeKinds = TypeKind.class.getEnumConstants();
-        int[] values = new int[typeKinds.length];
-        Arrays.setAll(values, index -> typeKinds[index].value);
-        return new Int2ObjectOpenHashMap<>(values, typeKinds);
+    private static Supplier<Int2ReferenceMap<TypeKind>> mappings = Suppliers.memoize(() -> {
+        TypeKind[] constants = TypeKind.class.getEnumConstants();
+        int[] values = new int[constants.length];
+        Arrays.setAll(values, index -> constants[index].value);
+        return new Int2ReferenceOpenHashMap<>(values, constants);
     });
 
     private final String friendlyName;
@@ -217,6 +215,10 @@ public enum TypeKind {
         return this.friendlyName;
     }
 
+    public static TypeKind from(int value) {
+        return mappings.get().get(value);
+    }
+
     /**
      * Returns the friendly name of this enum constant.
      *
@@ -230,9 +232,5 @@ public enum TypeKind {
 
     public int value() {
         return this.value;
-    }
-
-    public static TypeKind from(int value) {
-        return mappings.get().get(value);
     }
 }
