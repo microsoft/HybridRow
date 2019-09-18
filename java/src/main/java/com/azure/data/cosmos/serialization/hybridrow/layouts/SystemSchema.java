@@ -43,22 +43,16 @@ public final class SystemSchema {
     @SuppressWarnings("StatementWithEmptyBody")
     private static final Supplier<LayoutResolver> layoutResolver = Suppliers.memoize(() -> {
 
-        final String json;
+        final Optional<Namespace> namespace;
 
         try (final InputStream stream = getResourceAsStream("SystemSchema.json")) {
 
-            Optional<Namespace> namespace = Namespace.parse(stream);
-            ByteBuf buffer = Unpooled.buffer();
-            while (buffer.writeBytes(stream, 8192) == 8192) { }
-            json = buffer.readCharSequence(buffer.readableBytes(), StandardCharsets.UTF_8).toString();
+            namespace = Namespace.parse(stream);
 
         } catch (IOException cause) {
             String message = lenientFormat("Failed to load SystemSchema.json due to %s", cause);
             throw new IllegalStateException(message, cause);
         }
-
-        Optional<Namespace> namespace = Namespace.parse(json);
-        checkState(namespace.isPresent(), "Failed to parse SystemSchema.json");
 
         return new LayoutResolverNamespace(namespace.get());
     });

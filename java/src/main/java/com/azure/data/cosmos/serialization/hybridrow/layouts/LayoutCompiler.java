@@ -153,8 +153,8 @@ public final class LayoutCompiler {
         }
     }
 
-    private static LayoutType logicalToPhysicalType(Namespace ns, PropertyType logicalType,
-                                                    Out<TypeArgumentList> typeArgs) {
+    private static LayoutType logicalToPhysicalType(
+        Namespace namespace, PropertyType logicalType, Out<TypeArgumentList> typeArgs) {
 
         typeArgs.set(TypeArgumentList.EMPTY);
         boolean immutable = logicalType instanceof ScopePropertyType && ((ScopePropertyType) logicalType).immutable();
@@ -240,7 +240,7 @@ public final class LayoutCompiler {
 
                     final Out<TypeArgumentList> out = new Out<>();
 
-                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, ap.items(), out);
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(namespace, ap.items(), out);
                     TypeArgumentList itemTypeArgs = out.get();
 
                     if (ap.items().nullable()) {
@@ -263,7 +263,7 @@ public final class LayoutCompiler {
 
                     final Out<TypeArgumentList> out = new Out<>();
 
-                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, sp.items(), out);
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(namespace, sp.items(), out);
                     TypeArgumentList itemTypeArgs = out.get();
 
                     if (sp.items().nullable()) {
@@ -291,7 +291,7 @@ public final class LayoutCompiler {
 
                     final Out<TypeArgumentList> out = new Out<>();
 
-                    LayoutType keyType = LayoutCompiler.logicalToPhysicalType(ns, mp.keys(), out);
+                    LayoutType keyType = LayoutCompiler.logicalToPhysicalType(namespace, mp.keys(), out);
                     TypeArgumentList keyTypeArgs = out.get();
 
                     if (mp.keys().nullable()) {
@@ -299,7 +299,7 @@ public final class LayoutCompiler {
                         keyType = keyType.isImmutable() ? LayoutTypes.IMMUTABLE_NULLABLE : LayoutTypes.NULLABLE;
                     }
 
-                    LayoutType valueType = LayoutCompiler.logicalToPhysicalType(ns, mp.values(), out);
+                    LayoutType valueType = LayoutCompiler.logicalToPhysicalType(namespace, mp.values(), out);
                     TypeArgumentList valueTypeArgs = out.get();
 
                     if (mp.values().nullable()) {
@@ -331,7 +331,7 @@ public final class LayoutCompiler {
 
                 for (int i = 0; i < tp.items().size(); i++) {
 
-                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, tp.items().get(i), out);
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(namespace, tp.items().get(i), out);
                     TypeArgumentList itemTypeArgs = out.get();
 
                     if (tp.items().get(i).nullable()) {
@@ -366,7 +366,7 @@ public final class LayoutCompiler {
 
                 for (int i = 0; i < tg.items().size(); i++) {
 
-                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(ns, tg.items().get(i), out);
+                    LayoutType itemType = LayoutCompiler.logicalToPhysicalType(namespace, tg.items().get(i), out);
                     TypeArgumentList itemTypeArgs = out.get();
 
                     if (tg.items().get(i).nullable()) {
@@ -396,11 +396,11 @@ public final class LayoutCompiler {
                 final Optional<Schema> udtSchema;
 
                 if (up.schemaId() == SchemaId.INVALID) {
-                    udtSchema = ns.schemas().stream()
+                    udtSchema = namespace.schemas().stream()
                         .filter(schema -> up.name().equals(schema.name()))
                         .findFirst();
                 } else {
-                    udtSchema = ns.schemas().stream()
+                    udtSchema = namespace.schemas().stream()
                         .filter(schema -> up.schemaId().equals(schema.schemaId()))
                         .findFirst();
                     if (up.name().equals(udtSchema.map(Schema::name).orElse(null))) {

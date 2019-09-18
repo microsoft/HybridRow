@@ -37,18 +37,17 @@ public final class SchemaValidator {
             Assert.duplicateCheck(identification.id(), schema, idDupCheck, "Schema id", "Namespace");
             Assert.duplicateCheck(identification, schema, nameDupCheck, "Schema reference", "Namespace");
 
-            // Count the versions of each schema by name.
-
-            final int count = nameVersioningCheck.get(schema.name());
-            nameVersioningCheck.put(schema.name(), count + 1);
+            nameVersioningCheck.compute(schema.name(), (name, count) -> count == null ? 1 : count + 1);
         }
 
         // Enable id-less Schema references for all types with a unique version in the namespace
 
         for (Schema schema : namespace.schemas()) {
             if (nameVersioningCheck.get(schema.name()) == 1) {
-                Assert.duplicateCheck(SchemaIdentification.of(schema.name(), SchemaId.INVALID), schema, nameDupCheck,
-                    "Schema reference", "Namespace");
+                Assert.duplicateCheck(
+                    SchemaIdentification.of(schema.name(), SchemaId.NONE), schema, nameDupCheck,
+                    "Schema reference", "Namespace"
+                );
             }
         }
 

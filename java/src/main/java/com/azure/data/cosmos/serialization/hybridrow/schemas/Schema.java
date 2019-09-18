@@ -31,9 +31,6 @@ public class Schema {
     // Required fields
 
     @JsonProperty(required = true)
-    private SchemaId id;
-
-    @JsonProperty(required = true)
     private String name;
 
     @JsonProperty(defaultValue = "schema", required = true)
@@ -43,6 +40,9 @@ public class Schema {
 
     @JsonProperty
     private String comment;
+
+    @JsonProperty()
+    private SchemaId id;
 
     @JsonProperty
     private SchemaOptions options;
@@ -63,6 +63,7 @@ public class Schema {
      * Initializes a new instance of the {@link Schema} class.
      */
     private Schema() {
+        this.id = SchemaId.NONE;
         this.type = TypeKind.SCHEMA;
         this.partitionKeys = Collections.emptyList();
         this.primaryKeys = Collections.emptyList();
