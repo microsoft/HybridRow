@@ -18,7 +18,7 @@ public class UdtPropertyType extends ScopePropertyType {
     private String name;
 
     @JsonProperty(required = true)
-    private SchemaId schemaId;
+    private SchemaId id;
 
     /**
      * The name of the UDT schema defining the structure of a nested row.
@@ -55,7 +55,7 @@ public class UdtPropertyType extends ScopePropertyType {
      * @return the unique identifier of the UDT schema defining the structure of a nested row or {@code null}.
      */
     public final SchemaId schemaId() {
-        return this.schemaId;
+        return this.id;
     }
 
     /**
@@ -70,7 +70,7 @@ public class UdtPropertyType extends ScopePropertyType {
      * @return a reference to this {@link UdtPropertyType}.
      */
     public final UdtPropertyType schemaId(SchemaId value) {
-        this.schemaId = value;
+        this.id = value;
         return this;
     }
 }

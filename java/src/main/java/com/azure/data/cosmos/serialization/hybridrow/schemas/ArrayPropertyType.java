@@ -3,6 +3,8 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Array properties represent an unbounded set of zero or more items.
  * <p>
@@ -12,15 +14,24 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
  */
 public class ArrayPropertyType extends ScopePropertyType {
 
+    @JsonProperty
     private PropertyType items;
 
     /**
      * (Optional) type of the elements of the array, if a typed array, otherwise null.
+     *
+     * @return type of the elements of the array or {@code null}, if the array is untyped.
      */
     public final PropertyType items() {
         return this.items;
     }
 
+    /**
+     * Set the type of the elements of the array
+     *
+     * @param value type of the elements of the array or {@code null}, if the array is untyped.
+     * @return a reference to this {@link ArrayPropertyType}.
+     */
     public final ArrayPropertyType items(PropertyType value) {
         this.items = value;
         return this;

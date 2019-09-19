@@ -1,0 +1,609 @@
+{
+  "version": "v1",
+  "schemas": [{
+      "name": "RootSegment",
+      "id": -1,
+      "type": "schema",
+      "properties": [{
+          "path": "PropertyBag",
+          "type": {
+            "type": "schema",
+            "name": "RootSegmentPropertyBag",
+            "id": 7
+          }
+        },
+        {
+          "path": "SegmentInfos",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "SegmentInfo",
+              "id": 1,
+              "nullable": false
+            }
+          }
+        },
+        {
+          "path": "SnapshotInfos",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "SnapshotInfo",
+              "id": 5,
+              "nullable": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "InvalidationManifest",
+      "id": -2,
+      "type": "schema",
+      "properties": [{
+          "path": "PropertyBag",
+          "type": {
+            "type": "schema",
+            "name": "InvalidationManifestPropertyBag",
+            "id": 9
+          }
+        },
+        {
+          "path": "StreamInfos",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "InvalidationStreamInfo",
+              "id": 10,
+              "nullable": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SegmentInfo",
+      "id": 1,
+      "type": "schema",
+      "properties": [{
+          "path": "LSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "PSID",
+          "type": {
+            "type": "schema",
+            "name": "FileId",
+            "id": 2
+          }
+        },
+        {
+          "path": "SegmentMetadata",
+          "type": {
+            "type": "schema",
+            "name": "SegmentMetadata",
+            "id": 4
+          }
+        },
+        {
+          "path": "ReferenceCount",
+          "type": {
+            "type": "uint8",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "ZeroUtilizationTimestamp",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "Control",
+          "type": {
+            "type": "uint8",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "FileId",
+      "id": 2,
+      "type": "schema",
+      "properties": [{
+          "path": "StorageAccountIndex",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "FileType",
+          "type": {
+            "type": "int16",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "FileIndex",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "PartitionId",
+          "type": {
+            "type": "guid",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "PartitionKeyRangeRid",
+          "type": {
+            "type": "binary",
+            "storage": "fixed",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "SequenceVector",
+      "id": 3,
+      "type": "schema",
+      "properties": [{
+          "path": "GlobalSequenceNumber",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "LocalSequenceNumber",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "SegmentMetadata",
+      "id": 4,
+      "type": "schema",
+      "properties": [{
+          "path": "InitialRecordCount",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "TombstoneRecordCount",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "InvalidatedRecordCount",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "SegmentSize",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "MinSequenceVector",
+          "type": {
+            "type": "schema",
+            "name": "SequenceVector",
+            "id": 3
+          }
+        },
+        {
+          "path": "MaxSequenceVector",
+          "type": {
+            "type": "schema",
+            "name": "SequenceVector",
+            "id": 3
+          }
+        },
+        {
+          "path": "InvalidationFileId",
+          "type": {
+            "type": "schema",
+            "name": "FileId",
+            "id": 2
+          }
+        },
+        {
+          "path": "InvalidationStats",
+          "type": {
+            "type": "schema",
+            "name": "InvalidationStats",
+            "id": 6
+          }
+        },
+        {
+          "path": "SchemaHash",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "ExpiredRecordCount",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "MinRecordTimestamp",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "MaxRecordTimestamp",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "PartialSegment",
+          "type": {
+            "type": "bool",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "SnapshotInfo",
+      "id": 5,
+      "type": "schema",
+      "properties": [{
+          "path": "SnapshotId",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "Timestamp",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "PSID",
+          "type": {
+            "type": "schema",
+            "name": "FileId",
+            "id": 2
+          }
+        },
+        {
+          "path": "TTL",
+          "type": {
+            "type": "int32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "InvalidationStats",
+      "id": 6,
+      "type": "schema",
+      "properties": [{
+          "path": "Count",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "SizeInBytes",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "RootSegmentPropertyBag",
+      "id": 7,
+      "type": "schema",
+      "properties": [{
+          "path": "Control",
+          "type": {
+            "type": "uint8",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "NumberOfEntries",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "NumberOfSnapshots",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "LastCheckpointedLSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "LastCheckpointedSequenceVector",
+          "type": {
+            "type": "schema",
+            "name": "SequenceVector",
+            "id": 3
+          }
+        },
+        {
+          "path": "LastFlushedLSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "LastFlushedSequenceVector",
+          "type": {
+            "type": "schema",
+            "name": "SequenceVector",
+            "id": 3
+          }
+        },
+        {
+          "path": "LastRestoredSourceOffset",
+          "type": {
+            "type": "schema",
+            "name": "Logoffset",
+            "id": 8
+          }
+        },
+        {
+          "path": "LogVersion",
+          "type": {
+            "type": "uint8",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "Timestamp",
+          "type": {
+            "type": "uint64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "ArchivalPartitionId",
+          "type": {
+            "type": "guid",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "TTL",
+          "type": {
+            "type": "int32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "PhysicalUsageInKB",
+          "type": {
+            "type": "uint64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "LogicalUsageInKB",
+          "type": {
+            "type": "uint64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logoffset",
+      "id": 8,
+      "type": "schema",
+      "properties": [{
+          "path": "LSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "RecordGroupID",
+          "type": {
+            "type": "int32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "RecordIndex",
+          "type": {
+            "type": "int32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "InvalidationManifestPropertyBag",
+      "id": 9,
+      "type": "schema",
+      "properties": [{
+          "path": "NumberOfEntries",
+          "type": {
+            "type": "uint32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "MaxMergedLevel0LSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "Timestamp",
+          "type": {
+            "type": "uint64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "InvalidationStreamInfo",
+      "id": 10,
+      "type": "schema",
+      "properties": [{
+          "path": "InvalidationFileId",
+          "type": {
+            "type": "schema",
+            "name": "FileId",
+            "id": 2
+          }
+        },
+        {
+          "path": "State",
+          "type": {
+            "type": "uint8",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "StartLSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "EndLSID",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "Level",
+          "type": {
+            "type": "int32",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "CreationTimestamp",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "ObsoletionTimestamp",
+          "type": {
+            "type": "int64",
+            "storage": "fixed",
+            "nullable": false
+          }
+        },
+        {
+          "path": "InvalidationStats",
+          "type": {
+            "type": "schema",
+            "name": "InvalidationStats",
+            "id": 6
+          }
+        }
+      ]
+    }
+  ]
+}

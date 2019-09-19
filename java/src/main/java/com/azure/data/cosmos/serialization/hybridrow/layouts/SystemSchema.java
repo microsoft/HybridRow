@@ -38,7 +38,6 @@ public final class SystemSchema {
      */
     public static final SchemaId SEGMENT_SCHEMA_ID = SchemaId.from(2147473648);
 
-    @SuppressWarnings("StatementWithEmptyBody")
     private static final Supplier<LayoutResolver> layoutResolver = Suppliers.memoize(() -> {
 
         final Optional<Namespace> namespace;

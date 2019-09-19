@@ -13,10 +13,10 @@ import static org.testng.Assert.*;
 @Test(groups = "unit")
 public class SystemSchemaTest {
 
-    private static final Path SCHEMA_FILE = Paths.get("test-data", "CustomerSchema.json");
+    private static final Path SCHEMA_FILE = Paths.get("test-data", "RootSegment.json");
 
     @Test
-    public void testLoadSchema() {
+    public void testLayoutResolver() {
 
         final LayoutResolver layoutResolver = SystemSchema.layoutResolver();
 

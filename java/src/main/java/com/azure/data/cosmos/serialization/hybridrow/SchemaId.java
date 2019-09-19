@@ -5,7 +5,6 @@ package com.azure.data.cosmos.serialization.hybridrow;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -13,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 
 import static com.google.common.base.Strings.lenientFormat;
-import static it.unimi.dsi.fastutil.HashCommon.*;
+import static it.unimi.dsi.fastutil.HashCommon.mix;
 
 /**
  * The unique identifier for a schema.
@@ -32,15 +32,14 @@ import static it.unimi.dsi.fastutil.HashCommon.*;
 public final class SchemaId implements Comparable<SchemaId> {
 
     public static final int BYTES = Integer.BYTES;
-    public static final SchemaId INVALID = null;
+    public static final SchemaId INVALID;
     public static final SchemaId NONE;
 
-    private static final long MAX_VALUE = 0x00000000FFFFFFFEL;
     private static final Int2ReferenceMap<SchemaId> cache;
 
     static {
         cache = new Int2ReferenceOpenHashMap<>();
-        cache.put(-1, NONE = new SchemaId(-1));
+        cache.put(0, INVALID = NONE = new SchemaId(0));
     }
 
     private final int value;
@@ -94,6 +93,19 @@ public final class SchemaId implements Comparable<SchemaId> {
         return cache.computeIfAbsent(value, SchemaId::new);
     }
 
+    /**
+     * Returns the hash code value for this {@link SchemaId}.
+     * <p>
+     * This method mixes the bits of the underlying {@code int} value of the {@link SchemaId} by multiplying by the
+     * golden ratio and xor-shifting the result. It has slightly worse behavior than MurmurHash3. In open-addressing
+     * In open-addressing tables the average number of probes is slightly larger, but the computation of the value
+     * is faster.
+     *
+     * @return the hash code value for this {@link SchemaId}.
+     * @see HashCommon#mix(int)
+     * @see <a href="https://github.com/OpenHFT/Koloboke">Koloboke</a>
+     * @see <a href="https://en.wikipedia.org/wiki/MurmurHash">MurmurHash</a>
+     */
     @Override
     public int hashCode() {
         return mix(this.value);
@@ -120,16 +132,16 @@ public final class SchemaId implements Comparable<SchemaId> {
         }
 
         @Override
-        public SchemaId deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
+        public SchemaId deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
 
-            final long value = parser.getLongValue();
+            final int value = parser.getIntValue();
 
-            if (value < 0 || value > MAX_VALUE) {
-                String message = lenientFormat("expected value in [0, %s], not %s", MAX_VALUE, value);
+            if (value == 0) {
+                String message = "expected non-zero int value for SchemaId";
                 throw MismatchedInputException.from(parser, SchemaId.class, message);
             }
 
-            return SchemaId.from((int) value);
+            return SchemaId.from(value);
         }
     }
 
@@ -140,8 +152,9 @@ public final class SchemaId implements Comparable<SchemaId> {
         }
 
         @Override
-        public void serialize(final SchemaId value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
-            generator.writeNumber((long) value.value() & MAX_VALUE);
+        public void serialize(
+            final SchemaId value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
+            generator.writeNumber(value.value());
         }
     }
 }
