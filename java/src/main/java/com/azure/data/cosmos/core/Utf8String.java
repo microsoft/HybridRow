@@ -457,10 +457,17 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     @Override
     @Nonnull
     public String toString() {
-        return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
+        if (this.buffer == null) {
+            return "null";
+        }
+        return Json.toString(this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8));
     }
 
+    @Nullable
     public String toUtf16() {
+        if (this.buffer == null) {
+            return null;
+        }
         return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
     }
 

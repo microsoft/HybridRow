@@ -20,6 +20,7 @@ import com.azure.data.cosmos.serialization.hybridrow.schemas.TuplePropertyType;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.TypeKind;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.UdtPropertyType;
 import com.google.common.base.Strings;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -36,32 +37,36 @@ public final class LayoutCompiler {
     /**
      * Compiles a logical schema into a physical layout that can be used to read and write rows
      *
-     * @param ns     The namespace within which {@code schema} is defined
+     * @param namespace     The namespace within which {@code schema} is defined
      * @param schema The logical schema to produce a layout for
      * @return The layout for the schema
      */
     @Nonnull
-    public static Layout compile(@Nonnull final Namespace ns, @Nonnull final Schema schema) {
+    public static Layout compile(@Nonnull final Namespace namespace, @Nonnull final Schema schema) {
 
-        checkNotNull(ns, "expected non-null ns");
+        checkNotNull(namespace, "expected non-null namespace");
         checkNotNull(schema, "expected non-null schema");
         checkArgument(schema.type() == TypeKind.SCHEMA);
         checkArgument(!Strings.isNullOrEmpty(schema.name()));
-        checkArgument(ns.schemas().contains(schema));
+        checkArgument(namespace.schemas().contains(schema));
 
         LayoutBuilder builder = new LayoutBuilder(schema.name(), schema.schemaId());
-        LayoutCompiler.addProperties(builder, ns, LayoutCode.SCHEMA, schema.properties());
+        LayoutCompiler.addProperties(builder, namespace, LayoutCode.SCHEMA, schema.properties());
 
         return builder.build();
     }
 
-    private static void addProperties(LayoutBuilder builder, Namespace ns, LayoutCode scope, List<Property> properties) {
+    private static void addProperties(
+        @Nonnull final LayoutBuilder builder,
+        @Nonnull final Namespace namespace,
+        @Nonnull LayoutCode layoutCode,
+        @Nonnull List<Property> properties) {
 
         final Out<TypeArgumentList> typeArgs = new Out<>();
 
         for (Property p : properties) {
 
-            LayoutType type = LayoutCompiler.logicalToPhysicalType(ns, p.type(), typeArgs);
+            LayoutType type = LayoutCompiler.logicalToPhysicalType(namespace, p.type(), typeArgs);
 
             switch (LayoutCodeTraits.clearImmutableBit(type.layoutCode())) {
 
@@ -71,7 +76,7 @@ public final class LayoutCompiler {
                     }
                     ObjectPropertyType op = (ObjectPropertyType)p.type();
                     builder.addObjectScope(p.path(), type);
-                    LayoutCompiler.addProperties(builder, ns, type.layoutCode(), op.properties());
+                    LayoutCompiler.addProperties(builder, namespace, type.layoutCode(), op.properties());
                     builder.EndObjectScope();
                     break;
                 }
@@ -107,9 +112,9 @@ public final class LayoutCompiler {
                         switch (pp.storage()) {
 
                             case FIXED:
-                                if (LayoutCodeTraits.clearImmutableBit(scope) != LayoutCode.SCHEMA) {
+                                if (LayoutCodeTraits.clearImmutableBit(layoutCode) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException(
-                                        "Cannot have fixed storage within a sparse scope.");
+                                        "Cannot have fixed storage within a sparse layoutCode.");
                                 }
                                 if (type.isNull() && !pp.nullable()) {
                                     throw new LayoutCompilationException(
@@ -119,9 +124,9 @@ public final class LayoutCompiler {
                                 break;
 
                             case VARIABLE:
-                                if (LayoutCodeTraits.clearImmutableBit(scope) != LayoutCode.SCHEMA) {
+                                if (LayoutCodeTraits.clearImmutableBit(layoutCode) != LayoutCode.SCHEMA) {
                                     throw new LayoutCompilationException(
-                                        "Cannot have variable storage within a sparse scope.");
+                                        "Cannot have variable storage within a sparse layoutCode.");
                                 }
                                 if (!pp.nullable()) {
                                     throw new LayoutCompilationException(
@@ -395,7 +400,7 @@ public final class LayoutCompiler {
 
                 final Optional<Schema> udtSchema;
 
-                if (up.schemaId() == SchemaId.INVALID) {
+                if (up.schemaId() == SchemaId.NONE) {
                     udtSchema = namespace.schemas().stream()
                         .filter(schema -> up.name().equals(schema.name()))
                         .findFirst();
@@ -403,16 +408,16 @@ public final class LayoutCompiler {
                     udtSchema = namespace.schemas().stream()
                         .filter(schema -> up.schemaId().equals(schema.schemaId()))
                         .findFirst();
-                    if (up.name().equals(udtSchema.map(Schema::name).orElse(null))) {
+                    if (udtSchema.isPresent() && !up.name().equals(udtSchema.get().name())) {
                         throw new LayoutCompilationException(lenientFormat(
-                            "Ambiguous schema reference: '%s:%s'", up.name(), up.schemaId()
+                            "ambiguous schema reference: '%s:%s'", up.name(), up.schemaId()
                         ));
                     }
                 }
 
                 if (!udtSchema.isPresent()) {
                     throw new LayoutCompilationException(lenientFormat(
-                        "Cannot resolve schema reference '%s:%s'", up.name(), up.schemaId()
+                        "cannot resolve schema reference '%s:%s'", up.name(), up.schemaId()
                     ));
                 }
 

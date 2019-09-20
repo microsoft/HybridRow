@@ -133,11 +133,11 @@ public abstract class LayoutTypeScope extends LayoutType {
     }
 
     public void readSparsePath(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor edit) {
-        Out<Integer> pathLenInBytes = new Out<>();
+        Out<Integer> pathLengthInBytes = new Out<>();
         Out<Integer> pathOffset = new Out<>();
-        edit.pathToken(buffer.readSparsePathLen(edit.layout(), edit.valueOffset(), pathLenInBytes, pathOffset));
+        edit.pathToken(buffer.readSparsePathLen(edit.layout(), edit.valueOffset(), pathOffset, pathLengthInBytes));
         edit.pathOffset(pathOffset.get());
-        edit.valueOffset(edit.valueOffset() + pathLenInBytes.get());
+        edit.valueOffset(edit.valueOffset() + pathLengthInBytes.get());
     }
 
     public void setImplicitTypeCode(@Nonnull final RowCursor edit) {

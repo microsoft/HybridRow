@@ -3,26 +3,29 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
+import com.azure.data.cosmos.core.Json;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TypeArgument {
 
     public static final TypeArgument NONE = new TypeArgument();
-    private final LayoutType type;
-    private final TypeArgumentList typeArgs;
 
-    private TypeArgument() {
-        this.type = null;
-        this.typeArgs = null;
-    }
+    private final LayoutType type;
+
+    @JsonProperty
+    private final TypeArgumentList typeArgs;
 
     /**
      * Initializes a new instance of the {@link TypeArgument} struct.
      *
      * @param type The type of the constraint.
      */
-    public TypeArgument(LayoutType type) {
-        checkNotNull(type);
+    public TypeArgument(@Nonnull LayoutType type) {
+        checkNotNull(type, "expected non-null type");
         this.type = type;
         this.typeArgs = TypeArgumentList.EMPTY;
     }
@@ -33,25 +36,24 @@ public final class TypeArgument {
      * @param type     The type of the constraint.
      * @param typeArgs For generic types the type parameters.
      */
-    public TypeArgument(LayoutType type, TypeArgumentList typeArgs) {
-        checkNotNull(type);
+    public TypeArgument(@Nonnull LayoutType type, @Nonnull TypeArgumentList typeArgs) {
+        checkNotNull(type, "expected non-null type");
+        checkNotNull(type, "expected non-null typeArgs");
         this.type = type;
         this.typeArgs = typeArgs;
     }
 
-    @Override
-    public boolean equals(Object other) {
-
-        if (null == other) {
-            return false;
-        }
-
-        return other instanceof TypeArgument && this.equals((TypeArgument) other);
+    private TypeArgument() {
+        this.type = null;
+        this.typeArgs = null;
     }
 
     @Override
-    public int hashCode() {
-        return (this.type.hashCode() * 397) ^ this.typeArgs.hashCode();
+    public boolean equals(Object other) {
+        if (null == other) {
+            return false;
+        }
+        return other.getClass() == TypeArgument.class && this.equals((TypeArgument) other);
     }
 
     public boolean equals(TypeArgument other) {
@@ -59,11 +61,13 @@ public final class TypeArgument {
     }
 
     @Override
+    public int hashCode() {
+        return (this.type.hashCode() * 397) ^ this.typeArgs.hashCode();
+    }
+
+    @Override
     public String toString() {
-        if (this.type == null) {
-            return "";
-        }
-        return this.type.name() + this.typeArgs.toString();
+        return Json.toString(this);
     }
 
     /**

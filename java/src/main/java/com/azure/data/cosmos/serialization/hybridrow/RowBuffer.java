@@ -828,34 +828,37 @@ public final class RowBuffer {
     }
 
     /**
-     * Read the value of a {@code SparseLen} field at the given {@code offset} position.
+     * Read the value of a {@code SparsePathLen} field at the given {@code offset} position.
      *
-     * @param layout
-     * @param offset position of a {@code SparseLen} field within this {@link RowBuffer}.
-     * @param pathLenInBytes
-     * @param pathOffset
-     * @return the {@code SparseLen} value read.
+     * @param layout            layout of the {@code SparsePathLen} field.
+     * @param offset            position of the {@code SparsePathLen} field..
+     * @param pathOffset        [output] position of the {@code SparsePathLen} field value.
+     * @param pathLengthInBytes [output] length of the {@code SparsePathLen} field value.
+     * @return the {@code SparsePathLen} value read.
      */
     public int readSparsePathLen(
-        @Nonnull final Layout layout, final int offset, @Nonnull final Out<Integer> pathLenInBytes,
-        @Nonnull final Out<Integer> pathOffset) {
+        @Nonnull final Layout layout,
+        final int offset,
+        @Nonnull final Out<Integer> pathOffset,
+        @Nonnull final Out<Integer> pathLengthInBytes) {
 
         checkNotNull(layout, "expected non-null layout");
         checkNotNull(pathOffset, "expected non-null pathOffset");
-        checkNotNull(pathLenInBytes, "expected non-null pathLenInBytes");
+        checkNotNull(pathLengthInBytes, "expected non-null pathLengthInBytes");
 
         final Item<Long> item = this.read(this::read7BitEncodedUInt, offset);
         final int token = item.value().intValue();
 
         if (token < layout.tokenizer().count()) {
-            pathLenInBytes.set(item.length());
+            pathLengthInBytes.set(item.length());
             pathOffset.set(offset);
             return token;
         }
 
         final int numBytes = token - layout.tokenizer().count();
-        pathLenInBytes.set(numBytes + item.length());
+        pathLengthInBytes.set(numBytes + item.length());
         pathOffset.set(offset + item.length());
+
         return token;
     }
 
@@ -878,7 +881,10 @@ public final class RowBuffer {
      * @return the {@code SparseTypeCode} value read.
      */
     public LayoutType readSparseTypeCode(int offset) {
-        return LayoutType.fromCode(LayoutCode.from(this.readInt8(offset)));
+        byte value = this.readInt8(offset);
+        LayoutCode code = LayoutCode.from(value);
+        checkState(code != null, "expected layout code at offset %s, not %s", offset, code);
+        return LayoutType.fromLayoutCode(code);
     }
 
     /**
@@ -1191,8 +1197,8 @@ public final class RowBuffer {
 
                 this.readSparseMetadata(edit);
 
-                // Check if reached end of sparse scope.
                 if (!(edit.cellType() instanceof LayoutEndScope)) {
+                    // End of sparse scope
                     edit.exists(true);
                     return true;
                 }
@@ -2978,7 +2984,7 @@ public final class RowBuffer {
         for (int i = 1; i < uniqueIndex.size(); i++) {
 
             UniqueIndexItem x = uniqueIndex.get(i);
-            leftEdit.cellType(LayoutType.fromCode(x.code()));
+            leftEdit.cellType(LayoutType.fromLayoutCode(x.code()));
             leftEdit.metaOffset(x.metaOffset());
             leftEdit.valueOffset(x.valueOffset());
 
@@ -2988,7 +2994,7 @@ public final class RowBuffer {
             int j;
             for (j = i - 1; j >= 0; j--) {
                 UniqueIndexItem y = uniqueIndex.get(j);
-                rightEdit.cellType(LayoutType.fromCode(y.code()));
+                rightEdit.cellType(LayoutType.fromLayoutCode(y.code()));
                 rightEdit.metaOffset(y.metaOffset());
                 rightEdit.valueOffset(y.valueOffset());
 
@@ -3144,12 +3150,19 @@ public final class RowBuffer {
         checkNotNull(edit, "expected non-null edit");
 
         if (edit.scopeType().hasImplicitTypeCode(edit)) {
+
             edit.scopeType().setImplicitTypeCode(edit);
             edit.valueOffset(edit.metaOffset());
+
         } else {
-            edit.cellType(this.readSparseTypeCode(edit.metaOffset()));
-            edit.valueOffset(edit.metaOffset() + LayoutCode.BYTES);
+
+            int metaOffset = edit.metaOffset();
+            LayoutType layoutType = this.readSparseTypeCode(metaOffset);
+
+            edit.cellType(layoutType);
+            edit.valueOffset(metaOffset + LayoutCode.BYTES);
             edit.cellTypeArgs(TypeArgumentList.EMPTY);
+
             if (edit.cellType() instanceof LayoutEndScope) {
                 // Reached end of current scope without finding another field.
                 edit.pathToken(0);
@@ -3158,9 +3171,9 @@ public final class RowBuffer {
                 return;
             }
 
-            Out<Integer> sizeLenInBytes = new Out<>();
-            edit.cellTypeArgs(edit.cellType().readTypeArgumentList(this, edit.valueOffset(), sizeLenInBytes));
-            edit.valueOffset(edit.valueOffset() + sizeLenInBytes.get());
+            Out<Integer> lengthInBytes = new Out<>();
+            edit.cellTypeArgs(edit.cellType().readTypeArgumentList(this, edit.valueOffset(), lengthInBytes));
+            edit.valueOffset(edit.valueOffset() + lengthInBytes.get());
         }
 
         edit.scopeType().readSparsePath(this, edit);
@@ -3203,7 +3216,7 @@ public final class RowBuffer {
             int offset = edit.metaOffset() + LayoutCode.BYTES;
             Out<Integer> pathLenInBytes = new Out<>();
             Out<Integer> pathOffset = new Out<>();
-            int token = this.readSparsePathLen(edit.layout(), offset, pathLenInBytes, pathOffset);
+            int token = this.readSparsePathLen(edit.layout(), offset, pathOffset, pathLenInBytes);
             checkState(edit.pathOffset() == pathOffset.get());
             checkState(edit.pathToken() == token);
         }

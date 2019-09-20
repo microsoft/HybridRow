@@ -50,8 +50,10 @@ public abstract class PropertyType {
 
     @JsonProperty
     private String apiType;
+
     @JsonProperty(defaultValue = "true")
     private boolean nullable;
+
     @JsonProperty(required = true)
     private TypeKind type;
 

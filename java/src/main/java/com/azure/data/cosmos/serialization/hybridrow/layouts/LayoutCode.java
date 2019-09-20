@@ -7,6 +7,7 @@ import com.google.common.base.Suppliers;
 import it.unimi.dsi.fastutil.bytes.Byte2ReferenceMap;
 import it.unimi.dsi.fastutil.bytes.Byte2ReferenceOpenHashMap;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**
@@ -111,6 +112,7 @@ public enum LayoutCode {
         return this.value;
     }
 
+    @Nullable
     public static LayoutCode from(final byte value) {
         return mappings.get().get(value);
     }

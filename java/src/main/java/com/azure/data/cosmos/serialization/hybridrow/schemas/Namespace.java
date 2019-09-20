@@ -5,9 +5,12 @@ package com.azure.data.cosmos.serialization.hybridrow.schemas;
 
 import com.azure.data.cosmos.core.Json;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,46 @@ public class Namespace {
     }
 
     /**
+     * Parse a JSON document and return a full namespace.
+     *
+     * @param file The JSON file to parse.
+     * @return A namespace containing a set of logical schemas.
+     */
+    public static Optional<Namespace> parse(File file) {
+        Optional<Namespace> namespace = Json.parse(file, Namespace.class);
+        namespace.ifPresent(SchemaValidator::validate);
+        return namespace;
+    }
+
+    /**
+     * Parse a JSON document and return a full namespace.
+     *
+     * @param stream The JSON input stream to parse.
+     * @return A namespace containing a set of logical schemas.
+     */
+    public static Optional<Namespace> parse(InputStream stream) {
+        Optional<Namespace> namespace = Json.parse(stream, Namespace.class);
+        try {
+            namespace.ifPresent(SchemaValidator::validate);
+        } catch (SchemaException error) {
+            logger.error("failed to parse {} due to ", Namespace.class, error);
+        }
+        return namespace;
+    }
+
+    /**
+     * Parse a JSON document and return a full namespace.
+     *
+     * @param value The JSON text to parse.
+     * @return A namespace containing a set of logical schemas.
+     */
+    public static Optional<Namespace> parse(String value) {
+        Optional<Namespace> namespace = Json.parse(value, Namespace.class);
+        namespace.ifPresent(SchemaValidator::validate);
+        return namespace;
+    }
+
+    /**
      * The set of schemas that make up the {@link Namespace}.
      * <p>
      * Namespaces may consist of zero or more table schemas along with zero or more UDT schemas. Table schemas can only
@@ -81,36 +124,9 @@ public class Namespace {
      *              used to encode this {@linkplain Namespace namespace}.
      * @return a reference to this {@linkplain Namespace namespace}.
      */
-    public final Namespace version(SchemaLanguageVersion value) {
+    public final Namespace version(@Nonnull SchemaLanguageVersion value) {
+        Preconditions.checkNotNull(value, "expected non-null value");
         this.version = value;
         return this;
-    }
-
-    /**
-     * Parse a JSON document and return a full namespace.
-     *
-     * @param value The JSON text to parse.
-     * @return A namespace containing a set of logical schemas.
-     */
-    public static Optional<Namespace> parse(String value) {
-        Optional<Namespace> namespace = Json.parse(value, Namespace.class);
-        namespace.ifPresent(SchemaValidator::validate);
-        return namespace;
-    }
-
-    /**
-     * Parse a JSON document and return a full namespace.
-     *
-     * @param stream The JSON input stream to parse.
-     * @return A namespace containing a set of logical schemas.
-     */
-    public static Optional<Namespace> parse(InputStream stream) {
-        Optional<Namespace> namespace = Json.parse(stream, Namespace.class);
-        try {
-            namespace.ifPresent(SchemaValidator::validate);
-        } catch (SchemaException error) {
-            logger.error("failed to parse {} due to ", Namespace.class, error);
-        }
-        return namespace;
     }
 }

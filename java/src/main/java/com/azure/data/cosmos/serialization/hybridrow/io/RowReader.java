@@ -5,7 +5,6 @@ package com.azure.data.cosmos.serialization.hybridrow.io;
 
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Utf8String;
-import com.azure.data.cosmos.core.UtfAnyString;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
 import com.azure.data.cosmos.serialization.hybridrow.NullValue;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
@@ -51,6 +50,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.lenientFormat;
 
@@ -79,19 +79,22 @@ public final class RowReader {
      *
      * @param row   The row to be read
      */
-    public RowReader(RowBuffer row) {
+    public RowReader(@Nonnull RowBuffer row) {
         this(row, RowCursor.create(row));
     }
 
     /**
      * Initializes a new instance of the {@link RowReader} class.
      *
-     * @param row        The row to be read
+     * @param buffer     The buffer to be read
      * @param checkpoint Initial state of the reader
      */
-    public RowReader(@Nonnull final RowBuffer row, @Nonnull final Checkpoint checkpoint) {
+    public RowReader(@Nonnull final RowBuffer buffer, @Nonnull final Checkpoint checkpoint) {
 
-        this.row = row;
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(checkpoint, "expected non-null checkpoint");
+
+        this.row = buffer;
         this.columns = checkpoint.cursor().layout().columns();
         this.schematizedCount = checkpoint.cursor().layout().numFixed() + checkpoint.cursor().layout().numVariable();
 
@@ -103,18 +106,21 @@ public final class RowReader {
     /**
      * Initializes a new instance of the {@link RowReader} class.
      *
-     * @param row   The row to be read
-     * @param scope Cursor defining the scope of the fields to be read
-     *              <p>
-     *              A {@link RowReader} instance traverses all of the top-level fields of a given scope. If the root
-     *              scope is provided then all top-level fields in the row are enumerated. Nested child
-     *              {@link RowReader} instances can be access through the {@link RowReader#readScope} method to process
-     *              nested content.
+     * @param buffer The buffer to be read.
+     * @param scope  Cursor defining the scope of the fields to be read.
+     *               <p>
+     *               A {@link RowReader} instance traverses all of the top-level fields of a given scope. If the root
+     *               scope is provided then all top-level fields in the buffer are enumerated. Nested child
+     *               {@link RowReader} instances can be access through the {@link RowReader#readScope} method to process
+     *               nested content.
      */
-    private RowReader(@Nonnull final RowBuffer row, @Nonnull final RowCursor scope) {
+    private RowReader(@Nonnull final RowBuffer buffer, @Nonnull final RowCursor scope) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
 
         this.cursor = scope;
-        this.row = row;
+        this.row = buffer;
         this.columns = this.cursor.layout().columns();
         this.schematizedCount = this.cursor.layout().numFixed() + this.cursor.layout().numVariable();
 
@@ -125,7 +131,7 @@ public final class RowReader {
     /**
      * Read the current field as a fixed length {@code MongoDbObjectId} value.
      *
-     * @param value On success, receives the value, undefined otherwise
+     * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
     public Result ReadMongoDbObjectId(Out<?/* MongoDbObjectID */> value) {
@@ -184,7 +190,7 @@ public final class RowReader {
      * When enumerating a non-indexed scope, this value is always zero.
      *
      * @return zero-based index of the field relative to the scope, if positioned on a field; otherwise undefined.
-     * @see #path
+     * @see #path()
      */
     public int index() {
         return this.state == States.SPARSE ? this.cursor.index() : 0;
@@ -202,49 +208,20 @@ public final class RowReader {
     /**
      * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise.
      * <p>
-     * When enumerating an indexed scope, this value is always {@code null}.
-     *
-     * @return path of the field relative to the scope, if positioned on a field; otherwise undefined.
-     * @see #index
-     */
-    public UtfAnyString path() {
-
-        Utf8String value;
-
-        switch (this.state) {
-
-            case SCHEMATIZED:
-                value = this.columns.get(this.columnIndex).path();
-                break;
-
-            case SPARSE:
-                value = this.cursor.pathOffset() == 0 ? null : this.row.readSparsePath(this.cursor);
-                break;
-
-            default:
-                value = null;
-                break;
-        }
-
-        return new UtfAnyString(value);
-    }
-
-    /**
-     * The path, relative to the scope, of the field--if positioned on a field--undefined otherwise.
-     * <p>
      * When enumerating an indexed scope, this value is always null.
      *
      * @return path of the field relative to the scope, if positioned on a field; otherwise undefined.
      * @see #index
      */
-    public Utf8String pathSpan() {
+    @Nonnull
+    public Utf8String path() {
         switch (this.state) {
             case SCHEMATIZED:
                 return this.columns.get(this.columnIndex).path();
             case SPARSE:
                 return this.row.readSparsePath(this.cursor);
             default:
-                return null;
+                return Utf8String.NULL;
         }
     }
 
@@ -255,7 +232,7 @@ public final class RowReader {
      */
     public boolean read() {
 
-        for (; ; ) {
+        while (this.state != States.DONE) {
 
             switch (this.state) {
 
@@ -268,20 +245,18 @@ public final class RowReader {
                     this.columnIndex++;
 
                     if (this.columnIndex >= this.schematizedCount) {
-
                         this.state = States.SPARSE;
-
-                    } else {
-
-                        checkState(this.cursor.scopeType() instanceof LayoutUDT);
-                        LayoutColumn column = this.columns.get(this.columnIndex);
-
-                        if (!this.row.readBit(this.cursor.start(), column.nullBit())) {
-                            break; // to skip schematized values if they aren't present
-                        }
-
-                        return true;
+                        break;
                     }
+
+                    checkState(this.cursor.scopeType() instanceof LayoutUDT);
+                    LayoutColumn column = this.columns.get(this.columnIndex);
+
+                    if (!this.row.readBit(this.cursor.start(), column.nullBit())) {
+                        break; // to skip schematized values if they aren't present
+                    }
+
+                    return true;
                 }
                 case SPARSE: {
 
@@ -291,11 +266,10 @@ public final class RowReader {
                     }
                     return true;
                 }
-                case DONE: {
-                    return false;
-                }
             }
         }
+
+        return false;
     }
 
     /**
@@ -987,8 +961,9 @@ public final class RowReader {
     /**
      * The type of the field--if positioned on a field--undefined otherwise.
      *
-     * @return layout type.
+     * @return layout type or {@code null}.
      */
+    @Nullable
     public LayoutType type() {
 
         switch (this.state) {

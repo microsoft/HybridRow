@@ -3,10 +3,12 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.layouts;
 
+import com.azure.data.cosmos.core.Json;
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.serialization.hybridrow.Result;
 import com.azure.data.cosmos.serialization.hybridrow.RowBuffer;
 import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
 
@@ -24,9 +26,16 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     private static final LayoutType[] codeIndex = new LayoutType[LayoutCode.END_SCOPE.value() + 1];
 
+    @JsonProperty
     private final boolean immutable;
+
+    @JsonProperty
     private final LayoutCode layoutCode;
+
+    @JsonProperty
     private final int size;
+
+    @JsonProperty
     private final TypeArgument typeArg;
 
     /**
@@ -36,8 +45,8 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
         checkNotNull(code, "expected non-null code");
 
-        this.layoutCode = code;
         this.immutable = immutable;
+        this.layoutCode = code;
         this.size = size;
         this.typeArg = new TypeArgument(this);
 
@@ -97,9 +106,9 @@ public abstract class LayoutType /*implements ILayoutType*/ {
     }
 
     @Nonnull
-    public static LayoutType fromCode(LayoutCode code) {
+    public static LayoutType fromLayoutCode(LayoutCode code) {
         LayoutType type = LayoutType.codeIndex[code.value()];
-        assert type != null : lenientFormat("Not Implemented: %s", code);
+        checkArgument(type != null, "unimplemented code: %s", code);
         return type;
     }
 
@@ -333,6 +342,16 @@ public abstract class LayoutType /*implements ILayoutType*/ {
      */
     public int size() {
         return this.size;
+    }
+
+    /**
+     * Returns a string representation of the {@linkplain LayoutType layout type}.
+     *
+     * @return a string representation of the {@linkplain LayoutType layout type}.
+     */
+    @Override
+    public String toString() {
+        return Json.toString(this);
     }
 
     public TypeArgument typeArg() {

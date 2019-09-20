@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -36,11 +37,20 @@ public final class Json {
     private Json() {
     }
 
+    public static <T> Optional<T> parse(File file, Class<T> type) {
+        try {
+            return Optional.of(reader.forType(type).readValue(file));
+        } catch (IOException error) {
+            logger.error("failed to parse {} due to ", type.getName(), error);
+            return Optional.empty();
+        }
+    }
+
     public static <T> Optional<T> parse(InputStream stream, Class<T> type) {
         try {
             return Optional.of(reader.forType(type).readValue(stream));
         } catch (IOException error) {
-            logger.error("failed to parse %s due to ", type.getName(), error);
+            logger.error("failed to parse {} due to ", type.getName(), error);
             return Optional.empty();
         }
     }
