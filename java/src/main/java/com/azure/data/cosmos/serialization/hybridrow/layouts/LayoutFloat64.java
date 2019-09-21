@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class LayoutFloat64 extends LayoutTypePrimitive<Double> {
 
     public LayoutFloat64() {
-        super(LayoutCode.FLOAT_64, Double.BYTES / Byte.SIZE);
+        super(LayoutCode.FLOAT_64, Double.BYTES);
     }
 
     public boolean isFixed() {

@@ -11,6 +11,7 @@ import com.azure.data.cosmos.serialization.hybridrow.RowCursor;
 import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class LayoutUInt8 extends LayoutTypePrimitive<Short> {
 
@@ -30,6 +31,11 @@ public final class LayoutUInt8 extends LayoutTypePrimitive<Short> {
     @Override
     @Nonnull
     public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<Short> value) {
+
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(scope, "expected non-null scope");
+        checkNotNull(column, "expected non-null column");
+        checkNotNull(value, "expected non-null value");
 
         checkArgument(scope.scopeType() instanceof LayoutUDT);
 

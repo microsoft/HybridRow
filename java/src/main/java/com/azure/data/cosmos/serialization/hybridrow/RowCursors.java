@@ -108,13 +108,17 @@ public final class RowCursors {
     }
 
     public static void skip(
-        @Nonnull final RowCursor edit, @Nonnull final RowBuffer row, @Nonnull final RowCursor childScope) {
+        @Nonnull final RowCursor edit, @Nonnull final RowBuffer buffer, @Nonnull final RowCursor childScope) {
+
+        checkNotNull(edit, "expected non-null edit");
+        checkNotNull(buffer, "expected non-null buffer");
+        checkNotNull(childScope, "expected non-null childScope");
 
         checkArgument(childScope.start() == edit.valueOffset());
 
         if (!(childScope.cellType() instanceof LayoutEndScope)) {
             //noinspection StatementWithEmptyBody
-            while (row.sparseIteratorMoveNext(childScope)) {
+            while (buffer.sparseIteratorMoveNext(childScope)) {
             }
         }
 

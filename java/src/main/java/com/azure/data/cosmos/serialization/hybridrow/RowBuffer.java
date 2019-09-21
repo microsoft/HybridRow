@@ -1215,7 +1215,7 @@ public final class RowBuffer {
      * Produce a new scope from the current iterator position.
      *
      * @param edit      An initialized iterator pointing at a scope.
-     * @param immutable True if the new scope should be marked immutable (read-only).
+     * @param immutable {@code true} if the new scope should be marked immutable (read-only).
      * @return A new scope beginning at the current iterator position.
      */
     public RowCursor sparseIteratorReadScope(@Nonnull final RowCursor edit, boolean immutable) {

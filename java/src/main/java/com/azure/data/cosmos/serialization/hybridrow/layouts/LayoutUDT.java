@@ -33,9 +33,9 @@ public final class LayoutUDT extends LayoutPropertyScope {
 
     @Override
     @Nonnull
-    public TypeArgumentList readTypeArgumentList(@Nonnull RowBuffer row, int offset, @Nonnull Out<Integer> lenInBytes) {
+    public TypeArgumentList readTypeArgumentList(@Nonnull RowBuffer row, int offset, @Nonnull Out<Integer> lengthInBytes) {
         SchemaId schemaId = row.readSchemaId(offset);
-        lenInBytes.set(SchemaId.BYTES);
+        lengthInBytes.set(SchemaId.BYTES);
         return new TypeArgumentList(schemaId);
     }
 

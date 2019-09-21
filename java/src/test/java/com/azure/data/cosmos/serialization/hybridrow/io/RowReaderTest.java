@@ -73,21 +73,45 @@ public class RowReaderTest {
 
     private static Result visitFields(RowReader reader, int level) {
 
+        Out out = new Out();
+
         while (reader.read()) {
 
-            final Utf8String path = reader.path();
+            Utf8String path = reader.path();
             LayoutType type = reader.type();
 
-            if (type == null) {
-                fail(lenientFormat("path: %s, type: null", path));
+            if (path.isNull() || type == null) {
+                fail(lenientFormat("path: %s, type: %s", path, type));
             }
 
-            System.out.println(lenientFormat("%s%s:\"%s\"", Strings.repeat("  ", level), path, type.layoutCode()));
-            Out out = new Out();
+            System.out.println(lenientFormat("%s%s : %s", Strings.repeat("  ", level), path, type.name()));
+
+            Result result = Result.SUCCESS;
+            out.set(null);
 
             switch (type.layoutCode()) {
+                case INT_32: {
+                    result = reader.readInt32(out);
+                    break;
+                }
+                case INT_64: {
+                    result = reader.readInt64(out);
+                    break;
+                }
+                case UINT_8: {
+                    result = reader.readUInt8(out);
+                    break;
+                }
+                case UINT_32: {
+                    result = reader.readUInt32(out);
+                    break;
+                }
                 case UINT_64: {
-                    Result result = reader.readUInt64(out);
+                    result = reader.readUInt64(out);
+                    break;
+                }
+                case GUID: {
+                    result = reader.readGuid(out);
                     break;
                 }
                 case NULL:
@@ -95,11 +119,7 @@ public class RowReaderTest {
                 case BOOLEAN_FALSE:
                 case INT_8:
                 case INT_16:
-                case INT_32:
-                case INT_64:
-                case UINT_8:
                 case UINT_16:
-                case UINT_32:
                 case VAR_INT:
                 case VAR_UINT:
                 case FLOAT_32:
@@ -108,7 +128,6 @@ public class RowReaderTest {
                 case DECIMAL:
                 case DATE_TIME:
                 case UNIX_DATE_TIME:
-                case GUID:
                 case UTF_8:
                 case BINARY: {
                     break;
@@ -155,11 +174,7 @@ public class RowReaderTest {
                 case TYPED_TUPLE_SCOPE:
                 case IMMUTABLE_TYPED_TUPLE_SCOPE: {
 
-                    Result result = reader.readScope(null, (RowReader child, Object ignored) -> visitFields(child, level + 1));
-
-                    if (result != Result.SUCCESS) {
-                        return result;
-                    }
+                    result = reader.readScope(null, (RowReader child, Object ignored) -> visitFields(child, level + 1));
                     break;
                 }
                 case END_SCOPE:
@@ -172,6 +187,9 @@ public class RowReaderTest {
                     fail(lenientFormat("unknown layout type: %s", type));
                     break;
                 }
+            }
+            if (result != Result.SUCCESS) {
+                return result;
             }
         }
 

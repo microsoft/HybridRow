@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class LayoutInt64 extends LayoutTypePrimitive<Long> {
 
     public LayoutInt64() {
-        super(LayoutCode.INT_64, Long.BYTES / Byte.SIZE);
+        super(LayoutCode.INT_64, Long.BYTES);
     }
 
     public boolean isFixed() {

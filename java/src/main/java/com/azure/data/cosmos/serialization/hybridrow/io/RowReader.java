@@ -3,6 +3,7 @@
 
 package com.azure.data.cosmos.serialization.hybridrow.io;
 
+import com.azure.data.cosmos.core.Json;
 import com.azure.data.cosmos.core.Out;
 import com.azure.data.cosmos.core.Utf8String;
 import com.azure.data.cosmos.serialization.hybridrow.Float128;
@@ -41,10 +42,15 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutVarInt;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutVarUInt;
 import com.azure.data.cosmos.serialization.hybridrow.layouts.TypeArgumentList;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -65,6 +71,7 @@ import static com.google.common.base.Strings.lenientFormat;
  * Modifying a {@link RowBuffer} invalidates any reader or child reader associated with it. In general{@link RowBuffer}s
  * should not be mutated while being enumerated.
  */
+@JsonSerialize(using = RowReader.JsonSerializer.class)
 public final class RowReader {
 
     private int columnIndex;
@@ -818,7 +825,10 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise.
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
-    public Result readUInt8(Out<Short> value) {
+    @Nonnull
+    public Result readUInt8(@Nonnull Out<Short> value) {
+
+        checkNotNull(value, "expected non-null value");
 
         switch (this.state) {
 
@@ -837,6 +847,32 @@ public final class RowReader {
                 value.set((short)0);
                 return Result.FAILURE;
         }
+    }
+
+    /**
+     * Returns a string representation of the object. In general, the
+     * {@code toString} method returns a string that
+     * "textually represents" this object. The result should
+     * be a concise but informative representation that is easy for a
+     * person to read.
+     * It is recommended that all subclasses override this method.
+     * <p>
+     * The {@code toString} method for class {@code Object}
+     * returns a string consisting of the name of the class of which the
+     * object is an instance, the at-sign character `{@code @}', and
+     * the unsigned hexadecimal representation of the hash code of the
+     * object. In other words, this method returns a string equal to the
+     * value of:
+     * <blockquote>
+     * <pre>
+     * getClass().getName() + '@' + Integer.toHexString(hashCode())
+     * </pre></blockquote>
+     *
+     * @return a string representation of the object.
+     */
+    @Override
+    public String toString() {
+        return Json.toString(this);
     }
 
     /**
@@ -999,7 +1035,8 @@ public final class RowReader {
      * @param value On success, receives the value, undefined otherwise
      * @return {@link Result#SUCCESS} if the read is successful, an error {@link Result} otherwise.
      */
-    private <TValue> Result readPrimitiveValue(Out<TValue> value) {
+    @Nonnull
+    private <TValue> Result readPrimitiveValue(@Nonnull Out<TValue> value) {
 
         final LayoutColumn column = this.columns.get(this.columnIndex);
         final LayoutType type = this.columns.get(this.columnIndex).type();
@@ -1017,9 +1054,8 @@ public final class RowReader {
             case VARIABLE:
                 return type.<LayoutTypePrimitive<TValue>>typeAs().readVariable(this.row, this.cursor, column, value);
             default:
-                assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
-                value.set(null);
-                return Result.FAILURE;
+                String message = lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
+                throw new IllegalStateException(message);
         }
     }
 
@@ -1115,9 +1151,28 @@ public final class RowReader {
         DONE;
 
         public static final int BYTES = Byte.BYTES;
+        private final String friendlyName;
+
+        States() {
+            this.friendlyName = this.name().toLowerCase();
+        }
+
+        public String friendlyName() {
+            return this.friendlyName;
+        }
 
         public static States from(byte value) {
             return values()[value];
+        }
+
+        /**
+         * Returns the friendly name of this enum constant, as returned by {@link #friendlyName()}.
+         *
+         * @return the friendly name of this enum constant
+         */
+        @Override
+        public String toString() {
+            return this.friendlyName;
         }
 
         public byte value() {
@@ -1184,6 +1239,32 @@ public final class RowReader {
         public Checkpoint state(States state) {
             this.state = state;
             return this;
+        }
+    }
+
+    static final class JsonSerializer extends StdSerializer<RowReader> {
+
+        JsonSerializer() {
+            super(RowReader.class);
+        }
+
+        @Override
+        public void serialize(RowReader value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+            generator.writeStartObject();
+            generator.writeStringField("path", value.path().toUtf16());
+            generator.writeStringField("state", value.state == null ? null : value.state.friendlyName);
+            generator.writeObjectFieldStart("span");
+            generator.writeNumberField("start", value.cursor.start());
+            generator.writeNumberField("end", value.cursor.endOffset());
+            generator.writeEndObject();
+            LayoutColumn column = value.columns.get(value.columnIndex);
+            generator.writeObjectFieldStart("column");
+            generator.writeStringField("fullPath", column.fullPath().toUtf16());
+            generator.writeStringField("type", column.type().name());
+            generator.writeNumberField("index", column.index());
+            generator.writeNumberField("offset", column.offset());
+            generator.writeEndObject();
+            generator.writeEndObject();
         }
     }
 }

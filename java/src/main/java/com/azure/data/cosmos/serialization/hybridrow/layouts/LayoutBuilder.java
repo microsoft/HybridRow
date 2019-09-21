@@ -6,10 +6,12 @@ package com.azure.data.cosmos.serialization.hybridrow.layouts;
 import com.azure.data.cosmos.serialization.hybridrow.SchemaId;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Stack;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class LayoutBuilder {
     private LayoutBit.Allocator bitAllocator;
@@ -36,27 +38,37 @@ public final class LayoutBuilder {
         this.reset();
     }
 
-    public void addFixedColumn(String path, LayoutType type, boolean nullable, int length) {
+    public void addFixedColumn(@Nonnull String path, @Nonnull LayoutType type, boolean nullable, int length) {
 
+        checkNotNull(path, "expected non-null path");
+        checkNotNull(type, "expected non-null type");
         checkArgument(length >= 0);
         checkArgument(!type.isVarint());
 
-        LayoutColumn column;
+        final LayoutColumn column;
+
         if (type.isNull()) {
             checkArgument(nullable);
-            LayoutBit nullBit = this.bitAllocator.allocate();
-            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
-                this.fixedCount, 0, nullBit, LayoutBit.INVALID, 0);
+            LayoutBit boolBit = this.bitAllocator.allocate();
+            LayoutBit nullBit = LayoutBit.INVALID;
+            int offset = 0;
+            column = new LayoutColumn(
+                path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(), this.fixedCount, offset,
+                boolBit, nullBit, 0);
         } else if (type.isBoolean()) {
             LayoutBit nullBit = nullable ? this.bitAllocator.allocate() : LayoutBit.INVALID;
-            LayoutBit boolbit = this.bitAllocator.allocate();
-            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
-                this.fixedCount, 0, nullBit, boolbit, 0);
+            LayoutBit boolBit = this.bitAllocator.allocate();
+            int offset = 0;
+            column = new LayoutColumn(
+                path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(), this.fixedCount, offset,
+                nullBit, boolBit, 0);
         } else {
+            LayoutBit boolBit = LayoutBit.INVALID;
             LayoutBit nullBit = nullable ? this.bitAllocator.allocate() : LayoutBit.INVALID;
-            column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(),
-                this.fixedCount, this.fixedSize, nullBit, LayoutBit.INVALID, length);
-
+            int offset = this.fixedSize;
+            column = new LayoutColumn(
+                path, type, TypeArgumentList.EMPTY, StorageKind.FIXED, this.parent(), this.fixedCount, offset,
+                nullBit, boolBit, length);
             this.fixedSize += type.isFixed() ? type.size() : length;
         }
 
@@ -74,31 +86,40 @@ public final class LayoutBuilder {
         this.scope.push(column);
     }
 
-    public void addSparseColumn(String path, LayoutType type) {
+    public void addSparseColumn(@Nonnull final String path, @Nonnull final LayoutType type) {
 
-        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.SPARSE, this.parent(),
-            this.sparseCount, -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
+        checkNotNull(path, "expected non-null path");
+        checkNotNull(type, "expected non-null type");
+
+        final LayoutColumn column = new LayoutColumn(
+            path, type, TypeArgumentList.EMPTY, StorageKind.SPARSE, this.parent(), this.sparseCount, -1,
+            LayoutBit.INVALID, LayoutBit.INVALID, 0);
 
         this.sparseCount++;
         this.sparseColumns.add(column);
     }
 
-    public void addTypedScope(String path, LayoutType type, TypeArgumentList typeArgs) {
+    public void addTypedScope(
+        @Nonnull final String path, @Nonnull final LayoutType type, @Nonnull final TypeArgumentList typeArgs) {
 
-        LayoutColumn col = new LayoutColumn(path, type, typeArgs, StorageKind.SPARSE, this.parent(), this.sparseCount,
-            -1, LayoutBit.INVALID, LayoutBit.INVALID, 0);
+        final LayoutColumn column = new LayoutColumn(
+            path, type, typeArgs, StorageKind.SPARSE, this.parent(), this.sparseCount, -1, LayoutBit.INVALID,
+            LayoutBit.INVALID, 0);
 
         this.sparseCount++;
-        this.sparseColumns.add(col);
+        this.sparseColumns.add(column);
     }
 
     public void addVariableColumn(String path, LayoutType type, int length) {
 
+        checkNotNull(path, "expected non-null path");
+        checkNotNull(type, "expected non-null type");
         checkArgument(length >= 0);
         checkArgument(type.allowVariable());
 
-        LayoutColumn column = new LayoutColumn(path, type, TypeArgumentList.EMPTY, StorageKind.VARIABLE, this.parent(),
-            this.varCount, this.varCount, this.bitAllocator.allocate(), LayoutBit.INVALID, length);
+        final LayoutColumn column = new LayoutColumn(
+            path, type, TypeArgumentList.EMPTY, StorageKind.VARIABLE, this.parent(), this.varCount, this.varCount,
+            this.bitAllocator.allocate(), LayoutBit.INVALID, length);
 
         this.varCount++;
         this.varColumns.add(column);
