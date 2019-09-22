@@ -14,6 +14,7 @@ import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutResolverNames
 import com.azure.data.cosmos.serialization.hybridrow.layouts.LayoutType;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Factory;
@@ -68,7 +69,12 @@ public class RowReaderTest {
         LayoutResolver resolver = new LayoutResolverNamespace(this.namespace);
         RowBuffer buffer = new RowBuffer(data, HybridRowVersion.V1, resolver);
         RowReader reader = new RowReader(buffer);
-        visitFields(reader, 0);
+
+        try {
+            visitFields(reader, 0);
+        } catch (IllegalStateException error) {
+            fail(lenientFormat("row reader on %s failed due to %s", this.dataFile, error));
+        }
     }
 
     private static Result visitFields(RowReader reader, int level) {
@@ -84,12 +90,18 @@ public class RowReaderTest {
                 fail(lenientFormat("path: %s, type: %s", path, type));
             }
 
-            System.out.println(lenientFormat("%s%s : %s", Strings.repeat("  ", level), path, type.name()));
-
             Result result = Result.SUCCESS;
             out.set(null);
 
             switch (type.layoutCode()) {
+                case BOOLEAN: {
+                    result = reader.readBoolean(out);
+                    break;
+                }
+                case INT_16: {
+                    result = reader.readInt16(out);
+                    break;
+                }
                 case INT_32: {
                     result = reader.readInt32(out);
                     break;
@@ -110,15 +122,17 @@ public class RowReaderTest {
                     result = reader.readUInt64(out);
                     break;
                 }
+                case BINARY: {
+                    result = reader.readBinary(out);
+                    break;
+                }
                 case GUID: {
                     result = reader.readGuid(out);
                     break;
                 }
                 case NULL:
-                case BOOLEAN:
                 case BOOLEAN_FALSE:
                 case INT_8:
-                case INT_16:
                 case UINT_16:
                 case VAR_INT:
                 case VAR_UINT:
@@ -128,8 +142,7 @@ public class RowReaderTest {
                 case DECIMAL:
                 case DATE_TIME:
                 case UNIX_DATE_TIME:
-                case UTF_8:
-                case BINARY: {
+                case UTF_8: {
                     break;
                 }
                 case NULLABLE_SCOPE:
@@ -174,10 +187,19 @@ public class RowReaderTest {
                 case TYPED_TUPLE_SCOPE:
                 case IMMUTABLE_TYPED_TUPLE_SCOPE: {
 
+                    System.out.print(Strings.repeat("  ", level));
+                    System.out.println(lenientFormat("%s: %s", path, type.name()));
+
                     result = reader.readScope(null, (RowReader child, Object ignored) -> visitFields(child, level + 1));
+
+                    System.out.print(Strings.repeat("  ", level));
+                    System.out.println("end");
                     break;
                 }
-                case END_SCOPE:
+                case END_SCOPE: {
+                    fail(lenientFormat("unexpected layout type: %s", type));
+                    break;
+                }
                 case INVALID:
                 case MONGODB_OBJECT_ID: {
                     fail(lenientFormat("unsupported layout type: %s", type));
@@ -188,8 +210,17 @@ public class RowReaderTest {
                     break;
                 }
             }
+
             if (result != Result.SUCCESS) {
                 return result;
+            }
+
+            if (out.isPresent()) {
+                Object value = out.get();
+                System.out.print(Strings.repeat("  ", level));
+                System.out.println(lenientFormat("%s: %s = %s",
+                    path, type.name(), value instanceof ByteBuf ? ByteBufUtil.hexDump((ByteBuf)value) : value)
+                );
             }
         }
 

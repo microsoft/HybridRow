@@ -77,17 +77,17 @@ public final class RowReader {
     private int columnIndex;
     private List<LayoutColumn> columns;
     private RowCursor cursor;
-    private RowBuffer row;
+    private RowBuffer buffer;
     private int schematizedCount;
     private States state;
 
     /**
      * Initializes a new instance of the {@link RowReader} class.
      *
-     * @param row   The row to be read
+     * @param buffer   The row to be read
      */
-    public RowReader(@Nonnull RowBuffer row) {
-        this(row, RowCursor.create(row));
+    public RowReader(@Nonnull RowBuffer buffer) {
+        this(buffer, RowCursor.create(buffer));
     }
 
     /**
@@ -101,7 +101,7 @@ public final class RowReader {
         checkNotNull(buffer, "expected non-null buffer");
         checkNotNull(checkpoint, "expected non-null checkpoint");
 
-        this.row = buffer;
+        this.buffer = buffer;
         this.columns = checkpoint.cursor().layout().columns();
         this.schematizedCount = checkpoint.cursor().layout().numFixed() + checkpoint.cursor().layout().numVariable();
 
@@ -127,7 +127,7 @@ public final class RowReader {
         checkNotNull(scope, "expected non-null scope");
 
         this.cursor = scope;
-        this.row = buffer;
+        this.buffer = buffer;
         this.columns = this.cursor.layout().columns();
         this.schematizedCount = this.cursor.layout().numFixed() + this.cursor.layout().numVariable();
 
@@ -181,8 +181,8 @@ public final class RowReader {
 
             case SPARSE:
                 if (this.cursor.cellType() instanceof LayoutNullable) {
-                    RowCursor nullableScope = this.row.sparseIteratorReadScope(this.cursor, true);
-                    return LayoutNullable.hasValue(this.row, nullableScope) == Result.SUCCESS;
+                    RowCursor nullableScope = this.buffer.sparseIteratorReadScope(this.cursor, true);
+                    return LayoutNullable.hasValue(this.buffer, nullableScope) == Result.SUCCESS;
                 }
                 return true;
 
@@ -209,7 +209,7 @@ public final class RowReader {
      * @return length of the current row in bytes.
      */
     public int length() {
-        return this.row.length();
+        return this.buffer.length();
     }
 
     /**
@@ -226,7 +226,7 @@ public final class RowReader {
             case SCHEMATIZED:
                 return this.columns.get(this.columnIndex).path();
             case SPARSE:
-                return this.row.readSparsePath(this.cursor);
+                return this.buffer.readSparsePath(this.cursor);
             default:
                 return Utf8String.NULL;
         }
@@ -259,7 +259,7 @@ public final class RowReader {
                     checkState(this.cursor.scopeType() instanceof LayoutUDT);
                     LayoutColumn column = this.columns.get(this.columnIndex);
 
-                    if (!this.row.readBit(this.cursor.start(), column.nullBit())) {
+                    if (!this.buffer.readBit(this.cursor.start(), column.nullBit())) {
                         break; // to skip schematized values if they aren't present
                     }
 
@@ -267,7 +267,7 @@ public final class RowReader {
                 }
                 case SPARSE: {
 
-                    if (!RowCursors.moveNext(this.cursor, this.row)) {
+                    if (!RowCursors.moveNext(this.cursor, this.buffer)) {
                         this.state = States.DONE;
                         break;
                     }
@@ -299,7 +299,7 @@ public final class RowReader {
                     return Result.TYPE_MISMATCH;
                 }
 
-                value.set(this.row.readSparseBinary(this.cursor));
+                value.set(this.buffer.readSparseBinary(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -347,7 +347,7 @@ public final class RowReader {
                     return Result.TYPE_MISMATCH;
                 }
 
-                value.set(this.row.readSparseBoolean(this.cursor));
+                value.set(this.buffer.readSparseBoolean(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -375,7 +375,7 @@ public final class RowReader {
                     return Result.TYPE_MISMATCH;
                 }
 
-                value.set(this.row.readSparseDateTime(this.cursor));
+                value.set(this.buffer.readSparseDateTime(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -402,7 +402,7 @@ public final class RowReader {
                     value.set(new BigDecimal(0));
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseDecimal(this.cursor));
+                value.set(this.buffer.readSparseDecimal(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -429,7 +429,7 @@ public final class RowReader {
                     value.setAndGet(null);
                     return Result.TYPE_MISMATCH;
                 }
-                value.setAndGet(this.row.readSparseFloat128(this.cursor));
+                value.setAndGet(this.buffer.readSparseFloat128(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -456,7 +456,7 @@ public final class RowReader {
                     value.set(0F);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseFloat32(this.cursor));
+                value.set(this.buffer.readSparseFloat32(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -483,7 +483,7 @@ public final class RowReader {
                     value.set(0D);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseFloat64(this.cursor));
+                value.set(this.buffer.readSparseFloat64(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -511,7 +511,7 @@ public final class RowReader {
                     return Result.TYPE_MISMATCH;
                 }
 
-                value.set(this.row.readSparseGuid(this.cursor));
+                value.set(this.buffer.readSparseGuid(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -538,7 +538,7 @@ public final class RowReader {
                     value.set((short)0);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseInt16(this.cursor));
+                value.set(this.buffer.readSparseInt16(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -565,7 +565,7 @@ public final class RowReader {
                     value.set(0);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseInt32(this.cursor));
+                value.set(this.buffer.readSparseInt32(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -592,7 +592,7 @@ public final class RowReader {
                     value.setAndGet(0L);
                     return Result.TYPE_MISMATCH;
                 }
-                value.setAndGet(this.row.readSparseInt64(this.cursor));
+                value.setAndGet(this.buffer.readSparseInt64(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -619,7 +619,7 @@ public final class RowReader {
                     value.set((byte)0);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseInt8(this.cursor));
+                value.set(this.buffer.readSparseInt8(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -646,7 +646,7 @@ public final class RowReader {
                     value.set(null);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseNull(this.cursor));
+                value.set(this.buffer.readSparseNull(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -669,15 +669,15 @@ public final class RowReader {
     @Nonnull
     public <TContext> Result readScope(@Nullable final TContext context, @Nullable final ReaderFunc<TContext> func) {
 
-        final RowCursor childScope = this.row.sparseIteratorReadScope(this.cursor, true);
-        final RowReader nestedReader = new RowReader(this.row, childScope);
+        final RowCursor childScope = this.buffer.sparseIteratorReadScope(this.cursor, true);
+        final RowReader nestedReader = new RowReader(this.buffer, childScope);
         final Result result = func == null ? null : func.invoke(nestedReader, context);
 
         if (!(result == null || result == Result.SUCCESS)) {
             return result;
         }
 
-        RowCursors.skip(childScope, this.row, nestedReader.cursor);
+        RowCursors.skip(this.cursor, this.buffer, nestedReader.cursor);
         return Result.SUCCESS;
     }
 
@@ -690,8 +690,8 @@ public final class RowReader {
      * @return a new {@link RowReader}.
      */
     public @Nonnull RowReader readScope() {
-        RowCursor newScope = this.row.sparseIteratorReadScope(this.cursor, true);
-        return new RowReader(this.row, newScope);
+        RowCursor newScope = this.buffer.sparseIteratorReadScope(this.cursor, true);
+        return new RowReader(this.buffer, newScope);
     }
 
     /**
@@ -728,7 +728,7 @@ public final class RowReader {
                     value.set(null);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseString(this.cursor));
+                value.set(this.buffer.readSparseString(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -755,7 +755,7 @@ public final class RowReader {
                     value.set(0);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseUInt16(this.cursor));
+                value.set(this.buffer.readSparseUInt16(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -783,7 +783,7 @@ public final class RowReader {
                     return Result.TYPE_MISMATCH;
                 }
 
-                value.set(this.row.readSparseUInt32(this.cursor));
+                value.set(this.buffer.readSparseUInt32(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -810,7 +810,7 @@ public final class RowReader {
                     value.set(0L);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseUInt64(this.cursor));
+                value.set(this.buffer.readSparseUInt64(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -840,7 +840,7 @@ public final class RowReader {
                     value.set((short)0);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseUInt8(this.cursor));
+                value.set(this.buffer.readSparseUInt8(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -893,7 +893,7 @@ public final class RowReader {
                     value.set(null);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseUnixDateTime(this.cursor));
+                value.set(this.buffer.readSparseUnixDateTime(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -920,7 +920,7 @@ public final class RowReader {
                     value.set(0L);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseVarInt(this.cursor));
+                value.set(this.buffer.readSparseVarInt(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -947,7 +947,7 @@ public final class RowReader {
                     value.set(0L);
                     return Result.TYPE_MISMATCH;
                 }
-                value.set(this.row.readSparseVarUInt(this.cursor));
+                value.set(this.buffer.readSparseVarUInt(this.cursor));
                 return Result.SUCCESS;
 
             default:
@@ -974,7 +974,7 @@ public final class RowReader {
         if (nestedReader.cursor.start() != this.cursor.valueOffset()) {
             return Result.FAILURE;
         }
-        RowCursors.skip(this.cursor, this.row, nestedReader.cursor);
+        RowCursors.skip(this.cursor, this.buffer, nestedReader.cursor);
         return Result.SUCCESS;
     }
 
@@ -1050,9 +1050,9 @@ public final class RowReader {
 
         switch (storage) {
             case FIXED:
-                return type.<LayoutTypePrimitive<TValue>>typeAs().readFixed(this.row, this.cursor, column, value);
+                return type.<LayoutTypePrimitive<TValue>>typeAs().readFixed(this.buffer, this.cursor, column, value);
             case VARIABLE:
-                return type.<LayoutTypePrimitive<TValue>>typeAs().readVariable(this.row, this.cursor, column, value);
+                return type.<LayoutTypePrimitive<TValue>>typeAs().readVariable(this.buffer, this.cursor, column, value);
             default:
                 String message = lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
                 throw new IllegalStateException(message);
@@ -1114,10 +1114,10 @@ public final class RowReader {
         switch (storage) {
 
             case FIXED:
-                return type.<LayoutListReadable<TElement>>typeAs().readFixedList(this.row, this.cursor, column, value);
+                return type.<LayoutListReadable<TElement>>typeAs().readFixedList(this.buffer, this.cursor, column, value);
 
             case VARIABLE:
-                return type.<LayoutListReadable<TElement>>typeAs().readVariableList(this.row, this.cursor, column, value);
+                return type.<LayoutListReadable<TElement>>typeAs().readVariableList(this.buffer, this.cursor, column, value);
 
             default:
                 assert false : lenientFormat("expected FIXED or VARIABLE column storage, not %s", storage);
