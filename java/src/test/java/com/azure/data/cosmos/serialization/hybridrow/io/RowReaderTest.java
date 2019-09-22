@@ -66,15 +66,19 @@ public class RowReaderTest {
             fail(lenientFormat("failed to open %s due to %s", this.dataFile, error));
         }
 
-        LayoutResolver resolver = new LayoutResolverNamespace(this.namespace);
-        RowBuffer buffer = new RowBuffer(data, HybridRowVersion.V1, resolver);
-        RowReader reader = new RowReader(buffer);
+        final LayoutResolver resolver = new LayoutResolverNamespace(this.namespace);
+        final RowBuffer buffer = new RowBuffer(data, HybridRowVersion.V1, resolver);
+        final RowReader reader = new RowReader(buffer);
+
+        final Result result;
 
         try {
-            visitFields(reader, 0);
+            result = visitFields(reader, 0);
         } catch (IllegalStateException error) {
-            fail(lenientFormat("row reader on %s failed due to %s", this.dataFile, error));
+            throw new AssertionError(lenientFormat("row reader on %s failed due to %s", this.dataFile, error));
         }
+
+        assertEquals(result, Result.SUCCESS);
     }
 
     private static Result visitFields(RowReader reader, int level) {
