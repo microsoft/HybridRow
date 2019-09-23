@@ -50,11 +50,7 @@ public class RowScanner implements AutoCloseable {
         }
     }
 
-<<<<<<< HEAD
     public static RowScanner open(@Nonnull Namespace namespace, @Nonnull File file) throws IOException {
-=======
-    public static RowScanner of(@Nonnull Namespace namespace, @Nonnull File file) throws IOException {
->>>>>>> 463cc8aaa89552b84bbc60d95d58f9be3d12d8c1
 
         checkNotNull(file, "expected non-null file");
 
@@ -72,21 +68,12 @@ public class RowScanner implements AutoCloseable {
         return new RowScanner(resolver, data);
     }
 
-<<<<<<< HEAD
     public static RowScanner open(@Nonnull Namespace namespace, @Nonnull Path path) throws IOException {
         return RowScanner.open(namespace, requireNonNull(path, "expected non-null path").toFile());
     }
 
     public static RowScanner open(@Nonnull Namespace namespace, @Nonnull String path) throws IOException {
         return RowScanner.open(namespace, new File(requireNonNull(path, "expected non-null path")));
-=======
-    public static RowScanner of(@Nonnull Namespace namespace, @Nonnull Path path) throws IOException {
-        return RowScanner.of(namespace, requireNonNull(path, "expected non-null path").toFile());
-    }
-
-    public static RowScanner of(@Nonnull Namespace namespace, @Nonnull String path) throws IOException {
-        return RowScanner.of(namespace, new File(requireNonNull(path, "expected non-null path")));
->>>>>>> 463cc8aaa89552b84bbc60d95d58f9be3d12d8c1
     }
 
     public <TContext> Result visit(BiFunction<DataItem, TContext, Result> accept, TContext context) {
