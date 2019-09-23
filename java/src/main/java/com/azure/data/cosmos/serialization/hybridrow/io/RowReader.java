@@ -163,6 +163,10 @@ public final class RowReader {
         throw new UnsupportedOperationException();
     }
 
+    public boolean isDone() {
+        return this.state == States.DONE;
+    }
+
     /**
      * {@code true} if field has a value--if positioned on a field--undefined otherwise.
      * <p>
@@ -690,8 +694,8 @@ public final class RowReader {
      * @return a new {@link RowReader}.
      */
     public @Nonnull RowReader readScope() {
-        RowCursor newScope = this.buffer.sparseIteratorReadScope(this.cursor, true);
-        return new RowReader(this.buffer, newScope);
+        RowCursor scope = this.buffer.sparseIteratorReadScope(this.cursor, true);
+        return new RowReader(this.buffer, scope);
     }
 
     /**

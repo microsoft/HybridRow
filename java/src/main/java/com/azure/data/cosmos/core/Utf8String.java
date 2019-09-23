@@ -93,7 +93,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     @Override
     public char charAt(final int index) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(lenientFormat("Utf8String.charAt(index: %s)", index));
     }
 
     /**
@@ -101,7 +101,13 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public IntStream chars() {
-        throw new UnsupportedOperationException();
+
+        return this.buffer == null || this.buffer.writerIndex() == 0
+            ? IntStream.empty()
+            : StreamSupport.intStream(
+                () -> Spliterators.spliteratorUnknownSize(new UTF16CodeUnitIterator(this.buffer), Spliterator.ORDERED),
+                Spliterator.ORDERED,false
+            );
     }
 
     /**
@@ -109,13 +115,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     public final IntStream codePoints() {
 
-        if (this.buffer == null || this.buffer.writerIndex() == 0) {
-            return IntStream.empty();
-        }
-
-        return StreamSupport.intStream(
-            () -> Spliterators.spliteratorUnknownSize(new CodePointIterator(this.buffer), Spliterator.ORDERED),
-            Spliterator.ORDERED,false);
+        return this.buffer == null || this.buffer.writerIndex() == 0
+            ? IntStream.empty()
+            : StreamSupport.intStream(
+                () -> Spliterators.spliteratorUnknownSize(new CodePointIterator(this.buffer), Spliterator.ORDERED),
+                Spliterator.ORDERED,false
+            );
     }
 
     /**
@@ -468,6 +473,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         if (this.buffer == null) {
             return null;
         }
+        if (this.buffer.writerIndex() == 0) {
+            return "";
+        }
         return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
     }
 
@@ -578,6 +586,60 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return -1;
     }
 
+    // region Types
+
+    private static final class UTF16CodeUnitIterator extends UTF8CodePointGetter implements IntIterator.OfInt {
+
+        private final ByteBuf buffer;
+        private int start, length;
+        private int lowSurrogate;
+
+        UTF16CodeUnitIterator(final ByteBuf buffer) {
+            this.buffer = buffer;
+            this.lowSurrogate = 0;
+            this.start = 0;
+            this.length = buffer.writerIndex();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (this.lowSurrogate != 0) || (0 <= this.start && this.start < this.length);
+        }
+
+        /**
+         * Returns the next {@code int} code point in the iteration.
+         *
+         * @return the next {@code int} code point in the iteration.
+         * @throws NoSuchElementException if the iteration has no more code points.
+         */
+        @Override
+        public int nextInt() {
+
+            if (!this.hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            if (this.lowSurrogate != 0) {
+                int codeUnit = this.lowSurrogate;
+                this.lowSurrogate = 0;
+                return codeUnit;
+            }
+
+            final int index = this.buffer.forEachByte(this.start, this.length - this.start, this);
+            assert index >= 0;
+            this.start = index + 1;
+
+            final int codePoint = this.codePoint();
+
+            if ((codePoint & 0xFFFF0000) == 0) {
+                return codePoint;
+            }
+
+            this.lowSurrogate = Character.lowSurrogate(codePoint);
+            return Character.highSurrogate(codePoint);
+        }
+    }
+
     private static final class CodePointIterator extends UTF8CodePointGetter implements IntIterator.OfInt {
 
         private final ByteBuf buffer;
@@ -648,7 +710,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         @Override
         public void serialize(Utf8String value, JsonGenerator generator, SerializerProvider provider) throws IOException {
-            generator.writeString(value.toString());
+            generator.writeString(value.toUtf16());
         }
     }
 
@@ -900,4 +962,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return this.codePoint;
         }
     }
+
+    // endregion
 }
