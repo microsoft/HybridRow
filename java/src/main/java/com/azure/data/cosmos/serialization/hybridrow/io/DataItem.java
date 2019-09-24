@@ -11,6 +11,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -35,7 +36,7 @@ public class DataItem {
 
     @SuppressWarnings("UnstableApiUsage")
     DataItem(
-        @Nonnull final List<Utf8String> nodes,
+        @Nonnull final Collection<Utf8String> nodes,
         @Nonnull final Utf8String name,
         @Nonnull final LayoutCode type,
         @Nonnull final Object value) {

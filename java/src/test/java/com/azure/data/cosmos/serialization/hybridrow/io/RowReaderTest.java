@@ -71,8 +71,8 @@ public class RowReaderTest {
 
     @Test(groups = "unit")
     public void testIterable() throws IOException {
-        try (final RowIterable iterable = RowIterable.open(this.namespace, this.dataFile)) {
-            for (DataItem item : iterable) {
+        try (final RowScanner scanner = RowScanner.open(this.namespace, this.dataFile)) {
+            for (DataItem item : scanner) {
                 assertNotNull(item);
                 out.println(item);
             }
