@@ -155,8 +155,16 @@ public class RowIterable implements AutoCloseable, Iterable<DataItem> {
 
                     switch (type.layoutCode()) {
 
+                        case NULL: {
+                            result = this.reader.readNull(this.value);
+                            break;
+                        }
                         case BOOLEAN: {
                             result = this.reader.readBoolean(this.value);
+                            break;
+                        }
+                        case INT_8: {
+                            result = this.reader.readInt8(this.value);
                             break;
                         }
                         case INT_16: {
@@ -171,8 +179,16 @@ public class RowIterable implements AutoCloseable, Iterable<DataItem> {
                             result = this.reader.readInt64(this.value);
                             break;
                         }
+                        case VAR_INT: {
+                            result = this.reader.readVarInt(this.value);
+                            break;
+                        }
                         case UINT_8: {
                             result = this.reader.readUInt8(this.value);
+                            break;
+                        }
+                        case UINT_16: {
+                            result = this.reader.readUInt16(this.value);
                             break;
                         }
                         case UINT_32: {
@@ -183,28 +199,44 @@ public class RowIterable implements AutoCloseable, Iterable<DataItem> {
                             result = this.reader.readUInt64(this.value);
                             break;
                         }
-                        case BINARY: {
-                            result = this.reader.readBinary(this.value);
+                        case VAR_UINT: {
+                            result = this.reader.readVarUInt(this.value);
+                            break;
+                        }
+                        case FLOAT_32: {
+                            result = this.reader.readFloat32(this.value);
+                            break;
+                        }
+                        case FLOAT_64: {
+                            result = this.reader.readFloat64(this.value);
+                            break;
+                        }
+                        case FLOAT_128: {
+                            result = this.reader.readFloat128(this.value);
+                            break;
+                        }
+                        case DECIMAL: {
+                            result = this.reader.readDecimal(this.value);
                             break;
                         }
                         case GUID: {
                             result = this.reader.readGuid(this.value);
                             break;
                         }
-                        case NULL:
-                        case BOOLEAN_FALSE:
-                        case INT_8:
-                        case UINT_16:
-                        case VAR_INT:
-                        case VAR_UINT:
-                        case FLOAT_32:
-                        case FLOAT_64:
-                        case FLOAT_128:
-                        case DECIMAL:
-                        case DATE_TIME:
-                        case UNIX_DATE_TIME:
+                        case DATE_TIME: {
+                            result = this.reader.readDateTime(this.value);
+                            break;
+                        }
+                        case UNIX_DATE_TIME: {
+                            result = this.reader.readUnixDateTime(this.value);
+                            break;
+                        }
+                        case BINARY: {
+                            result = this.reader.readBinary(this.value);
+                            break;
+                        }
                         case UTF_8: {
-                            result = Result.SUCCESS;
+                            result = this.reader.readUtf8String(this.value);
                             break;
                         }
                         case NULLABLE_SCOPE:
@@ -262,6 +294,7 @@ public class RowIterable implements AutoCloseable, Iterable<DataItem> {
                         case MONGODB_OBJECT_ID: {
                             throw new IllegalStateException(lenientFormat("unsupported layout type: %s", type));
                         }
+                        case BOOLEAN_FALSE:
                         case END_SCOPE:
                         case INVALID: {
                             throw new IllegalStateException(lenientFormat("unexpected layout type: %s", type));

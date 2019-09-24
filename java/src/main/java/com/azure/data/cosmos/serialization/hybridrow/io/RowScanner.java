@@ -104,8 +104,16 @@ public class RowScanner implements AutoCloseable {
 
             switch (type.layoutCode()) {
 
+                case NULL: {
+                    result = reader.readNull(value);
+                    break;
+                }
                 case BOOLEAN: {
                     result = reader.readBoolean(value);
+                    break;
+                }
+                case INT_8: {
+                    result = reader.readInt8(value);
                     break;
                 }
                 case INT_16: {
@@ -120,8 +128,16 @@ public class RowScanner implements AutoCloseable {
                     result = reader.readInt64(value);
                     break;
                 }
+                case VAR_INT: {
+                    result = reader.readVarInt(value);
+                    break;
+                }
                 case UINT_8: {
                     result = reader.readUInt8(value);
+                    break;
+                }
+                case UINT_16: {
+                    result = reader.readUInt16(value);
                     break;
                 }
                 case UINT_32: {
@@ -132,28 +148,44 @@ public class RowScanner implements AutoCloseable {
                     result = reader.readUInt64(value);
                     break;
                 }
-                case BINARY: {
-                    result = reader.readBinary(value);
+                case VAR_UINT: {
+                    result = reader.readVarUInt(value);
+                    break;
+                }
+                case FLOAT_32: {
+                    result = reader.readFloat32(value);
+                    break;
+                }
+                case FLOAT_64: {
+                    result = reader.readFloat64(value);
+                    break;
+                }
+                case FLOAT_128: {
+                    result = reader.readFloat128(value);
+                    break;
+                }
+                case DECIMAL: {
+                    result = reader.readDecimal(value);
                     break;
                 }
                 case GUID: {
                     result = reader.readGuid(value);
                     break;
                 }
-                case NULL:
-                case BOOLEAN_FALSE:
-                case INT_8:
-                case UINT_16:
-                case VAR_INT:
-                case VAR_UINT:
-                case FLOAT_32:
-                case FLOAT_64:
-                case FLOAT_128:
-                case DECIMAL:
-                case DATE_TIME:
-                case UNIX_DATE_TIME:
+                case DATE_TIME: {
+                    result = reader.readDateTime(value);
+                    break;
+                }
+                case UNIX_DATE_TIME: {
+                    result = reader.readUnixDateTime(value);
+                    break;
+                }
+                case BINARY: {
+                    result = reader.readBinary(value);
+                    break;
+                }
                 case UTF_8: {
-                    result = Result.SUCCESS;
+                    result = reader.readUtf8String(value);
                     break;
                 }
                 case NULLABLE_SCOPE:
@@ -212,12 +244,13 @@ public class RowScanner implements AutoCloseable {
 
                     continue;
                 }
-                case END_SCOPE: {
-                    throw new IllegalStateException(lenientFormat("unexpected layout type: %s", type));
-                }
-                case INVALID:
                 case MONGODB_OBJECT_ID: {
                     throw new IllegalStateException(lenientFormat("unsupported layout type: %s", type));
+                }
+                case BOOLEAN_FALSE:
+                case END_SCOPE:
+                case INVALID: {
+                    throw new IllegalStateException(lenientFormat("unexpected layout type: %s", type));
                 }
                 default: {
                     throw new IllegalStateException(lenientFormat("unknown layout type: %s", type));
