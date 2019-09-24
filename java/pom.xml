@@ -18,11 +18,30 @@ Licensed under the MIT License.
   <url>https://github.com/Azure/azure-sdk-for-java</url>
 
   <distributionManagement>
+    <repository>
+      <name>azure-cosmos-serialization</name>
+      <layout>default</layout>
+      <id>dev-azure-com-azure-cosmos-java-azure-cosmos-serialization</id>
+      <url>https://pkgs.dev.azure.com/azure-cosmos-java/_packaging/azure-cosmos-serialization/maven/v1</url>
+    </repository>
     <site>
       <id>azure-java-build-docs</id>
       <url>${site.url}/site/${project.artifactId}</url>
     </site>
   </distributionManagement>
+
+  <repositories>
+    <repository>
+      <id>dev-azure-com-azure-cosmos-java-azure-cosmos-serialization</id>
+      <url>https://pkgs.dev.azure.com/azure-cosmos-java/_packaging/azure-cosmos-serialization/maven/v1</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <scm>
     <url>https://github.com/Azure/azure-sdk-for-java</url>

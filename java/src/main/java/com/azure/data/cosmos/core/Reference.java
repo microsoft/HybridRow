@@ -9,8 +9,8 @@ import java.util.Objects;
  * A container object which may or may not contain a non-null value.
  *
  * This is a value-based class and as such use of identity-sensitive operations--including reference equality
- * ({@code ==}), identity hash code, or synchronization--on instances of {@Reference} may have unpredictable results
- * and should be avoided.
+ * ({@code ==}), identity hash code, or synchronization--on instances of {@link Reference} may have unpredictable
+ * results and should be avoided.
  *
  * @param <T>
  */
@@ -62,7 +62,7 @@ public final class Reference<T> {
             return true;
         }
 
-        if (!(other instanceof Reference)) {
+        if (other.getClass() != Reference.class) {
             return false;
         }
 

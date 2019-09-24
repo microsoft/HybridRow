@@ -199,7 +199,10 @@ public class RowScanner implements AutoCloseable {
                 case TYPED_TUPLE_SCOPE:
                 case IMMUTABLE_TYPED_TUPLE_SCOPE: {
 
-                    visitor.nodes().push(path);
+                    visitor.nodes().push(path.isEmpty()
+                        ? Utf8String.transcodeUtf16(lenientFormat("[%s]", reader.index()))
+                        : path);
+
                     result = reader.readScope(visitor, RowScanner::visit);
                     visitor.nodes().pop();
 

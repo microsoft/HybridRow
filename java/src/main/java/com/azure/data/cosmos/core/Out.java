@@ -59,7 +59,7 @@ public final class Out<T> {
             return true;
         }
 
-        if (!(other instanceof Out)) {
+        if (other.getClass() != Out.class) {
             return false;
         }
 

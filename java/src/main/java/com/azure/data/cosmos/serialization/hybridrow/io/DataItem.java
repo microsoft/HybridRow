@@ -21,9 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class DataItem {
 
-    private final Supplier<String> fullPath;
-    private final Supplier<String> name;
-
     @JsonProperty
     private final List<String> nodes;
 
@@ -32,6 +29,9 @@ public class DataItem {
 
     @JsonProperty
     private final Object value;
+
+    private final Supplier<String> name;
+    private final Supplier<String> path;
 
     @SuppressWarnings("UnstableApiUsage")
     DataItem(
@@ -56,7 +56,7 @@ public class DataItem {
 
         this.name = Suppliers.memoize(() -> this.nodes.get(this.nodes.size() - 1));
 
-        this.fullPath = Suppliers.memoize(() -> {
+        this.path = Suppliers.memoize(() -> {
 
             if (this.nodes.size() == 1) {
                 return this.nodes.get(0);
@@ -69,8 +69,11 @@ public class DataItem {
 
             int i;
 
-            for (i = 0; i < this.nodes.size() - 1; i++) {
+            for (i = 0; i < this.nodes.size() - 1; ++i) {
                 builder.append(this.nodes.get(i));
+                if (this.nodes.get(i + 1).charAt(0) != '[') {
+                    builder.append('.');
+                }
             }
 
             return builder.append(this.nodes.get(i)).toString();
@@ -86,7 +89,7 @@ public class DataItem {
     }
 
     public String path() {
-        return this.fullPath.get();
+        return this.path.get();
     }
 
     @Override

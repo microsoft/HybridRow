@@ -20,16 +20,12 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.testng.util.Strings;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Stack;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -45,12 +41,18 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 public class RowReaderTest {
 
+    // region Fields
+
     private static final String basedir = System.getProperty("project.basedir", System.getProperty("user.dir"));
 
     private final Path dataFile;
     private final File schemaFile;
 
     private Namespace namespace;
+
+    // endregion
+
+    // region Construction and Setup
 
     private RowReaderTest(File schemaFile, Path dataFile) {
         this.schemaFile = schemaFile;
@@ -65,13 +67,15 @@ public class RowReaderTest {
         );
     }
 
+    // endregion
+
     @Test(groups = "unit")
     public void testIterable() throws IOException {
-
-        final RowIterable iterable = RowIterable.of(this.namespace, this.dataFile);
-
-        for (DataItem item : iterable) {
-            assertNotNull(item.toString());
+        try (final RowIterable iterable = RowIterable.open(this.namespace, this.dataFile)) {
+            for (DataItem item : iterable) {
+                assertNotNull(item);
+                out.println(item);
+            }
         }
     }
 
@@ -105,17 +109,18 @@ public class RowReaderTest {
     }
 
     @Test(groups = "unit")
-    public void testScanner() throws IOException {
-
-        final RowScanner scanner = RowScanner.open(this.namespace, this.dataFile);
-
-        scanner.visit((DataItem item, Object context) -> {
+    public void testScanner() throws Exception {
+        try (final RowScanner scanner = RowScanner.open(this.namespace, this.dataFile)) {
+            scanner.visit((DataItem item, Object context) -> {
                 assertNull(context);
                 assertNotNull(item);
                 out.println(item);
                 return Result.SUCCESS;
             }, null);
+        }
     }
+
+    // region Privates
 
     @SuppressWarnings("unchecked")
     private static Result visitFields(RowReader reader, int level) {
@@ -281,224 +286,5 @@ public class RowReaderTest {
         }
     }
 
-    public static class RowIterable implements Iterable<DataItem> {
-
-        final ByteBuf data;
-        final LayoutResolver resolver;
-
-        private RowIterable(LayoutResolver resolver, ByteBuf data) {
-            this.resolver = resolver;
-            this.data = data;
-        }
-
-        @Nonnull
-        @Override
-        public Iterator<DataItem> iterator() {
-            final RowBuffer buffer = new RowBuffer(this.data, HybridRowVersion.V1, this.resolver);
-            final RowReader reader = new RowReader(buffer);
-            return new RowIterator(reader);
-        }
-
-        public static RowIterable of(@Nonnull Namespace namespace, @Nonnull File file) throws IOException {
-
-            checkNotNull(file, "expected non-null file");
-
-            final long length = file.length();
-            checkArgument(0 < length, "file does not exist: %s", file);
-            checkArgument(length <= Integer.MAX_VALUE, "expected file length <= %s, not %s", Integer.MAX_VALUE, length);
-
-            ByteBuf data = Unpooled.buffer((int) length);
-
-            try (InputStream stream = Files.newInputStream(file.toPath())) {
-                data.writeBytes(stream, (int) length);
-            }
-
-            LayoutResolverNamespace resolver = new LayoutResolverNamespace(namespace);
-            return new RowIterable(resolver, data);
-        }
-
-        public static RowIterable of(@Nonnull Namespace namespace, @Nonnull Path path) throws IOException {
-            return RowIterable.of(namespace, requireNonNull(path, "expected non-null path").toFile());
-        }
-
-        public static RowIterable of(@Nonnull Namespace namespace, @Nonnull String path) throws IOException {
-            return RowIterable.of(namespace, new File(requireNonNull(path, "expected non-null path")));
-        }
-
-        private static class RowIterator implements Iterator<DataItem> {
-
-            final Stack<Utf8String> paths;
-            final Stack<RowReader> readers;
-            final Out value;
-
-            RowReader reader;
-            Result result;
-
-            RowIterator(RowReader reader) {
-                this.readers = new Stack<>();
-                this.paths = new Stack<>();
-                this.reader = reader;
-                this.value = new Out();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return this.reader != null;
-            }
-
-            /**
-             * Returns the next element in the iteration.
-             *
-             * @return the next element in the iteration
-             * @throws NoSuchElementException if the iteration has no more elements
-             */
-            @SuppressWarnings("unchecked")
-            @Override
-            public DataItem next() {
-
-                do {
-                    while (this.reader.read()) {
-
-                        Utf8String path = this.reader.path();
-                        checkState(!path.isNull(), "expected non-null path");
-
-                        LayoutType type = this.reader.type();
-                        checkState(type != null, "expected non-null type");
-
-                        switch (type.layoutCode()) {
-
-                            case BOOLEAN: {
-                                this.result = this.reader.readBoolean(this.value);
-                                break;
-                            }
-                            case INT_16: {
-                                this.result = this.reader.readInt16(this.value);
-                                break;
-                            }
-                            case INT_32: {
-                                this.result = this.reader.readInt32(this.value);
-                                break;
-                            }
-                            case INT_64: {
-                                this.result = this.reader.readInt64(this.value);
-                                break;
-                            }
-                            case UINT_8: {
-                                this.result = this.reader.readUInt8(this.value);
-                                break;
-                            }
-                            case UINT_32: {
-                                this.result = this.reader.readUInt32(this.value);
-                                break;
-                            }
-                            case UINT_64: {
-                                this.result = this.reader.readUInt64(this.value);
-                                break;
-                            }
-                            case BINARY: {
-                                this.result = this.reader.readBinary(this.value);
-                                break;
-                            }
-                            case GUID: {
-                                this.result = this.reader.readGuid(this.value);
-                                break;
-                            }
-                            case NULL:
-                            case BOOLEAN_FALSE:
-                            case INT_8:
-                            case UINT_16:
-                            case VAR_INT:
-                            case VAR_UINT:
-                            case FLOAT_32:
-                            case FLOAT_64:
-                            case FLOAT_128:
-                            case DECIMAL:
-                            case DATE_TIME:
-                            case UNIX_DATE_TIME:
-                            case UTF_8: {
-                                break;
-                            }
-                            case NULLABLE_SCOPE:
-                            case IMMUTABLE_NULLABLE_SCOPE: {
-                                if (!this.reader.hasValue()) {
-                                    break;
-                                }
-                            }
-                            case ARRAY_SCOPE:
-                            case IMMUTABLE_ARRAY_SCOPE:
-
-                            case MAP_SCOPE:
-                            case IMMUTABLE_MAP_SCOPE:
-
-                            case OBJECT_SCOPE:
-                            case IMMUTABLE_OBJECT_SCOPE:
-
-                            case SCHEMA:
-                            case IMMUTABLE_SCHEMA:
-
-                            case SET_SCOPE:
-                            case IMMUTABLE_SET_SCOPE:
-
-                            case TAGGED2_SCOPE:
-                            case IMMUTABLE_TAGGED2_SCOPE:
-
-                            case TAGGED_SCOPE:
-                            case IMMUTABLE_TAGGED_SCOPE:
-
-                            case TUPLE_SCOPE:
-                            case IMMUTABLE_TUPLE_SCOPE:
-
-                            case TYPED_ARRAY_SCOPE:
-                            case IMMUTABLE_TYPED_ARRAY_SCOPE:
-
-                            case TYPED_MAP_SCOPE:
-                            case IMMUTABLE_TYPED_MAP_SCOPE:
-
-                            case TYPED_SET_SCOPE:
-                            case IMMUTABLE_TYPED_SET_SCOPE:
-
-                            case TYPED_TUPLE_SCOPE:
-                            case IMMUTABLE_TYPED_TUPLE_SCOPE: {
-
-                                this.readers.push(this.reader);
-                                this.paths.push(path);
-                                this.reader = this.reader.readScope();
-                                continue;
-                            }
-                            case END_SCOPE: {
-                                final RowReader child = this.reader;
-                                this.reader = this.readers.pop();
-                                continue;
-                            }
-                            case INVALID:
-                            case MONGODB_OBJECT_ID: {
-                                throw new IllegalStateException(lenientFormat("unsupported layout type: %s", type));
-                            }
-                            default: {
-                                throw new IllegalStateException(lenientFormat("unknown layout type: %s", type));
-                            }
-                        }
-
-                        if (this.result != Result.SUCCESS) {
-                            String message = lenientFormat("failed to read %s value for %s", type.layoutCode(), path);
-                            throw new IllegalStateException(message);
-                        }
-
-                        return new DataItem(this.paths, path, type.layoutCode(), this.value.get());
-                    }
-
-                    if (this.readers.empty()) {
-                        this.reader = null;
-                    } else {
-                        this.reader = this.readers.pop();
-                        this.paths.pop();
-                    }
-                }
-                while (this.reader != null);
-
-                throw new NoSuchElementException();
-            }
-        }
-    }
-
+    // endregion
 }

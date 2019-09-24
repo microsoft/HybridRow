@@ -465,6 +465,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         if (this.buffer == null) {
             return "null";
         }
+        if (this.buffer.writerIndex() == 0) {
+            return "\"\"";
+        }
         return Json.toString(this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8));
     }
 
