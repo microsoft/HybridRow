@@ -45,12 +45,14 @@ public final class SystemSchema {
         try (final InputStream stream = getResourceAsStream("SystemSchema.json")) {
             namespace = Namespace.parse(stream);
         } catch (IOException cause) {
-            String message = lenientFormat("failed to initialize %s due to %s", cause);
+            String message = lenientFormat("failed to initialize %s due to %s", SystemSchema.class, cause);
             throw new IllegalStateException(message, cause);
         }
 
         return new LayoutResolverNamespace(namespace.orElseThrow(() -> {
-            String message = lenientFormat("failed to initialize %s due to system schema parse error");
+            String message = lenientFormat(
+                "failed to initialize %s due to system schema parse error",
+                SystemSchema.class);
             return new IllegalStateException(message);
         }));
     });
@@ -73,11 +75,11 @@ public final class SystemSchema {
 
         while (urls.hasMoreElements()) {
             final URL url = urls.nextElement();
-            if (url.toString().startsWith(location)) {
+            if (url.getFile().endsWith(name)) {
                 return url.openStream();
             }
         }
 
-        throw new FileNotFoundException(lenientFormat("cannot find resource at code source location %s", location));
+        throw new FileNotFoundException(lenientFormat("cannot find %s at %s", name, location));
     }
 }
