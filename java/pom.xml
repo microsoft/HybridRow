@@ -15,8 +15,14 @@ Licensed under the MIT License.
 
   <name>Microsoft Azure Cosmos Serialization API</name>
   <description>This package contains Microsoft Azure Serialization API for Azure Cosmos DB</description>
-  <url>https://github.com/Azure/azure-sdk-for-java</url>
-
+  <url>https://github.com/microsoft/HybridRow</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+  
   <distributionManagement>
     <repository>
       <name>azure-cosmos-serialization</name>
@@ -44,7 +50,7 @@ Licensed under the MIT License.
   </repositories>
 
   <scm>
-    <url>https://github.com/Azure/azure-sdk-for-java</url>
+    <url>https://github.com/microsoft/HybridRow</url>
   </scm>
 
   <properties>

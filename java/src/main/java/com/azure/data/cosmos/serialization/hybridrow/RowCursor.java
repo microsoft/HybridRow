@@ -245,6 +245,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * The layout describing the contents of the scope, or {@code null} if the scope is unschematized.
+     *
+     * @return layout describing the context of the scope, or {@code null} if the scope is unschematized.
      */
     public Layout layout() {
         return this.layout;
@@ -256,8 +258,9 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * If existing, the offset to the metadata of the existing field, otherwise the location to.
-     * insert a new field.
+     * If existing, offset to the metadata of the existing field, otherwise the location to insert a new field.
+     *
+     * @return offset to the metadata of an existing field or the location to insert a new field.
      */
     public int metaOffset() {
         return this.metaOffset;
@@ -270,6 +273,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * If existing, the offset scope relative path for reading.
+     *
+     * @return If existing, the offset scope relative path for reading.
      */
     public int pathOffset() {
         return this.pathOffset;
@@ -282,6 +287,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * If existing, the layout string token of scope relative path for reading.
+     *
+     * @return If existing, the layout string token of scope relative path for reading.
      */
     public int pathToken() {
         return this.pathToken;
@@ -294,6 +301,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * The kind of scope within which this edit was prepared.
+     *
+     * @return The kind of scope within which this edit was prepared.
      */
     public LayoutTypeScope scopeType() {
         return this.scopeType;
@@ -306,6 +315,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * The type parameters of the scope within which this edit was prepared.
+     *
+     * @return The type parameters of the scope within which this edit was prepared.
      */
     public TypeArgumentList scopeTypeArgs() {
         return this.scopeTypeArgs;
@@ -317,7 +328,9 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * The 0-based byte offset from the beginning of the row where the first sparse field within the scope begins.
+     * The 0-based offset from the beginning of the row where the first sparse field within the scope begins.
+     *
+     * @return 0-based offset from the beginning of the row where the first sparse field within the scope begins.
      */
     public int start() {
         return this.start;
@@ -362,6 +375,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * If existing, the offset to the value of the existing field, otherwise undefined.
+     *
+     * @return If existing, the offset to the value of the existing field, otherwise undefined.
      */
     public int valueOffset() {
         return this.valueOffset;
@@ -374,6 +389,8 @@ public final class RowCursor implements Cloneable {
 
     /**
      * If existing, the scope relative path for writing.
+     *
+     * @return If existing, the scope relative path for writing.
      */
     public UtfAnyString writePath() {
         return this.writePath;
@@ -384,7 +401,9 @@ public final class RowCursor implements Cloneable {
     }
 
     /**
-     * If WritePath is tokenized, then its token.
+     * If {@link #writePath} is tokenized, then its token.
+     *
+     * @return if {@link #writePath} is tokenized, then its token.
      */
     public StringToken writePathToken() {
         return this.writePathToken;
