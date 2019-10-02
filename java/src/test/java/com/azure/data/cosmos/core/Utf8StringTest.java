@@ -165,6 +165,18 @@ public class Utf8StringTest {
         assertEquals(Utf8String.fromUnsafe(item.byteBuf()).length(), item.value().length());
     }
 
+    @Test(dataProvider = "unicodeTextDataProvider")
+    public void testSubSequence(UnicodeText item) {
+
+        Utf8String value = Utf8String.fromUnsafe(item.byteBuf());
+
+        for (int start = 0, end = value.length(); start <= end; start++, end--) {
+            String actual = ((Utf8String)value.subSequence(start, end)).toUtf16();
+            String expected = (String)item.value.subSequence(start, end);
+            assertEquals(actual, expected);
+        }
+    }
+
     @Test
     public void testToString() {
     }

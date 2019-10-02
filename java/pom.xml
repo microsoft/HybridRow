@@ -10,7 +10,7 @@ Licensed under the MIT License.
 
   <groupId>com.azure.data</groupId>
   <artifactId>azure-cosmos-serialization</artifactId>
-  <version>2.9.5</version>
+  <version>2.9.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Microsoft Azure Cosmos Serialization API</name>
@@ -22,6 +22,13 @@ Licensed under the MIT License.
       <url>http://www.opensource.org/licenses/mit-license.php</url>
     </license>
   </licenses>
+
+  <developers>
+    <developer>
+      <id>microsoft</id>
+      <name>Microsoft Corporation</name>
+    </developer>
+  </developers>
   
   <distributionManagement>
     <repository>
@@ -280,13 +287,6 @@ Licensed under the MIT License.
       </resource>
     </resources>
   </build>
-
-  <developers>
-    <developer>
-      <id>microsoft</id>
-      <name>Microsoft Corporation</name>
-    </developer>
-  </developers>
 
   <modules/>
 

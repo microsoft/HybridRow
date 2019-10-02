@@ -3,6 +3,7 @@
 
 package com.azure.data.cosmos.core;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -71,8 +72,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         this.buffer = buffer;
 
         this.utf16CodeUnitCount = Suppliers.memoize(() -> {
+
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter();
-            this.buffer.forEachByte(0, this.buffer.writerIndex(), counter);
+            final int length = this.buffer.writerIndex();
+            final int index = this.buffer.forEachByte(0, length, counter);
+
+            assert index == -1 : lenientFormat("index: %s, length: %s", index, length);
             return counter.value();
         });
     }
@@ -97,29 +102,42 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * Non-allocating enumeration of each character in the UTF-8 stream.
+     * Returns a stream of {@code int} zero-extending the {@code char} values in this {@link Utf8String}.
+     * <p>
+     * Any char which maps to a "{@docRoot}/java/lang/Character.html#unicode">surrogate code point</a> is passed through
+     * uninterpreted.
+     * <p>
+     * No additional string space is allocated.
+     *
+     * @return a stream of {@code int} zero-extending the {@code char} values in this {@link Utf8String}.
      */
     @Override
     public IntStream chars() {
-
-        return this.buffer == null || this.buffer.writerIndex() == 0
+        return this == NULL || this == EMPTY
             ? IntStream.empty()
             : StreamSupport.intStream(
                 () -> Spliterators.spliteratorUnknownSize(new UTF16CodeUnitIterator(this.buffer), Spliterator.ORDERED),
-                Spliterator.ORDERED,false
+                Spliterator.ORDERED, false
             );
     }
 
     /**
-     * Non-allocating enumeration of each code point in the UTF-8 stream.
+     * Returns a stream of code point values from this {@link Utf8String}.
+     * <p>
+     * Any surrogate pairs in the sequence are combined as if by {@link Character#toCodePoint Character.toCodePoint} and
+     * the result is passed to the stream. Any other code units, including ordinary BMP characters, unpaired surrogates,
+     * and undefined code units, are zero-extended to {@code int} values which are then passed to the stream.
+     * <p>
+     * No additional string space is allocated.
+     *
+     * @return a stream of {@code int} code point values from this {@link Utf8String}.
      */
     public final IntStream codePoints() {
-
-        return this.buffer == null || this.buffer.writerIndex() == 0
+        return this == NULL || this == EMPTY
             ? IntStream.empty()
             : StreamSupport.intStream(
                 () -> Spliterators.spliteratorUnknownSize(new CodePointIterator(this.buffer), Spliterator.ORDERED),
-                Spliterator.ORDERED,false
+                Spliterator.ORDERED, false
             );
     }
 
@@ -211,10 +229,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public Utf8String copy() {
-        if (this.buffer == null) {
-            return NULL;
-        }
-        return this.buffer.writerIndex() == 0 ? EMPTY : fromUnsafe(this.buffer.copy());
+        return this == NULL || this == EMPTY ? this : fromUnsafe(this.buffer.copy());
     }
 
     /**
@@ -228,10 +243,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public Utf8String duplicate() {
-        if (this.buffer == null) {
-            return NULL;
-        }
-        return this.buffer.writerIndex() == 0 ? EMPTY : fromUnsafe(this.buffer.duplicate());
+        return this == NULL || this == EMPTY ? this : fromUnsafe(this.buffer.duplicate());
     }
 
     /**
@@ -243,7 +255,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @return encoded length of {@link Utf8String}
      */
     public final int encodedLength() {
-        return this.buffer == null ? 0 : this.buffer.writerIndex();
+        return this == NULL || this == EMPTY ? 0 : this.buffer.writerIndex();
     }
 
     /**
@@ -322,7 +334,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation.
      * <p>
-     * The {@link Utf8String} created retains the {@link ByteBuf}. No data is transferred.
+     * The {@link Utf8String} created does not retain the {@link ByteBuf}. No data is transferred.
      *
      * @param buffer the {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
      * @return a {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
@@ -344,8 +356,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation.
      * <p>
-     * The {@link Utf8String} created retains the {@link ByteBuf} and ensures it is read-only by calling
-     * {@link ByteBuf#asReadOnly}. No data is transferred.
+     * The {@link Utf8String} created does not retain the {@link ByteBuf}. No data is transferred.
      *
      * @param buffer a {@link ByteBuf} to assign to the {@link Utf8String} created.
      * @return a new {@link Utf8String}
@@ -366,7 +377,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public int hashCode() {
-        return this.buffer == null ? 0 : this.buffer.hashCode();
+        return this == NULL ? 0 : this.buffer.hashCode();
     }
 
     /**
@@ -390,7 +401,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public int refCnt() {
-        return this.buffer.refCnt();
+        return this == NULL ? 0 : this.buffer.refCnt();
     }
 
     /**
@@ -402,7 +413,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public boolean release() {
-        return this.buffer.release();
+        return this == NULL || this.buffer.release();
     }
 
     /**
@@ -415,7 +426,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public boolean release(int decrement) {
-        return false;
+        return this == NULL || this.buffer.release(decrement);
     }
 
     /**
@@ -426,18 +437,22 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public Utf8String replace(ByteBuf content) {
-        throw new UnsupportedOperationException();
+        return fromUnsafe(content);
     }
 
     @Override
     public Utf8String retain() {
-        this.buffer.retain();
+        if (this != NULL) {
+            this.buffer.retain();
+        }
         return this;
     }
 
     @Override
     public Utf8String retain(int increment) {
-        this.buffer.retain(increment);
+        if (this != NULL) {
+            this.buffer.retain(increment);
+        }
         return this;
     }
 
@@ -450,22 +465,63 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public Utf8String retainedDuplicate() {
-        throw new UnsupportedOperationException();
+        return this == NULL || this == EMPTY ? this : fromUnsafe(this.buffer.retainedDuplicate());
     }
 
+    /**
+     * Returns a {@link CharSequence} that is a subsequence of this sequence.
+     * <p>
+     * The subsequence starts with the {@code char} value at the specified {@code start} index and ends with the
+     * {@code char} value at index {@code end - 1}. The length in {@code char}s of the returned sequence is
+     * {@code end - start}, so if {@code start == end} then an empty sequence is returned.
+     *
+     * @param start the start index, inclusive.
+     * @param end   the end index, exclusive.
+     * @return the specified subsequence
+     * @throws IndexOutOfBoundsException, if
+     *                                    <p><ul>
+     *                                    <li>{@code start} or {@code end} are negative,
+     *                                    <li>{@code end} is greater than {@code length()}, or
+     *                                    <li>{@code start} is greater than {@code end}.
+     *                                    </ul></p>
+     */
     @Override
     public CharSequence subSequence(int start, int end) {
-        checkArgument(start < 0 || end < 0 || start > end || end > this.length(), "start: %s, end: %s", start, end);
-        return new Utf8String(this.buffer.slice(start, end));
+
+        final int length = this.length();
+
+        if (start < 0 || end < 0 || start > end || end > length) {
+            String message = lenientFormat("start: %s, end: %s, length: %s", start, end, length);
+            throw new IndexOutOfBoundsException(message);
+        }
+
+        if (start == end) {
+            return EMPTY;
+        }
+
+        final int encodedLength = this.buffer.writerIndex();
+        final int i, n;
+
+        if (start == 0) {
+            i = 0;
+            n = encodedLength;
+        } else {
+            final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter(start);
+            i = this.buffer.forEachByte(0, encodedLength, counter);
+            n = encodedLength - i;
+        }
+
+        final int j = this.buffer.forEachByte(i, n, new UTF16CodeUnitCounter(end - start));
+        return fromUnsafe(this.buffer.slice(i, j >= 0 ? j - i : n));
     }
 
     @Override
     @Nonnull
     public String toString() {
-        if (this.buffer == null) {
+        if (this == NULL) {
             return "null";
         }
-        if (this.buffer.writerIndex() == 0) {
+        if (this == EMPTY) {
             return "\"\"";
         }
         return Json.toString(this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8));
@@ -473,10 +529,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     @Nullable
     public String toUtf16() {
-        if (this.buffer == null) {
+        if (this == NULL) {
             return null;
         }
-        if (this.buffer.writerIndex() == 0) {
+        if (this == EMPTY) {
             return "";
         }
         return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
@@ -484,13 +540,17 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     @Override
     public Utf8String touch() {
-        this.buffer.touch();
+        if (this != NULL) {
+            this.buffer.touch();
+        }
         return this;
     }
 
     @Override
     public Utf8String touch(Object hint) {
-        this.buffer.touch(hint);
+        if (this != NULL) {
+            this.buffer.touch(hint);
+        }
         return this;
     }
 
@@ -730,42 +790,68 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     private static final class UTF16CodeUnitCounter implements ByteProcessor {
 
+        @JsonProperty
+        private final int end;
+        @JsonProperty
         private int count = 0;
+        @JsonProperty
         private int skip = 0;
+
+        public UTF16CodeUnitCounter() {
+            this(Integer.MAX_VALUE);
+        }
+
+        public UTF16CodeUnitCounter(int end) {
+            checkArgument(end >= 0);
+            this.end = end;
+        }
 
         @Override
         public boolean process(byte value) {
 
             if (this.skip > 0) {
                 this.skip--;
-            } else {
-                final int leadingByte = value & 0xFF;
-                if (leadingByte < 0x7F) {
-                    // UTF-8-1 = 0x00-7F
-                    this.skip = 0;
-                    this.count++;
-                } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
-                    // UTF8-8-2 = 0xC2-DF UTF8-tail
-                    this.skip = 1;
-                    this.count++;
-                } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
-                    // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
-                    this.skip = 2;
-                    this.count++;
-                } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
-                    // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
-                    this.skip = 3;
-                    this.count += 2;
-                } else {
-                    this.skip = 0;
-                    this.count++;
-                }
+                return true;
             }
-            return true;
+
+            final int leadingByte = value & 0xFF;
+
+            if (leadingByte < 0x7F) {
+                // UTF-8-1 = 0x00-7F
+                this.skip = 0;
+                this.count++;
+            } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                // UTF8-8-2 = 0xC2-DF UTF8-tail
+                this.skip = 1;
+                this.count++;
+            } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2
+                // (UTF8-tail)
+                this.skip = 2;
+                this.count++;
+            } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                this.skip = 3;
+                this.count += 2;
+            } else {
+                this.skip = 0;
+                this.count++;
+            }
+
+            return this.count <= this.end;
+        }
+
+        public int skip() {
+            return this.skip;
         }
 
         public int value() {
             return this.count;
+        }
+
+        @Override
+        public String toString() {
+            return Json.toString(this);
         }
     }
 
