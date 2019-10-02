@@ -478,15 +478,20 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @param start the start index, inclusive.
      * @param end   the end index, exclusive.
      * @return the specified subsequence
-     * @throws IndexOutOfBoundsException, if
-     *                                    <p><ul>
-     *                                    <li>{@code start} or {@code end} are negative,
-     *                                    <li>{@code end} is greater than {@code length()}, or
-     *                                    <li>{@code start} is greater than {@code end}.
-     *                                    </ul></p>
+     * @throws IllegalArgumentException  if the values of {@code start} or {@code end} would cause a code point to be
+     *                                   split into a surrogate pair. This exception will only be thrown on sequences
+     *                                   containing 4-byte UTF-8 encodings. Whether the exception is thrown on sequences
+     *                                   containing 4-byte UTF-8 encodings depends on the values of {@code start} and
+     *                                   {@code end}. To avoid this exception at the cost of data conversion and memory
+     *                                   allocation, convert this {@link Utf8String} to a {@link String} and call
+     *                                   {@link String#subSequence}.
+     * @throws IndexOutOfBoundsException if {@code start} or {@code end} are negative, {@code end} is greater than
+     *                                   {@link #length()}, <li>{@code start} is greater than {@code end}, or
+     *                                   {@link #isNull()} is {@code true}.
      */
+    @Nonnull
     @Override
-    public CharSequence subSequence(int start, int end) {
+    public CharSequence subSequence(final int start, final int end) {
 
         final int length = this.length();
 
@@ -499,6 +504,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return EMPTY;
         }
 
+        if (start == 0 && end == length) {
+            return this;
+        }
+
         final int encodedLength = this.buffer.writerIndex();
         final int i, n;
 
@@ -508,11 +517,22 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         } else {
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter(start);
             i = this.buffer.forEachByte(0, encodedLength, counter);
+            checkArgument(counter.index == counter.end, "start: %s, end: %s, counter: %s", start, end, counter);
             n = encodedLength - i;
         }
 
-        final int j = this.buffer.forEachByte(i, n, new UTF16CodeUnitCounter(end - start));
-        return fromUnsafe(this.buffer.slice(i, j >= 0 ? j - i : n));
+        final int j;
+
+        if (end == length) {
+            j = encodedLength;
+        } else {
+            final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter(end - start);
+            j = this.buffer.forEachByte(i, n, counter);
+            checkArgument(counter.index == counter.end, "start: %s, end: %s, counter: %s", start, end, counter);
+            assert j >= 0;
+        }
+
+        return fromUnsafe(this.buffer.slice(i, j - i));
     }
 
     @Override
@@ -588,11 +608,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             //  Bits 08-15 = 0b10YYYYYY (byte 3)
             //  Bits 00-07 = 0b10XXXXXX (byte 4)
             //
-            // The corresponding UTF-16 code point can be viewed as a 21-bit integer,
-            // 0bVVVZZZZZZYYYYYYXXXXXX. Hence, we map the UTF-8 code units into 3 bytes with the first
-            // 4 bits coming from the first (high order) byte, the next 6 bits from the second byte,
-            // the next 6 bits from the third byte, and the last 6 bits from the fourth (low order)
-            // byte.
+            // The corresponding code point can be viewed as a 21-bit integer, 0bVVVZZZZZZYYYYYYXXXXXX. Hence, we map
+            // the UTF-8 code units into 3 bytes with the first 3 bits coming from the first (high order) byte, the
+            // next 6 bits from the second byte, the next 6 bits from the third byte, and the last 6 bits from the
+            // fourth (low order) byte.
 
             final int b1 = characterEncoding & 0b00000111_00000000_00000000_00000000;
             final int b2 = characterEncoding & 0b00000000_00111111_00000000_00000000;
@@ -613,10 +632,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             //  Bits 08-15 = 0b10YYYYYY (byte 2)
             //  Bits 00-07 = 0b10XXXXXX (byte 3)
             //
-            // The corresponding UTF-16 code point can be viewed as a 16-bit integer,
-            // 0bZZZZYYYYYYXXXXXX. Hence, we map the UTF-8 code units into 2 bytes with the first 3
-            // bits coming from the first (high order) byte, the next 6 bits from the second (mid order)
-            // byte, and the last 6 bits from the third (low order) byte.
+            // The corresponding code point can be viewed as a 16-bit integer, 0bZZZZYYYYYYXXXXXX. Hence, we map the
+            // UTF-8 code units into 2 bytes with the first 3 bits coming from the first (high order) byte, the next 6
+            // bits from the second (mid order) byte, and the last 6 bits from the third (low order) byte.
 
             final int b1 = characterEncoding & 0b000011110000000000000000;
             final int b2 = characterEncoding & 0b000000000011111100000000;
@@ -636,9 +654,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             //  Bits 08-15 = 0b110YYYYY (byte 1)
             //  Bits 00-07 = 0b10XXXXXX (byte 2)
             //
-            // The corresponding UTF-16 code point can be viewed as an 11-bit integer, 0bYYYYYXXXXXX.
-            // Hence, we map the UTF-8 code units into 1 byte with the first 5 bits coming from the
-            // first (high order) byte and the final 6 bits coming from the second (low order) byte
+            // The corresponding code point can be viewed as an 11-bit integer, 0bYYYYYXXXXXX. Hence, we map the UTF-8
+            // code units into 1 byte with the first 5 bits coming from the first (high order) byte and the final 6
+            // bits coming from the second (low order) byte.
 
             final int b1 = characterEncoding & 0b0001111100000000;
             final int b2 = characterEncoding & 0b0000000000111111;
@@ -792,8 +810,13 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         @JsonProperty
         private final int end;
+
         @JsonProperty
         private int count = 0;
+
+        @JsonProperty
+        private int index = 0;
+
         @JsonProperty
         private int skip = 0;
 
@@ -815,6 +838,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             }
 
             final int leadingByte = value & 0xFF;
+            this.index = this.count;
 
             if (leadingByte < 0x7F) {
                 // UTF-8-1 = 0x00-7F
@@ -839,10 +863,6 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             }
 
             return this.count <= this.end;
-        }
-
-        public int skip() {
-            return this.skip;
         }
 
         public int value() {
@@ -936,8 +956,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                     }
 
                     if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
-                        // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
-                        this.codePoint = leadingByte << 3 * Byte.SIZE;
+                        // UTF-8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                        this.codePoint = leadingByte << (3 * Byte.SIZE);
                         this.shift = 2 * Byte.SIZE;
                         return true;
                     }

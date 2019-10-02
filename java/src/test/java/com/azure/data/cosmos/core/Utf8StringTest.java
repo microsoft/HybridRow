@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
@@ -170,10 +171,40 @@ public class Utf8StringTest {
 
         Utf8String value = Utf8String.fromUnsafe(item.byteBuf());
 
+        for (int start = 0, end = start + 1; end <= value.length(); end++) {
+            try {
+                final Utf8String actual = (Utf8String)value.subSequence(start, end);
+                assertNotNull(actual);
+                assertFalse(actual.isNull());
+                assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
+            } catch (IllegalArgumentException error) {
+                // TODO: DANOBLE: assertions
+                System.out.println(error.toString());
+            }
+        }
+
+        for (int start = 1, end = start + 1; end <= value.length(); end++) {
+            try {
+                final Utf8String actual = (Utf8String)value.subSequence(start, end);
+                assertNotNull(actual);
+                assertFalse(actual.isNull());
+                assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
+            } catch (IllegalArgumentException error) {
+                // TODO: DANOBLE: assertions
+                System.out.println(error.toString());
+            }
+        }
+
         for (int start = 0, end = value.length(); start <= end; start++, end--) {
-            String actual = ((Utf8String)value.subSequence(start, end)).toUtf16();
-            String expected = (String)item.value.subSequence(start, end);
-            assertEquals(actual, expected);
+            try {
+                final Utf8String actual = (Utf8String) value.subSequence(start, end);
+                assertNotNull(actual);
+                assertFalse(actual.isNull());
+                assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
+            } catch (IllegalArgumentException error) {
+                // TODO: DANOBLE: assertions
+                System.out.println(error.toString());
+            }
         }
     }
 
