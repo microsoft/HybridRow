@@ -178,8 +178,9 @@ public class Utf8StringTest {
                 assertFalse(actual.isNull());
                 assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
             } catch (IllegalArgumentException error) {
-                // TODO: DANOBLE: assertions
-                System.out.println(error.toString());
+                final String actual = value.toUtf16();
+                assertNotNull(actual);
+                assertTrue(Character.isSurrogate(actual.charAt(start)) || Character.isSurrogate(actual.charAt(end)));
             }
         }
 
@@ -190,8 +191,9 @@ public class Utf8StringTest {
                 assertFalse(actual.isNull());
                 assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
             } catch (IllegalArgumentException error) {
-                // TODO: DANOBLE: assertions
-                System.out.println(error.toString());
+                final String actual = value.toUtf16();
+                assertNotNull(actual);
+                assertTrue(Character.isSurrogate(actual.charAt(start)) || Character.isSurrogate(actual.charAt(end)));
             }
         }
 
