@@ -78,7 +78,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             final int index = this.buffer.forEachByte(0, length, counter);
 
             assert index == -1 : lenientFormat("index: %s, length: %s", index, length);
-            return counter.value();
+            return counter.charCount();
         });
     }
 
@@ -515,10 +515,14 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             i = 0;
             n = encodedLength;
         } else {
+
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter(start);
             i = this.buffer.forEachByte(0, encodedLength, counter);
-            checkArgument(counter.index == counter.end, "start: %s, end: %s, counter: %s", start, end, counter);
             n = encodedLength - i;
+
+            checkArgument(counter.charIndex() == counter.charLimit(), "start: %s, end: %s, counter: %s",
+                start, end, counter
+            );
         }
 
         final int j;
@@ -526,12 +530,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         if (end == length) {
             j = encodedLength;
         } else {
+
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter(end - start);
             j = this.buffer.forEachByte(i, n, counter);
-            checkArgument(counter.index == counter.end, "start: %s, end: %s, counter: %s", start, end, counter);
-            assert j >= 0;
+
+            checkArgument(counter.charIndex() == counter.charLimit(), "start: %s, end: %s, counter: %s",
+                start, end, counter
+            );
         }
 
+        assert i >= 0 && j >= 0 : lenientFormat("i: %s, j: %s", i, j);
         return fromUnsafe(this.buffer.slice(i, j - i));
     }
 
@@ -809,13 +817,13 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     private static final class UTF16CodeUnitCounter implements ByteProcessor {
 
         @JsonProperty
-        private final int end;
+        private final int charLimit;
 
         @JsonProperty
-        private int count = 0;
+        private int charCount = 0;
 
         @JsonProperty
-        private int index = 0;
+        private int charIndex = 0;
 
         @JsonProperty
         private int skip = 0;
@@ -824,9 +832,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             this(Integer.MAX_VALUE);
         }
 
-        public UTF16CodeUnitCounter(int end) {
-            checkArgument(end >= 0);
-            this.end = end;
+        public UTF16CodeUnitCounter(int charLimit) {
+            checkArgument(charLimit >= 0);
+            this.charLimit = charLimit;
         }
 
         @Override
@@ -838,35 +846,43 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             }
 
             final int leadingByte = value & 0xFF;
-            this.index = this.count;
+            this.charIndex = this.charCount;
 
             if (leadingByte < 0x7F) {
                 // UTF-8-1 = 0x00-7F
                 this.skip = 0;
-                this.count++;
+                this.charCount++;
             } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
                 // UTF8-8-2 = 0xC2-DF UTF8-tail
                 this.skip = 1;
-                this.count++;
+                this.charCount++;
             } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
                 // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2
                 // (UTF8-tail)
                 this.skip = 2;
-                this.count++;
+                this.charCount++;
             } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
                 // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
                 this.skip = 3;
-                this.count += 2;
+                this.charCount += 2;
             } else {
                 this.skip = 0;
-                this.count++;
+                this.charCount++;
             }
 
-            return this.count <= this.end;
+            return this.charCount <= this.charLimit;
         }
 
-        public int value() {
-            return this.count;
+        public int charCount() {
+            return this.charCount;
+        }
+
+        public int charIndex() {
+            return this.charIndex;
+        }
+
+        public int charLimit() {
+            return this.charLimit;
         }
 
         @Override

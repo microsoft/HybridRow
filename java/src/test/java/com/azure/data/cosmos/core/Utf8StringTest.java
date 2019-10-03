@@ -171,29 +171,19 @@ public class Utf8StringTest {
 
         Utf8String value = Utf8String.fromUnsafe(item.byteBuf());
 
-        for (int start = 0, end = start + 1; end <= value.length(); end++) {
-            try {
-                final Utf8String actual = (Utf8String)value.subSequence(start, end);
-                assertNotNull(actual);
-                assertFalse(actual.isNull());
-                assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
-            } catch (IllegalArgumentException error) {
-                final String actual = value.toUtf16();
-                assertNotNull(actual);
-                assertTrue(Character.isSurrogate(actual.charAt(start)) || Character.isSurrogate(actual.charAt(end)));
-            }
-        }
+        for (int start : new int[] {0, 1, 2 }) {
 
-        for (int start = 1, end = start + 1; end <= value.length(); end++) {
-            try {
-                final Utf8String actual = (Utf8String)value.subSequence(start, end);
-                assertNotNull(actual);
-                assertFalse(actual.isNull());
-                assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
-            } catch (IllegalArgumentException error) {
-                final String actual = value.toUtf16();
-                assertNotNull(actual);
-                assertTrue(Character.isSurrogate(actual.charAt(start)) || Character.isSurrogate(actual.charAt(end)));
+            for (int end = start + 1; end <= value.length(); end++) {
+                try {
+                    final Utf8String actual = (Utf8String) value.subSequence(start, end);
+                    assertNotNull(actual);
+                    assertFalse(actual.isNull());
+                    assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
+                } catch (IllegalArgumentException error) {
+                    final String actual = value.toUtf16();
+                    assertNotNull(actual);
+                    assertTrue(Character.isSurrogate(actual.charAt(start)) || Character.isSurrogate(actual.charAt(end)));
+                }
             }
         }
 
@@ -204,14 +194,33 @@ public class Utf8StringTest {
                 assertFalse(actual.isNull());
                 assertEquals(actual.toUtf16(), item.value.subSequence(start, end));
             } catch (IllegalArgumentException error) {
-                // TODO: DANOBLE: assertions
-                System.out.println(error.toString());
+                final String actual = value.toUtf16();
+                assertNotNull(actual);
+                assertTrue(Character.isSurrogate(actual.charAt(start)) || Character.isSurrogate(actual.charAt(end)));
             }
         }
+
+        assertThrows(IndexOutOfBoundsException.class, () -> Utf8String.NULL.subSequence(0, 0));
+        assertThrows(IndexOutOfBoundsException.class, () -> value.subSequence(-1, 0));
+        assertThrows(IndexOutOfBoundsException.class, () -> value.subSequence(0, -1));
+        assertThrows(IndexOutOfBoundsException.class, () -> value.subSequence(value.length() + 1, 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> value.subSequence(1, value.length() + 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> value.subSequence(value.length() / 2, value.length() / 2 - 1));
     }
 
     @Test
     public void testToString() {
+
+        assertEquals(Utf8String.NULL.toString(), "null");
+        assertSame("null", Utf8String.NULL.toString());
+
+        assertEquals(Utf8String.EMPTY.toString(), "\"\"");
+        assertSame("\"\"", Utf8String.EMPTY.toString());
+        assertSame("\"\"", Utf8String.fromUnsafe(Unpooled.EMPTY_BUFFER).toString());
+        assertSame("\"\"", Utf8String.transcodeUtf16(new String("")).toString());
+
+        assertEquals(Utf8String.transcodeUtf16("Hello World!").toString(), "\"Hello World!\"");
+        assertEquals(Utf8String.transcodeUtf16("\"Hello World!\"").toString(), "\"\\\"Hello World!\\\"\"");
     }
 
     @Test(dataProvider = "unicodeTextDataProvider")
