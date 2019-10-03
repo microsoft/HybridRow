@@ -14,7 +14,10 @@ public class PrimarySortKey {
 
     /**
      * The logical path of the referenced property.
+     * <p>
      * Primary keys MUST refer to properties defined within the same {@link Schema}.
+     *
+     * @return the logical path of the referenced property.
      */
     public final SortDirection direction() {
         return this.direction;
@@ -27,7 +30,10 @@ public class PrimarySortKey {
 
     /**
      * The logical path of the referenced property.
+     * <p>
      * Primary keys MUST refer to properties defined within the same {@link Schema}.
+     *
+     * @return the logical path of the referenced property.
      */
     public final String path() {
         return this.path;

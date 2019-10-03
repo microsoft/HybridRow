@@ -83,6 +83,8 @@ public final class StringTokenizer {
 
     /**
      * The number of unique tokens described by the encoding.
+     *
+     * @return the number of unique tokens described by the encoding.
      */
     public int count() {
         return this.count;

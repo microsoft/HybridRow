@@ -135,7 +135,7 @@ public final class LayoutBoolean extends LayoutTypePrimitive<Boolean> implements
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, Boolean value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Boolean value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

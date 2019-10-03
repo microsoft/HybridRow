@@ -18,7 +18,7 @@ public final class SchemaHash {
     /**
      * Computes the logical hash for a logical schema.
      *
-     * @param namespace The namespace within which <paramref name="schema" /> is defined.
+     * @param namespace The namespace within which {@code schema} is defined.
      * @param schema    The logical schema to compute the hash of.
      * @param seed      The seed to initialized the hash function.
      * @return The logical 128-bit hash as a two-tuple (low, high).

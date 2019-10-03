@@ -14,6 +14,8 @@ public class StaticKey {
      * The logical path of the referenced property.
      * <p>
      * Static path MUST refer to properties defined within the same {@link Schema}.
+     *
+     * @return the logical path of the referenced property.
      */
     public final String path() {
         return this.path;

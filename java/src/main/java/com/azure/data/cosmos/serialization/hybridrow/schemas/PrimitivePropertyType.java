@@ -23,6 +23,8 @@ public class PrimitivePropertyType extends PropertyType {
      * The maximum allowable length in bytes.
      * <p>
      * This annotation is only valid for non-fixed length types. A value of 0 means the maximum allowable length.
+     *
+     * @return the maximum allowable length in bytes.
      */
     public final int length() {
         return this.length;
@@ -35,6 +37,8 @@ public class PrimitivePropertyType extends PropertyType {
 
     /**
      * Storage requirements of the property.
+     *
+     * @return storage requirements of the property.
      */
     public final StorageKind storage() {
         return this.storage;

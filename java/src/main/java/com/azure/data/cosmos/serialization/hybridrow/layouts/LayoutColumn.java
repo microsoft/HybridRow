@@ -68,33 +68,41 @@ public final class LayoutColumn {
     }
 
     /**
-     * For bool fields, zero-based index into the bit mask for the bool value.
+     * For boolean fields, the zero-based index into the bit mask for the boolean value.
+     *
+     * @return for boolean fields, the zero-based index into the bit mask for the boolean value.
      */
     public @Nonnull LayoutBit booleanBit() {
         return this.booleanBit;
     }
 
     /**
-     * Full logical path of the field within the row
+     * Full logical path of the field within the row.
      * <p>
      * Paths are expressed in dotted notation: e.g. a relative {@link #path()} of 'b.c' within the scope 'a' yields a
      * full path of 'a.b.c'.
+     *
+     * @return Full logical path of the field within the row.
      */
     public @Nonnull Utf8String fullPath() {
         return this.fullPath;
     }
 
     /**
-     * Zero-based index of the column within the structure
+     * Zero-based index of the column within the structure.
      * <p>
      * This value also indicates which presence bit controls this column.
+     *
+     * @return Zero-based index of the column within the structure.
      */
     public int index() {
         return this.index;
     }
 
     /**
-     * For nullable fields, the zero-based index into the bit mask for the null bit
+     * For nullable fields, the zero-based index into the bit mask for the null bit.
+     *
+     * @return For nullable fields, the zero-based index into the bit mask for the null bit.
      */
     public @Nonnull LayoutBit nullBit() {
         return this.nullBit;
@@ -107,13 +115,17 @@ public final class LayoutColumn {
      * beginning of the variable length segment.
      * <p>
      * For all other values of {@link #storage()}, {@code offset} is ignored.
+     *
+     * @return If {@link #storage()} equals {@link StorageKind#FIXED} then the byte offset to the field location.
      */
     public int offset() {
         return this.offset;
     }
 
     /**
-     * Layout of the parent scope, if a nested column, otherwise null.
+     * Layout of the parent scope, if a nested column, otherwise {@code null}.
+     *
+     * @return Layout of the parent scope, if a nested column, otherwise {@code null}.
      */
     public LayoutColumn parent() {
         return this.parent;
@@ -124,14 +136,19 @@ public final class LayoutColumn {
      * <p>
      * Paths are expressed in dotted notation: e.g. a relative {@link #path} of 'b.c' within the scope 'a' yields a
      * {@link #fullPath} of 'a.b.c'.
+     *
+     * @return the relative path of the field within its parent scope.
      */
     public @Nonnull Utf8String path() {
         return this.path;
     }
 
     /**
-     * If {@link LayoutType#isBoolean()} then the zero-based extra index within the bool byte
-     * holding the value of this type, otherwise must be 0.
+     * If {@link LayoutType#isBoolean()} then the zero-based extra index within the boolean byte holding the value of
+     * this type, otherwise must be 0.
+     *
+     * @return If {@link LayoutType#isBoolean()} then the zero-based extra index within the boolean byte holding the
+     * value of this type, otherwise must be 0.
      */
     public int size() {
         return this.size;
@@ -139,6 +156,8 @@ public final class LayoutColumn {
 
     /**
      * The storage kind of the field.
+     *
+     * @return the storage kind of the field.
      */
     public @Nonnull StorageKind storage() {
         return this.storage;
@@ -146,13 +165,17 @@ public final class LayoutColumn {
 
     /**
      * The physical layout type of the field.
+     *
+     * @return the physical layout type of the field.
      */
     public @Nonnull LayoutType type() {
         return this.type;
     }
 
     /**
-     * The full logical type
+     * The full logical type.
+     *
+     * @return the full logical type.
      */
     public @Nonnull TypeArgument typeArg() {
         return this.typeArg;
@@ -160,6 +183,8 @@ public final class LayoutColumn {
 
     /**
      * For types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
+     *
+     * @return for types with generic parameters (e.g. {@link LayoutTuple}, the type parameters.
      */
     public @Nonnull TypeArgumentList typeArgs() {
         return this.typeArgs;
@@ -167,6 +192,10 @@ public final class LayoutColumn {
 
     /**
      * The physical layout type of the field cast to the specified type.
+     *
+     * @param <T> a type that implements {@code ILayoutType}.
+     *
+     * @return The physical layout type of the field cast to the specified type.
      */
     @SuppressWarnings("unchecked")
     public @Nonnull <T extends ILayoutType> T typeAs() {
@@ -184,11 +213,11 @@ public final class LayoutColumn {
     }
 
     /**
-     * Computes the full logical path to the column
+     * Computes the full logical path to the column.
      *
-     * @param parent The layout of the parent scope, if a nested column, otherwise null
-     * @param path   The path to the field relative to parent scope
-     * @return The full logical path
+     * @param parent The layout of the parent scope, if a nested column, otherwise null.
+     * @param path   The path to the field relative to parent scope.
+     * @return The full logical path.
      */
     private static @Nonnull String fullPath(final LayoutColumn parent, @Nonnull final String path) {
 

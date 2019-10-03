@@ -8,8 +8,11 @@ public abstract class ScopePropertyType extends PropertyType {
     private boolean immutable;
 
     /**
-     * True if the property's child elements cannot be mutated in place.
+     * {@code true} if the property's child elements cannot be mutated in place.
+     * <p>
      * Immutable properties can still be replaced in their entirety.
+     *
+     * @return {@code true} if the property's child elements cannot be mutated in place.
      */
     public final boolean immutable() {
         return this.immutable;

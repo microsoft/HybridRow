@@ -17,9 +17,9 @@ public abstract class LayoutTypePrimitive<T> extends LayoutType implements ILayo
     /**
      * Initializes a new instance of the {@link LayoutTypePrimitive} class.
      *
-     * @param code
-     * @param immutable
-     * @param size
+     * @param code      the {@link LayoutCode} of this layout type.
+     * @param immutable indicates whether edits of instances fields with this layout type are permitted.
+     * @param size      the size of fields with this layout type in bytes.
      */
     protected LayoutTypePrimitive(@Nonnull LayoutCode code, boolean immutable, int size) {
         super(code, immutable, size);
@@ -28,12 +28,13 @@ public abstract class LayoutTypePrimitive<T> extends LayoutType implements ILayo
     /**
      * Initializes a new instance of the {@link LayoutTypePrimitive} class.
      *
-     * @param code
-     * @param size
+     * @param code the {@link LayoutCode} of this layout type.
+     * @param size the size of fields with this layout type in bytes.
      */
     protected LayoutTypePrimitive(LayoutCode code, int size) {
         super(code, size);
     }
+
     // TODO: DANOBLE: move methods implemented by the C# code LayoutType<T> to this type from LayoutType<T>
     // Also:
     // * Convert LayoutType<T> to a non-generic type (LayoutType, not LayoutType<T>)
@@ -81,8 +82,10 @@ public abstract class LayoutTypePrimitive<T> extends LayoutType implements ILayo
      * <p>
      * If a value exists, then it is removed.  The remainder of the row is resized to accommodate
      * a decrease in required space.  If no value exists this operation is a no-op.
-     * @param buffer
-     * @param edit
+     *
+     * @param buffer target {@link RowBuffer}.
+     * @param edit a {@link RowCursor} that identifies and locates the field to be deleted.
+     * @return {@link Result#SUCCESS} if the value was deleted; otherwise an error {@link Result}.
      */
     @Nonnull
     public final Result deleteSparse(RowBuffer buffer, RowCursor edit) {
@@ -100,8 +103,13 @@ public abstract class LayoutTypePrimitive<T> extends LayoutType implements ILayo
     /**
      * Delete an existing value.
      * <p>
-     * If a value exists, then it is removed.  The remainder of the row is resized to accommodate a decrease in
-     * required space.  If no value exists this operation is a no-op.
+     * If a value exists, then it is removed. The remainder of the row is resized to accommodate a decrease in required
+     * space. If no value exists this operation is a no-op.
+     *
+     * @param buffer the target {@link RowBuffer}.
+     * @param scope  a {@linkplain RowCursor cursor} that identifies and locates the scope of the deletion.
+     * @param column identifies and locates the value within the scope to be deleted.
+     * @return {@link Result#SUCCESS} if the value was deleted; otherwise an error {@link Result}.
      */
     @Nonnull
     public final Result deleteVariable(
@@ -159,16 +167,31 @@ public abstract class LayoutTypePrimitive<T> extends LayoutType implements ILayo
     }
 
     @Nonnull
-    public abstract Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull T value);
+    public abstract Result writeFixed(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor scope,
+        @Nonnull LayoutColumn column,
+        @Nonnull T value);
 
     @Nonnull
-    public abstract Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull T value);
+    public abstract Result writeSparse(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor edit,
+        @Nonnull T value);
 
     @Nonnull
-    public abstract Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull T value, @Nonnull UpdateOptions options);
+    public abstract Result writeSparse(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor edit,
+        @Nonnull T value,
+        @Nonnull UpdateOptions options);
 
     @Nonnull
-    public Result writeVariable(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull T value) {
+    public Result writeVariable(
+        @Nonnull RowBuffer buffer,
+        @Nonnull RowCursor scope,
+        @Nonnull LayoutColumn column,
+        @Nonnull T value) {
         return Result.FAILURE;
     }
 }

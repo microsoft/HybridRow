@@ -34,7 +34,7 @@ public final class LayoutNull extends LayoutTypePrimitive<NullValue> implements 
 
     @Override
     @Nonnull
-    public Result readFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, Out<NullValue> value) {
+    public Result readFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull Out<NullValue> value) {
         checkArgument(scope.scopeType() instanceof LayoutUDT);
         value.set(NullValue.DEFAULT);
         if (!buffer.readBit(scope.start(), column.nullBit())) {
@@ -45,7 +45,7 @@ public final class LayoutNull extends LayoutTypePrimitive<NullValue> implements 
 
     @Override
     @Nonnull
-    public Result readSparse(RowBuffer buffer, RowCursor edit, Out<NullValue> value) {
+    public Result readSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull Out<NullValue> value) {
         Result result = prepareSparseRead(buffer, edit, this.layoutCode());
         if (result != Result.SUCCESS) {
             value.set(null);
@@ -57,7 +57,7 @@ public final class LayoutNull extends LayoutTypePrimitive<NullValue> implements 
 
     @Override
     @Nonnull
-    public Result writeFixed(RowBuffer buffer, RowCursor scope, LayoutColumn column, NullValue value) {
+    public Result writeFixed(@Nonnull RowBuffer buffer, @Nonnull RowCursor scope, @Nonnull LayoutColumn column, @Nonnull NullValue value) {
         checkArgument(scope.scopeType() instanceof LayoutUDT);
         if (scope.immutable()) {
             return Result.INSUFFICIENT_PERMISSIONS;
@@ -68,7 +68,7 @@ public final class LayoutNull extends LayoutTypePrimitive<NullValue> implements 
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, NullValue value, UpdateOptions options) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull NullValue value, @Nonnull UpdateOptions options) {
         Result result = prepareSparseWrite(buffer, edit, this.typeArg(), options);
         if (result != Result.SUCCESS) {
             return result;
@@ -79,7 +79,7 @@ public final class LayoutNull extends LayoutTypePrimitive<NullValue> implements 
 
     @Override
     @Nonnull
-    public Result writeSparse(RowBuffer buffer, RowCursor edit, NullValue value) {
+    public Result writeSparse(@Nonnull RowBuffer buffer, @Nonnull RowCursor edit, @Nonnull NullValue value) {
         return this.writeSparse(buffer, edit, value, UpdateOptions.UPSERT);
     }
 }

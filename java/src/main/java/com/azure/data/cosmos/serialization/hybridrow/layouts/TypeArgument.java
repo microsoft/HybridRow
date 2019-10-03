@@ -22,7 +22,7 @@ public final class TypeArgument {
     /**
      * Initializes a new instance of the {@link TypeArgument} struct.
      *
-     * @param type The type of the constraint.
+     * @param type the type of the constraint.
      */
     public TypeArgument(@Nonnull LayoutType type) {
         checkNotNull(type, "expected non-null type");
@@ -72,6 +72,8 @@ public final class TypeArgument {
 
     /**
      * The physical layout type.
+     *
+     * @return the physical layout type.
      */
     public LayoutType type() {
         return this.type;
@@ -79,6 +81,8 @@ public final class TypeArgument {
 
     /**
      * If the type argument is itself generic, then its type arguments.
+     *
+     * @return it the type argument is itself generic, then its type arguments.
      */
     public TypeArgumentList typeArgs() {
         return this.typeArgs;

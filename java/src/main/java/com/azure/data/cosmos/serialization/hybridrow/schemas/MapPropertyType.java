@@ -18,6 +18,8 @@ public class MapPropertyType extends ScopePropertyType {
 
     /**
      * (Optional) type of the keys of the map, if a typed map, otherwise {@code null}.
+     *
+     * @return type of the keys of the map, if a type map, otherwise {@code null}.
      */
     public final PropertyType keys() {
         return this.keys;
@@ -30,6 +32,8 @@ public class MapPropertyType extends ScopePropertyType {
 
     /**
      * (Optional) type of the values of the map, if a typed map, otherwise {@code null}.
+     *
+     * @return type of the values of the map, if a typed map, otherwise {@code null}.
      */
     public final PropertyType values() {
         return this.values;

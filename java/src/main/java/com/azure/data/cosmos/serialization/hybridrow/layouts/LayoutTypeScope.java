@@ -40,9 +40,9 @@ public abstract class LayoutTypeScope extends LayoutType {
     }
 
     /**
-     * Returns {@code false} to indicate that a {@link LayoutTypeScope} is a variable length, not fixed length layout type
+     * {@code true} if the {@link LayoutTypeScope} has a fixed-, not variable-length layout type.
      *
-     * @return {@code false}
+     * @return {@code true} if the {@link LayoutTypeScope} has a fixed-, not variable-length layout type.
      */
     @Override
     public boolean isFixed() {
@@ -50,35 +50,45 @@ public abstract class LayoutTypeScope extends LayoutType {
     }
 
     /**
-     * Returns true if this is a fixed arity scope.
+     * {@code true} if this is a fixed arity scope.
+     *
+     * @return {@code true} if this is a fixed arity scope.
      */
     public boolean isFixedArity() {
         return this.isFixedArity;
     }
 
     /**
-     * Returns true if this is an indexed scope.
+     * {@code true} if this is an indexed scope.
+     *
+     * @return {@code true} if this is an indexed scope.
      */
     public boolean isIndexedScope() {
         return this.isIndexedScope;
     }
 
     /**
-     * Returns true if this is a sized scope.
+     * {@code true} if this is a sized scope.
+     *
+     * @return {@code true} if this is a sized scope.
      */
     public boolean isSizedScope() {
         return this.isSizedScope;
     }
 
     /**
-     * Returns true if this is a typed scope.
+     * {@code true} if this is a typed scope.
+     *
+     * @return {@code true} if this is a typed scope.
      */
     public boolean isTypedScope() {
         return this.isTypedScope;
     }
 
     /**
-     * Returns true if the scope's elements cannot be updated directly.
+     * {@code true} if the scope's elements cannot be updated directly.
+     *
+     * @return {@code true} if the scope's elements cannot be updated directly.
      */
     public boolean isUniqueScope() {
         return this.isUniqueScope;

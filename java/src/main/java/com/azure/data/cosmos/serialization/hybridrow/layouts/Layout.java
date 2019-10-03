@@ -141,6 +141,8 @@ public final class Layout {
      * Name of the layout.
      * <p>
      * Usually this is the name of the {@link Schema} from which this {@link Layout} was generated.
+     *
+     * @return name of the layout.
      */
     public String name() {
         return this.name;
@@ -151,6 +153,8 @@ public final class Layout {
      * <p>
      * A presence bit is allocated for each fixed and variable-length field.  Sparse columns never have presence bits.
      * Fixed boolean allocate an additional bit from the bitmask to store their value.
+     *
+     * @return the number of bit mask bytes allocated with the layout.
      */
     public int numBitmaskBytes() {
         return this.numBitmaskBytes;
@@ -158,6 +162,8 @@ public final class Layout {
 
     /**
      * The number of fixed columns.
+     *
+     * @return the number of fixed columns.
      */
     public int numFixed() {
         return this.numFixed;
@@ -165,6 +171,8 @@ public final class Layout {
 
     /**
      * The number of variable-length columns.
+     *
+     * @return the number of variable-length columns.
      */
     public int numVariable() {
         return this.numVariable;
@@ -172,27 +180,34 @@ public final class Layout {
 
     /**
      * Unique identifier of the schema from which this {@link Layout} was generated.
+     *
+     * @return the unique identifier of the schema from which this {@link Layout} was generated.
      */
     public SchemaId schemaId() {
         return this.schemaId;
     }
 
     /**
-     * Minimum required size of a row of this layout.
+     * The minimum required size of a row with this layout.
      * <p>
      * This size excludes all sparse columns, and assumes all columns (including variable) are
      * null.
+     *
+     * @return the minimum required size of a row with this layout.
      */
     public int size() {
         return this.size;
     }
 
     /**
-     * Returns a human readable diagnostic string representation of this {@link Layout}.
+     * A human readable diagnostic string representing this {@link Layout}.
      * <p>
      * This representation should only be used for debugging and diagnostic purposes.
+     *
+     * @return a human readable diagnostic string representing this {@link Layout}.
      */
     @Override
+    @Nonnull
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
@@ -217,7 +232,9 @@ public final class Layout {
     }
 
     /**
-     * A tokenizer for path strings.
+     * A {@linkplain StringTokenizer tokenizer} for path strings.
+     *
+     * @return a {@linkplain StringTokenizer tokenizer} for path strings.
      */
     public StringTokenizer tokenizer() {
         return this.tokenizer;

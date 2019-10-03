@@ -90,15 +90,18 @@ public abstract class LayoutUniqueScope extends LayoutIndexedScope implements IL
      * @param buffer           The row to move within.
      * @param destinationScope The parent unique indexed edit into which the field should be moved.
      * @param sourceEdit       The field to be moved.
-     * @return Success if the field is permitted within the unique index, the error code otherwise.
+     * @return {@link Result#SUCCESS} if the field is moved; an error {@link Result} otherwise.
      * <p>
      * The source field MUST be a field whose type arguments match the element type of the
      * destination unique index.
-     * <para />
-     * The source field is delete whether the move succeeds or fails.
+     * <p>
+     * The source field is deleted whether the move succeeds or fails.
      */
     @Nonnull
-    public final Result moveField(RowBuffer buffer, RowCursor destinationScope, RowCursor sourceEdit) {
+    public final Result moveField(
+        @Nonnull final RowBuffer buffer,
+        @Nonnull final RowCursor destinationScope,
+        @Nonnull final RowCursor sourceEdit) {
         return this.moveField(buffer, destinationScope, sourceEdit, UpdateOptions.UPSERT);
     }
 

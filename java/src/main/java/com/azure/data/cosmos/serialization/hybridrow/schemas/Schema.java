@@ -138,7 +138,9 @@ public class Schema {
     }
 
     /**
-     * Schema-wide operations.
+     * Schema-wide options.
+     *
+     * @return schema-wide options.
      */
     public final SchemaOptions options() {
         return this.options;
@@ -215,6 +217,8 @@ public class Schema {
      * The unique identifier for a schema.
      * <p>
      * Identifiers must be unique within the scope of the database in which they are used.
+     *
+     * @return the unique identifier for a schema.
      */
     public final SchemaId schemaId() {
         return this.id;
@@ -226,13 +230,15 @@ public class Schema {
     }
 
     /**
-     * An (optional) list of zero or more logical paths that hold data shared by all documents with same partition key.
+     * A list of zero or more logical paths that hold data shared by all documents with same partition key.
+     * <p>
      * All paths referenced MUST map to a property within the schema.
-     * <para />
+     * <p>
      * This field is never null.
      *
-     * @return
+     * @return A list of zero or more logical paths that hold data shared by all documents with same partition key.
      */
+    @Nonnull
     public final List<StaticKey> staticKeys() {
         return this.staticKeys;
     }
@@ -256,6 +262,8 @@ public class Schema {
      * The type of this schema.
      * <p>
      * This value MUST be {@link TypeKind#SCHEMA}.
+     *
+     * @return the type of this schema.
      */
     public final TypeKind type() {
         return this.type;
@@ -268,6 +276,8 @@ public class Schema {
 
     /**
      * The version of the HybridRow Schema Definition Language used to encode this schema.
+     *
+     * @return the version of the HybridRow Schema Definition Language used to encode this schema.
      */
     public final SchemaLanguageVersion version() {
         return this.version;

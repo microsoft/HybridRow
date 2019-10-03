@@ -13,8 +13,11 @@ public class SchemaOptions {
     private boolean enablePropertyLevelTimestamp;
 
     /**
-     * If the is value true, then disables prefixing the system properties with a prefix __sys_
-     * for reserved properties owned by the store layer.
+     * {@code true} if prefixing system properties with a prefix of {@code "__sys_"} is disabled.
+     * <p>
+     * The system property prefix is required to distinguish properties owned by the store layer.
+     *
+     * @return {@code true} if prefixing system properties with a prefix of {@code "__sys_"} is disabled.
      */
     public final boolean disableSystemPrefix() {
         return this.disableSystemPrefix;
@@ -25,7 +28,7 @@ public class SchemaOptions {
     }
 
     /**
-     * If true then structural schema validation is enabled.
+     * {@code true} if structural schema validation is enabled.
      * <p>
      * When structural schema validation is enabled then attempting to store an unschematized
      * path in the row, or a value whose type does not conform to the type constraints defined for that
@@ -33,6 +36,8 @@ public class SchemaOptions {
      * NOT enabled, then storing an unschematized path or non-confirming value will lead to a sparse
      * column override of the path.  The value will be stored (and any existing value at that path will be
      * overwritten).  No error will be given.
+     *
+     * @return {@code true} if structural schema validation is enabled.
      */
     public final boolean disallowUnschematized() {
         return this.disallowUnschematized;
@@ -43,10 +48,13 @@ public class SchemaOptions {
     }
 
     /**
-     * If set and has the value true, then triggers behavior in the Schema that acts based on property
-     * level timestamps. In Cassandra, this means that new columns are added for each top level property
-     * that has values of the client side timestamp. This is then used in conflict resolution to independently
-     * resolve each property based on the timestamp value of that property.
+     * {@code true} if behavior in the Schema that acts based on property level timestamps is triggered.
+     * <p>
+     * In Cassandra, this means that new columns are added for each top level property that has values of the client
+     * side timestamp. This is then used in conflict resolution to independently resolve each property based on the
+     * timestamp value of that property.
+     *
+     * @return {@code true} if behavior in the Schema that acts based on property level timestamps is triggered.
      */
     public final boolean enablePropertyLevelTimestamp() {
         return this.enablePropertyLevelTimestamp;

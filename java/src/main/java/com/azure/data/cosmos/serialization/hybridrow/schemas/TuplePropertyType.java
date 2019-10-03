@@ -24,10 +24,9 @@ public class TuplePropertyType extends ScopePropertyType {
 
     /**
      * Types of the elements of the tuple in element order.
-     * @return
+     *
+     * @return types of the elements of the tuple in element order.
      */
-    // TODO: C# TO JAVA CONVERTER: Java annotations will not correspond to .NET attributes:
-    //ORIGINAL LINE: [JsonProperty(PropertyName = "items")] public List<PropertyType> Items
     public final List<PropertyType> items() {
         return this.items;
     }

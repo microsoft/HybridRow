@@ -30,9 +30,9 @@ public final class TypeArgumentList {
     private final SchemaId schemaId;
 
     /**
-     * Initializes a new instance of the {@link TypeArgumentList} class
+     * Initializes a new instance of the {@link TypeArgumentList} class.
      *
-     * @param args arguments in the list
+     * @param args arguments in the list.
      */
     public TypeArgumentList(@Nonnull final TypeArgument... args) {
         checkNotNull(args);
@@ -109,6 +109,8 @@ public final class TypeArgumentList {
 
     /**
      * For UDT fields, the schema id of the nested layout.
+     *
+     * @return for UDT fields, the Schema ID of the nested layout.
      */
     public SchemaId schemaId() {
         return this.schemaId;

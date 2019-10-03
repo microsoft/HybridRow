@@ -41,6 +41,8 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
 
     /**
      * {@code true} if the {@link UtfAnyString} is empty.
+     *
+     * @return {@code true} if the {@link UtfAnyString} is empty.
      */
     public boolean isEmpty() {
         return this.buffer != null && this.buffer.length() == 0;
@@ -48,15 +50,27 @@ public final class UtfAnyString implements CharSequence, Comparable<UtfAnyString
 
     /**
      * {@code true} if the {@link UtfAnyString} is {@code null}.
+     *
+     * @return {@code true} if the {@link UtfAnyString} is {@code null}.
      */
     public boolean isNull() {
         return null == this.buffer;
     }
 
+    /**
+     * {@code true} if the underlying representation of the {@link UtfAnyString} is a {@link String}.
+     *
+     * @return {@code true} if the underlying representation of the {@link UtfAnyString} is a {@link String}.
+     */
     public boolean isUtf16() {
         return this.buffer instanceof String;
     }
 
+    /**
+     * {@code true} if the underlying representation of the {@link UtfAnyString} is a {@link Utf8String}.
+     *
+     * @return {@code true} if the underlying representation of the {@link UtfAnyString} is a {@link Utf8String}.
+     */
     public boolean isUtf8() {
         return this.buffer instanceof Utf8String;
     }

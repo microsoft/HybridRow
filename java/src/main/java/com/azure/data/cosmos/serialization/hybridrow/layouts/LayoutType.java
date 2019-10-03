@@ -14,11 +14,10 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.lenientFormat;
 
 /**
  * Describes the physical byte layout of a hybrid row field of a specific physical type {@code T}.
- *
+ * <p>
  * {@link LayoutType} provides methods for manipulating hybrid row fields of a particular type, and properties that
  * describe the layout of fields of that type.
  */
@@ -40,6 +39,10 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     /**
      * Initializes a new instance of the {@link LayoutType} class.
+     *
+     * @param code      the {@linkplain LayoutCode} layout code of the instance.
+     * @param immutable {@code true} if edits to fields with this layout type are prohibited.
+     * @param size      size of fields with this layout type in bytes.
      */
     protected LayoutType(@Nonnull final LayoutCode code, final boolean immutable, final int size) {
 
@@ -55,47 +58,63 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     /**
      * Initializes a new instance of the {@link LayoutType} class.
+     *
+     * @param code the {@linkplain LayoutCode} layout code of the instance.
+     * @param size size of fields with this layout type in bytes.
      */
     protected LayoutType(LayoutCode code, int size) {
         this(code, false, size);
     }
 
     /**
-     * True if this type is a boolean.
+     * {@code true} if this type is a boolean.
+     *
+     * @return {@code true} if this type is a boolean.
      */
     public boolean isBoolean() {
         return false;
     }
 
     /**
-     * True if this type is always fixed length.
+     * {@code true} if this type is always fixed length.
+     *
+     * @return {@code true} if this type is always fixed length.
      */
     public abstract boolean isFixed();
 
     /**
-     * If true, this edit's nested fields cannot be updated individually.
-     * The entire edit can still be replaced.
+     * {@code true} if this {@link LayoutType}'s nested fields cannot be updated individually.
+     * <p>
+     * Instances of this {@link LayoutType} can still be replaced in their entirety.
+     *
+     * @return {@code true} if this {@link LayoutType}'s nested fields cannot be updated individually.
      */
     public boolean isImmutable() {
         return this.immutable;
     }
 
     /**
-     * True if this type is a literal null.
+     * {@code true} if this type is a literal null.
+     *
+     * @return {@code true} if this type is a literal null.
      */
     public boolean isNull() {
         return false;
     }
 
     /**
-     * True if this type is a variable-length encoded integer type (either signed or unsigned).
+     * {@code true} if this type is a variable-length encoded integer type (either signed or unsigned).
+     *
+     * @return {@code true} if this type is a variable-length encoded integer type (either signed or unsigned).
      */
     public boolean isVarint() {
         return false;
     }
 
     /**
-     * True if this type can be used in the variable-length segment.
+     * {@code true} if this type can be used in the variable-length segment.
+     *
+     * @return {@code true} if this type can be used in the variable-length segment.
      */
     public final boolean allowVariable() {
         return !this.isFixed();
@@ -114,6 +133,8 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     /**
      * The physical layout code used to represent the type within the serialization.
+     *
+     * @return the physical layout code used to represent the type within the serialization.
      */
     @Nonnull
     public LayoutCode layoutCode() {
@@ -122,6 +143,8 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     /**
      * Human readable name of the type.
+     *
+     * @return human readable name of the type.
      */
     @Nonnull
     public abstract String name();
@@ -129,9 +152,9 @@ public abstract class LayoutType /*implements ILayoutType*/ {
     /**
      * Helper for preparing the delete of a sparse field.
      *
-     * @param buffer    The row to delete from.
-     * @param edit The parent edit containing the field to delete.
-     * @param code The expected type of the field.
+     * @param buffer The row to delete from.
+     * @param edit   The parent edit containing the field to delete.
+     * @param code   The expected type of the field.
      * @return Success if the delete is permitted, the error code otherwise.
      */
     @Nonnull
@@ -339,6 +362,8 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     /**
      * If fixed, the fixed size of the type's serialization in bytes, otherwise undefined.
+     *
+     * @return If fixed, the fixed size of the type's serialization in bytes, otherwise undefined.
      */
     public int size() {
         return this.size;
@@ -360,10 +385,13 @@ public abstract class LayoutType /*implements ILayoutType*/ {
 
     /**
      * The physical layout type of the field cast to the specified type.
+     *
+     * @param <T> a type that implements {@link ILayoutType}.
+     * @return the physical layout type of the field cast to the specified type.
      */
     @SuppressWarnings("unchecked")
     public final <T extends ILayoutType> T typeAs() {
-        return (T)this;
+        return (T) this;
     }
 
     public int writeTypeArgument(@Nonnull final RowBuffer buffer, int offset, @Nonnull final TypeArgumentList value) {
