@@ -12,7 +12,7 @@ import java.util.Objects;
  * ({@code ==}), identity hash code, or synchronization--on instances of {@link Reference} may have unpredictable
  * results and should be avoided.
  *
- * @param <T>
+ * @param <T> type of the referent.
  */
 public final class Reference<T> {
 
@@ -45,11 +45,13 @@ public final class Reference<T> {
     }
 
     /**
-     * Indicates whether some other object is equal to this {@link Reference} value. The other object is considered equal if:.
+     * Indicates whether some other object is equal to this {@link Reference} value. 
+     * <p>
+     * The other object is considered equal if:
      * <ul>
      * <li>it is also an {@link Reference} and;
      * <li>both instances have no value present or;
-     * <li>the present values are equal to each other as determined by {@link T#equals(Object)}}.
+     * <li>the present values are equal to each other as determined by {@code T.equals(Object)}}.
      * </ul>
      *
      * @param other an object to be tested for equality

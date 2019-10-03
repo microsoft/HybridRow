@@ -9,10 +9,10 @@ import java.util.Objects;
  * A container object which may or may not contain a non-null value
  *
  * This is a value-based class and as such use of identity-sensitive operations--including reference equality
- * ({@code ==}), identity hash code, or synchronization--on instances of {@Out} may have unpredictable results and
+ * ({@code ==}), identity hash code, or synchronization--on instances of {@code Out} may have unpredictable results and
  * should be avoided.
  *
- * @param <T>
+ * @param <T> type of the referent.
  */
 public final class Out<T> {
 
@@ -42,11 +42,13 @@ public final class Out<T> {
     }
 
     /**
-     * Indicates whether some other object is equal to this {@link Out} value. The other object is considered equal if:
+     * Indicates whether some other object is equal to this {@link Out} value.
+     * <p>
+     * The other object is considered equal if:
      * <ul>
      * <li>it is also an {@link Out} and;
      * <li>both instances have no value present or;
-     * <li>the present values are equal to each other as determined by {@link T#equals(Object)}}.
+     * <li>the present values are equal to each other as determined by {@code T.equals(Object)}}.
      * </ul>
      *
      * @param other an object to be tested for equality

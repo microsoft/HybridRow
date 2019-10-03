@@ -212,12 +212,11 @@ public class Utf8StringTest {
     public void testToString() {
 
         assertEquals(Utf8String.NULL.toString(), "null");
-        assertSame("null", Utf8String.NULL.toString());
 
         assertEquals(Utf8String.EMPTY.toString(), "\"\"");
-        assertSame("\"\"", Utf8String.EMPTY.toString());
-        assertSame("\"\"", Utf8String.fromUnsafe(Unpooled.EMPTY_BUFFER).toString());
-        assertSame("\"\"", Utf8String.transcodeUtf16(new String("")).toString());
+        assertEquals(Utf8String.EMPTY.toString(), "\"\"");
+        assertEquals(Utf8String.fromUnsafe(Unpooled.EMPTY_BUFFER).toString(), "\"\"");
+        assertEquals(Utf8String.transcodeUtf16(new String("")).toString(), "\"\"");
 
         assertEquals(Utf8String.transcodeUtf16("Hello World!").toString(), "\"Hello World!\"");
         assertEquals(Utf8String.transcodeUtf16("\"Hello World!\"").toString(), "\"\\\"Hello World!\\\"\"");

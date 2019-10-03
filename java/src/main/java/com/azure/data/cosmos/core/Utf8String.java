@@ -53,30 +53,43 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     public static final Utf8String NULL = new Utf8String(null);
 
     private final ByteBuf buffer;
-    private final Supplier<Integer> utf16CodeUnitCount;
+    private final Supplier<String> utf16String;
+    private final Supplier<Integer> utf16StringLength;
 
     private Utf8String(@Nullable final ByteBuf buffer) {
 
         if (buffer == null) {
             this.buffer = null;
-            this.utf16CodeUnitCount = Suppliers.memoize(() -> -1);
+            this.utf16String = Suppliers.memoize(() -> null);
+            this.utf16StringLength = Suppliers.memoize(() -> -1);
             return;
         }
 
         if (buffer.writerIndex() == 0) {
             this.buffer = Unpooled.EMPTY_BUFFER;
-            this.utf16CodeUnitCount = Suppliers.memoize(() -> 0);
+            this.utf16String = Suppliers.memoize(() -> "");
+            this.utf16StringLength = Suppliers.memoize(() -> 0);
             return;
         }
 
         this.buffer = buffer;
 
-        this.utf16CodeUnitCount = Suppliers.memoize(() -> {
+        this.utf16String = Suppliers.memoize(() -> {
 
+            CodePointIterator iterator = new CodePointIterator(this.buffer);
+            StringBuilder builder = new StringBuilder(this.length());
+
+            while (iterator.hasNext()) {
+                builder.appendCodePoint(iterator.nextInt());
+            }
+
+            return builder.toString();
+        });
+
+        this.utf16StringLength = Suppliers.memoize(() -> {
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter();
             final int length = this.buffer.writerIndex();
             final int index = this.buffer.forEachByte(0, length, counter);
-
             assert index == -1 : lenientFormat("index: %s, length: %s", index, length);
             return counter.charCount();
         });
@@ -84,13 +97,17 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     /**
      * {@code true} if the length of this instance is zero.
+     *
+     * @return {@code true} if the length of this instance is zero.
      */
     public final boolean isEmpty() {
         return this.buffer != null && this.buffer.writerIndex() == 0;
     }
 
     /**
-     * {@code true} if this instance is null.
+     * {@code true} if this instance is {@code null}.
+     *
+     * @return {@code true} if this instance is {@code null}.
      */
     public final boolean isNull() {
         return this.buffer == null;
@@ -104,8 +121,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Returns a stream of {@code int} zero-extending the {@code char} values in this {@link Utf8String}.
      * <p>
-     * Any char which maps to a "{@docRoot}/java/lang/Character.html#unicode">surrogate code point</a> is passed through
-     * uninterpreted.
+     * Any char which maps to a <a href="{@docRoot}/java/lang/Character.html#unicode">surrogate code point</a> is passed
+     * through uninterpreted.
      * <p>
      * No additional string space is allocated.
      *
@@ -249,10 +266,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Encoded length of this {@link Utf8String}.
      * <p>
-     * This is the same value as would be returned by {@link String#getBytes()#utf16CodeUnitCount} with no time or space
+     * This is the same value as would be returned by {@link String#getBytes()}{@code .length()} with no time or space
      * overhead.
      *
-     * @return encoded length of {@link Utf8String}
+     * @return encoded length of this {@link Utf8String}
      */
     public final int encodedLength() {
         return this == NULL || this == EMPTY ? 0 : this.buffer.writerIndex();
@@ -384,12 +401,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * Returns the length of this {@link Utf8String}.
      * <p>
      * The length is the number of UTF-16 code units in this {@link Utf8String}. This is the same value as would be
-     * returned by {@link Utf8String#toUtf16()#length()} with no time or space overhead.
+     * returned by {@link Utf8String#toUtf16()}{@code .length()} with no space overhead.
      *
      * @return the length of this {@link Utf8String}.
      */
     public final int length() {
-        return this.utf16CodeUnitCount.get();
+        return this.utf16StringLength.get();
     }
 
     /**
@@ -425,7 +442,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @return {@code true} if and only if the reference count became {@code 0}.
      */
     @Override
-    public boolean release(int decrement) {
+    public boolean release(final int decrement) {
         return this == NULL || this.buffer.release(decrement);
     }
 
@@ -436,7 +453,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @return the {@link Utf8String} created.
      */
     @Override
-    public Utf8String replace(ByteBuf content) {
+    public Utf8String replace(final ByteBuf content) {
         return fromUnsafe(content);
     }
 
@@ -449,7 +466,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     @Override
-    public Utf8String retain(int increment) {
+    public Utf8String retain(final int increment) {
         if (this != NULL) {
             this.buffer.retain(increment);
         }
@@ -486,7 +503,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      *                                   allocation, convert this {@link Utf8String} to a {@link String} and call
      *                                   {@link String#subSequence}.
      * @throws IndexOutOfBoundsException if {@code start} or {@code end} are negative, {@code end} is greater than
-     *                                   {@link #length()}, <li>{@code start} is greater than {@code end}, or
+     *                                   {@link #length()}, {@code start} is greater than {@code end}, or
      *                                   {@link #isNull()} is {@code true}.
      */
     @Nonnull
@@ -546,24 +563,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     @Override
     @Nonnull
     public String toString() {
-        if (this == NULL) {
-            return "null";
-        }
-        if (this == EMPTY) {
-            return "\"\"";
-        }
-        return Json.toString(this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8));
+        return Json.toString(this.toUtf16());
     }
 
     @Nullable
     public String toUtf16() {
-        if (this == NULL) {
-            return null;
-        }
-        if (this == EMPTY) {
-            return "";
-        }
-        return this.buffer.getCharSequence(0, this.buffer.writerIndex(), UTF_8).toString();
+        return this.utf16String.get();
     }
 
     @Override
@@ -575,7 +580,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     @Override
-    public Utf8String touch(Object hint) {
+    public Utf8String touch(final Object hint) {
         if (this != NULL) {
             this.buffer.touch(hint);
         }
@@ -603,7 +608,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return new Utf8String(Unpooled.wrappedBuffer(string.getBytes(UTF_8)));
     }
 
-    private static int toCodePoint(int characterEncoding) {
+    private static int toCodePoint(final int characterEncoding) {
 
         if ((characterEncoding & 0b11111000_00000000_00000000_00000000) == 0b11110000_00000000_00000000_00000000) {
 
@@ -773,7 +778,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         }
 
         @Override
-        public Utf8String deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        public Utf8String deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
 
             final JsonNode node = parser.getCodec().readTree(parser);
             final JsonNodeType type = node.getNodeType();
@@ -798,7 +803,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         }
 
         @Override
-        public void serialize(Utf8String value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+        public void serialize(final Utf8String value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
             generator.writeString(value.toUtf16());
         }
     }
@@ -838,7 +843,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         }
 
         @Override
-        public boolean process(byte value) {
+        public boolean process(final byte value) {
 
             if (this.skip > 0) {
                 this.skip--;
@@ -918,7 +923,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
          * code point is complete, a value of {@code false} is returned.
          */
         @Override
-        public boolean process(byte value) {
+        public boolean process(final byte value) {
 
             switch (this.shift) {
 
@@ -1018,7 +1023,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
          * of {@code true}.
          */
         @Override
-        public boolean process(byte value) {
+        public boolean process(final byte value) {
 
             switch (this.shift) {
 
