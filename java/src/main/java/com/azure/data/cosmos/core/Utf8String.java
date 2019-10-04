@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +29,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -113,9 +113,36 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return this.buffer == null;
     }
 
+    /**
+     * Returns the {@code char} value at the specified index.
+     * <p>
+     * An index ranges from zero to {@code length() - 1}. The first {@code char} value of the sequence is at index
+     * index zero, the next at index one, and so on, as for array indexing.
+     * <p>
+     * If the {@code char} value specified by the index is a <a href="{@docRoot}/java/lang/Character.html#unicode">
+     * surrogate</a>, the surrogate value is returned.
+     *
+     * @param index the index of the {@code char} value to be returned.
+     * @return the specified {@code char} value.
+     * @throws IndexOutOfBoundsException if the {@code index} argument is negative or not less than {@code length()}.
+     */
     @Override
     public char charAt(final int index) {
-        throw new UnsupportedOperationException(lenientFormat("Utf8String.charAt(index: %s)", index));
+
+        if (index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        UTF16CodeUnitIterator iterator = new UTF16CodeUnitIterator(this.buffer);
+        int countdown = index;
+
+        while (iterator.hasNext()) {
+            if (--countdown < 0) {
+                return (char) iterator.nextInt();
+            }
+        }
+
+        throw new IndexOutOfBoundsException();
     }
 
     /**
@@ -132,10 +159,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     public IntStream chars() {
         return this == NULL || this == EMPTY
             ? IntStream.empty()
-            : StreamSupport.intStream(
-                () -> Spliterators.spliteratorUnknownSize(new UTF16CodeUnitIterator(this.buffer), Spliterator.ORDERED),
-                Spliterator.ORDERED, false
-            );
+            : StreamSupport.intStream(new UTF16CodeUnitSpliterator(this.buffer), false);
     }
 
     /**
@@ -152,10 +176,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     public final IntStream codePoints() {
         return this == NULL || this == EMPTY
             ? IntStream.empty()
-            : StreamSupport.intStream(
-                () -> Spliterators.spliteratorUnknownSize(new CodePointIterator(this.buffer), Spliterator.ORDERED),
-                Spliterator.ORDERED, false
-            );
+            : StreamSupport.intStream(new CodePointSpliterator(this.buffer), false);
     }
 
     /**
@@ -682,59 +703,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
     // region Types
 
-    private static final class UTF16CodeUnitIterator extends UTF8CodePointGetter implements IntIterator.OfInt {
-
-        private final ByteBuf buffer;
-        private int start, length;
-        private int lowSurrogate;
-
-        UTF16CodeUnitIterator(final ByteBuf buffer) {
-            this.buffer = buffer;
-            this.lowSurrogate = 0;
-            this.start = 0;
-            this.length = buffer.writerIndex();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return (this.lowSurrogate != 0) || (0 <= this.start && this.start < this.length);
-        }
-
-        /**
-         * Returns the next {@code int} code point in the iteration.
-         *
-         * @return the next {@code int} code point in the iteration.
-         * @throws NoSuchElementException if the iteration has no more code points.
-         */
-        @Override
-        public int nextInt() {
-
-            if (!this.hasNext()) {
-                throw new NoSuchElementException();
-            }
-
-            if (this.lowSurrogate != 0) {
-                int codeUnit = this.lowSurrogate;
-                this.lowSurrogate = 0;
-                return codeUnit;
-            }
-
-            final int index = this.buffer.forEachByte(this.start, this.length - this.start, this);
-            assert index >= 0;
-            this.start = index + 1;
-
-            final int codePoint = this.codePoint();
-
-            if ((codePoint & 0xFFFF0000) == 0) {
-                return codePoint;
-            }
-
-            this.lowSurrogate = Character.lowSurrogate(codePoint);
-            return Character.highSurrogate(codePoint);
-        }
-    }
-
-    private static final class CodePointIterator extends UTF8CodePointGetter implements IntIterator.OfInt {
+    private static class CodePointIterator extends UTF8CodePointGetter implements PrimitiveIterator.OfInt {
 
         private final ByteBuf buffer;
         private int start, length;
@@ -745,6 +714,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             this.length = buffer.writerIndex();
         }
 
+        /**
+         * Returns {@code true} if there is another code point in the iteration.
+         *
+         * @return {@code true} if there is another code point in the iteration.
+         */
         @Override
         public boolean hasNext() {
             return 0 <= this.start && this.start < this.length;
@@ -759,15 +733,160 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         @Override
         public int nextInt() {
 
-            if (!this.hasNext()) {
+            final int length = this.length - this.start;
+
+            if (length <= 0) {
                 throw new NoSuchElementException();
             }
 
-            final int index = this.buffer.forEachByte(this.start, this.length - this.start, this);
+            final int index = this.buffer.forEachByte(this.start, length, this);
             assert index >= 0;
             this.start = index + 1;
 
             return this.codePoint();
+        }
+    }
+
+    private static final class CodePointSpliterator extends CodePointIterator implements Spliterator.OfInt {
+
+        CodePointSpliterator(final ByteBuf buffer) {
+            super(buffer);
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public void forEachRemaining(IntConsumer action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super Integer> action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            checkNotNull(action, "expected non-null action");
+            if (this.hasNext()) {
+                action.accept(this.nextInt());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Spliterator.OfInt trySplit() {
+            return null; // Utf8String doesn't support parallel processing and so this method does not attempt a split
+        }
+    }
+
+    private static class UTF16CodeUnitIterator extends UTF8CodePointGetter implements PrimitiveIterator.OfInt {
+
+        private final ByteBuf buffer;
+        private int start, length;
+        private int lowSurrogate;
+
+        UTF16CodeUnitIterator(final ByteBuf buffer) {
+            this.buffer = buffer;
+            this.lowSurrogate = 0;
+            this.start = 0;
+            this.length = buffer.writerIndex();
+        }
+
+        /**
+         * Returns {@code true} if there is another UTF-16 code unit in the iteration.
+         *
+         * @return {@code true} if there is another UTF-16 code unit in the iteration.
+         */
+        @Override
+        public boolean hasNext() {
+            return (this.lowSurrogate != 0) || (0 <= this.start && this.start < this.length);
+        }
+
+        /**
+         * Returns the next {@code int} UTF-16 code unit in the iteration.
+         *
+         * @return the next {@code int} UTF-16 code unit in the iteration.
+         * @throws NoSuchElementException if the iteration has no more UTF-16 code units.
+         */
+        @Override
+        public int nextInt() {
+
+            if (this.lowSurrogate != 0) {
+                int codeUnit = this.lowSurrogate;
+                this.lowSurrogate = 0;
+                return codeUnit;
+            }
+
+            final int length = this.length - this.start;
+
+            if (length <= 0) {
+                throw new NoSuchElementException();
+            }
+
+            final int index = this.buffer.forEachByte(this.start, length, this);
+            assert index >= 0;
+            this.start = index + 1;
+
+            final int codePoint = this.codePoint();
+
+            if ((codePoint & 0xFFFF0000) == 0) {
+                return codePoint;
+            }
+
+            this.lowSurrogate = Character.lowSurrogate(codePoint);
+            return Character.highSurrogate(codePoint);
+        }
+    }
+
+    private static final class UTF16CodeUnitSpliterator extends UTF16CodeUnitIterator implements Spliterator.OfInt {
+
+        UTF16CodeUnitSpliterator(final ByteBuf buffer) {
+            super(buffer);
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public void forEachRemaining(IntConsumer action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super Integer> action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            checkNotNull(action, "expected non-null action");
+            if (this.hasNext()) {
+                action.accept(this.nextInt());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Spliterator.OfInt trySplit() {
+            return null; // Utf8String doesn't support parallel processing and so this method does not attempt a split
         }
     }
 
