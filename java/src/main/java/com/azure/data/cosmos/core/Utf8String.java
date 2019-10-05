@@ -50,20 +50,19 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class Utf8String implements ByteBufHolder, CharSequence, Comparable<Utf8String> {
 
     public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER);
-    public static final Utf8String NULL = new Utf8String(null);
+    public static final Utf8String NULL = new Utf8String();
 
     private final ByteBuf buffer;
     private final Supplier<String> utf16String;
     private final Supplier<Integer> utf16StringLength;
 
-    private Utf8String(@Nullable final ByteBuf buffer) {
+    private Utf8String() {
+        this.buffer = null;
+        this.utf16String = Suppliers.memoize(() -> null);
+        this.utf16StringLength = Suppliers.memoize(() -> -1);
+    }
 
-        if (buffer == null) {
-            this.buffer = null;
-            this.utf16String = Suppliers.memoize(() -> null);
-            this.utf16StringLength = Suppliers.memoize(() -> -1);
-            return;
-        }
+    private Utf8String(@Nonnull final ByteBuf buffer) {
 
         if (buffer.writerIndex() == 0) {
             this.buffer = Unpooled.EMPTY_BUFFER;
@@ -87,12 +86,28 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         });
 
         this.utf16StringLength = Suppliers.memoize(() -> {
+
             final UTF16CodeUnitCounter counter = new UTF16CodeUnitCounter();
             final int length = this.buffer.writerIndex();
             final int index = this.buffer.forEachByte(0, length, counter);
+
             assert index == -1 : lenientFormat("index: %s, length: %s", index, length);
             return counter.charCount();
         });
+    }
+
+    private Utf8String(@Nonnull String value) {
+
+        if (value.length() == 0) {
+            this.buffer = Unpooled.EMPTY_BUFFER;
+            this.utf16String = Suppliers.memoize(() -> "");
+            this.utf16StringLength = Suppliers.memoize(() -> 0);
+            return;
+        }
+
+        this.buffer = Unpooled.wrappedBuffer(value.getBytes(UTF_8));
+        this.utf16String = Suppliers.memoize(() -> value);
+        this.utf16StringLength = Suppliers.memoize(value::length);
     }
 
     /**
@@ -116,15 +131,21 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Returns the {@code char} value at the specified index.
      * <p>
-     * An index ranges from zero to {@code length() - 1}. The first {@code char} value of the sequence is at index
+     * An index is expressed in UTF-16 code units, not UTF-8 code units as required by the {@link CharSequence}
+     * contract. An index ranges from zero to {@code length() - 1}. The first {@code char} value of the sequence is at
      * index zero, the next at index one, and so on, as for array indexing.
      * <p>
      * If the {@code char} value specified by the index is a <a href="{@docRoot}/java/lang/Character.html#unicode">
      * surrogate</a>, the surrogate value is returned.
+     * <p>
+     * Use this method judiciously as indexing a {@link Utf8String} in UTF-16 code units incurs an O(n) time cost.
+     * Use {@link #chars} for sequential access to UTF-16 code units. Consider converting this {@link Utf8String} to
+     * a {@link String}, if random access to {@code char} values is required. The time cost incurred by
+     * {@link String#charAt} is O(1).
      *
      * @param index the index of the {@code char} value to be returned.
-     * @return the specified {@code char} value.
-     * @throws IndexOutOfBoundsException if the {@code index} argument is negative or not less than {@code length()}.
+     * @return the {@code char} value at the specified {@code index}.
+     * @throws IndexOutOfBoundsException if the {@code index} argument is negative or not less than {@link #length}.
      */
     @Override
     public char charAt(final int index) {
@@ -372,7 +393,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Creates a new {@link Utf8String} from a {@link ByteBuf} with UTF-8 character validation.
      * <p>
-     * The {@link Utf8String} created does not retain the {@link ByteBuf}. No data is transferred.
+     * The {@link Utf8String} created assumes ownership of the {@link ByteBuf} but does not retain it. Thus no data is
+     * transferred and the {@link ByteBuf}'s reference count is not increased.
+     * <p>
+     * If the {@link ByteBuf}'s content or writer index are modified following a call to this method, the behavior of
+     * the {@link Utf8String} created is undefined.
      *
      * @param buffer the {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
      * @return a {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
@@ -394,7 +419,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Creates a new {@link Utf8String} from a {@link ByteBuf} without UTF-8 character validation.
      * <p>
-     * The {@link Utf8String} created does not retain the {@link ByteBuf}. No data is transferred.
+     * The {@link Utf8String} created assumes ownership of the {@link ByteBuf} but does not retain it. Thus no data is
+     * transferred and the {@link ByteBuf}'s reference count is not increased.
+     * <p>
+     * If the {@link ByteBuf}'s content or writer index are modified following a call to this method, the behavior of
+     * the {@link Utf8String} created is undefined.
      *
      * @param buffer a {@link ByteBuf} to assign to the {@link Utf8String} created.
      * @return a new {@link Utf8String}
@@ -611,12 +640,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Creates a {@link Utf8String} from a UTF16 encoding string.
      * <p>
-     * This method must transcode the UTF-16 into UTF-8 which both requires allocation and is a size of data operation.
+     * This method must transcode the UTF-16 into UTF-8 which requires allocation and is a size of data operation.
      *
-     * @param string A UTF-16 encoded string or {@code null}.
-     *
-     * @return A new {@link Utf8String}, Utf8String.EMPTY, {@code string} is empty, or Utf8String.NULL, if
-     * {@code string} is {@code null}.
+     * @param string a UTF-16 encoded string or {@code null}.
+     * @return a new {@link Utf8String}, {@link #EMPTY}, if {@code string} is empty, or {@link #NULL}, if {@code string}
+     * is {@code null}.
      */
     @Nonnull
     public static Utf8String transcodeUtf16(@Nullable final String string) {
@@ -626,12 +654,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         if (string.isEmpty()) {
             return EMPTY;
         }
-        return new Utf8String(Unpooled.wrappedBuffer(string.getBytes(UTF_8)));
+        return new Utf8String(string);
     }
 
-    private static int toCodePoint(final int characterEncoding) {
+    private static int toCodePoint(final int utf8ByteSequence) {
 
-        if ((characterEncoding & 0b11111000_00000000_00000000_00000000) == 0b11110000_00000000_00000000_00000000) {
+        if ((utf8ByteSequence & 0b11111000_00000000_00000000_00000000) == 0b11110000_00000000_00000000_00000000) {
 
             // Map 4-byte UTF-8 encoding to code point in the [0x10000, 0x0FFFF] range
             //
@@ -647,15 +675,15 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             // next 6 bits from the second byte, the next 6 bits from the third byte, and the last 6 bits from the
             // fourth (low order) byte.
 
-            final int b1 = characterEncoding & 0b00000111_00000000_00000000_00000000;
-            final int b2 = characterEncoding & 0b00000000_00111111_00000000_00000000;
-            final int b3 = characterEncoding & 0b00000000_00000000_00111111_00000000;
-            final int b4 = characterEncoding & 0b00000000_00000000_00000000_00111111;
+            final int b1 = utf8ByteSequence & 0b00000111_00000000_00000000_00000000;
+            final int b2 = utf8ByteSequence & 0b00000000_00111111_00000000_00000000;
+            final int b3 = utf8ByteSequence & 0b00000000_00000000_00111111_00000000;
+            final int b4 = utf8ByteSequence & 0b00000000_00000000_00000000_00111111;
 
             return (b1 >> 6) | (b2 >> 4) | (b3 >> 2) | b4;
         }
 
-        if ((characterEncoding & 0b11111111_11110000_00000000_00000000) == 0b00000000_11100000_00000000_00000000) {
+        if ((utf8ByteSequence & 0b11111111_11110000_00000000_00000000) == 0b00000000_11100000_00000000_00000000) {
 
             // Map 3-byte UTF-8 encoding to code point in the [0x0800, 0xFFFF] range
             //
@@ -670,14 +698,14 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             // UTF-8 code units into 2 bytes with the first 3 bits coming from the first (high order) byte, the next 6
             // bits from the second (mid order) byte, and the last 6 bits from the third (low order) byte.
 
-            final int b1 = characterEncoding & 0b000011110000000000000000;
-            final int b2 = characterEncoding & 0b000000000011111100000000;
-            final int b3 = characterEncoding & 0b000000000000000000111111;
+            final int b1 = utf8ByteSequence & 0b000011110000000000000000;
+            final int b2 = utf8ByteSequence & 0b000000000011111100000000;
+            final int b3 = utf8ByteSequence & 0b000000000000000000111111;
 
             return (b1 >> 4) | (b2 >> 2) | b3;
         }
 
-        if ((characterEncoding & 0b11111111_11111111_11100000_00000000) == 0b00000000_00000000_11000000_00000000) {
+        if ((utf8ByteSequence & 0b11111111_11111111_11100000_00000000) == 0b00000000_00000000_11000000_00000000) {
 
             // Map 2-byte UTF-8 character encoding to code point in the [0x0080, 0x07FF] range
             //
@@ -692,8 +720,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             // code units into 1 byte with the first 5 bits coming from the first (high order) byte and the final 6
             // bits coming from the second (low order) byte.
 
-            final int b1 = characterEncoding & 0b0001111100000000;
-            final int b2 = characterEncoding & 0b0000000000111111;
+            final int b1 = utf8ByteSequence & 0b0001111100000000;
+            final int b2 = utf8ByteSequence & 0b0000000000111111;
 
             return (b1 >> 2) | b2;
         }
@@ -721,7 +749,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
          */
         @Override
         public boolean hasNext() {
-            return 0 <= this.start && this.start < this.length;
+            return this.start < this.length;
         }
 
         /**
@@ -797,9 +825,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         UTF16CodeUnitIterator(final ByteBuf buffer) {
             this.buffer = buffer;
+            this.length = buffer.writerIndex();
             this.lowSurrogate = 0;
             this.start = 0;
-            this.length = buffer.writerIndex();
         }
 
         /**
@@ -809,7 +837,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
          */
         @Override
         public boolean hasNext() {
-            return (this.lowSurrogate != 0) || (0 <= this.start && this.start < this.length);
+            return this.lowSurrogate != 0 || this.start < this.length;
         }
 
         /**
@@ -928,7 +956,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * A {@link ByteProcessor} used by to count the number of UTF-16 code units in a UTF-8 encoded string.
+     * A {@link ByteProcessor} used to count the number of UTF-16 code units in a UTF-8 encoded string.
      * <p>
      * This class makes use of the fact that code points that UTF-16 encodes with two 16-bit code units, UTF-8 encodes
      * with 4 8-bit code units, and vice versa. Lead bytes are identified and counted. All other bytes are skipped.
@@ -961,6 +989,16 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             this.charLimit = charLimit;
         }
 
+        /**
+         * Processes the next byte in a UTF-8 encoded code point sequence.
+         * <p>
+         * The value of {@link #charCount} is increased at the end of each UTF-8 encoded code point that is encountered.
+         * The magnitude of the increase depends on the length of the code point. Code points of length 1-3 increase the
+         * {@link #charCount} by 1. Code points of length 4 increase {@link #charCount} by 2.
+         *
+         * @param value a {@code byte} representing the next code unit in a UTF-8 encoded code point sequence.
+         * @return {@code true} unless {@link #charLimit} is reached.
+         */
         @Override
         public boolean process(final byte value) {
 
@@ -997,18 +1035,41 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return this.charCount <= this.charLimit;
         }
 
+        /**
+         * Number of UTF-16 code units processed.
+         *
+         * @return number of {@code char}'s processed.
+         */
         public int charCount() {
             return this.charCount;
         }
 
+        /**
+         * {@code char} index of the most-recently processed code point.
+         *
+         * This is the value that would be used to address the {@code char} after converting the UTF-8 code point
+         * sequence to a {@link String}.
+         *
+         * @return {@code char} index of the most-recently processed code point.
+         */
         public int charIndex() {
             return this.charIndex;
         }
 
+        /**
+         * Maximum number of UTF-16 code units to process.
+         *
+         * @return maximum number of UTF-16 code units to process.
+         */
         public int charLimit() {
             return this.charLimit;
         }
 
+        /**
+         * Represents this {@link UTF16CodeUnitCounter} as a JSON string.
+         *
+         * @return JSON string representation of this {@link UTF16CodeUnitCounter}.
+         */
         @Override
         public String toString() {
             return Json.toString(this);
@@ -1020,7 +1081,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * <p>
      * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
      * construction of an instance of this class must be a leading byte. This is used to determine the number of
-     * single-byte UTF-8 code units in the code point.
+     * UTF-8 code units (i.e., bytes) in the code point.
      * <p>
      * Code points are validated. The {@link #process(byte)} method returns the Unicode
      * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement Character</a>
@@ -1034,12 +1095,11 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         private int shift = -1;
 
         /**
-         * Gets the next code unit in a UTF-8 code point sequence.
+         * Processes the next byte in a UTF-8 encoded code point sequence.
          *
-         * @param value the next code unit in a UTF-8
-         *
-         * @return {@code true} if additional code units must be read to complete the code point; otherwise, if the
-         * code point is complete, a value of {@code false} is returned.
+         * @param value the next byte in a UTF-8 encoded code point sequence.
+         * @return {@code true} if additional bytes must be read to complete the code point; otherwise, if the code
+         * point is complete, a value of {@code false} is returned.
          */
         @Override
         public boolean process(final byte value) {
@@ -1048,16 +1108,15 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
                 default: {
 
-                    // Next unit of code point sequence
+                    // Next unit (byte) of multi-byte code point sequence
 
                     this.codePoint |= ((value & 0xFF) << this.shift);
                     this.shift -= Byte.SIZE;
-
                     return true;
                 }
                 case 0: {
 
-                    // End of code point sequence of length 2-4
+                    // End of multi-byte code point sequence
 
                     this.shift = -1;
                     this.codePoint |= (value & 0xFF);
@@ -1119,7 +1178,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * A {@link ByteProcessor} used to validate a UTF-8 encoded strings.
+     * A {@link ByteProcessor} used to validate a UTF-8 encoded string.
      * <p>
      * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
      * construction of an instance of this class must be a leading byte. This is used to determine the number of
@@ -1134,7 +1193,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         private int shift = -1;
 
         /**
-         * Processes the next code unit in a UTF-8 code point sequence.
+         * Processes the next byte in a UTF-8 encoded code point sequence.
          *
          * @param value a {@code byte} representing the next code unit in a UTF-8 code point sequence.
          *
@@ -1148,7 +1207,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
                 default: {
 
-                    // Next unit of code point sequence
+                    // Next unit (byte) of multi-byte code point sequence
 
                     this.codePoint |= ((value & 0xFF) << this.shift);
                     this.shift -= Byte.SIZE;
@@ -1156,7 +1215,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
                 }
                 case 0: {
 
-                    // End of code point sequence
+                    // End of multi-byte code point sequence
 
                     this.codePoint |= (value & 0xFF);
                     this.shift = -1;
