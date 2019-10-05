@@ -49,12 +49,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @JsonSerialize(using = Utf8String.JsonSerializer.class)
 public final class Utf8String implements ByteBufHolder, CharSequence, Comparable<Utf8String> {
 
+    // region Fields
+
     public static final Utf8String EMPTY = new Utf8String(Unpooled.EMPTY_BUFFER);
     public static final Utf8String NULL = new Utf8String();
 
     private final ByteBuf buffer;
     private final Supplier<String> utf16String;
     private final Supplier<Integer> utf16StringLength;
+
+    // endregion Fields
+
+    // region Constructors
 
     private Utf8String() {
         this.buffer = null;
@@ -71,7 +77,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return;
         }
 
-        this.buffer = buffer;
+        this.buffer = buffer.readerIndex(0); // required to ensure proper hashCode computation
 
         this.utf16String = Suppliers.memoize(() -> {
 
@@ -109,6 +115,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         this.utf16String = Suppliers.memoize(() -> value);
         this.utf16StringLength = Suppliers.memoize(value::length);
     }
+
+    // endregion
+
+    // region Methods
 
     /**
      * {@code true} if the length of this instance is zero.
@@ -240,7 +250,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @param string the {@link String} to be compared.
      * @return the value 0 if the argument {@code string} is equal to this {@link Utf8String}; a value less than 0 if
      * this {@link Utf8String} is lexicographically less than the {@code string} argument; and a value greater than 0
-     * if this {@link Utf8String} is lexicographically greater than the {@code string}  argument.
+     * if this {@link Utf8String} is lexicographically greater than the {@code string} argument.
      */
     public final int compareTo(final String string) {
 
@@ -248,15 +258,15 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return null == this.buffer ? 0 : 1;
         }
 
-        if (null == this.buffer) {
+        if (NULL == this) {
             return -1;
         }
 
-        PrimitiveIterator.OfInt t = this.codePoints().iterator();
-        PrimitiveIterator.OfInt o = string.codePoints().iterator();
+        PrimitiveIterator.OfInt thisIterator = new CodePointIterator(this.buffer);
+        PrimitiveIterator.OfInt thatIterator = string.codePoints().iterator();
 
-        while (t.hasNext() && o.hasNext()) {
-            final int compare = t.nextInt() - o.nextInt();
+        while (thisIterator.hasNext() && thatIterator.hasNext()) {
+            final int compare = thisIterator.nextInt() - thatIterator.nextInt();
             if (compare != 0) {
                 return compare;
             }
@@ -268,7 +278,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     /**
      * Returns a reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}.
      * <p>
-     * A value of {@code null} is returned, if this {@link Utf8String} is null.
+     * A value of {@code null} is returned, if this {@link Utf8String} is {@code null}.
      *
      * @return reference to the read-only {@link ByteBuf} holding the content of this {@link Utf8String}, or
      * {@code null} if this {@link Utf8String} is null.
@@ -396,8 +406,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * The {@link Utf8String} created assumes ownership of the {@link ByteBuf} but does not retain it. Thus no data is
      * transferred and the {@link ByteBuf}'s reference count is not increased.
      * <p>
-     * If the {@link ByteBuf}'s content or writer index are modified following a call to this method, the behavior of
-     * the {@link Utf8String} created is undefined.
+     * If the {@link ByteBuf}'s content, reader index, or writer index are modified following a call to this method, the
+     * behavior of the {@link Utf8String} created is undefined.
      *
      * @param buffer the {@link ByteBuf} to validate and assign to the {@link Utf8String} created.
      * @return a {@link Utf8String} instance, if the @{code buffer} validates or a value of @{link Optional#empty}
@@ -412,7 +422,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return Optional.of(EMPTY);
         }
 
-        int index = buffer.forEachByte(0, buffer.writerIndex(), new UTF8CodePointValidator());
+        int index = buffer.forEachByte(0, buffer.writerIndex(), new CodePointValidator());
         return index >= 0 ? Optional.empty() : Optional.of(new Utf8String(buffer));
     }
 
@@ -422,8 +432,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * The {@link Utf8String} created assumes ownership of the {@link ByteBuf} but does not retain it. Thus no data is
      * transferred and the {@link ByteBuf}'s reference count is not increased.
      * <p>
-     * If the {@link ByteBuf}'s content or writer index are modified following a call to this method, the behavior of
-     * the {@link Utf8String} created is undefined.
+     * If the {@link ByteBuf}'s content, reader index, or writer index are modified following a call to this method, the
+     * behavior of the {@link Utf8String} created is undefined.
      *
      * @param buffer a {@link ByteBuf} to assign to the {@link Utf8String} created.
      * @return a new {@link Utf8String}
@@ -444,7 +454,8 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      */
     @Override
     public int hashCode() {
-        return this == NULL ? 0 : this.buffer.hashCode();
+        // CONFIRMED: ByteBuf.hashCode returns 1 for empty buffers and a non-zero value for all other buffers
+        return this == NULL ? 0 : (this == EMPTY ? 1 : this.buffer.hashCode());
     }
 
     /**
@@ -657,6 +668,10 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return new Utf8String(string);
     }
 
+    // endregion
+
+    // region Privates
+
     private static int toCodePoint(final int utf8ByteSequence) {
 
         if ((utf8ByteSequence & 0b11111000_00000000_00000000_00000000) == 0b11110000_00000000_00000000_00000000) {
@@ -729,195 +744,13 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         return -1;
     }
 
+    // endregion
+
     // region Types
 
-    private static class CodePointIterator extends UTF8CodePointGetter implements PrimitiveIterator.OfInt {
-
-        private final ByteBuf buffer;
-        private int start, length;
-
-        CodePointIterator(final ByteBuf buffer) {
-            this.buffer = buffer;
-            this.start = 0;
-            this.length = buffer.writerIndex();
-        }
-
-        /**
-         * Returns {@code true} if there is another code point in the iteration.
-         *
-         * @return {@code true} if there is another code point in the iteration.
-         */
-        @Override
-        public boolean hasNext() {
-            return this.start < this.length;
-        }
-
-        /**
-         * Returns the next {@code int} code point in the iteration.
-         *
-         * @return the next {@code int} code point in the iteration.
-         * @throws NoSuchElementException if the iteration has no more code points.
-         */
-        @Override
-        public int nextInt() {
-
-            final int length = this.length - this.start;
-
-            if (length <= 0) {
-                throw new NoSuchElementException();
-            }
-
-            final int index = this.buffer.forEachByte(this.start, length, this);
-            assert index >= 0;
-            this.start = index + 1;
-
-            return this.codePoint();
-        }
-    }
-
-    private static final class CodePointSpliterator extends CodePointIterator implements Spliterator.OfInt {
-
-        CodePointSpliterator(final ByteBuf buffer) {
-            super(buffer);
-        }
-
-        @Override
-        public int characteristics() {
-            return Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
-        }
-
-        @Override
-        public long estimateSize() {
-            return Long.MAX_VALUE;
-        }
-
-        @Override
-        public void forEachRemaining(IntConsumer action) {
-            super.forEachRemaining(action);
-        }
-
-        @Override
-        public void forEachRemaining(Consumer<? super Integer> action) {
-            super.forEachRemaining(action);
-        }
-
-        @Override
-        public boolean tryAdvance(IntConsumer action) {
-            checkNotNull(action, "expected non-null action");
-            if (this.hasNext()) {
-                action.accept(this.nextInt());
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public Spliterator.OfInt trySplit() {
-            return null; // Utf8String doesn't support parallel processing and so this method does not attempt a split
-        }
-    }
-
-    private static class UTF16CodeUnitIterator extends UTF8CodePointGetter implements PrimitiveIterator.OfInt {
-
-        private final ByteBuf buffer;
-        private int start, length;
-        private int lowSurrogate;
-
-        UTF16CodeUnitIterator(final ByteBuf buffer) {
-            this.buffer = buffer;
-            this.length = buffer.writerIndex();
-            this.lowSurrogate = 0;
-            this.start = 0;
-        }
-
-        /**
-         * Returns {@code true} if there is another UTF-16 code unit in the iteration.
-         *
-         * @return {@code true} if there is another UTF-16 code unit in the iteration.
-         */
-        @Override
-        public boolean hasNext() {
-            return this.lowSurrogate != 0 || this.start < this.length;
-        }
-
-        /**
-         * Returns the next {@code int} UTF-16 code unit in the iteration.
-         *
-         * @return the next {@code int} UTF-16 code unit in the iteration.
-         * @throws NoSuchElementException if the iteration has no more UTF-16 code units.
-         */
-        @Override
-        public int nextInt() {
-
-            if (this.lowSurrogate != 0) {
-                int codeUnit = this.lowSurrogate;
-                this.lowSurrogate = 0;
-                return codeUnit;
-            }
-
-            final int length = this.length - this.start;
-
-            if (length <= 0) {
-                throw new NoSuchElementException();
-            }
-
-            final int index = this.buffer.forEachByte(this.start, length, this);
-            assert index >= 0;
-            this.start = index + 1;
-
-            final int codePoint = this.codePoint();
-
-            if ((codePoint & 0xFFFF0000) == 0) {
-                return codePoint;
-            }
-
-            this.lowSurrogate = Character.lowSurrogate(codePoint);
-            return Character.highSurrogate(codePoint);
-        }
-    }
-
-    private static final class UTF16CodeUnitSpliterator extends UTF16CodeUnitIterator implements Spliterator.OfInt {
-
-        UTF16CodeUnitSpliterator(final ByteBuf buffer) {
-            super(buffer);
-        }
-
-        @Override
-        public int characteristics() {
-            return Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
-        }
-
-        @Override
-        public long estimateSize() {
-            return Long.MAX_VALUE;
-        }
-
-        @Override
-        public void forEachRemaining(IntConsumer action) {
-            super.forEachRemaining(action);
-        }
-
-        @Override
-        public void forEachRemaining(Consumer<? super Integer> action) {
-            super.forEachRemaining(action);
-        }
-
-        @Override
-        public boolean tryAdvance(IntConsumer action) {
-            checkNotNull(action, "expected non-null action");
-            if (this.hasNext()) {
-                action.accept(this.nextInt());
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public Spliterator.OfInt trySplit() {
-            return null; // Utf8String doesn't support parallel processing and so this method does not attempt a split
-        }
-    }
-
+    /**
+     * Enables a {@link Utf8String} to be deserialized by <a href="https://github.com/FasterXML/jackson">Jackson</a>
+     */
     static final class JsonDeserializer extends StdDeserializer<Utf8String> {
 
         private JsonDeserializer() {
@@ -943,6 +776,9 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         }
     }
 
+    /**
+     * Enables a {@link Utf8String} to be serialized by <a href="https://github.com/FasterXML/jackson">Jackson</a>
+     */
     static final class JsonSerializer extends StdSerializer<Utf8String> {
 
         private JsonSerializer() {
@@ -956,128 +792,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * A {@link ByteProcessor} used to count the number of UTF-16 code units in a UTF-8 encoded string.
-     * <p>
-     * This class makes use of the fact that code points that UTF-16 encodes with two 16-bit code units, UTF-8 encodes
-     * with 4 8-bit code units, and vice versa. Lead bytes are identified and counted. All other bytes are skipped.
-     * Code points are not validated.
-     * <p>
-     * The {@link #process} method counts undefined leading bytes as an undefined UTF-16 code unit to be replaced.
-     *
-     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
-     */
-    private static final class UTF16CodeUnitCounter implements ByteProcessor {
-
-        @JsonProperty
-        private final int charLimit;
-
-        @JsonProperty
-        private int charCount = 0;
-
-        @JsonProperty
-        private int charIndex = 0;
-
-        @JsonProperty
-        private int skip = 0;
-
-        public UTF16CodeUnitCounter() {
-            this(Integer.MAX_VALUE);
-        }
-
-        public UTF16CodeUnitCounter(int charLimit) {
-            checkArgument(charLimit >= 0);
-            this.charLimit = charLimit;
-        }
-
-        /**
-         * Processes the next byte in a UTF-8 encoded code point sequence.
-         * <p>
-         * The value of {@link #charCount} is increased at the end of each UTF-8 encoded code point that is encountered.
-         * The magnitude of the increase depends on the length of the code point. Code points of length 1-3 increase the
-         * {@link #charCount} by 1. Code points of length 4 increase {@link #charCount} by 2.
-         *
-         * @param value a {@code byte} representing the next code unit in a UTF-8 encoded code point sequence.
-         * @return {@code true} unless {@link #charLimit} is reached.
-         */
-        @Override
-        public boolean process(final byte value) {
-
-            if (this.skip > 0) {
-                this.skip--;
-                return true;
-            }
-
-            final int leadingByte = value & 0xFF;
-            this.charIndex = this.charCount;
-
-            if (leadingByte < 0x7F) {
-                // UTF-8-1 = 0x00-7F
-                this.skip = 0;
-                this.charCount++;
-            } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
-                // UTF8-8-2 = 0xC2-DF UTF8-tail
-                this.skip = 1;
-                this.charCount++;
-            } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
-                // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2
-                // (UTF8-tail)
-                this.skip = 2;
-                this.charCount++;
-            } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
-                // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
-                this.skip = 3;
-                this.charCount += 2;
-            } else {
-                this.skip = 0;
-                this.charCount++;
-            }
-
-            return this.charCount <= this.charLimit;
-        }
-
-        /**
-         * Number of UTF-16 code units processed.
-         *
-         * @return number of {@code char}'s processed.
-         */
-        public int charCount() {
-            return this.charCount;
-        }
-
-        /**
-         * {@code char} index of the most-recently processed code point.
-         *
-         * This is the value that would be used to address the {@code char} after converting the UTF-8 code point
-         * sequence to a {@link String}.
-         *
-         * @return {@code char} index of the most-recently processed code point.
-         */
-        public int charIndex() {
-            return this.charIndex;
-        }
-
-        /**
-         * Maximum number of UTF-16 code units to process.
-         *
-         * @return maximum number of UTF-16 code units to process.
-         */
-        public int charLimit() {
-            return this.charLimit;
-        }
-
-        /**
-         * Represents this {@link UTF16CodeUnitCounter} as a JSON string.
-         *
-         * @return JSON string representation of this {@link UTF16CodeUnitCounter}.
-         */
-        @Override
-        public String toString() {
-            return Json.toString(this);
-        }
-    }
-
-    /**
-     * A {@link ByteProcessor} used to read a UTF-8 encoded string one Unicode code point at a time.
+     * A {@link ByteProcessor} used to read a UTF-8 encoded string one code point at a time.
      * <p>
      * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
      * construction of an instance of this class must be a leading byte. This is used to determine the number of
@@ -1087,7 +802,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement Character</a>
      * when an undefined code point is encountered.
      */
-    private static class UTF8CodePointGetter implements ByteProcessor {
+    private static class CodePointGetter implements ByteProcessor {
 
         private static final int REPLACEMENT_CHARACTER = 0xFFFD;
 
@@ -1178,7 +893,101 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
     }
 
     /**
-     * A {@link ByteProcessor} used to validate a UTF-8 encoded string.
+     * An iterator for enumerating the code points in a UTF-8 encoded {@link ByteBuf}.
+     */
+    private static class CodePointIterator extends CodePointGetter implements PrimitiveIterator.OfInt {
+
+        private final ByteBuf buffer;
+        private int start, length;
+
+        CodePointIterator(final ByteBuf buffer) {
+            this.buffer = buffer;
+            this.start = 0;
+            this.length = buffer.writerIndex();
+        }
+
+        /**
+         * Returns {@code true} if there is another code point in the iteration.
+         *
+         * @return {@code true} if there is another code point in the iteration.
+         */
+        @Override
+        public boolean hasNext() {
+            return this.start < this.length;
+        }
+
+        /**
+         * Returns the next {@code int} code point in the iteration.
+         *
+         * @return the next {@code int} code point in the iteration.
+         * @throws NoSuchElementException if the iteration has no more code points.
+         */
+        @Override
+        public int nextInt() {
+
+            final int length = this.length - this.start;
+
+            if (length <= 0) {
+                throw new NoSuchElementException();
+            }
+
+            final int index = this.buffer.forEachByte(this.start, length, this);
+            assert index >= 0;
+            this.start = index + 1;
+
+            return this.codePoint();
+        }
+    }
+
+    /**
+     * A spliterator for enumerating the code points in a UTF-8 encoded {@link ByteBuf}.
+     * <p>
+     * This class supports the {@link Utf8String#codePoints} method.
+     */
+    private static final class CodePointSpliterator extends CodePointIterator implements Spliterator.OfInt {
+
+        CodePointSpliterator(final ByteBuf buffer) {
+            super(buffer);
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public void forEachRemaining(IntConsumer action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super Integer> action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            checkNotNull(action, "expected non-null action");
+            if (this.hasNext()) {
+                action.accept(this.nextInt());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Spliterator.OfInt trySplit() {
+            return null; // Utf8String doesn't support parallel processing and so this method does not attempt a split
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used to validate the code point sequences in a UTF-8 encoded string.
      * <p>
      * This {@link #process(byte)} method reads a single code point at a time. The first byte read following
      * construction of an instance of this class must be a leading byte. This is used to determine the number of
@@ -1187,7 +996,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      *
      * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
      */
-    private static class UTF8CodePointValidator implements ByteProcessor {
+    private static class CodePointValidator implements ByteProcessor {
 
         private int codePoint = -1;
         private int shift = -1;
@@ -1268,6 +1077,238 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
          */
         int codePoint() {
             return this.codePoint;
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used to count the number of UTF-16 code units in a UTF-8 encoded string.
+     * <p>
+     * This class makes use of the fact that code points that UTF-16 encodes with two 16-bit code units, UTF-8 encodes
+     * with 4 8-bit code units, and vice versa. Lead bytes are identified and counted. All other bytes are skipped.
+     * Code points are not validated.
+     * <p>
+     * The {@link #process} method counts undefined leading bytes as an undefined UTF-16 code unit to be replaced.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a>
+     */
+    private static final class UTF16CodeUnitCounter implements ByteProcessor {
+
+        @JsonProperty
+        private final int charLimit;
+
+        @JsonProperty
+        private int charCount = 0;
+
+        @JsonProperty
+        private int charIndex = 0;
+
+        @JsonProperty
+        private int skip = 0;
+
+        public UTF16CodeUnitCounter() {
+            this(Integer.MAX_VALUE);
+        }
+
+        public UTF16CodeUnitCounter(int charLimit) {
+            checkArgument(charLimit >= 0);
+            this.charLimit = charLimit;
+        }
+
+        /**
+         * Number of UTF-16 code units processed.
+         *
+         * @return number of {@code char}'s processed.
+         */
+        public int charCount() {
+            return this.charCount;
+        }
+
+        /**
+         * {@code char} index of the most-recently processed code point.
+         *
+         * This is the value that would be used to address the {@code char} after converting the UTF-8 code point
+         * sequence to a {@link String}.
+         *
+         * @return {@code char} index of the most-recently processed code point.
+         */
+        public int charIndex() {
+            return this.charIndex;
+        }
+
+        /**
+         * Maximum number of UTF-16 code units to process.
+         *
+         * @return maximum number of UTF-16 code units to process.
+         */
+        public int charLimit() {
+            return this.charLimit;
+        }
+
+        /**
+         * Processes the next byte in a UTF-8 encoded code point sequence.
+         * <p>
+         * The value of {@link #charCount} is increased at the end of each UTF-8 encoded code point that is encountered.
+         * The magnitude of the increase depends on the length of the code point. Code points of length 1-3 increase the
+         * {@link #charCount} by 1. Code points of length 4 increase {@link #charCount} by 2.
+         *
+         * @param value a {@code byte} representing the next code unit in a UTF-8 encoded code point sequence.
+         * @return {@code true} unless {@link #charLimit} is reached.
+         */
+        @Override
+        public boolean process(final byte value) {
+
+            if (this.skip > 0) {
+                this.skip--;
+                return true;
+            }
+
+            final int leadingByte = value & 0xFF;
+            this.charIndex = this.charCount;
+
+            if (leadingByte < 0x7F) {
+                // UTF-8-1 = 0x00-7F
+                this.skip = 0;
+                this.charCount++;
+            } else if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                // UTF8-8-2 = 0xC2-DF UTF8-tail
+                this.skip = 1;
+                this.charCount++;
+            } else if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2
+                // (UTF8-tail)
+                this.skip = 2;
+                this.charCount++;
+            } else if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                // UTF8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                this.skip = 3;
+                this.charCount += 2;
+            } else {
+                this.skip = 0;
+                this.charCount++;
+            }
+
+            return this.charCount <= this.charLimit;
+        }
+
+        /**
+         * Represents this {@link UTF16CodeUnitCounter} as a JSON string.
+         *
+         * @return JSON string representation of this {@link UTF16CodeUnitCounter}.
+         */
+        @Override
+        public String toString() {
+            return Json.toString(this);
+        }
+    }
+
+    /**
+     * An iterator for enumerating the UTF-16 code units in a UTF-8 encoded {@link ByteBuf}.
+     * <p>
+     * This class supports the {@link Utf8String#charAt} method.
+     */
+    private static class UTF16CodeUnitIterator extends CodePointGetter implements PrimitiveIterator.OfInt {
+
+        private final ByteBuf buffer;
+        private int lowSurrogate;
+        private int start, length;
+
+        UTF16CodeUnitIterator(final ByteBuf buffer) {
+            this.buffer = buffer;
+            this.length = buffer.writerIndex();
+            this.lowSurrogate = 0;
+            this.start = 0;
+        }
+
+        /**
+         * Returns {@code true} if there is another UTF-16 code unit in the iteration.
+         *
+         * @return {@code true} if there is another UTF-16 code unit in the iteration.
+         */
+        @Override
+        public boolean hasNext() {
+            return this.lowSurrogate != 0 || this.start < this.length;
+        }
+
+        /**
+         * Returns the next {@code int} UTF-16 code unit in the iteration.
+         *
+         * @return the next {@code int} UTF-16 code unit in the iteration.
+         * @throws NoSuchElementException if the iteration has no more UTF-16 code units.
+         */
+        @Override
+        public int nextInt() {
+
+            if (this.lowSurrogate != 0) {
+                int codeUnit = this.lowSurrogate;
+                this.lowSurrogate = 0;
+                return codeUnit;
+            }
+
+            final int length = this.length - this.start;
+
+            if (length <= 0) {
+                throw new NoSuchElementException();
+            }
+
+            final int index = this.buffer.forEachByte(this.start, length, this);
+            assert index >= 0;
+            this.start = index + 1;
+
+            final int codePoint = this.codePoint();
+
+            if ((codePoint & 0xFFFF0000) == 0) {
+                return codePoint;
+            }
+
+            this.lowSurrogate = Character.lowSurrogate(codePoint);
+            return Character.highSurrogate(codePoint);
+        }
+    }
+
+    /**
+     * A spliterator for enumerating the UTF-16 code units in a UTF-8 encoded {@link ByteBuf}.
+     * <p>
+     * This class supports the {@link Utf8String#chars} method.
+     */
+    private static final class UTF16CodeUnitSpliterator extends UTF16CodeUnitIterator implements Spliterator.OfInt {
+
+        UTF16CodeUnitSpliterator(final ByteBuf buffer) {
+            super(buffer);
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public void forEachRemaining(IntConsumer action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super Integer> action) {
+            super.forEachRemaining(action);
+        }
+
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            checkNotNull(action, "expected non-null action");
+            if (this.hasNext()) {
+                action.accept(this.nextInt());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Spliterator.OfInt trySplit() {
+            return null; // Utf8String doesn't support parallel processing and so this method does not attempt a split
         }
     }
 
