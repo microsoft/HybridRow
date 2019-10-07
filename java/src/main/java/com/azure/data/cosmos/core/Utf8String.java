@@ -81,14 +81,12 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
 
         this.utf16String = Suppliers.memoize(() -> {
 
-            CodePointIterator iterator = new CodePointIterator(this.buffer);
-            StringBuilder builder = new StringBuilder(this.length());
+            final int length = this.buffer.writerIndex();
+            final UTF16Converter converter = new UTF16Converter(length);
+            final int index = this.buffer.forEachByte(0, length, converter);
 
-            while (iterator.hasNext()) {
-                builder.appendCodePoint(iterator.nextInt());
-            }
-
-            return builder.toString();
+            assert index == -1 : lenientFormat("index: %s, length: %s", index, length);
+            return converter.value();
         });
 
         this.utf16StringLength = Suppliers.memoize(() -> {
@@ -788,6 +786,114 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
         @Override
         public void serialize(final Utf8String value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
             generator.writeString(value.toUtf16());
+        }
+    }
+
+    /**
+     * A {@link ByteProcessor} used to convert a UTF-8 byte sequence to a {@link String}.
+     * <p>
+     * This {@link #process(byte)} method accumulates a single code point at a time. Invalid code points are changed to
+     * <a href="https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character">Replacement Characters</a>
+     */
+    private static class UTF16Converter implements ByteProcessor {
+
+        private static final int REPLACEMENT_CHARACTER = 0xFFFD;
+
+        private final StringBuilder builder;
+        private int codePoint = -1;
+        private int shift = -1;
+
+        UTF16Converter(final int capacity) {
+            this.builder = new StringBuilder(capacity);
+        }
+
+        /**
+         * Processes the next byte in a UTF-8 encoded code point sequence.
+         *
+         * Characters are appended to the result value at the end of each code point sequence that is encountered.
+         *
+         * @param value the next byte in a UTF-8 encoded code point sequence.
+         * @return {@code true}.
+         */
+        @Override
+        public boolean process(final byte value) {
+
+            switch (this.shift) {
+
+                default: {
+
+                    // Next unit (byte) of multi-byte code point sequence
+
+                    this.codePoint |= ((value & 0xFF) << this.shift);
+                    this.shift -= Byte.SIZE;
+                    return true;
+                }
+                case 0: {
+
+                    // End of multi-byte code point sequence
+
+                    this.codePoint = toCodePoint(this.codePoint | (value & 0xFF));
+
+                    if (this.codePoint < 0) {
+                        this.builder.append((char)REPLACEMENT_CHARACTER);
+                    } else if (Character.isBmpCodePoint(this.codePoint)) {
+                        this.builder.append((char)this.codePoint);
+                    } else {
+                        this.builder.append(Character.highSurrogate(this.codePoint));
+                        this.builder.append(Character.lowSurrogate(this.codePoint));
+                    }
+
+                    this.shift = -1;
+                    return true;
+                }
+                case -1: {
+
+                    // Start of code point sequence
+
+                    final int leadingByte = value & 0xFF;
+
+                    if (leadingByte < 0x7F) {
+                        // UTF-8-1 = 0x00-7F
+                        this.builder.append((char)leadingByte);
+                        return true;
+                    }
+
+                    if (0xC2 <= leadingByte && leadingByte <= 0xDF) {
+                        // UTF8-8-2 = 0xC2-DF UTF8-tail
+                        this.codePoint = leadingByte << Byte.SIZE;
+                        this.shift = 0;
+                        return true;
+                    }
+
+                    if (0xE0 <= leadingByte && leadingByte <= 0xEF) {
+                        // UTF-8-3 = 0xE0 0xA0-BF UTF8-tail / 0xE1-EC 2(UTF8-tail) / 0xED 0x80-9F UTF8-tail / 0xEE-EF 2(UTF8-tail)
+                        this.codePoint = leadingByte << 2 * Byte.SIZE;
+                        this.shift = Byte.SIZE;
+                        return true;
+                    }
+
+                    if (0xF0 <= leadingByte && leadingByte <= 0xF4) {
+                        // UTF-8-4 = 0xF0 0x90-BF 2( UTF8-tail ) / 0xF1-F3 3( UTF8-tail ) / 0xF4 0x80-8F 2( UTF8-tail )
+                        this.codePoint = leadingByte << (3 * Byte.SIZE);
+                        this.shift = 2 * Byte.SIZE;
+                        return true;
+                    }
+
+                    this.builder.append((char)REPLACEMENT_CHARACTER);
+                    return true;
+                }
+            }
+        }
+
+        /**
+         * Returns the converted {@link String} value.
+         *
+         * A new {@link String} is allocated on each call to this method.
+         *
+         * @return the converted {@link String} value.
+         */
+        String value() {
+            return this.builder.toString();
         }
     }
 
