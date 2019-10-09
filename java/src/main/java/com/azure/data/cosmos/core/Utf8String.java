@@ -77,7 +77,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
             return;
         }
 
-        this.buffer = buffer.readerIndex(0); // required to ensure proper hashCode computation
+        this.buffer = buffer.readerIndex(0); // required to ensure proper hashCode computation by ByteBuf.hashCode
 
         this.utf16String = Suppliers.memoize(() -> {
 
@@ -124,7 +124,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @return {@code true} if the length of this instance is zero.
      */
     public final boolean isEmpty() {
-        return this.buffer != null && this.buffer.writerIndex() == 0;
+        return this == EMPTY;
     }
 
     /**
@@ -133,7 +133,7 @@ public final class Utf8String implements ByteBufHolder, CharSequence, Comparable
      * @return {@code true} if this instance is {@code null}.
      */
     public final boolean isNull() {
-        return this.buffer == null;
+        return this == NULL;
     }
 
     /**
