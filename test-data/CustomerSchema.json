@@ -1,0 +1,76 @@
+// Partial implementation of Cassandra Hotel Schema described here::
+//  https://www.oreilly.com/ideas/cassandra-data-modeling
+{
+  "name": "Microsoft.Azure.Cosmos.Serialization.HybridRow.Tests.Unit.CustomerSchema",
+  "schemas": [
+    {
+      "name": "PostalCode",
+      "id": 1,
+      "type": "schema",
+      "properties": [
+        { "path": "zip", "type": { "type": "int32", "storage": "fixed" } },
+        { "path": "plus4", "type": { "type": "int16", "storage": "sparse" } }
+      ]
+    },
+    {
+      "name": "Address",
+      "id": 2,
+      "type": "schema",
+      "properties": [
+        { "path": "street", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "city", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "state", "type": { "type": "utf8", "storage": "fixed", "length": 2 } },
+        { "path": "postal_code", "type": { "type": "schema", "name": "PostalCode" } }
+      ]
+    },
+    {
+      "name": "Hotels",
+      "id": 3,
+      "type": "schema",
+      "partitionkeys": [{ "path": "hotel_id" }],
+      "properties": [
+        { "path": "hotel_id", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "name", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "phone", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "address", "type": { "type": "schema", "name": "Address", "immutable": true } }
+      ]
+    },
+    {
+      "name": "Available_Rooms_By_Hotel_Date",
+      "id": 4,
+      "type": "schema",
+      "partitionkeys": [{ "path": "hotel_id" }],
+      "primarykeys": [{ "path": "date" }, { "path": "room_number", "direction": "desc" }],
+      "properties": [
+        { "path": "hotel_id", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "date", "type": { "type": "datetime", "storage": "fixed" } },
+        { "path": "room_number", "type": { "type": "uint8", "storage": "fixed" } },
+        { "path": "is_available", "type": { "type": "bool" } }
+      ]
+    },
+    {
+      "name": "Guests",
+      "id": 5,
+      "type": "schema",
+      "partitionkeys": [{ "path": "guest_id" }],
+      "primarykeys": [{ "path": "first_name" }, { "path": "phone_numbers", "direction": "desc" }],
+      "properties": [
+        { "path": "guest_id", "type": { "type": "guid", "storage": "fixed" } },
+        { "path": "first_name", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "last_name", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "title", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "emails", "type": { "type": "array", "items": { "type": "utf8", "nullable": false } } },
+        { "path": "phone_numbers", "type": { "type": "array", "items": { "type": "utf8", "nullable": false } } },
+        {
+          "path": "addresses",
+          "type": {
+            "type": "map",
+            "keys": { "type": "utf8", "nullable": false },
+            "values": { "type": "schema", "name": "Address", "immutable": true, "nullable": false }
+          }
+        },
+        { "path": "confirm_number", "type": { "type": "utf8", "storage": "variable" } }
+      ]
+    }
+  ]
+}

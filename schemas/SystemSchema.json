@@ -1,0 +1,54 @@
+// HybridRow RecordIO Schema
+{
+  "name": "Microsoft.Azure.Cosmos.HybridRow.RecordIO",
+  "version": "v1",
+  "schemas": [
+    {
+      "name": "EmptySchema",
+      "id": 2147473650,
+      "type": "schema",
+      "properties": []
+    },
+    {
+      "name": "Segment",
+      "id": 2147473648,
+      "type": "schema",
+      "properties": [
+        {
+          "path": "length",
+          "type": { "type": "int32", "storage": "fixed" },
+          "comment":
+            "(Required) length (in bytes) of this RecordIO segment header itself.  Does NOT include the length of the records that follow."
+        },
+        {
+          "path": "comment",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "A comment describing the data in this RecordIO segment."
+        },
+        {
+          // TODO: this should be converted to a HybridRow UDT instead.
+          "path": "sdl",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "A HybridRow Schema in SDL (json-format)."
+        }
+      ]
+    },
+    {
+      "name": "Record",
+      "id": 2147473649,
+      "type": "schema",
+      "properties": [
+        {
+          "path": "length",
+          "type": { "type": "int32", "storage": "fixed", "nullable": false },
+          "comment": "(Required) length (in bytes) of the HybridRow value that follows this record header."
+        },
+        {
+          "path": "crc32",
+          "type": { "type": "uint32", "storage": "fixed", "nullable": false },
+          "comment": "(Optional) CRC-32 as described in ISO 3309."
+        }
+      ]
+    }
+  ]
+}

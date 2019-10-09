@@ -1,0 +1,96 @@
+{
+  "name": "Microsoft.Azure.Cosmos.BatchApi",
+  "version": "v1",
+  "schemas": [
+    {
+      "name": "BatchRequestHeaders",
+      "id": 1,
+      "type": "schema",
+      "properties":
+      [
+        {
+          "path": "sampleRequestHeader",
+          "type": { "type": "int64", "storage": "fixed" }
+        }
+      ]
+    },
+    {
+      "name": "BatchOperation",
+      "id": 2,
+      "type": "schema",
+      "properties":
+      [
+        {
+          "path": "operationType",
+          "type": { "type": "int32", "storage": "fixed" }
+        }, {
+          "path": "headers",
+          "type": { "type": "schema", "name": "BatchRequestHeaders" }
+        }, {
+          "path": "resourceType",
+          "type": { "type": "int32", "storage": "fixed" }
+        }, {
+          "path": "resourcePath",
+          "type": { "type": "utf8", "storage": "variable", "length": 1024 }
+        }, {
+          "path": "resourceBody",
+          "type": { "type": "binary", "storage": "variable" }
+        }
+      ]
+    },
+    {
+      "name": "BatchRequest",
+      "id": 3,
+      "type": "schema",
+      "properties":
+      [
+        {
+          "path": "operations",
+          "type": { "type": "array", "items": { "type": "schema", "name": "BatchOperation" } }
+        }
+      ]
+    },
+    {
+      "name": "BatchResponseHeaders",
+      "id": 4,
+      "type": "schema",
+      "properties":
+      [
+        {
+          "path": "sampleResponseHeader",
+          "type": { "type": "utf8", "storage": "variable", "length": 1024 }
+        }
+      ]
+    },
+    {
+      "name": "BatchOperationResponse",
+      "id": 5,
+      "type": "schema",
+      "properties":
+      [
+        {
+          "path": "statusCode",
+          "type": { "type": "int32", "storage": "fixed" }
+        }, {
+          "path": "headers",
+          "type": { "type": "schema", "name": "BatchResponseHeaders" }
+        }, {
+          "path": "resourceBody",
+          "type": { "type": "binary", "storage": "variable" }
+        }
+      ]
+    },
+    {
+      "name": "BatchResponse",
+      "id": 6,
+      "type": "schema",
+      "properties":
+      [
+        {
+          "path": "operations",
+          "type": { "type": "array", "items": { "type": "schema", "name": "BatchOperationResponse" } }
+        }
+      ]
+    }
+  ]
+}

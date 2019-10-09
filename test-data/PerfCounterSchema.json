@@ -1,0 +1,72 @@
+// Performance Counter demo schema that utilizes tuples.
+{
+  "schemas": [
+    {
+      "name": "Coord",
+      "id": 2,
+      "type": "schema",
+      "properties": [
+        { "path": "lat", "type": { "type": "int64", "storage": "fixed" } },
+        { "path": "lng", "type": { "type": "int64", "storage": "fixed" } }
+      ]
+    },
+    {
+      "name": "Counters",
+      "id": 1,
+      "type": "schema",
+      "partitionkeys": [{ "path": "name" }],
+      "properties": [
+        { "path": "name", "type": { "type": "utf8", "storage": "variable" } },
+        {
+          "path": "value",
+          "type": {
+            "type": "tuple",
+            "immutable": true,
+            "items": [{ "type": "utf8", "nullable": false }, { "type": "int64", "nullable": false }]
+          }
+        },
+        {
+          "path": "minmeanmax",
+          "type": {
+            "type": "tuple",
+            "immutable": true,
+            "items": [
+              { "type": "utf8", "nullable": false },
+              {
+                "type": "tuple",
+                "nullable": false,
+                "items": [
+                  { "type": "int64", "nullable": false },
+                  { "type": "int64", "nullable": false },
+                  { "type": "int64", "nullable": false }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "path": "coord",
+          "type": {
+            "type": "tuple",
+            "immutable": true,
+            "items": [{ "type": "utf8", "nullable": false }, { "type": "schema", "name": "Coord", "nullable": false }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CounterSet",
+      "id": 3,
+      "type": "schema",
+      "properties": [
+        {
+          "path": "history",
+          "type": {
+            "type": "array",
+            "items": { "type": "schema", "name": "Counters", "nullable": false }
+          }
+        }
+      ]
+    }
+  ]
+}

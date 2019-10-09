@@ -1,0 +1,75 @@
+// Todo demo schema that utilizes typed sets.
+{
+  "schemas": [
+    {
+      "name": "Todo",
+      "id": 1,
+      "type": "schema",
+      "properties": [
+        { "path": "attendees", "type": { "type": "set", "items": { "type": "utf8", "nullable": false } } },
+        { "path": "projects", "type": { "type": "set", "items": { "type": "guid", "nullable": false } } },
+        { "path": "checkboxes", "type": { "type": "set", "items": { "type": "bool", "nullable": false } } },
+        {
+          "path": "prices",
+          "type": {
+            "type": "set",
+            "items": {
+              "type": "set",
+              "immutable": true,
+              "nullable": false,
+              "items": { "type": "float32", "nullable": false }
+            }
+          }
+        },
+        {
+          "path": "nested",
+          "type": {
+            "type": "set",
+            "items": {
+              "type": "set",
+              "immutable": true,
+              "nullable": false,
+              "items":
+              {
+                "type": "set",
+                "immutable": true,
+                "nullable": false,
+                "items": {
+                  "type": "int32",
+                  "nullable": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "shopping",
+          "type": { "type": "set", "items": { "type": "schema", "name": "ShoppingItem", "nullable": false } }
+        },
+        {
+          "path": "work",
+          "type": {
+            "type": "set",
+            "items": {
+              "type": "tuple",
+              "nullable": false,
+              "items": [
+                { "type": "bool", "nullable": false },
+                { "type": "varuint", "nullable": false }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ShoppingItem",
+      "id": 2,
+      "type": "schema",
+      "properties": [
+        { "path": "label", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "count", "type": { "type": "uint8", "storage": "fixed" } }
+      ]
+    }
+  ]
+}

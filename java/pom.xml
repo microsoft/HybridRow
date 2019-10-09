@@ -1,0 +1,293 @@
+<!--
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the MIT License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.azure.data</groupId>
+  <artifactId>azure-cosmos-serialization</artifactId>
+  <version>2.9.5-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Microsoft Azure Cosmos Serialization API</name>
+  <description>This package contains Microsoft Azure Serialization API for Azure Cosmos DB</description>
+  <url>https://github.com/microsoft/HybridRow</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>microsoft</id>
+      <name>Microsoft Corporation</name>
+    </developer>
+  </developers>
+  
+  <distributionManagement>
+    <repository>
+      <name>azure-cosmos-serialization</name>
+      <layout>default</layout>
+      <id>dev-azure-com-azure-cosmos-java-azure-cosmos-serialization</id>
+      <url>https://pkgs.dev.azure.com/azure-cosmos-java/_packaging/azure-cosmos-serialization/maven/v1</url>
+    </repository>
+    <site>
+      <id>azure-java-build-docs</id>
+      <url>${site.url}/site/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+
+  <repositories>
+    <repository>
+      <id>dev-azure-com-azure-cosmos-java-azure-cosmos-serialization</id>
+      <url>https://pkgs.dev.azure.com/azure-cosmos-java/_packaging/azure-cosmos-serialization/maven/v1</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <scm>
+    <url>https://github.com/microsoft/HybridRow</url>
+  </scm>
+
+  <properties>
+    <collectedArtifactsForReleaseLocation>${project.basedir}/target/collectedArtifactsForRelease
+    </collectedArtifactsForReleaseLocation>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <site.url/>
+    <test.groups>unit</test.groups>
+    <javadoc.opts/>
+    <fastutil.version>8.3.0</fastutil.version>
+    <guava.version>28.0-jre</guava.version>
+    <jackson.version>2.9.9</jackson.version>
+    <mockito.version>1.10.19</mockito.version>
+    <mongodb.version>3.11.0</mongodb.version>
+    <netty.version>4.1.42.Final</netty.version>
+    <protobuf.version>3.9.1</protobuf.version>
+    <slf4j.version>1.7.28</slf4j.version>
+    <testng.version>7.0.0</testng.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>${protobuf.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java-util</artifactId>
+      <version>${protobuf.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-buffer</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>${fastutil.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>bson</artifactId>
+      <version>${mongodb.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>7.0.0</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <!-- unit test -->
+      <id>unit</id>
+      <properties>
+        <env>default</env>
+        <test.groups>unit</test.groups>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M3</version>
+            <configuration>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <groups>unit</groups>
+            <includes>
+              <include>%regex[.*]</include>
+            </includes>
+            <properties>
+              <property>
+                <name>surefire.testng.verbose</name>
+                <value>2</value>
+              </property>
+            </properties>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <configuration>
+            <includes>
+              <include>%regex[.*]</include>
+            </includes>
+            <properties>
+              <property>
+                <name>surefire.testng.verbose</name>
+                <value>2</value>
+              </property>
+            </properties>
+            <groups>${test.groups}</groups>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.10</version>
+        <configuration>
+          <classpathContainers>
+            <classpathContainer>
+              org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8
+            </classpathContainer>
+          </classpathContainers>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.1.1</version>
+        <!--inherited>true</inherited-->
+        <configuration>
+          <quiet>true</quiet>
+          <verbose>false</verbose>
+          <additionalOptions>${javadoc.opts}</additionalOptions>
+          <sourceFileExcludes>
+            <sourceFileExclude>**/internal/**/*.java</sourceFileExclude>
+            <sourceFileExclude>**/*BridgeInternal.java</sourceFileExclude>
+          </sourceFileExcludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <filtering>false</filtering>
+        <directory>${project.basedir}/../schemas</directory>
+        <includes>
+          <include>SystemSchema.json</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <modules/>
+
+</project>
