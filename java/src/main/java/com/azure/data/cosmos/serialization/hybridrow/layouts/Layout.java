@@ -35,17 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * {@link Layout} is immutable.
  */
 public final class Layout {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Layout.class);
-
-    public static final Layout EMPTY;
-    static {
-        try {
-            EMPTY = SystemSchema.layoutResolver().resolve(SystemSchema.EMPTY_SCHEMA_ID);
-        } catch (Throwable t) {
-            LOGGER.error("Unexpected failure during static initialization", t);
-            throw t;
-        }
-    }
+    public static final Layout EMPTY = SystemSchema.layoutResolver().resolve(SystemSchema.EMPTY_SCHEMA_ID);
 
     private final String name;
     private final int numBitmaskBytes;

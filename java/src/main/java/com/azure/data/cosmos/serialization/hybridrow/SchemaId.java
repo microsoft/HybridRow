@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
 import javax.annotation.Nonnull;
@@ -38,7 +39,7 @@ public final class SchemaId implements Comparable<SchemaId> {
     private static final Int2ReferenceMap<SchemaId> cache;
 
     static {
-        cache = new Int2ReferenceOpenHashMap<>();
+        cache = Int2ReferenceMaps.synchronize(new Int2ReferenceOpenHashMap<>());
         cache.put(0, INVALID = NONE = new SchemaId(0));
     }
 
