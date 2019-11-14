@@ -10,8 +10,6 @@ import com.azure.data.cosmos.serialization.hybridrow.schemas.Namespace;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.Schema;
 import com.azure.data.cosmos.serialization.hybridrow.schemas.StorageKind;
 import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -35,6 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * {@link Layout} is immutable.
  */
 public final class Layout {
+
     public static final Layout EMPTY = SystemSchema.layoutResolver().resolve(SystemSchema.EMPTY_SCHEMA_ID);
 
     private final String name;
