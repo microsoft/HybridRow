@@ -444,6 +444,7 @@ public final class RowBuffer {
      * Read the value of a {@code FixedBinary} field at the given {@code offset} within this {@link RowBuffer}.
      *
      * @param offset offset of a {@code FixedBinary} field within this {@link RowBuffer}.
+     * @param length number of bytes to read.
      * @return the {@code FixedBinary} value read.
      */
     public ByteBuf readFixedBinary(int offset, int length) {
@@ -1093,6 +1094,8 @@ public final class RowBuffer {
 
     /**
      * The resolver for UDTs.
+     *
+     * @return reference to the resolver for UDTs.
      */
     public LayoutResolver resolver() {
         return this.resolver;

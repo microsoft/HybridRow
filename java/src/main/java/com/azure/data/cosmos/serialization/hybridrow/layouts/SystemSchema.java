@@ -45,12 +45,14 @@ public final class SystemSchema {
         try (final InputStream stream = getResourceAsStream("SystemSchema.json")) {
             namespace = Namespace.parse(stream);
         } catch (IOException cause) {
-            String message = lenientFormat("failed to initialize %s due to %s", cause);
+            String message = lenientFormat("failed to initialize %s due to %s", SystemSchema.class, cause);
             throw new IllegalStateException(message, cause);
         }
 
         return new LayoutResolverNamespace(namespace.orElseThrow(() -> {
-            String message = lenientFormat("failed to initialize %s due to system schema parse error");
+            String message = lenientFormat(
+                "failed to initialize %s due to system schema parse error",
+                SystemSchema.class);
             return new IllegalStateException(message);
         }));
     });

@@ -60,10 +60,13 @@ public final class RowCursors {
     }
 
     /**
-     * Returns an equivalent scope that is read-only.
+     * An equivalent scope that is read-only.
+     *
+     * @param source source scope.
+     * @return an equivalent scope that is read-only.
      */
-    public static RowCursor asReadOnly(RowCursor src) {
-        return src.clone().immutable(true);
+    public static RowCursor asReadOnly(RowCursor source) {
+        return source.clone().immutable(true);
     }
 
     /**
@@ -71,6 +74,9 @@ public final class RowCursors {
      * <p>
      * The two cursors will have independent and unconnected lifetimes after cloning.  However, mutations to a
      * {@link RowBuffer} can invalidate any active cursors over the same row.
+     *
+     * @param source source cursor.
+     * @return copy of the source cursor.
      */
     public static RowCursor copy(RowCursor source) {
         return source.clone();
