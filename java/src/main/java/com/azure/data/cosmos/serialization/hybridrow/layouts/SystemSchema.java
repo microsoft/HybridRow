@@ -65,21 +65,12 @@ public final class SystemSchema {
     }
 
     private static InputStream getResourceAsStream(final String name) throws IOException {
+        InputStream inputStream = SystemSchema.class.getClassLoader().getResourceAsStream(name);
 
-        final CodeSource codeSource = SystemSchema.class.getProtectionDomain().getCodeSource();
-        final ClassLoader classLoader = SystemSchema.class.getClassLoader();
-        final String location = codeSource.getLocation().toString();
-        final Enumeration<URL> urls;
-
-        urls = classLoader.getResources(name);
-
-        while (urls.hasMoreElements()) {
-            final URL url = urls.nextElement();
-            if (url.getFile().endsWith(name)) {
-                return url.openStream();
-            }
+        if (inputStream != null) {
+            return inputStream;
         }
 
-        throw new FileNotFoundException(lenientFormat("cannot find %s at %s", name, location));
+        throw new FileNotFoundException(lenientFormat("cannot find %s", name));
     }
 }
