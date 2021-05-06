@@ -1,0 +1,614 @@
+// HybridRow System Schema
+{
+  "name": "Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas",
+  "cppNamespace": "cdb_hr",
+  "version": "v2",
+  "enums": [
+    {
+      "name": "SchemaLanguageVersion",
+      "comment": "Versions of the HybridRow Schema Description Language.",
+      "type": "uint8",
+      "values": [
+        {
+          "name": "V1",
+          "comment": "Initial version of the HybridRow Schema Description Language.",
+          "value": 0
+        },
+        {
+          "name": "V2",
+          "comment": "Introduced Enums, Inheritance.",
+          "value": 2
+        },
+        {
+          "name": "Unspecified",
+          "comment": "No version is specified.",
+          "value": 255
+        }
+      ]
+    },
+    {
+      "name": "TypeKind",
+      "comment": "Describes the logical type of a property.",
+      "type": "uint8"
+    },
+    {
+      "name": "StorageKind",
+      "comment": "Describes the storage placement for primitive properties.",
+      "type": "uint8"
+    },
+    {
+      "name": "SortDirection",
+      "comment": "Describes the sort order direction.",
+      "type": "uint8"
+    },
+    {
+      "name": "AllowEmptyKind",
+      "comment": "Describes the empty canonicalization for properties.",
+      "type": "uint8"
+    }
+  ],
+  "schemas": [
+    {
+      "name": "EmptySchema",
+      "id": 2147473650,
+      "type": "schema",
+      "options": { "disallowUnschematized": false },
+      "properties": []
+    },
+    {
+      "name": "Segment",
+      "id": 2147473648,
+      "type": "schema",
+      "options": { "disallowUnschematized": false },
+      "properties": [
+        {
+          "path": "length",
+          "type": { "type": "int32", "storage": "fixed", "rowBufferSize": true },
+          "comment":
+            "(Required) length (in bytes) of this RecordIO segment header itself.  Does NOT include the length of the records that follow."
+        },
+        {
+          "path": "comment",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "A comment describing the data in this RecordIO segment."
+        },
+        {
+          // TODO: this should be converted to a HybridRow UDT instead.
+          "path": "sdl",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "A HybridRow Schema in SDL (json-format).",
+          "apiname": "SDL"
+        },
+        {
+          "path": "schema",
+          "type": {
+            "type": "schema",
+            "storage": "sparse",
+            "name": "Namespace",
+            "id": 2147473651
+          },
+          "comment": "A HybridRow Schema."
+        }
+      ]
+    },
+    {
+      "name": "Record",
+      "id": 2147473649,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "length",
+          "type": { "type": "int32", "storage": "fixed", "nullable": false },
+          "comment": "(Required) length (in bytes) of the HybridRow value that follows this record header."
+        },
+        {
+          "path": "crc32",
+          "type": { "type": "uint32", "storage": "fixed", "nullable": false },
+          "comment": "(Optional) CRC-32 as described in ISO 3309."
+        }
+      ]
+    },
+    {
+      "name": "Namespace",
+      "id": 2147473651,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "version",
+          "type": { "type": "enum", "enum": "SchemaLanguageVersion", "storage": "fixed", "nullable": false },
+          "comment": "(Required) SDL language version."
+        },
+        {
+          "path": "name",
+          "type": { "type": "utf8", "storage": "variable" },
+          "comment": "(Optional) Name of the namespace."
+        },
+        {
+          "path": "comment",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "(Optional) Comment field describing the namespace."
+        },
+        {
+          "path": "schemas",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "Schema",
+              "id": 2147473652,
+              "nullable": false
+            }
+          },
+          "comment": "The set of schemas that make up the namespace."
+        },
+        {
+          "path": "enums",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "EnumSchema",
+              "id": 2147473668,
+              "nullable": false
+            }
+          },
+          "comment": "The set of enums defined in the namespace."
+        },
+        {
+          "path": "cppNamespace",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "An (optional) namespace to use when performing C++ codegen."
+        }
+      ]
+    },
+    {
+      "name": "Schema",
+      "id": 2147473652,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "version",
+          "type": { "type": "enum", "enum": "SchemaLanguageVersion", "storage": "fixed", "nullable": false },
+          "comment": "(Optional) SDL language version."
+        },
+        {
+          "path": "type",
+          "type": { "type": "enum", "enum": "TypeKind", "storage": "fixed", "nullable": false },
+          "comment": "(Required) Type of the schema element."
+        },
+        {
+          "path": "id",
+          "type": { "type": "int32", "apitype": "SchemaId", "storage": "fixed", "nullable": false },
+          "comment": "(Required) Globally unique id of the schema.",
+          "apiname": "SchemaId"
+        },
+        {
+          "path": "name",
+          "type": { "type": "utf8", "storage": "variable" },
+          "comment": "(Optional) Name of the schema."
+        },
+        {
+          "path": "comment",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "(Optional) Comment field describing the schema."
+        },
+        {
+          "path": "options",
+          "type": {
+            "type": "schema",
+            "name": "SchemaOptions",
+            "id": 2147473653
+          },
+          "comment": "(Optional) Schema options."
+        },
+        {
+          "path": "partitionKeys",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "PartitionKey",
+              "id": 2147473654,
+              "nullable": false
+            }
+          },
+          "comment": "(Optional) List of zero or more logical paths that form the partition key."
+        },
+        {
+          "path": "primaryKeys",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "PrimarySortKey",
+              "id": 2147473655,
+              "nullable": false
+            }
+          },
+          "comment": "(Optional) List of zero or more logical paths that form the primary sort key."
+        },
+        {
+          "path": "staticKeys",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "StaticKey",
+              "id": 2147473656,
+              "nullable": false
+            }
+          },
+          "comment":
+            "(Optional) List of zero or more logical paths that hold data shared by all documents that have the same partition key."
+        },
+        {
+          "path": "properties",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "Property",
+              "id": 2147473657,
+              "nullable": false
+            }
+          },
+          "comment": "(Optional) List of zero or more property definitions that define the columns within the schema."
+        },
+        {
+          "path": "baseName",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "The name of the schema this schema derives from."
+        },
+        {
+          "path": "baseId",
+          "type": { "type": "int32", "apitype": "SchemaId", "storage": "sparse" },
+          "comment": "The unique identifier of the schema this schema derives from.",
+          "apiname": "BaseSchemaId"
+        }
+      ]
+    },
+    {
+      "name": "SchemaOptions",
+      "comment": "Describes the set of options that apply to the entire schema and the way it is validated.",
+      "id": 2147473653,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "disallowUnschematized", "type": { "type": "bool", "storage": "sparse" } },
+        { "path": "enablePropertyLevelTimestamp", "type": { "type": "bool", "storage": "sparse" } },
+        { "path": "disableSystemPrefix", "type": { "type": "bool", "storage": "sparse" } },
+        {
+          "path": "abstract",
+          "type": { "type": "bool", "storage": "sparse" },
+          "comment": "If true then instances of this schema cannot be created directly, only through subtypes."
+        }
+      ]
+    },
+    {
+      "name": "PartitionKey",
+      "id": 2147473654,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "path", "type": { "type": "utf8", "storage": "variable" } }
+      ]
+    },
+    {
+      "name": "PrimarySortKey",
+      "id": 2147473655,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "path", "type": { "type": "utf8", "storage": "variable" } },
+        {
+          "path": "direction",
+          "type": { "type": "enum", "enum": "SortDirection", "storage": "fixed", "nullable": false }
+        }
+      ]
+    },
+    {
+      "name": "StaticKey",
+      "id": 2147473656,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "path", "type": { "type": "utf8", "storage": "variable" } }
+      ]
+    },
+    {
+      "name": "Property",
+      "id": 2147473657,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "path", "type": { "type": "utf8", "storage": "variable" } },
+        { "path": "comment", "type": { "type": "utf8", "storage": "sparse" } },
+        {
+          "path": "type",
+          "type": {
+            "type": "schema",
+            "name": "PropertyType",
+            "id": 2147473658
+          },
+          "comment":
+            "The type of the property. This field is polymorphic and may contain any defined subtype of PropertyType.",
+          "apiname": "PropertyType"
+        },
+        { "path": "apiname", "type": { "type": "utf8", "storage": "sparse" }, "apiname": "ApiName" },
+        { "path": "allowEmpty", "type": { "type": "enum", "enum": "AllowEmptyKind" }, "allowEmpty": "both" }
+      ]
+    },
+    {
+      "name": "PropertyType",
+      "id": 2147473658,
+      "type": "schema",
+      "options": { "disallowUnschematized": true, "abstract": true },
+      "properties": [
+        { "path": "apitype", "type": { "type": "utf8", "storage": "variable" }, "apiname": "ApiType" },
+        { "path": "type", "type": { "type": "enum", "enum": "TypeKind", "storage": "fixed", "nullable": false } },
+        { "path": "nullable", "type": { "type": "bool", "storage": "fixed", "nullable": false } }
+      ]
+    },
+    {
+      "name": "PrimitivePropertyType",
+      "id": 2147473659,
+      "baseName": "PropertyType",
+      "baseId": 2147473658,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "length", "type": { "type": "int32", "storage": "fixed", "nullable": false } },
+        { "path": "storage", "type": { "type": "enum", "enum": "StorageKind", "storage": "fixed", "nullable": false } },
+        { "path": "enum", "type": { "type": "utf8", "storage": "sparse" }, "allowEmpty": "emptyAsNull" },
+        { "path": "rowBufferSize", "type": { "type": "bool", "storage": "sparse" } }
+      ]
+    },
+    {
+      "name": "ScopePropertyType",
+      "id": 2147473660,
+      "baseName": "PropertyType",
+      "baseId": 2147473658,
+      "type": "schema",
+      "options": { "disallowUnschematized": true, "abstract": true },
+      "properties": [
+        { "path": "immutable", "type": { "type": "bool", "storage": "fixed", "nullable": false } }
+      ]
+    },
+    {
+      "name": "ArrayPropertyType",
+      "id": 2147473661,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "items",
+          "type": {
+            "type": "schema",
+            "name": "PropertyType",
+            "id": 2147473658
+          },
+          "comment":
+            "The type of the property. This field is polymorphic and may contain any defined subtype of PropertyType."
+        }
+      ]
+    },
+    {
+      "name": "ObjectPropertyType",
+      "id": 2147473662,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "properties",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "Property",
+              "id": 2147473657,
+              "nullable": false
+            }
+          },
+          "comment": "(Optional) List of zero or more property definitions that define the columns within the schema."
+        }
+      ]
+    },
+    {
+      "name": "UdtPropertyType",
+      "id": 2147473663,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        { "path": "name", "type": { "type": "utf8", "storage": "variable" } },
+        {
+          "path": "id",
+          "type": { "type": "int32", "apitype": "SchemaId", "storage": "fixed", "nullable": false },
+          "apiname": "SchemaId"
+        }
+      ]
+    },
+    {
+      "name": "SetPropertyType",
+      "id": 2147473664,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "items",
+          "type": {
+            "type": "schema",
+            "name": "PropertyType",
+            "id": 2147473658
+          },
+          "comment":
+            "The type of the property. This field is polymorphic and may contain any defined subtype of PropertyType."
+        }
+      ]
+    },
+    {
+      "name": "MapPropertyType",
+      "id": 2147473665,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "keys",
+          "type": {
+            "type": "schema",
+            "name": "PropertyType",
+            "id": 2147473658
+          },
+          "comment":
+            "The type of the property. This field is polymorphic and may contain any defined subtype of PropertyType."
+        },
+        {
+          "path": "values",
+          "type": {
+            "type": "schema",
+            "name": "PropertyType",
+            "id": 2147473658
+          },
+          "comment":
+            "The type of the property. This field is polymorphic and may contain any defined subtype of PropertyType."
+        }
+      ]
+    },
+    {
+      "name": "TuplePropertyType",
+      "id": 2147473666,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "items",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "PropertyType",
+              "id": 2147473658,
+              "nullable": false
+            }
+          },
+          "comment":
+            "The type of the properties. This field is polymorphic and may contain any defined subtype of PropertyType."
+        }
+      ]
+    },
+    {
+      "name": "TaggedPropertyType",
+      "id": 2147473667,
+      "baseName": "ScopePropertyType",
+      "baseId": 2147473660,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "items",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "PropertyType",
+              "id": 2147473658,
+              "nullable": false
+            }
+          },
+          "comment":
+            "The type of the properties. This field is polymorphic and may contain any defined subtype of PropertyType."
+        }
+      ]
+    },
+    {
+      "name": "EnumSchema",
+      "id": 2147473668,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "type",
+          "type": { "type": "enum", "enum": "TypeKind", "storage": "fixed", "nullable": false },
+          "comment": "(Required) Type of the schema element."
+        },
+        {
+          "path": "name",
+          "type": { "type": "utf8", "storage": "variable" },
+          "comment": "(Optional) Name of the schema."
+        },
+        {
+          "path": "comment",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "(Optional) Comment field describing the schema."
+        },
+        {
+          "path": "apitype",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "Api-specific type annotations for the property.",
+          "apiname": "ApiType"
+        },
+        {
+          "path": "values",
+          "allowEmpty": "both",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "schema",
+              "name": "EnumValue",
+              "id": 2147473669,
+              "nullable": false
+            }
+          },
+          "comment": "(Optional) List of zero or more values."
+        }
+      ]
+    },
+    {
+      "name": "EnumValue",
+      "id": 2147473669,
+      "type": "schema",
+      "options": { "disallowUnschematized": true },
+      "properties": [
+        {
+          "path": "name",
+          "type": { "type": "utf8", "storage": "variable" },
+          "comment": "(Optional) Name of the schema."
+        },
+        {
+          "path": "value",
+          "type": { "type": "int64", "storage": "fixed" },
+          "comment":
+            "The numerical value of the enum value."
+        },
+        {
+          "path": "comment",
+          "type": { "type": "utf8", "storage": "sparse" },
+          "comment": "(Optional) Comment field describing the schema."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <!-- Add HybridRow targets to the build steps. -->
+    <CoreCompileDependsOn>
+      ConfigCLIProps;
+      CreateSchemaGen;
+      GenerateCSharpSchema;
+      ConvertSchema;
+      $(CoreCompileDependsOn);
+    </CoreCompileDependsOn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Make changes to Schema items cause VS to invalidate project state and rebuild. -->
+    <UpToDateCheckInput Include="@(Schema)" />
+  </ItemGroup>
+
+  <!--
+  This target defines the appropriate path for the CLI tool.  This version of the tool is then used as a defined
+  $(Input) to the code generation targets below to ensure that code is regenerated if the tool has changed even
+  if the inputs to the tool have not.
+  -->
+  <Target Name="ConfigCLIProps">
+    <PropertyGroup>
+      <CLI>$(MSBuildThisFileDirectory)..\..\tools\Microsoft.Azure.Cosmos.Serialization.HybridRowCLI.exe</CLI>
+    </PropertyGroup>
+  </Target>
+
+  <!--
+  When included in a Schema project, compiles JSON schema files into HRSCHEMA binary metadata files.
+  -->
+  <Target Name="ConvertSchema"
+          AfterTargets="ConfigCLIProps"
+          DependsOnTargets="ConfigCLIProps"
+          Inputs="$(CLI);%(Schema.FullPath)"
+          Outputs="$([System.IO.Path]::GetFullPath($(OutDir)$(SchemaOutputDirectory)\%(Schema.Filename).hrschema))"
+          Condition="@(Schema) != ''"
+          >
+    <MakeDir Directories="$(OutDir)$(SchemaOutputDirectory)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+          WorkingDirectory="$(OutDir)"
+          LogStandardErrorAsError="true"
+          Command="$(CLI) convertschema &quot;%(Schema.FullPath)&quot; &quot;$([System.IO.Path]::GetFullPath($(OutDir)$(SchemaOutputDirectory)\%(Schema.Filename).hrschema))&quot; hrschema" />
+  </Target>
+
+  <!--
+  When included in a Schema project, deletes generated HRSCHEMA binary metadata files during a clean operation.
+  -->
+  <Target Name="CleanSchema"
+          AfterTargets="Clean"
+          DependsOnTargets="Clean"
+          Condition="@(Schema) != ''"
+  >
+    <Delete Files="$([System.IO.Path]::GetFullPath($(OutDir)$(SchemaOutputDirectory)\%(Schema.Filename).hrschema))" />
+  </Target>
+
+  <!--
+  When included in a Schema project, creates SchemaGenCs items to driven C# codegen.
+  -->
+  <Target Name="CreateSchemaGen" 
+          Condition="@(Schema) != ''"
+  >
+    <ItemGroup>
+      <SchemaGenCs Include="%(Schema.Identity)" Condition="%(Schema.GenCs) != ''" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+  When included in a Schema project, performs C# codegen on JSON schema files.
+  -->
+  <Target Name="GenerateCSharpSchema"
+          DependsOnTargets="_GenerateCSharpSchema"
+          Condition="@(SchemaGenCs) != ''"
+  >
+    <ItemGroup>
+      <Compile Include="$([System.IO.Path]::GetFullPath($(IntermediateOutputPath)$(GeneratedCodeOutputDirectory)\%(SchemaGenCs.Filename).generated.cs))" />
+      <FileWrites Include="$([System.IO.Path]::GetFullPath($(IntermediateOutputPath)$(GeneratedCodeOutputDirectory)\%(SchemaGenCs.Filename).generated.cs))" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+  When included in a Schema project, performs C# codegen on JSON schema files.
+  -->
+  <Target Name="_GenerateCSharpSchema"
+          DependsOnTargets="ConfigCLIProps"
+          Inputs="$(CLI);%(SchemaGenCs.FullPath)"
+          Outputs="$([System.IO.Path]::GetFullPath($(IntermediateOutputPath)$(GeneratedCodeOutputDirectory)\%(SchemaGenCs.Filename).generated.cs))"
+  >
+    <MakeDir Directories="$(IntermediateOutputPath)$(GeneratedCodeOutputDirectory)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+          WorkingDirectory="$(IntermediateOutputPath)$(GeneratedCodeOutputDirectory)"
+          LogStandardErrorAsError="true"
+          Command="$(CLI) gencs -o &quot;$([System.IO.Path]::GetFullPath($(IntermediateOutputPath)$(GeneratedCodeOutputDirectory)\%(SchemaGenCs.Filename).generated.cs))&quot; &quot;%(SchemaGenCs.FullPath)&quot;" />
+  </Target>
+
+  <!--
+  Binplaces Schema items to the output directory as content.
+  
+  $(SchemaOutputDirectory): Configures the output directory to binplace to.
+  -->
+  <Target Name="BinplaceJsonSchema"
+          BeforeTargets="BeforeBuild"
+          Condition="@(Schema) != '' and '$(IncludeJsonSchema)' == 'true'">
+    <CreateItem
+      Include="%(Schema.FullPath)"
+      AdditionalMetadata="CopyToOutputDirectory=PreserveNewest;Link=$(SchemaOutputDirectory)\%(Schema.Filename)%(Schema.Extension)">
+      <Output
+        TaskParameter="Include"
+        ItemName="Content"/>
+    </CreateItem>  
+  </Target>
+</Project>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Microsoft.Azure.Cosmos.Serialization.HybridRowStress</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Cosmos.Serialization.HybridRowStress</AssemblyName>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2"/>
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core\Microsoft.Azure.Cosmos.Core.csproj" />
+    <ProjectReference Include="..\HybridRow\Microsoft.Azure.Cosmos.Serialization.HybridRow.csproj" />
+    <ProjectReference Include="..\HybridRowGenerator\Microsoft.Azure.Cosmos.Serialization.HybridRowGenerator.csproj" />
+  </ItemGroup>
+</Project>

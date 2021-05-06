@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="RowBuffer.cpp" />
+    <ClCompile Include="LayoutColumn.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="Layout.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeArgument.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="LayoutType.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeArgumentList.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="StringTokenizer.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="RowCursor.cpp" />
+    <ClCompile Include="Guid.cpp">
+      <Filter>Scalars</Filter>
+    </ClCompile>
+    <ClCompile Include="MongoDbObjectId.cpp">
+      <Filter>Scalars</Filter>
+    </ClCompile>
+    <ClCompile Include="LayoutBuilder.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="LayoutCompiler.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="RowReader.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="RowWriter.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Namespace.cpp">
+      <Filter>Schemas</Filter>
+    </ClCompile>
+    <ClCompile Include="Schema.cpp">
+      <Filter>Schemas</Filter>
+    </ClCompile>
+    <ClCompile Include="LayoutResolverNamespace.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemSchema.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordIOFormatter.cpp">
+      <Filter>RecordIO</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordIOParser.cpp">
+      <Filter>RecordIO</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ISpanResizer.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="RowBuffer.h" />
+    <ClInclude Include="LayoutResolver.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="HybridRowHeader.h" />
+    <ClInclude Include="HybridRowVersion.h" />
+    <ClInclude Include="LayoutCode.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutColumn.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="Layout.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="StorageKind.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeArgument.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutType.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeArgumentList.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutBit.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutCodeTraits.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="SamplingUtf8StringComparer.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="StringTokenizer.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="HybridRow.Native.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="Schema.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="SchemaId.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="SchemaLanguageVersion.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="SchemaOptions.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeKind.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="Property.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimarySortKey.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="PartitionKey.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="SortDirection.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticKey.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="Namespace.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="UdtPropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="TuplePropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="TaggedPropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="SetPropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopePropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimitivePropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectPropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="MapPropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrayPropertyType.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="RowCursor.h" />
+    <ClInclude Include="Result.h" />
+    <ClInclude Include="RowOptions.h" />
+    <ClInclude Include="Float128.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="Decimal.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="DateTime.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="UnixDateTime.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="Guid.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="MongoDbObjectId.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="NullValue.h">
+      <Filter>Scalars</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdateOptions.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutBuilder.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutCompiler.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyKind.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="RowReader.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="RowWriter.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IHybridRowSerializer.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="AllowEmptyKind.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumSchema.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumValue.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="MemorySpanResizer.h" />
+    <ClInclude Include="LayoutResolverNamespace.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemSchema.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemSchemaLiteral.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="TypedArrayHybridRowSerializer.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrayHybridRowSerializer.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimitiveHybridRowSerializer.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="NullableHybridRowSerializer.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="TypedTupleHybridRowSerializer.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="Segment.h">
+      <Filter>RecordIO</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordIOFormatter.h">
+      <Filter>RecordIO</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordIOParser.h">
+      <Filter>RecordIO</Filter>
+    </ClInclude>
+    <ClInclude Include="TypedMapHybridRowSerializer.h">
+      <Filter>Schemas</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Layouts">
+      <UniqueIdentifier>{76203f3c-5cd4-446f-96ec-15092eaec523}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Schemas">
+      <UniqueIdentifier>{8c7a2985-33b9-41f9-8e05-94b996ccec0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scalars">
+      <UniqueIdentifier>{39967b35-79dc-4b38-b32f-63b700f28630}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{fa535215-bc4c-447a-a95a-cb99c42bee8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{2a643526-2db3-45dc-aba8-230b152dc26a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RecordIO">
+      <UniqueIdentifier>{27651037-e785-4e32-b0ba-3c5617a2d9f1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LayoutType.inl">
+      <Filter>Layouts</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="HybridRow.Native.natvis" />
+  </ItemGroup>
+</Project>
