@@ -1,0 +1,9 @@
+﻿<Project>
+  <ItemGroup>
+    <Schema Include="$(MSBuildThisFileDirectory)*.json" />
+    <!--
+    <Schema Include="$(MSBuildThisFileDirectory)TagSchema.json" GenCs="true" />
+    <Schema Include="$(MSBuildThisFileDirectory)PerfCounterSchema.json" GenCs="true" />
+    -->
+  </ItemGroup>
+</Project>

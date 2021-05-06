@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.Azure.Cosmos.Serialization.HybridRow.Tests.Unit</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Cosmos.Serialization.HybridRow.Tests.Unit</AssemblyName>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <SchemaOutputDirectory>TestData</SchemaOutputDirectory>
+    <IncludeJsonSchema>true</IncludeJsonSchema>
+    <GeneratedCodeOutputDirectory>Generated</GeneratedCodeOutputDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Include="Microsoft.HybridRow.Tools" Version="1.1.0-preview1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HybridRow\Microsoft.Azure.Cosmos.Serialization.HybridRow.csproj" />
+    <ProjectReference Include="..\HybridRowGenerator\Microsoft.Azure.Cosmos.Serialization.HybridRowGenerator.csproj" />
+    <ProjectReference Include="..\..\Core\Core\Microsoft.Azure.Cosmos.Core.csproj" />
+  </ItemGroup>
+  
+  <Import Project="..\HybridRow.Tests.Schema\HybridRow.Tests.Schema.props" />
+
+  <ItemGroup>
+    <None Include="TestData\CrossVersioningExpected.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
+  </ItemGroup>
+</Project>

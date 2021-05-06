@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <!--
+    A relative directory off $(OutDir) into which generated schema files should be binplaced.
+    If left empty then generated schema files are binplaced directly into the $(OutDir).
+    -->
+    <SchemaOutputDirectory></SchemaOutputDirectory>
+
+    <!--
+    If true then JSON schema files are also binplaced.
+    -->
+    <IncludeJsonSchema>false</IncludeJsonSchema>
+
+    <!--
+    A relative directory off $(IntermediateOutputPath) into which generated code files should be placed.
+    If left empty then generated code files are placed directly into the $(IntermediateOutputPath).
+    -->
+    <GeneratedCodeOutputDirectory></GeneratedCodeOutputDirectory>
+
+  </PropertyGroup>
+
+</Project>

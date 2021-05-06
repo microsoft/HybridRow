@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{D02FD209-EFF3-4D3F-B98E-E1BF9A1DD894}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>HybridRowNative</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PreprocessToFile>false</PreprocessToFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AllowEmptyKind.h" />
+    <ClInclude Include="ArrayHybridRowSerializer.h" />
+    <ClInclude Include="ArrayPropertyType.h" />
+    <ClInclude Include="DateTime.h" />
+    <ClInclude Include="Decimal.h" />
+    <ClInclude Include="EnumSchema.h" />
+    <ClInclude Include="EnumValue.h" />
+    <ClInclude Include="Float128.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="Guid.h" />
+    <ClInclude Include="HybridRow.Native.h" />
+    <ClInclude Include="HybridRowHeader.h" />
+    <ClInclude Include="HybridRowVersion.h" />
+    <ClInclude Include="IHybridRowSerializer.h" />
+    <ClInclude Include="ISpanResizer.h" />
+    <ClInclude Include="Layout.h" />
+    <ClInclude Include="LayoutBit.h" />
+    <ClInclude Include="LayoutBuilder.h" />
+    <ClInclude Include="LayoutCode.h" />
+    <ClInclude Include="LayoutCodeTraits.h" />
+    <ClInclude Include="LayoutColumn.h" />
+    <ClInclude Include="LayoutCompiler.h" />
+    <ClInclude Include="LayoutResolver.h" />
+    <ClInclude Include="LayoutResolverNamespace.h" />
+    <ClInclude Include="LayoutType.h" />
+    <ClInclude Include="MapPropertyType.h" />
+    <ClInclude Include="MemorySpanResizer.h" />
+    <ClInclude Include="MongoDbObjectId.h" />
+    <ClInclude Include="Namespace.h" />
+    <ClInclude Include="NullableHybridRowSerializer.h" />
+    <ClInclude Include="NullValue.h" />
+    <ClInclude Include="ObjectPropertyType.h" />
+    <ClInclude Include="PartitionKey.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="PrimarySortKey.h" />
+    <ClInclude Include="PrimitiveHybridRowSerializer.h" />
+    <ClInclude Include="PrimitivePropertyType.h" />
+    <ClInclude Include="Property.h" />
+    <ClInclude Include="PropertyKind.h" />
+    <ClInclude Include="PropertyType.h" />
+    <ClInclude Include="RecordIOFormatter.h" />
+    <ClInclude Include="RecordIOParser.h" />
+    <ClInclude Include="Result.h" />
+    <ClInclude Include="RowBuffer.h" />
+    <ClInclude Include="RowCursor.h" />
+    <ClInclude Include="RowOptions.h" />
+    <ClInclude Include="RowReader.h" />
+    <ClInclude Include="RowWriter.h" />
+    <ClInclude Include="SamplingUtf8StringComparer.h" />
+    <ClInclude Include="Schema.h" />
+    <ClInclude Include="SchemaId.h" />
+    <ClInclude Include="SchemaLanguageVersion.h" />
+    <ClInclude Include="SchemaOptions.h" />
+    <ClInclude Include="ScopePropertyType.h" />
+    <ClInclude Include="Segment.h" />
+    <ClInclude Include="SetPropertyType.h" />
+    <ClInclude Include="SortDirection.h" />
+    <ClInclude Include="StaticKey.h" />
+    <ClInclude Include="StorageKind.h" />
+    <ClInclude Include="StringTokenizer.h" />
+    <ClInclude Include="SystemSchema.h" />
+    <ClInclude Include="SystemSchemaLiteral.h" />
+    <ClInclude Include="TaggedPropertyType.h" />
+    <ClInclude Include="TuplePropertyType.h" />
+    <ClInclude Include="TypeArgument.h" />
+    <ClInclude Include="TypeArgumentList.h" />
+    <ClInclude Include="TypedArrayHybridRowSerializer.h" />
+    <ClInclude Include="TypedMapHybridRowSerializer.h" />
+    <ClInclude Include="TypedTupleHybridRowSerializer.h" />
+    <ClInclude Include="TypeKind.h" />
+    <ClInclude Include="UdtPropertyType.h" />
+    <ClInclude Include="UnixDateTime.h" />
+    <ClInclude Include="UpdateOptions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Guid.cpp" />
+    <ClCompile Include="Layout.cpp" />
+    <ClCompile Include="LayoutBuilder.cpp" />
+    <ClCompile Include="LayoutColumn.cpp" />
+    <ClCompile Include="LayoutCompiler.cpp" />
+    <ClCompile Include="LayoutResolverNamespace.cpp" />
+    <ClCompile Include="LayoutType.cpp" />
+    <ClCompile Include="MongoDbObjectId.cpp" />
+    <ClCompile Include="Namespace.cpp" />
+    <ClCompile Include="RecordIOFormatter.cpp" />
+    <ClCompile Include="RecordIOParser.cpp" />
+    <ClCompile Include="RowBuffer.cpp" />
+    <ClCompile Include="RowCursor.cpp" />
+    <ClCompile Include="RowReader.cpp" />
+    <ClCompile Include="RowWriter.cpp" />
+    <ClCompile Include="Schema.cpp" />
+    <ClCompile Include="StringTokenizer.cpp" />
+    <ClCompile Include="SystemSchema.cpp" />
+    <ClCompile Include="TypeArgument.cpp" />
+    <ClCompile Include="TypeArgumentList.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core.Native\Microsoft.Azure.Cosmos.Core.Native.vcxproj">
+      <Project>{eaed7d41-3de6-4c41-a0e4-40d53ea3daba}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LayoutType.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="HybridRow.Native.natvis" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
