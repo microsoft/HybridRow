@@ -70,7 +70,7 @@ Licensed under the MIT License.
     <javadoc.opts/>
     <fastutil.version>8.3.0</fastutil.version>
     <guava.version>28.0-jre</guava.version>
-    <jackson.version>2.9.9</jackson.version>
+    <jackson.version>2.12.7.1</jackson.version>
     <mockito.version>1.10.19</mockito.version>
     <mongodb.version>3.11.0</mongodb.version>
     <netty.version>4.1.42.Final</netty.version>
